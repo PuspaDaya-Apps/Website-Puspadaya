@@ -2,16 +2,29 @@
 import React, { useEffect, useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
+import { Column, ColumnBodyOptions } from "primereact/column";
 import { IconSearch } from "@tabler/icons-react";
-import { SvgAdd, SvgEdit, SvgDelete } from "../ui/Svg";
+import { SvgAdd } from "../ui/Svg";
 import Modal from "../modal/modal";
 import ModalDelete from "../modal/modalDelete";
+import { Dropdown } from "primereact/dropdown";
+import { Puskesmas } from "@/types/puskesmas";
+import { IconPencil, IconTrash } from "@tabler/icons-react";
 import {
   CascadeSelect,
   CascadeSelectChangeEvent,
 } from "primereact/cascadeselect";
-import { Puskesmas } from "@/types/puskesmas";
+
+interface LocationOption {
+  name: string;
+  code: string;
+}
+
+interface KecamatanOption {
+  name: string;
+  code: string;
+  kabupaten: string;
+}
 
 interface City {
   cname: string;
@@ -44,9 +57,26 @@ const TablePuskesmas: React.FC = () => {
   const [selectedPuskesmas, setselectedPuskesmas] = useState<Puskesmas | null>(
     null,
   );
-  const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [formData, setFormData] = useState<Puskesmas>(initialState);
   const [puskesmas, setPuskesmas] = useState<Puskesmas[]>([]);
+  const [selectedKabupaten, setSelectedKabupaten] =
+    useState<LocationOption | null>(null);
+  const [selectedKecamatan, setSelectedKecamatan] =
+    useState<LocationOption | null>(null);
+  const [selectedCity, setSelectedCity] = useState<City | null>(null);
+
+  const kabupatenOptions: LocationOption[] = [
+    { name: "Banyuwangi", code: "BWI" },
+    { name: "Maluku", code: "MLK" },
+  ];
+
+  const kecamatanOptions: KecamatanOption[] = [
+    { name: "Kabat", code: "KBT", kabupaten: "BWI" },
+    { name: "Rogojampi", code: "RGJ", kabupaten: "BWI" },
+    { name: "Glagah", code: "GLG", kabupaten: "BWI" },
+    { name: "Ambon", code: "AMB", kabupaten: "MLK" },
+    { name: "Tual", code: "TUL", kabupaten: "MLK" },
+  ];
 
   const countries: Country[] = [
     {
@@ -88,32 +118,32 @@ const TablePuskesmas: React.FC = () => {
     {
       id: 1,
       nama: "Puskesmas Suka Sehat",
-      kecamatan: "Suka Maju",
+      kecamatan: "Kabat",
       kabupaten: "Banyuwangi",
     },
     {
       id: 2,
       nama: "Puskesmas Sentosa",
-      kecamatan: "Aman Jaya",
+      kecamatan: "Rogojampi",
       kabupaten: "Banyuwangi",
     },
     {
       id: 3,
       nama: "Puskesmas Mulia Bersama",
-      kecamatan: "Sumber Makmur",
+      kecamatan: "Glagah",
       kabupaten: "Banyuwangi",
     },
     {
       id: 4,
       nama: "Puskesmas Harapan Kita",
-      kecamatan: "Luhur Mulyo",
-      kabupaten: "Banyuwangi",
+      kecamatan: "Ambon",
+      kabupaten: "Maluku",
     },
     {
       id: 5,
       nama: "Puskesmas Sehat Makmur",
-      kecamatan: "Karya Bakti",
-      kabupaten: "Banyuwangi",
+      kecamatan: "Tual",
+      kabupaten: "Maluku",
     },
   ];
 
@@ -125,6 +155,8 @@ const TablePuskesmas: React.FC = () => {
     setFormData(initialState);
     setIsEditMode(false);
     setselectedPuskesmas(null);
+    setSelectedKabupaten(null);
+    setSelectedKecamatan(null);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,9 +164,28 @@ const TablePuskesmas: React.FC = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleKabupatenChange = (option: LocationOption | null) => {
+    setSelectedKabupaten(option);
+    setSelectedKecamatan(null);
+    if (option) {
+      setFormData({ ...formData, kabupaten: option.name, kecamatan: "" });
+    }
+  };
+
+  const handleKecamatanChange = (option: LocationOption | null) => {
+    setSelectedKecamatan(option);
+    if (option) {
+      setFormData({ ...formData, kecamatan: option.name });
+    }
+  };
+
+  const filteredKecamatan = kecamatanOptions.filter(
+    (kec) => selectedKabupaten && kec.kabupaten === selectedKabupaten.code,
+  );
+
   const handleAddOrUpdateData = () => {
     if (!formData.nama || !formData.kecamatan || !formData.kabupaten) {
-      alert("Input Yang Benar");
+      alert("Semua field harus diisi!");
       return;
     }
 
@@ -160,6 +211,13 @@ const TablePuskesmas: React.FC = () => {
     setIsEditMode(true);
     setselectedPuskesmas(data);
     setFormData(data);
+
+    const kabupaten = kabupatenOptions.find((k) => k.name === data.kabupaten);
+    setSelectedKabupaten(kabupaten || null);
+
+    const kecamatan = kecamatanOptions.find((k) => k.name === data.kecamatan);
+    setSelectedKecamatan(kecamatan || null);
+
     setIsModalVisible(true);
   };
 
@@ -173,6 +231,7 @@ const TablePuskesmas: React.FC = () => {
       setPuskesmas(
         puskesmas.filter((item) => item.id !== selectedPuskesmas.id),
       );
+      setIsDeleteModalVisible(false);
       setselectedPuskesmas(null);
     }
   };
@@ -227,10 +286,13 @@ const TablePuskesmas: React.FC = () => {
   const actionTemplate = (data: Puskesmas) => (
     <div className="flex items-center gap-2">
       <div className="cursor-pointer" onClick={() => handleEdit(data)}>
-        <SvgEdit />
+        <IconPencil style={{ color: "purple", cursor: "pointer" }} />
       </div>
-      <div className="cursor-pointer" onClick={() => handleDelete(data)}>
-        <SvgDelete />
+      <div className="cursor-pointer">
+        <IconTrash
+          onClick={() => handleDelete(data)}
+          style={{ color: "red", cursor: "pointer" }}
+        />
       </div>
     </div>
   );
@@ -253,6 +315,10 @@ const TablePuskesmas: React.FC = () => {
     </>
   );
 
+  const indexTemplate = (data: any, options: ColumnBodyOptions) => {
+    return <span className="text-center">{options.rowIndex + 1}</span>;
+  };
+
   return (
     <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark dark:shadow-card sm:p-7.5">
       <div className="max-w-full overflow-x-auto">
@@ -265,15 +331,15 @@ const TablePuskesmas: React.FC = () => {
           header={header}
           globalFilter={globalFilter}
           globalFilterFields={["nama", "kecamatan", "kabupaten"]}
+          stripedRows
         >
           <Column
             header="No"
-            field="id"
             headerStyle={{ height: "54px", width: "4rem" }}
+            body={indexTemplate}
             headerClassName="bg-[#F7F9FC] text-black rounded-l-lg"
             className="text-center"
           />
-
           <Column
             field="nama"
             header="Nama Puskesmas"
@@ -281,7 +347,6 @@ const TablePuskesmas: React.FC = () => {
             headerClassName="bg-[#F7F9FC] text-black"
             style={{ minWidth: "10rem" }}
           />
-
           <Column
             field="kecamatan"
             header="Kecamatan"
@@ -289,7 +354,6 @@ const TablePuskesmas: React.FC = () => {
             headerClassName="bg-[#F7F9FC] text-black"
             style={{ minWidth: "10rem" }}
           />
-
           <Column
             field="kabupaten"
             header="Kabupaten"
@@ -297,7 +361,6 @@ const TablePuskesmas: React.FC = () => {
             headerClassName="bg-[#F7F9FC] text-black"
             style={{ minWidth: "10rem" }}
           />
-
           <Column
             header="Aksi"
             headerClassName="bg-[#F7F9FC] text-black rounded-r-lg text-center"
@@ -340,13 +403,13 @@ const TablePuskesmas: React.FC = () => {
             >
               Kabupaten
             </label>
-            <InputText
-              value={formData.kabupaten}
-              onChange={handleInputChange}
-              id="kabupaten"
-              name="kabupaten"
-              className="w-full rounded-md border border-gray-300 p-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-              placeholder="Masukkan Kabupaten"
+            <Dropdown
+              value={selectedKabupaten}
+              onChange={(e) => handleKabupatenChange(e.value)}
+              options={kabupatenOptions}
+              optionLabel="name"
+              placeholder="Pilih Kabupaten"
+              className="w-full"
             />
           </div>
           <div className="mb-4">
@@ -356,13 +419,14 @@ const TablePuskesmas: React.FC = () => {
             >
               Kecamatan
             </label>
-            <InputText
-              value={formData.kecamatan}
-              onChange={handleInputChange}
-              id="kecamatan"
-              name="kecamatan"
-              className="w-full rounded-md border border-gray-300 p-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-              placeholder="Masukkan Kecamatan"
+            <Dropdown
+              value={selectedKecamatan}
+              onChange={(e) => handleKecamatanChange(e.value)}
+              options={filteredKecamatan}
+              optionLabel="name"
+              placeholder="Pilih Kecamatan"
+              className="w-full"
+              disabled={!selectedKabupaten}
             />
           </div>
         </div>
@@ -372,7 +436,7 @@ const TablePuskesmas: React.FC = () => {
         visible={isDeleteModalVisible}
         onHide={() => setIsDeleteModalVisible(false)}
         onConfirm={confirmDelete}
-        headerTitle="Hapus Jadwal Posyandu"
+        headerTitle="Hapus Data Puskesmas"
       >
         {deleteModalContent}
       </ModalDelete>

@@ -1,17 +1,17 @@
 import React from "react";
 import { Metadata } from "next";
-import TableRekapBumil from "@/components/Tables/TableRekapBumil";
+import TableAnggota from "@/components/Tables/TableAnggota";
 
 export const metadata: Metadata = {
-  title: "Rekap Data Pengukuran Ibu Hamil",
-  description: "Rekap Data Pengukuran Ibu Hamil Page",
+  title: "Data Anggota",
+  description: "Data Anggota Page",
 };
 
 const Page = () => {
   return (
     <>
       <div className="container mx-auto">
-        <TableRekapBumil />
+        <TableAnggota />
       </div>
     </>
   );

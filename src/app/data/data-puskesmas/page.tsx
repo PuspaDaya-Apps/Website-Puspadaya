@@ -1,4 +1,3 @@
-import TableOrangTua from "@/components/Tables/TableOrangTua";
 import TablePuskesmas from "@/components/Tables/TablePuskesmas";
 import { Metadata } from "next";
 

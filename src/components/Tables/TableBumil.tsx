@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import ButtonLink from "../ui/ButtonLink";
 import { Bumil } from "@/types/bumil";
 import { DataTable } from "primereact/datatable";
 import { Column, ColumnBodyOptions } from "primereact/column";
@@ -18,6 +17,7 @@ import {
 import "./style.css";
 import Link from "next/link";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { SvgAdd } from "../ui/Svg";
 
 interface City {
   cname: string;
@@ -76,7 +76,12 @@ const TableBumil = () => {
 
   const header = (
     <div className="mb-1 flex flex-col md:flex-row md:items-center md:justify-between">
-      <h2 className="pb-1 text-2xl font-bold text-black">Data Ibu Hamil</h2>
+      <div>
+        <h2 className="pb-1 text-2xl font-bold text-black">Data Ibu Hamil</h2>
+        <p className="text-normal font-normal text-gray-500">
+          Digunakan untuk menampilkan data Ibu Hamil
+        </p>
+      </div>
       <div className="mt-2 flex items-center justify-end space-x-4 md:mt-0">
         <span className="relative flex items-center">
           <IconSearch className="absolute left-3 text-gray-500" />
@@ -103,25 +108,12 @@ const TableBumil = () => {
             style={{ minWidth: "14rem" }}
           />
         </div>
-        <ButtonLink
+        <Link
           href={`/data-keluarga/data-bumil/create`}
-          className="h-11 bg-[#486284] hover:bg-[#405672] focus-visible:ring-[#405672]"
+          className="flex cursor-pointer items-center justify-center rounded-md border p-[10px]"
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M11.4286 1.42857C11.4286 0.639593 10.789 0 10 0C9.21103 0 8.57143 0.639593 8.57143 1.42857V8.57143H1.42857C0.639593 8.57143 0 9.21103 0 10C0 10.789 0.639593 11.4286 1.42857 11.4286H8.57143V18.5714C8.57143 19.3604 9.21103 20 10 20C10.789 20 11.4286 19.3604 11.4286 18.5714V11.4286H18.5714C19.3604 11.4286 20 10.789 20 10C20 9.21103 19.3604 8.57143 18.5714 8.57143H11.4286V1.42857Z"
-              fill="#fff"
-            />
-          </svg>
-        </ButtonLink>
+          <SvgAdd />
+        </Link>
       </div>
     </div>
   );

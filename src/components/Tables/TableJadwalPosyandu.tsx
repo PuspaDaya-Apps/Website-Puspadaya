@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { IconSearch, IconClock } from "@tabler/icons-react";
+import { IconSearch} from "@tabler/icons-react";
 import { Posyandu } from "@/types/posyandu";
 import { SvgAdd, SvgEdit, SvgDelete } from "../ui/Svg";
 import Modal from "../modal/modal";
@@ -18,6 +18,7 @@ const TableJadwalPosyandu: React.FC = () => {
   const [selectedPosyandu, setSelectedPosyandu] = useState<Posyandu | null>(
     null,
   );
+  const [ChangeWaktu, setChangeWaktu] = useState(true)
 
   // State for form inputs
   const [formData, setFormData] = useState<Posyandu>({
@@ -282,10 +283,16 @@ const TableJadwalPosyandu: React.FC = () => {
                 onChange={(e) =>
                   handleDateChange(e.value as Date, "waktuMulai")
                 }
+                onBlur={() => {
+                  if (formData.waktuMulai && formData.tanggalPelaksanaan) {
+                    setChangeWaktu(false); // Hanya aktifkan input waktuSelesai jika waktuMulai sudah terisi
+                  }
+                }}
                 timeOnly
                 showIcon
                 hourFormat="24"
                 className="w-full"
+                disabled={!formData.tanggalPelaksanaan}
               />
               {/* <IconClock className="absolute right-2 top-9 text-gray-500" /> */}
             </div>
@@ -299,10 +306,12 @@ const TableJadwalPosyandu: React.FC = () => {
                 onChange={(e) =>
                   handleDateChange(e.value as Date, "waktuSelesai")
                 }
+               
                 timeOnly
                 showIcon
                 hourFormat="24"
                 className="w-full"
+                disabled={ChangeWaktu} // Atur berdasarkan state ChangeWaktu
               />
               {/* <IconClock className="absolute right-2 top-9 text-gray-500" /> */}
             </div>
