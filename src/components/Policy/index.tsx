@@ -1,8 +1,5 @@
 "use client";
-import { useState, ChangeEvent, FormEvent } from 'react';
-import Image from "next/image";
 import { Card } from 'primereact/card';
-import { IconPencil } from "@tabler/icons-react";
 
 const Policy = () => {
 

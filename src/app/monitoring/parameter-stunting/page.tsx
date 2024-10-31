@@ -1,6 +1,5 @@
-import React from "react";
-import { Metadata } from "next";
 import ParameterStunting from "@/components/ParameterStunting/ParameterStunting";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Data Ibu Hamil",
@@ -11,10 +10,8 @@ const Page = () => {
   return (
     <>
       <div className="container mx-auto">
-        <div className="mb-4 flex items-center justify-between p-2">
           <div>
             <ParameterStunting />
-          </div>
         </div>
       </div>
     </>

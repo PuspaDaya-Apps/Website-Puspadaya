@@ -1,5 +1,4 @@
 
-import DefaultLayout from "@/components/Layouts/DefaultLaout";
 import Policy from "@/components/Policy";
 import { Metadata } from "next";
 
@@ -10,7 +9,6 @@ export const metadata: Metadata = {
 
 const Settings = () => {
   return (
-    <DefaultLayout>
       <div className="container mx-auto">
         <div className="mb-4">
           <div className="rounded-lg bg-white p-6 shadow-lg">
@@ -24,7 +22,7 @@ const Settings = () => {
         </div>
         <Policy />
       </div>
-    </DefaultLayout>
+  
   );
 };
 

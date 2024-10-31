@@ -1,4 +1,4 @@
-import TableMonitoringGizi from "@/components/Tables/TableMonitoringGizi";
+import TableMonitoringIbuHamil from "@/components/Tables/TableMonitoringIbuHamil";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ const TablesMonitoringGizi = () => {
   return (
     <>
       <div className="container mx-auto">
-        <TableMonitoringGizi />
+        <TableMonitoringIbuHamil />
       </div>
     </>
   );
