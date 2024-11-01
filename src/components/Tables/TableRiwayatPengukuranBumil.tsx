@@ -1,30 +1,20 @@
 "use client";
 import { RekapPengukuranBumil } from "@/types/rekapBumil";
-import {
-  IconEye,
-  IconPencil,
-  IconSearch,
-  IconTrash,
-} from "@tabler/icons-react";
-import Link from "next/link";
 import { Column, ColumnBodyOptions } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import { Dialog } from "primereact/dialog"; // Import Dialog
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import React, { useEffect, useRef, useState } from "react";
+import ButtonLink from "../ui/ButtonLink";
+import { SvgDetailOrangTua } from "../ui/Svg";
+import { IconSearch } from "@tabler/icons-react";
 
-const TableRekapBumil = () => {
+const TableRiwayatPengukuranBumil = () => {
   const [dataRekapBumil, setDataRekapBumil] = useState<RekapPengukuranBumil[]>(
     [],
   );
   const toast = useRef<Toast>(null);
   const [globalFilter, setGlobalFilter] = useState("");
-
-  const [selectedDataRekap, setSelectedDataRekap] =
-    useState<RekapPengukuranBumil | null>(null);
-  const [deleteProductDialog, setDeleteProductDialog] = useState(false);
-
   const dummyDataBumil: RekapPengukuranBumil[] = [
     {
       id: 1,
@@ -107,38 +97,17 @@ const TableRekapBumil = () => {
       : "bg-white h-12 text-base text-black rounded-lg";
   };
 
-  const confirmDeleteProduct = (rowData: RekapPengukuranBumil) => {
-    setSelectedDataRekap(rowData);
-    setDeleteProductDialog(true);
-  };
-
-  const deleteProduct = () => {
-    if (selectedDataRekap) {
-      setDataRekapBumil((prev) =>
-        prev.filter((item) => item.id !== selectedDataRekap.id),
-      );
-      toast.current?.show({
-        severity: "success",
-        summary: "Deleted",
-        detail: "Product deleted successfully",
-        life: 3000,
-      });
-    }
-    setDeleteProductDialog(false);
-  };
-
   const actionBodyTemplate = (rowData: RekapPengukuranBumil) => {
     return (
-      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-        <Link href={`/rekap/pengukuran-ibu-hamil/perbarui`} passHref>
-          <IconPencil style={{ color: "purple", cursor: "pointer" }} />
-        </Link>
-
-        <IconTrash
-          onClick={() => confirmDeleteProduct(rowData)}
-          style={{ color: "red", cursor: "pointer" }}
-        />
-      </div>
+      <ButtonLink
+        href={`/pemeriksaan/detail-pemeriksaan/`}
+        className="bg-[#486284] hover:bg-[#405672] focus-visible:ring-[#405672]"
+      >
+        <div className="flex items-center gap-1">
+          <SvgDetailOrangTua />
+          <span>Lihat Detail</span>
+        </div>
+      </ButtonLink>
     );
   };
 
@@ -150,10 +119,10 @@ const TableRekapBumil = () => {
     <div className="mb-1 flex flex-col md:flex-row md:items-center md:justify-between">
       <div>
         <h2 className="pb-1 text-2xl font-bold text-black">
-          Rekapitulasi Data Pengukuran Ibu Hamil
+          Riwayat Pengukuran Ibu Hamil
         </h2>
         <p className="text-normal font-normal text-gray-500">
-          Digunakan untuk menampilkan data Rekapitulasi pengukuran Ibu Hamil
+          Digunakan untuk menampilkan data pengukuran Ibu Hamil
         </p>
       </div>
       <div className="mt-2 flex items-center justify-end space-x-4 md:mt-0">
@@ -231,38 +200,8 @@ const TableRekapBumil = () => {
           </DataTable>
         </div>
       </div>
-
-      <Dialog
-        visible={deleteProductDialog}
-        header="Konfirmasi Hapus"
-        modal
-        onHide={() => setDeleteProductDialog(false)}
-        draggable={false}
-        className="max-w-md rounded-lg bg-white shadow-lg "
-      >
-        <div className="p-6">
-          <p className="text-lg font-medium">
-            Apakah Anda yakin ingin menghapus{" "}
-            <strong>{selectedDataRekap?.namaLengkap}</strong>?
-          </p>
-        </div>
-        <div className="flex justify-end rounded-b-lg  p-4">
-          <button
-            className="rounded-md bg-gray-300 px-4 py-2 text-gray-700 transition duration-300 ease-in-out hover:bg-gray-400"
-            onClick={() => setDeleteProductDialog(false)}
-          >
-            Batal
-          </button>
-          <button
-            className="ml-2 rounded-md bg-red-500 px-4 py-2 text-white transition duration-300 ease-in-out hover:bg-red-600"
-            onClick={deleteProduct}
-          >
-            Hapus
-          </button>
-        </div>
-      </Dialog>
     </div>
   );
 };
 
-export default TableRekapBumil;
+export default TableRiwayatPengukuranBumil;
