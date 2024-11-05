@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "",
 };
 
-const TablesPage = () => {
+const Page = () => {
   return (
     <div className="container mx-auto">
       <TableDaftarTamuIbuHamil />
@@ -16,4 +16,4 @@ const TablesPage = () => {
   );
 };
 
-export default TablesPage;
+export default Page;
