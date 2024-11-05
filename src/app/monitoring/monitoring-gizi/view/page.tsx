@@ -11,7 +11,8 @@ const Page: React.FC = () => {
             Detail Monitoring Gizi Balita
           </h2>
           <p className="text-sm font-light text-gray-500">
-            Untuk melihat informasi detail data Gizi Balita
+            Menampilkan informasi lengkap mengenai hasil status gizi dan tumbuh kembang balita
+
           </p>
         </div>
       </div>
