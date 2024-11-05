@@ -8,10 +8,10 @@ const Page: React.FC = () => {
       <div className="mb-4">
         <div className="rounded-lg bg-white p-6 shadow-lg">
           <h2 className="pb-1 text-2xl font-bold text-black">
-            Detail Riwayat Balita
+            Detail Monitoring Gizi Balita
           </h2>
           <p className="text-sm font-light text-gray-500">
-            Untuk melihat informasi detail data riwayat Balita
+            Untuk melihat informasi detail data Gizi Balita
           </p>
         </div>
       </div>

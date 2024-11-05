@@ -146,11 +146,11 @@ const TableArtikel: React.FC = () => {
       >
         {deleteModalContent}
       </ModalDelete>
-      <ImageUploadSingle file={selectedFile} onFileSelect={handleFileSelect} />
+      {/* <ImageUploadSingle file={selectedFile} onFileSelect={handleFileSelect} />
       <ImageUploadMultiple
         initialFiles={[]} // Pass any initial files if needed
         onFileSelect={(files) => console.log(files)} // Handle selected files
-      />
+      /> */}
     </div>
   );
 };
