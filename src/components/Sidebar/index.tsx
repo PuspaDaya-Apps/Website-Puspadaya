@@ -2,6 +2,7 @@
 import ClickOutside from "@/components/ClickOutside";
 import SidebarItem from "@/components/Sidebar/SidebarItem";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
@@ -15,7 +16,7 @@ const menuGroups = [
     menuItems: [
       {
         icon: (
-          <img
+          <Image
             src="/images/menus/dashboard.svg"
             alt=""
             width={16}
@@ -37,7 +38,7 @@ const menuGroups = [
 
       {
         icon: (
-          <img
+          <Image
             src="/images/menus/keluarga.svg"
             alt=""
             width={16}
@@ -50,7 +51,7 @@ const menuGroups = [
         children: [
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/orgtua.svg"
                 alt=""
                 width={14}
@@ -63,7 +64,7 @@ const menuGroups = [
           },
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/balita.svg"
                 alt=""
                 width={14}
@@ -77,7 +78,7 @@ const menuGroups = [
 
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/ibu-hamil.svg"
                 alt=""
                 width={14}
@@ -91,7 +92,7 @@ const menuGroups = [
 
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/puskesmas.svg"
                 alt=""
                 width={14}
@@ -105,7 +106,7 @@ const menuGroups = [
 
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/daftar-hadir.svg"
                 alt=""
                 width={14}
@@ -119,7 +120,7 @@ const menuGroups = [
 
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/data-anggota.svg"
                 alt=""
                 width={14}
@@ -132,7 +133,7 @@ const menuGroups = [
           },
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/artikel.svg"
                 alt=""
                 width={14}
@@ -149,7 +150,7 @@ const menuGroups = [
       // posyandu
       {
         icon: (
-          <img
+          <Image
             src="/images/menus/posyandu.svg"
             alt=""
             width={16}
@@ -162,7 +163,7 @@ const menuGroups = [
         children: [
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/daftar-hadir.svg"
                 alt=""
                 width={14}
@@ -176,7 +177,7 @@ const menuGroups = [
 
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/balita1.svg"
                 alt=""
                 width={14}
@@ -190,7 +191,7 @@ const menuGroups = [
 
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/ibu-hamil1.svg"
                 alt=""
                 width={14}
@@ -207,7 +208,7 @@ const menuGroups = [
       // pengukuran
       {
         icon: (
-          <img
+          <Image
             src="/images/menus/pengukuran.svg"
             alt=""
             width={16}
@@ -221,7 +222,7 @@ const menuGroups = [
         children: [
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/pemeriksaan.svg"
                 alt=""
                 width={14}
@@ -235,7 +236,7 @@ const menuGroups = [
 
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/rekap.svg"
                 alt=""
                 width={14}
@@ -249,7 +250,7 @@ const menuGroups = [
 
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/rekap.svg"
                 alt=""
                 width={14}
@@ -263,7 +264,7 @@ const menuGroups = [
 
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/riwayat.svg"
                 alt=""
                 width={14}
@@ -277,7 +278,7 @@ const menuGroups = [
 
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/riwayat.svg"
                 alt=""
                 width={14}
@@ -294,7 +295,7 @@ const menuGroups = [
       // monitoring
       {
         icon: (
-          <img
+          <Image
             src="/images/menus/monitoring.svg"
             alt=""
             width={16}
@@ -307,7 +308,7 @@ const menuGroups = [
         children: [
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/parameter.svg"
                 alt=""
                 width={14}
@@ -322,7 +323,7 @@ const menuGroups = [
 
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/status-monitoring.svg"
                 alt=""
                 width={14}
@@ -336,7 +337,7 @@ const menuGroups = [
 
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/status-monitoring.svg"
                 alt=""
                 width={14}
@@ -350,7 +351,7 @@ const menuGroups = [
 
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/status-monitoring.svg"
                 alt=""
                 width={14}
@@ -367,7 +368,7 @@ const menuGroups = [
       // pengaturan
       {
         icon: (
-          <img
+          <Image
             src="/images/menus/pengaturan.svg"
             alt=""
             width={16}
@@ -380,7 +381,7 @@ const menuGroups = [
         children: [
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/user.svg"
                 alt=""
                 width={14}
@@ -394,7 +395,7 @@ const menuGroups = [
           },
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/kebijakan-aplikasi.svg"
                 alt=""
                 width={14}
@@ -407,7 +408,7 @@ const menuGroups = [
           },
           {
             icon: (
-              <img
+              <Image
                 src="/images/menus/management-role.svg"
                 alt=""
                 width={14}
