@@ -17,8 +17,8 @@ import React, { useEffect, useRef, useState } from "react";
 interface DataRow {
   id: number;
   contact_ref: string;
-  nik: string; 
-  status: string; 
+  nik: string;
+  status: string;
   pelaksana: string;
 }
 
@@ -94,7 +94,10 @@ const TableMonitoringStunting: React.FC = () => {
           >
             <IconFileSearch className="text-white" />
           </Link>
-          <Link href="#" className="rounded-lg bg-gray-500 p-1">
+          <Link
+            href={`/monitoring/monitoring-stunting/tiga`}
+            className="rounded-lg bg-gray-500 p-1"
+          >
             <IconSoup className="text-white" />
           </Link>
         </div>
