@@ -92,7 +92,7 @@ const menuGroups = [
           {
             icon: (
               <img
-                src="/images/menus/jamban.svg"
+                src="/images/menus/puskesmas.svg"
                 alt=""
                 width={14}
                 height={14}
