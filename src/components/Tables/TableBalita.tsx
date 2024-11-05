@@ -1,89 +1,115 @@
 "use client";
 import { Balita } from "@/types/balita";
 import React, { useState } from "react";
-import ButtonLink from "../ui/ButtonLink";
-import { SvgDetailOrangTua } from "../ui/Svg";
+import { SvgAdd } from "../ui/Svg";
 import { DataTable } from "primereact/datatable";
 import { Column, ColumnBodyOptions } from "primereact/column";
 import { InputText } from "primereact/inputtext";
-import { Dropdown } from "primereact/dropdown";
+import { IconPencil, IconSearch, IconTrash } from "@tabler/icons-react";
+import {
+  CascadeSelect,
+  CascadeSelectChangeEvent,
+} from "primereact/cascadeselect";
+import "./style.css";
+import Link from "next/link";
+import { IconEye } from "@tabler/icons-react";
+import { confirmDialog, ConfirmDialog } from "primereact/confirmdialog";
+
+interface City {
+  cname: string;
+  code: string;
+}
+
+interface CountryState {
+  name: string;
+  cities: City[];
+}
+
+interface Country {
+  name: string;
+  code: string;
+  states: CountryState[];
+}
 
 const TableBalita = () => {
   const [globalFilter, setGlobalFilter] = useState("");
-  const [selectedCountry, setSelectedCountry] = useState(null);
-
-  const countries = [
-    { name: "Australia", code: "AU" },
-    { name: "Brazil", code: "BR" },
-    { name: "China", code: "CN" },
-    { name: "Egypt", code: "EG" },
-    { name: "France", code: "FR" },
-    { name: "Germany", code: "DE" },
-    { name: "India", code: "IN" },
-    { name: "Japan", code: "JP" },
-    { name: "Spain", code: "ES" },
-    { name: "United States", code: "US" },
+  const [selectedCity, setSelectedCity] = useState<City | null>(null);
+  const countries: Country[] = [
+    {
+      name: "Banyuwangi",
+      code: "BWI",
+      states: [
+        {
+          name: "Kabat",
+          cities: [
+            { cname: "Kedayunan", code: "A-SY" },
+            { cname: "Tambong", code: "A-NE" },
+          ],
+        },
+        {
+          name: "Rogojampi",
+          cities: [
+            { cname: "Brisbane", code: "A-BR" },
+            { cname: "Townsville", code: "A-TO" },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Maluku",
+      code: "MLK",
+      states: [
+        {
+          name: "A",
+          cities: [
+            { cname: "A1", code: "C-MO" },
+            { cname: "B1", code: "C-QU" },
+          ],
+        },
+      ],
+    },
   ];
 
-  const selectedCountryTemplate = (option: any, props: any) => {
-    if (option) {
-      return (
-        <div className="align-items-center flex">
-          <img
-            alt={option.name}
-            src="https://primefaces.org/cdn/primereact/images/flag/flag_placeholder.png"
-            className={`flag mr-2 flag-${option.code.toLowerCase()}`}
-            style={{ width: "18px" }}
-          />
-          <div>{option.name}</div>
-        </div>
-      );
-    }
-
-    return <span>{props.placeholder}</span>;
-  };
-
-  const countryOptionTemplate = (option: any) => {
-    return (
-      <div className="align-items-center flex">
-        <img
-          alt={option.name}
-          src="https://primefaces.org/cdn/primereact/images/flag/flag_placeholder.png"
-          className={`flag mr-2 flag-${option.code.toLowerCase()}`}
-          style={{ width: "18px" }}
-        />
-        <div>{option.name}</div>
-      </div>
-    );
-  };
-
   const header = (
-    <div className="flex flex-wrap items-center justify-end gap-2 py-3">
-      <div className="relative max-w-sm">
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
+    <div className="mb-1 flex flex-col md:flex-row md:items-center md:justify-between">
+      <div>
+        <h2 className="pb-1 text-2xl font-bold text-black">Data Balita</h2>
+        <p className="text-normal font-normal text-gray-500">
+          Digunakan untuk menampilkan data balita
+        </p>
+      </div>
+      <div className="mt-2 flex items-center justify-end space-x-4 md:mt-0">
+        <span className="relative flex items-center">
+          <IconSearch className="absolute left-3 text-gray-500" />
           <InputText
             type="search"
-            placeholder="Search..."
-            className="w-[280px] rounded-lg border p-2 pl-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
             onInput={(e) =>
               setGlobalFilter((e.target as HTMLInputElement).value)
             }
+            placeholder="Search..."
+            className="rounded-lg border border-gray-300 py-2 pl-10 pr-4"
           />
         </span>
-      </div>
-      <div>
-        <Dropdown
-          value={selectedCountry}
-          onChange={(e) => setSelectedCountry(e.value)}
-          options={countries}
-          optionLabel="name"
-          placeholder="Filter Wilayah"
-          filter
-          valueTemplate={selectedCountryTemplate}
-          itemTemplate={countryOptionTemplate}
-          className="flex h-10 w-[280px] items-center"
-        />
+        <div>
+          <CascadeSelect
+            value={selectedCity}
+            onChange={(e: CascadeSelectChangeEvent) => setSelectedCity(e.value)}
+            options={countries}
+            optionLabel="cname"
+            optionGroupLabel="name"
+            optionGroupChildren={["states", "cities"]}
+            className="md:w-14rem flex h-11 w-full items-center"
+            breakpoint="767px"
+            placeholder="Select a City"
+            style={{ minWidth: "14rem" }}
+          />
+        </div>
+        <Link
+          href={`/data-keluarga/data-balita/create`}
+          className="flex cursor-pointer items-center justify-center rounded-md border p-[10px]"
+        >
+          <SvgAdd />
+        </Link>
       </div>
     </div>
   );
@@ -92,17 +118,38 @@ const TableBalita = () => {
     return <span className="text-center">{options.rowIndex + 1}</span>;
   };
 
-  const actionTemplate = (data: any, options: ColumnBodyOptions) => {
+  const confirmDelete = () => {
+    confirmDialog({
+      message: "Do you want to delete this record?",
+      header: "Delete Confirmation",
+      icon: "pi pi-info-circle",
+      defaultFocus: "reject",
+      acceptClassName: "p-button-danger",
+      accept,
+    });
+  };
+
+  const accept = () => {
+    alert("Sukses  Dihapus");
+  };
+
+  const actionBodyTemplate = (rowData: Balita) => {
     return (
-      <ButtonLink
-        href={`/data-keluarga/data-balita/${data.nomorKK}`}
-        className="bg-[#486284] hover:bg-[#405672] focus-visible:ring-[#405672]"
-      >
-        <div className="flex items-center gap-1">
-          <SvgDetailOrangTua />
-          <span>Lihat Detail</span>
-        </div>
-      </ButtonLink>
+      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+        <Link href={`/data-keluarga/data-balita/${rowData.nomorKK}`} passHref>
+          <IconEye style={{ color: "green", cursor: "pointer" }} />
+        </Link>
+        <Link
+          href={`/data-keluarga/data-balita/${rowData.nomorKK}/edit`}
+          passHref
+        >
+          <IconPencil style={{ color: "purple", cursor: "pointer" }} />
+        </Link>
+        <IconTrash
+          onClick={() => confirmDelete()}
+          style={{ color: "red", cursor: "pointer" }}
+        />
+      </div>
     );
   };
 
@@ -180,7 +227,8 @@ const TableBalita = () => {
   return (
     <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark dark:shadow-card sm:p-7.5">
       <div className="max-w-full overflow-x-auto">
-        <div className="rounded-lg ">
+        <div className="rounded-lg">
+          <ConfirmDialog />
           <DataTable
             value={dummyDataBalita}
             dataKey="nik"
@@ -242,7 +290,7 @@ const TableBalita = () => {
             <Column
               header="Aksi"
               headerClassName="bg-[#F7F9FC] text-black rounded-r-lg text-center"
-              body={actionTemplate}
+              body={actionBodyTemplate}
               style={{ minWidth: "5rem" }}
             />
           </DataTable>

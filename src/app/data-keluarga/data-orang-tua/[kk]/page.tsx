@@ -1,6 +1,5 @@
-import React from "react";
-import { Metadata } from "next";
 import DetailOrangTua from "@/components/DataKeluarga/DetailOrangTua";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Detail Orang Tua",
@@ -10,15 +9,7 @@ export const metadata: Metadata = {
 const Page = ({ params }: { params: { kk: string } }) => {
   return (
     <>
-      <div className="container mx-auto">
-        <div className="py-2">
-          <h1 className="pb-1 text-3xl font-bold text-black">
-            Detail Data Orang Tua
-          </h1>
-          <h5 className="text-md font-medium">
-            Informasi Detail Data Orang Tua
-          </h5>
-        </div>
+      <div className="mt-0 px-2 md:px-10">
         <DetailOrangTua kk={params.kk} />
       </div>
     </>

@@ -14,11 +14,17 @@ const CardDetail = ({
   return (
     <>
       <label className="mb-1 block text-sm text-gray-600">{label}</label>
-      <div className={`flex w-full items-center justify-between gap-2`}>
-        <div className={`w-full rounded bg-gray-100 p-2 ps-4 ${className}`}>
+      <div className="p-inputgroup h-[2.6rem]">
+        <div
+          className={`flex w-full items-center rounded ${satuan && "rounded-r-none"} border border-gray-300 bg-gray-100 p-3 px-4 ${className}`}
+        >
           {children}
         </div>
-        <span>{satuan}</span>
+        {satuan && (
+          <span className="p-inputgroup-addon rounded rounded-l-none border border-gray-300 bg-gray-200 p-2 text-gray-500">
+            {satuan}
+          </span>
+        )}
       </div>
     </>
   );

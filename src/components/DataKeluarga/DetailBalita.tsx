@@ -7,8 +7,8 @@ import { RadioButton } from "primereact/radiobutton";
 const DetailBalita = ({ id }: { id: string }) => {
   return (
     <>
-      <Card className="px-6">
-        <div className="grid grid-cols-1 gap-6  md:grid-cols-2">
+      <Card className="mt-8 px-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 md:gap-6">
           <div>
             <div className="mb-4">
               <CardDetail label="Nomor Kartu Keluarga">
@@ -28,8 +28,8 @@ const DetailBalita = ({ id }: { id: string }) => {
               <CardDetail label="NIK">352201050223102</CardDetail>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4">
+              <div className="mb-4 md:mb-8">
                 <CardDetail label="Tempat">Bandung</CardDetail>
               </div>
               <div className="mb-4">
@@ -90,48 +90,6 @@ const DetailBalita = ({ id }: { id: string }) => {
 
               <div className="mb-4">
                 <label className="mb-4 block text-sm text-gray-600">
-                  ASI Ekslusif
-                </label>
-                <div className="flex gap-3">
-                  <div className="flex items-center">
-                    <RadioButton inputId="asi1" checked />
-                    <label htmlFor="asi1" className="ml-2">
-                      Ya
-                    </label>
-                  </div>
-                  <div className="flex items-center">
-                    <RadioButton inputId="asi2" disabled />
-                    <label htmlFor="asi2" className="ml-2">
-                      Tidak
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2">
-              <div className="mb-4 md:mb-8">
-                <label className="mb-4 block text-sm text-gray-600">
-                  MPASI
-                </label>
-                <div className="flex gap-3">
-                  <div className="flex items-center">
-                    <RadioButton inputId="mpasi1" checked />
-                    <label htmlFor="mpasi1" className="ml-2">
-                      Ya
-                    </label>
-                  </div>
-                  <div className="flex items-center">
-                    <RadioButton inputId="mpasi2" disabled />
-                    <label htmlFor="mpasi2" className="ml-2">
-                      Tidak
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <label className="mb-4 block text-sm text-gray-600">
                   Jenis Kelamin
                 </label>
                 <div className="flex gap-3">
@@ -149,6 +107,16 @@ const DetailBalita = ({ id }: { id: string }) => {
                   </div>
                 </div>
               </div>
+            </div>
+            <div className="mb-4">
+              <h2 className="mb-2 text-lg font-semibold">
+                Informasi Disabilitas
+              </h2>
+              <ul className="list-disc pl-5">
+                <li>
+                  Autis <span>Kesulitan Berbicara / Berkomunikasi</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>

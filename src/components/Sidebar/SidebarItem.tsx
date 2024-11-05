@@ -28,18 +28,22 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   resetActiveMenu,
 }) => {
   const pathname = usePathname();
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const isActiveChild = item.children?.some(
-    (child) => pathname === child.route
-  );
+  const isActiveChild = item.children?.some((child) => {
+    if (child.route === "/") {
+      return pathname === "/";
+    }
+    return pathname.startsWith(child.route);
+  });
 
   const isActiveMenu = pageName === item.label.toLowerCase() || isActiveChild;
 
   const handleClick = () => {
     resetActiveMenu();
     if (isOpen) {
-      setIsOpen('');
+      setIsOpen("");
     } else {
       setPageName(item.label.toLowerCase());
       setIsOpen(item.label.toLowerCase());
@@ -49,11 +53,11 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        dropdownRef.current && 
-        !dropdownRef.current.contains(event.target as Node) && 
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
         isOpen
       ) {
-        setIsOpen('');
+        setIsOpen("");
         resetActiveMenu();
       }
     };
@@ -71,11 +75,13 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
         href={item.route}
         onClick={handleClick}
         className={`group flex items-center gap-2 rounded-md px-3 py-2 font-medium transition duration-300 ease-in-out ${
-          isActiveMenu 
-            ? "bg-primary/[.07] text-primary" 
+          isActiveMenu
+            ? "bg-primary/[.07] text-primary"
             : "text-black hover:bg-gray-200 hover:text-dark dark:text-gray-500 dark:hover:bg-white/10 dark:hover:text-white"
         }`}
-        aria-current={pageName === item.label.toLowerCase() ? "page" : undefined}
+        aria-current={
+          pageName === item.label.toLowerCase() ? "page" : undefined
+        }
       >
         {item.icon}
         {/* size fount */}
@@ -111,7 +117,10 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       </Link>
 
       {item.children && isOpen && (
-        <div ref={dropdownRef} className={`absolute left-0 mt-10 w-46 bg-white shadow-lg rounded-md z-10`}>
+        <div
+          ref={dropdownRef}
+          className={`absolute left-0 z-10 mt-10 w-46 rounded-md bg-white shadow-lg`}
+        >
           <SidebarDropdown item={item.children} />
         </div>
       )}

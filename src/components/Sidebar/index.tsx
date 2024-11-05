@@ -13,7 +13,6 @@ interface SidebarProps {
 const menuGroups = [
   {
     menuItems: [
-
       {
         icon: (
           <img
@@ -28,12 +27,13 @@ const menuGroups = [
         route: "#",
         children: [
           {
-
-            label: "eCommerce", route: "/"
+            label: "eCommerce",
+            route: "/",
           },
         ],
       },
 
+      // data
 
       {
         icon: (
@@ -45,7 +45,7 @@ const menuGroups = [
             className="fill-current"
           />
         ),
-        label: "Data Keluarga",
+        label: "Data",
         route: "#",
         children: [
           {
@@ -59,7 +59,7 @@ const menuGroups = [
               />
             ),
             label: "Data Orang Tua",
-            route: "/data-keluarga/data-orang-tua"
+            route: "/data-keluarga/data-orang-tua",
           },
           {
             icon: (
@@ -72,7 +72,7 @@ const menuGroups = [
               />
             ),
             label: "Data Balita",
-            route: "/data-keluarga/data-balita"
+            route: "/data-keluarga/data-balita",
           },
 
           {
@@ -86,11 +86,139 @@ const menuGroups = [
               />
             ),
             label: "Data Ibu Hamil",
-            route: "/data-keluarga/data-bumil"
+            route: "/data-keluarga/data-bumil",
+          },
+
+          {
+            icon: (
+              <img
+                src="/images/menus/jamban.svg"
+                alt=""
+                width={14}
+                height={14}
+                className="fill-current"
+              />
+            ),
+            label: "Data Puskesmas",
+            route: "/data/data-puskesmas",
+          },
+
+          {
+            icon: (
+              <img
+                src="/images/menus/daftar-hadir.svg"
+                alt=""
+                width={14}
+                height={14}
+                className="fill-current"
+              />
+            ),
+            label: "Data Posyandu",
+            route: "/data/data-posyandu",
+          },
+
+          {
+            icon: (
+              <img
+                src="/images/menus/data-anggota.svg"
+                alt=""
+                width={14}
+                height={14}
+                className="fill-current"
+              />
+            ),
+            label: "Data Anggota",
+            route: "/data/data-anggota",
+          },
+          {
+            icon: (
+              <img
+                src="/images/menus/artikel.svg"
+                alt=""
+                width={14}
+                height={14}
+                className="fill-current"
+              />
+            ),
+            label: "Data Artikel",
+            route: "/data/data-artikel",
           },
         ],
       },
 
+      // posyandu
+      {
+        icon: (
+          <img
+            src="/images/menus/posyandu.svg"
+            alt=""
+            width={16}
+            height={16}
+            className="fill-current"
+          />
+        ),
+        label: "Posyandu",
+        route: "#",
+        children: [
+          {
+            icon: (
+              <img
+                src="/images/menus/daftar-hadir.svg"
+                alt=""
+                width={14}
+                height={14}
+                className="fill-current"
+              />
+            ),
+            label: "Jadwal Posyandu",
+            route: "/posyandu/jadwal-posyandu",
+          },
+
+          {
+            icon: (
+              <img
+                src="/images/menus/balita1.svg"
+                alt=""
+                width={14}
+                height={14}
+                className="fill-current"
+              />
+            ),
+            label: "Daftar Hadir Balita",
+            route: "/posyandu/daftar-hadir-balita",
+          },
+
+          {
+            icon: (
+              <img
+                src="/images/menus/ibu-hamil1.svg"
+                alt=""
+                width={14}
+                height={14}
+                className="fill-current"
+              />
+            ),
+            label: "Daftar Hadir Ibu Hamil",
+            route: "/posyandu/daftar-hadir-ibu-hamil",
+          },
+
+          {
+            icon: (
+              <img
+                src="/images/menus/imunisasi.svg"
+                alt=""
+                width={14}
+                height={14}
+                className="fill-current"
+              />
+            ),
+            label: "Imunisasi",
+            route: "/posyandu/imunisasi",
+          },
+        ],
+      },
+
+      // pengukuran
       {
         icon: (
           <img
@@ -101,7 +229,8 @@ const menuGroups = [
             className="fill-current"
           />
         ),
-        label: "Pemeriksaan",
+
+        label: "Pengukuran",
         route: "#",
         children: [
           {
@@ -114,10 +243,9 @@ const menuGroups = [
                 className="fill-current"
               />
             ),
-            label: "Pemeriksaan Balita",  route: "/pemeriksaan/pemeriksaan-balita"
+            label: "Pengukuran Balita & Bumil",
+            route: "/pengukuran/pengukuran-balita-bumil",
           },
-
-
 
           {
             icon: (
@@ -129,8 +257,24 @@ const menuGroups = [
                 className="fill-current"
               />
             ),
-            label: "Rekap Pemeriksaan", route: "/pemeriksaan/rekap-pemeriksaan"
+            label: "Rekap Pengukuran Balita",
+            route: "/rekap/pengukuran-balita",
           },
+
+          {
+            icon: (
+              <img
+                src="/images/menus/rekap.svg"
+                alt=""
+                width={14}
+                height={14}
+                className="fill-current"
+              />
+            ),
+            label: "Rekap Pengukuran Ibu Hamil",
+            route: "/rekap/pengukuran-ibu-hamil",
+          },
+
           {
             icon: (
               <img
@@ -141,23 +285,27 @@ const menuGroups = [
                 className="fill-current"
               />
             ),
-            label: "Riwayat Pemeriksaan", route: "/pemeriksaan/riwayat-pemeriksaan"
+            label: "Riwayat Pengukuran Balita",
+            route: "/riwayat/riwayat-pengukuran-balita",
           },
+
           {
             icon: (
               <img
-                src="/images/menus/jadwal.svg"
+                src="/images/menus/riwayat.svg"
                 alt=""
                 width={14}
                 height={14}
                 className="fill-current"
               />
             ),
-            label: "Jadwal Pemeriksaan",  route: "/pemeriksaan/jadwal-pemeriksaan"
+            label: "Riwayat Pengukuran Ibu Hamil",
+            route: "/riwayat/riwayat-pengukuran-bumil",
           },
         ],
       },
 
+      // monitoring
       {
         icon: (
           <img
@@ -182,7 +330,8 @@ const menuGroups = [
               />
             ),
 
-            label: "Parameter Stunting", route: "/monitoring/parameter-stunting"
+            label: "Parameter Stunting",
+            route: "/monitoring/parameter-stunting",
           },
 
           {
@@ -195,7 +344,8 @@ const menuGroups = [
                 className="fill-current"
               />
             ),
-            label: "Monitoring Stunting",route: "/monitoring/monitoring-stunting"
+            label: "Monitoring Stunting",
+            route: "/monitoring/monitoring-stunting",
           },
 
           {
@@ -208,81 +358,27 @@ const menuGroups = [
                 className="fill-current"
               />
             ),
-            label: "Monitoring Gizi", route: "/monitoring/monitoring-gizi"
+            label: "Monitoring Gizi",
+            route: "/monitoring/monitoring-gizi",
+          },
+
+          {
+            icon: (
+              <img
+                src="/images/menus/status-monitoring.svg"
+                alt=""
+                width={14}
+                height={14}
+                className="fill-current"
+              />
+            ),
+            label: "Monitoring Ibu Hamil",
+            route: "/monitoring/monitoring-ibu-hamil",
           },
         ],
       },
 
-      {
-        icon: (
-          <img
-            src="/images/menus/posyandu.svg"
-            alt=""
-            width={16}
-            height={16}
-            className="fill-current"
-          />
-        ),
-        label: "Posyandu",
-        route: "#",
-        children: [
-
-          {
-            icon: (
-              <img
-                src="/images/menus/daftar-hadir.svg"
-                alt=""
-                width={14}
-                height={14}
-                className="fill-current"
-              />
-            ),
-            label: "Data Posyandu", route: "/posyandu/data-posyandu"
-          },
-
-          {
-            icon: (
-              <img
-                src="/images/menus/daftar-hadir.svg"
-                alt=""
-                width={14}
-                height={14}
-                className="fill-current"
-              />
-            ),
-            label: "Daftar Hadir", route: "/posyandu/daftar-hadir"
-          },
-
-          {
-            icon: (
-              <img
-                src="/images/menus/tambah-akun.svg"
-                alt=""
-                width={14}
-                height={14}
-                className="fill-current"
-              />
-            ),
-            label: "Tambah Akun", route: "/posyandu/tambah-akun"
-          },
-
-
-          {
-            icon: (
-              <img
-                src="/images/menus/data-anggota.svg"
-                alt=""
-                width={14}
-                height={14}
-                className="fill-current"
-              />
-            ),
-            label: "Data Anggota", route: "/posyandu/data-anggota"
-          },
-        ],
-      },
-
-
+      // pengaturan
       {
         icon: (
           <img
@@ -307,7 +403,8 @@ const menuGroups = [
               />
             ),
 
-            label: "Profile", route: "/pengaturan/profile"
+            label: "Akun Saya",
+            route: "/pengaturan/akun-saya",
           },
           {
             icon: (
@@ -319,16 +416,26 @@ const menuGroups = [
                 className="fill-current"
               />
             ),
-            label: "Kebijakan Aplikasi", route: "/pengaturan/kebijakan-aplikasi"
+            label: "Kebijakan Aplikasi",
+            route: "/pengaturan/kebijakan-aplikasi",
           },
-
+          {
+            icon: (
+              <img
+                src="/images/menus/management-role.svg"
+                alt=""
+                width={14}
+                height={14}
+                className="fill-current"
+              />
+            ),
+            label: "Management Role",
+            route: "/pengaturan/management-role",
+          },
         ],
       },
-
     ],
   },
-
-
 ];
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
@@ -342,20 +449,18 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
   return (
     <ClickOutside onClick={() => setSidebarOpen(false)}>
-
       <aside
-        className={`sticky left-0 top-0 z-9999 border-r border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark lg:static lg:translate-x-0 ${sidebarOpen
-          ? "translate-x-0 duration-300 ease-linear"
-          : "-translate-x-full"
-          }`}
+        className={`sticky left-0 top-0 z-9999 border-r border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark lg:static lg:translate-x-0 ${
+          sidebarOpen
+            ? "translate-x-0 duration-300 ease-linear"
+            : "-translate-x-full md:px-14"
+        }`}
       >
-
         {/* <!-- SIDEBAR HEADER --> */}
 
         <div className="no-scrollbar duration-300 ease-linear">
           {/* <!-- Sidebar Menu --> */}
           <nav className=" items-center justify-normal gap-2 lg:w-full xl:w-auto xl:justify-normal">
-
             {menuGroups.map((group, groupIndex) => (
               <div key={groupIndex}>
                 <ul className="flex items-center ">
@@ -378,13 +483,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           </nav>
           {/* <!-- Sidebar Menu --> */}
         </div>
-
-
       </aside>
-
     </ClickOutside>
   );
-
-
 };
 export default Sidebar;

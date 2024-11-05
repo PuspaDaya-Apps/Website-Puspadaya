@@ -1,28 +1,22 @@
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import TableOne from "@/components/Tables/TableOne";
-import TableThree from "@/components/Tables/TableThree";
-import TableTwo from "@/components/Tables/TableTwo";
-
+import ParameterStunting from "@/components/ParameterStunting/ParameterStunting";
 import { Metadata } from "next";
-import DefaultLayout from "@/components/Layouts/DefaultLaout";
 
 export const metadata: Metadata = {
-  title: "Next.js Tables Page | NextAdmin - Next.js Dashboard Kit",
-  description: "This is Next.js Tables page for NextAdmin Dashboard Kit",
+  title: "Data Ibu Hamil",
+  description: "Data Ibu Hamil Page",
 };
 
-const TablesPage = () => {
+const Page = () => {
   return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Tables" />
-
-      <div className="flex flex-col gap-10">
-        <TableOne />
-        <TableTwo />
-        <TableThree />
+    <>
+      <div className="container mx-auto">
+        <div className="mb-4 flex items-center justify-center p-2">
+          <div>
+            <ParameterStunting />
+        </div>
       </div>
-    </DefaultLayout>
+    </>
   );
 };
 
-export default TablesPage;
+export default Page;

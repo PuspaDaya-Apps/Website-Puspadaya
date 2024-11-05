@@ -10,9 +10,9 @@ export default function DefaultLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex min-h-screen flex-col md:px-10">
       {/* Header and Sidebar fixed at the top */}
-      <div className="fixed top-0 left-0 right-0 z-50">
+      <div className="fixed left-0 right-0 top-0 z-50">
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       </div>

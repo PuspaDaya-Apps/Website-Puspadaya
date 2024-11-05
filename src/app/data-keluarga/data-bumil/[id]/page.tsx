@@ -2,6 +2,7 @@ import React from "react";
 import { Metadata } from "next";
 import DetailBalita from "@/components/DataKeluarga/DetailBalita";
 import DetailBumil from "@/components/DataKeluarga/DetailBumil";
+import { Card } from "primereact/card";
 
 export const metadata: Metadata = {
   title: "Detail Ibu Hamil",
@@ -11,15 +12,15 @@ export const metadata: Metadata = {
 const Page = ({ params }: { params: { id: string } }) => {
   return (
     <>
-      <div className="container mx-auto">
-        <div className="mb-4 py-2">
-          <h1 className="pb-1 text-3xl font-bold text-black">
+      <div className="mt-0 px-2 md:px-10">
+        <Card>
+          <h1 className="mb-2 text-3xl font-bold text-gray-800">
             Detail Data Ibu Hamil
           </h1>
-          <h5 className="text-md font-medium">
+          <h5 className="text-lg text-gray-600">
             Informasi Detail Data Ibu Hamil
           </h5>
-        </div>
+        </Card>
         <DetailBumil id={params.id} />
       </div>
     </>
