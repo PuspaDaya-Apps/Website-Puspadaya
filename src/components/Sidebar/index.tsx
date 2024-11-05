@@ -201,20 +201,6 @@ const menuGroups = [
             label: "Daftar Hadir Ibu Hamil",
             route: "/posyandu/daftar-hadir-ibu-hamil",
           },
-
-          {
-            icon: (
-              <img
-                src="/images/menus/imunisasi.svg"
-                alt=""
-                width={14}
-                height={14}
-                className="fill-current"
-              />
-            ),
-            label: "Imunisasi",
-            route: "/posyandu/imunisasi",
-          },
         ],
       },
 
