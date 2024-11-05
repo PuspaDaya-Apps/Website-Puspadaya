@@ -10,6 +10,7 @@ const Page = () => {
   return (
     <>
       <div className="container mx-auto">
+        <div className="mb-4 flex items-center justify-center p-2">
           <div>
             <ParameterStunting />
         </div>

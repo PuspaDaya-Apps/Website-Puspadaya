@@ -1,32 +1,10 @@
-"use client";
+import React from "react";
+import { Metadata } from "next";
+import TableRiwayatPengukuranBalita from "@/components/Tables/TableRiwayatPengukuranBalita";
 
-import { SvgDetailOrangTua } from "@/components/ui/Svg";
-import { IconSearch } from "@tabler/icons-react";
-import { Column, ColumnBodyOptions } from "primereact/column";
-import { DataTable } from "primereact/datatable";
-import { InputText } from "primereact/inputtext";
-import { ProgressBar } from "primereact/progressbar";
-import { Toast } from "primereact/toast";
-import React, { useEffect, useRef, useState } from "react";
-import ButtonLinks from "../../../components/ui/ButtonLink";
-
-interface DataRow {
-  id: number;
-  contact_ref: string;
-  nik: string; // NIK
-  status: string; // Status
-}
-
-const statusColors: { [key: string]: string } = {
-  Stunting: "bg-red-200",
-  Risiko: "bg-yellow-200",
-  Normal: "bg-green-200",
-  "Gizi Buruk": "bg-red-300",
-  "Gizi Kurang": "bg-orange-200",
-  "Gizi Baik": "bg-green-300",
-  "Berisiko Gizi Lebih": "bg-yellow-300",
-  "Gizi Lebih": "bg-orange-300",
-  Obesitas: "bg-red-500",
+export const metadata: Metadata = {
+  title: "Riwayat Data Pengukuran Balita",
+  description: "Riwayat Data Pengukuran Balita Page",
 };
 
 const TablesPage: React.FC = () => {
@@ -134,79 +112,14 @@ const TablesPage: React.FC = () => {
     </div>
   );
 
+const Page = () => {
   return (
-    <div className=" container mx-auto">
-      <div className="card overflow-hidden rounded-lg bg-white p-4 shadow-md">
-        {loading && (
-          <div className="mb-4">
-            <span className="text-sm text-gray-600">Loading...</span>
-            <ProgressBar mode="indeterminate" className="mt-2 h-2" />
-          </div>
-        )}
-        {error && (
-          <div className="mb-4 rounded-lg bg-red-100 p-4 text-red-700">
-            {error}
-          </div>
-        )}
-
-        <Toast ref={toast} />
-        <div className="rounded-lg ">
-          <DataTable
-            value={dataWithDisplayId}
-            dataKey="id"
-            paginator
-            rows={rowsPerPage}
-            rowsPerPageOptions={[20, 40, 60, 80, 100]}
-            className="datatable-responsive"
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} records"
-            emptyMessage="No data available"
-            responsiveLayout="scroll"
-            rowClassName={rowClassName}
-            header={header}
-            paginatorClassName="bg-gray-50 p-4 mt-4 rounded-lg"
-          >
-            <Column
-              field="id"
-              header="No"
-              headerStyle={{ height: "54px" }}
-              sortable
-              headerClassName="bg-[#F7F9FC] text-black rounded-l-lg"
-              className="text-center"
-            />
-            <Column
-              field="nik"
-              header="NIK"
-              sortable
-              headerClassName="bg-[#F7F9FC] text-black"
-              style={{ minWidth: "8rem" }}
-            />
-            <Column
-              field="contact_ref"
-              header="Nama Lengkap"
-              sortable
-              headerClassName="bg-[#F7F9FC] text-black"
-              style={{ minWidth: "10rem" }}
-            />
-            <Column
-              field="status"
-              header="Status"
-              body={statusBodyTemplate}
-              sortable
-              headerClassName="bg-[#F7F9FC] text-black"
-              style={{ minWidth: "10rem" }}
-            />
-            <Column
-              header="Action"
-              body={actionBodyTemplate}
-              headerClassName="bg-[#F7F9FC] text-black rounded-r-lg"
-              style={{ minWidth: "5rem" }}
-            />
-          </DataTable>
-        </div>
+    <>
+      <div className="container mx-auto">
+        <TableRiwayatPengukuranBalita />
       </div>
-    </div>
+    </>
   );
 };
 
-export default TablesPage;
+export default Page;

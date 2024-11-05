@@ -12,6 +12,7 @@ const Page: React.FC = () => {
           </h2>
           <p className="text-sm font-light text-gray-500">
             Menampilkan informasi lengkap mengenai hasil status gizi dan tumbuh kembang balita
+
           </p>
         </div>
       </div>

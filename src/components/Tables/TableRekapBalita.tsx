@@ -13,6 +13,8 @@ import { Dialog } from "primereact/dialog"; // Import Dialog
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import React, { useEffect, useRef, useState } from "react";
+import { SvgDetailOrangTua } from "../ui/Svg";
+import ButtonLink from "../ui/ButtonLink";
 
 const statusColors: { [key: string]: string } = {
   Stunting: "bg-red-200",
