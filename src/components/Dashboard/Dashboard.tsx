@@ -2,6 +2,7 @@ import React from "react";
 import CountingCard from "../Card/CountingCard";
 import { SvgIconBayi } from "../ui/Svg";
 import PercentageCard from "../Card/PercentageCard";
+import LineChart from "../Charts/LineChart";
 
 const Dashboard = () => {
   const colors = ["#34B53A", "#F39D00"];
@@ -21,8 +22,8 @@ const Dashboard = () => {
         <div className="col-span-4">
           <PercentageCard color={colors} data={data} jumlah={100} label={label} title="Presentase Jumlah Posyandu"/>
         </div>
-        <div className="col-span-8">
-          {/* <CountingCard /> */}
+        <div className="col-span-8">  
+          <LineChart />
         </div>
         
       </div>

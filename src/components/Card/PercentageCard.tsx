@@ -27,7 +27,7 @@ const PercentageCard: React.FC<CountingCardProps> = ({
     <div className="flex h-[331px] flex-col justify-between rounded-xl bg-white p-6 shadow-lg">
       <h1 className="text-xl font-bold text-black">{title}</h1>
       <h1 className="relative flex items-center justify-center">
-        <h1 className="absolute text-slate-700 font-bold">{jumlah} %</h1>
+        <h1 className="absolute text-slate-700 font-bold">{jumlah}%</h1>
         <DonutChart color={color} data={data} width={400} height={215} />
       </h1>
       <div className="flex flex-col items-start justify-start gap-1">
