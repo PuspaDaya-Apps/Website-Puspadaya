@@ -28,7 +28,7 @@ const menuGroups = [
         route: "#",
         children: [
           {
-            label: "eCommerce",
+            label: "Superadmin",
             route: "/",
           },
         ],
