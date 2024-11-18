@@ -1,6 +1,5 @@
 
 import React from "react";
-import { SvgIconBayi } from "../ui/Svg";
 type CountingCardProps = {
   icon: React.ComponentType; // Icon sebagai komponen React
   title: string; // Judul kartu
@@ -16,7 +15,7 @@ const CountingCard: React.FC<CountingCardProps> = ({
   color,
 }) => {
   return (
-    <div className="flex flex-col justify-between rounded-xl bg-white p-6 shadow-lg">
+    <div className="flex flex-col justify-between rounded-xl h-[250px] bg-white p-6 shadow-lg">
       <div className="flex items-start justify-between">
         <h1 className="text-xl text-black font-bold">{title}</h1>
         <div
@@ -30,7 +29,7 @@ const CountingCard: React.FC<CountingCardProps> = ({
       <p>
         Jumlah {title.toLowerCase()} {isMeningkat ? "meningkat" : "menurun"}{" "}
         <span className={isMeningkat ? "text-green-400" : "text-red-400"}>
-          {isMeningkat ? "90%" : "10%"}
+          {isMeningkat ? "90%" : "10%"} 
         </span>
       </p>
     </div>
