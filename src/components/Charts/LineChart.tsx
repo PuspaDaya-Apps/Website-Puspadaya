@@ -89,7 +89,7 @@ const LineChart: React.FC = () => {
       y: {
         title: {
           formatter: function (e) {
-            return "";
+            return `${e}`;
           },
         },
       },

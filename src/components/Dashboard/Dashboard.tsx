@@ -3,6 +3,7 @@ import CountingCard from "../Card/CountingCard";
 import { SvgIconBayi } from "../ui/Svg";
 import PercentageCard from "../Card/PercentageCard";
 import LineChart from "../Charts/LineChart";
+import ColumnChart from "../Charts/ColumnChart";
 
 const Dashboard = () => {
   const colors = ["#34B53A", "#F39D00"];
@@ -24,6 +25,9 @@ const Dashboard = () => {
         </div>
         <div className="col-span-8">  
           <LineChart />
+        </div>
+        <div className="col-span-8">  
+          <ColumnChart />
         </div>
         
       </div>
