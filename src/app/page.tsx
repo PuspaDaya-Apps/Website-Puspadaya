@@ -15,7 +15,7 @@ export default function Home() {
     <>
       <DefaultLayout>
         <Dashboard />
-        <ECommerce />
+        {/* <ECommerce /> */}
       </DefaultLayout>
     </>
   );

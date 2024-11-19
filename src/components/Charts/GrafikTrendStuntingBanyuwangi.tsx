@@ -18,7 +18,7 @@ interface Desa {
   name: string;
   code: string;
 }
-const ColumnChart: React.FC = () => {
+const GrafikTrendStuntingBanyuwangi: React.FC = () => {
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
   const [selectedKecamatan, setSelectedKecamatan] = useState<Kecamatan | null>(
     null,
@@ -27,12 +27,12 @@ const ColumnChart: React.FC = () => {
 
   const series = [
     {
-      name: "Posyandu Aktif",
-      data: [44, 55, 41, 67, 22, 43, 65],
+      name: "Gizi Baik",
+      data: [44, 55, 41, 67, 22, 43, 65,35,25],
     },
     {
-      name: "Posyandu Tidak Aktif",
-      data: [50, 23, 20, 8, 13, 27, 15],
+      name: "Gizi Buruk",
+      data: [50, 23, 20, 8, 13, 27, 15,10,7],
     },
   ];
   const wilayah: Wilayah[] = [
@@ -76,15 +76,15 @@ const ColumnChart: React.FC = () => {
     },
     xaxis: {
       categories: [
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
+        "Kebaman",
+        "Bangorejo",
+        "Purwoharjo",
+        "Wonosobo",
+        "Sukomajo",
+        "Sumbersari",
+        "Srono",
+        "Krajan",
+        "Kabat",
       ],
     },
     yaxis: {
@@ -105,11 +105,11 @@ const ColumnChart: React.FC = () => {
             Grafik Tren Stunting Balita di Banyuwangi
           </h4>
           <div className="mt-2 flex flex-col items-start justify-start gap-1">
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-2 mt-1">
               <div className="h-2 w-2 rounded-full bg-blue-500"></div>
               <p className="">Balita Gizi Baik</p>
             </div>
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-2 mb-1">
               <div className="h-2 w-2 rounded-full bg-red-500"></div>
               <p className="">Balita Gizi Buruk</p>
             </div>
@@ -183,4 +183,4 @@ const ColumnChart: React.FC = () => {
   );
 };
 
-export default ColumnChart;
+export default GrafikTrendStuntingBanyuwangi;

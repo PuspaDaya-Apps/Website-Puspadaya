@@ -5,7 +5,7 @@ import ReactApexChart from "react-apexcharts";
 import DefaultSelectOption from "@/components/SelectOption/DefaultSelectOption";
 
 const color = ["#3b82f6","#ef4444"]
-const LineChart: React.FC = () => {
+const GrafikTrendStunting: React.FC = () => {
   const series = [
     {
       name: "Balita Gizi Baik",
@@ -188,4 +188,4 @@ const LineChart: React.FC = () => {
   );
 };
 
-export default LineChart;
+export default GrafikTrendStunting;
