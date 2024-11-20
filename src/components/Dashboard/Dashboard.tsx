@@ -1,11 +1,24 @@
 import React from "react";
 import CountingCard from "../Card/CountingCard";
-import { SvgIconArtikel, SvgIconBayi, SvgIconFamily, SvgIconLoveBlue, SvgIconLoveOrange } from "../ui/Svg";
+import {
+  SvgIconArtikel,
+  SvgIconBayi,
+  SvgIconFamily,
+  SvgIconLoveBlue,
+  SvgIconLoveOrange,
+} from "../ui/Svg";
 import PercentageCard from "../Card/PercentageCard";
 import GrafikTrendStuntingBalita from "../Charts/GrafikTrendStuntingBalita";
 import GrafikTrendStuntingBanyuwangi from "../Charts/GrafikTrendStuntingBanyuwangi";
 import GrafikPersebaranPosyandu from "../Charts/GrafikPersebaranPosyandu";
 import GrafikPersebaranKaderDanTingkatAktivitas from "../Charts/GrafikPersebaranKaderDanTingkatAktivitas";
+import BanyuwangiMap from "../Charts/BanyuwangiMap";
+import MalukuTengahMap from "../Charts/MalukuTengahMap";
+import MapPersebaranBalitaStunting from "../Charts/MapPersebaranBalitaStunting";
+import MapPersebaranBalitaBerdasarkanWIlayah from "../Charts/MapPersebaranBalitaBerdasarkanWIlayah";
+import MapPersebaranKader from "../Charts/MapPersebaranKader";
+import MapPersebaranKeluargaTanpaMCK from "../Charts/MapPersebaranKeluargaTanpaMCK";
+import MapPersebaranDesa from "../Charts/MapPersebaranDesa";
 
 const Dashboard = () => {
   const colors = ["#34B53A", "#F39D00"];
@@ -72,6 +85,14 @@ const Dashboard = () => {
             color={"#EBF3FE"}
           />
         </div>
+          
+        <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
+          <MapPersebaranBalitaStunting />
+        </div>
+        
+        <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
+          <MapPersebaranBalitaBerdasarkanWIlayah />
+        </div>
 
         <div className="col-span-8">
           <GrafikPersebaranPosyandu />
@@ -82,7 +103,7 @@ const Dashboard = () => {
             icon={SvgIconLoveOrange}
             isMeningkat={true}
             jumlah={140}
-            peningkatan="90%"
+            peningkatan="18%"
             title="Jumlah Posyandu"
             subtitle="Jumlah Posyandu Meningkat"
             color={"#EBF3FE"}
@@ -113,13 +134,22 @@ const Dashboard = () => {
           <PercentageCard
             title={"Persentase Jumlah Kader"}
             jumlah={100}
-            color={["#ef4444","#3b82f6", ]}
+            color={["#ef4444", "#3b82f6"]}
             data={[
               { name: "Banyuwangi", value: 60 },
               { name: "Maluku Tengah", value: 40 },
             ]}
             label={["Banyuwangi", "Maluku Tengah"]}
           />
+        </div>
+        <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
+          <MapPersebaranKader />
+        </div>
+        <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
+          <MapPersebaranKeluargaTanpaMCK />
+        </div>
+        <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
+          <MapPersebaranDesa />
         </div>
       </div>
     </div>
