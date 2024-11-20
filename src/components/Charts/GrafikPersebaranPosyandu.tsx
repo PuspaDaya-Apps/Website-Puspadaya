@@ -102,7 +102,7 @@ const GrafikPersebaranPosyandu: React.FC = () => {
       <div className="mb-4 justify-between gap-4 sm:flex">
         <div>
           <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Grafik Tren Stunting Balita di Banyuwangi
+            Grafik Persebaran Posyandu
           </h4>
           <div className="mt-2 flex flex-col items-start justify-start gap-1">
             <div className="flex items-center justify-center gap-2 mt-1">
@@ -150,22 +150,25 @@ const GrafikPersebaranPosyandu: React.FC = () => {
           </div>
         </div>
         <div>
-          <DefaultSelectOption
-            options={[
-              "Januari 2024",
-              "Februari 2024",
-              "Maret 2024",
-              "April 2024",
-              "Mei 2024",
-              "Juni 2024",
-              "Juli 2024",
-              "Agustus 2024",
-              "September 2024",
-              "Oktober 2024",
-              "November 2024",
-              "Desember 2024",
-            ]}
-          />
+        <div className="flex gap-2">
+            <DefaultSelectOption
+              options={[
+                "Januari",
+                "Februari",
+                "Maret",
+                "April",
+                "Mei",
+                "Juni",
+                "Juli",
+                "Agustus",
+                "September",
+                "Oktober",
+                "November",
+                "Desember",
+              ]}
+            />
+            <DefaultSelectOption options={["2023", "2024", "2025"]} />
+          </div>
         </div>
       </div>
 
