@@ -28,11 +28,11 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
   const series = [
     {
       name: "Gizi Baik",
-      data: [44, 55, 41, 67, 22, 43, 65,35,25],
+      data: [44, 55, 41, 67, 22, 43, 65, 35, 25],
     },
     {
       name: "Gizi Buruk",
-      data: [50, 23, 20, 8, 13, 27, 15,10,7],
+      data: [50, 23, 20, 8, 13, 27, 15, 10, 7],
     },
   ];
   const wilayah: Wilayah[] = [
@@ -105,11 +105,11 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
             Grafik Tren Stunting Balita di Banyuwangi
           </h4>
           <div className="mt-2 flex flex-col items-start justify-start gap-1">
-            <div className="flex items-center justify-center gap-2 mt-1">
+            <div className="mt-1 flex items-center justify-center gap-2">
               <div className="h-2 w-2 rounded-full bg-blue-500"></div>
               <p className="">Balita Gizi Baik</p>
             </div>
-            <div className="flex items-center justify-center gap-2 mb-1">
+            <div className="mb-1 flex items-center justify-center gap-2">
               <div className="h-2 w-2 rounded-full bg-red-500"></div>
               <p className="">Balita Gizi Buruk</p>
             </div>
@@ -143,29 +143,32 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
                 className="md:w-14rem h-11 w-full"
               />
               {/* searching */}
-              <div className=" flex h-11 w-35 items-center cursor-pointer justify-center rounded-md border border-gray-300 ">
+              <div className=" flex h-11 w-35 cursor-pointer items-center justify-center rounded-md border border-gray-300 ">
                 <SvgSearch />
               </div>
             </div>
           </div>
         </div>
         <div>
-          <DefaultSelectOption
-            options={[
-              "Januari 2024",
-              "Februari 2024",
-              "Maret 2024",
-              "April 2024",
-              "Mei 2024",
-              "Juni 2024",
-              "Juli 2024",
-              "Agustus 2024",
-              "September 2024",
-              "Oktober 2024",
-              "November 2024",
-              "Desember 2024",
-            ]}
-          />
+          <div className="flex gap-2">
+            <DefaultSelectOption
+              options={[
+                "Januari",
+                "Februari",
+                "Maret",
+                "April",
+                "Mei",
+                "Juni",
+                "Juli",
+                "Agustus",
+                "September",
+                "Oktober",
+                "November",
+                "Desember",
+              ]}
+            />
+            <DefaultSelectOption options={["2023", "2024", "2025"]} />
+          </div>
         </div>
       </div>
 
