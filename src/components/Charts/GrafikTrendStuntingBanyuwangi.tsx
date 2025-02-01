@@ -101,18 +101,26 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
     <div className="col-span-12 rounded-[10px] bg-white px-7.5 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card xl:col-span-5">
       <div className="mb-4 justify-between gap-4 sm:flex">
         <div>
-          <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Grafik Tren Stunting Balita di Banyuwangi
+         <div>
+         <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
+            Tingkat Gizi Balita menurut Wilayah Desa
           </h4>
+
+          <h2 className="text-body-0px text-dark dark:text-white">
+            Menampilkan Tren Gizi balita Berdasarkan Pembagian Wilayah Desa
+          </h2>
+          
+         </div>
           <div className="mt-2 flex flex-col items-start justify-start gap-1">
-            <div className="mt-1 flex items-center justify-center gap-2">
+          {/* <div className="mt-1 flex items-center justify-center gap-2">
               <div className="h-2 w-2 rounded-full bg-blue-500"></div>
               <p className="">Balita Gizi Baik</p>
-            </div>
-            <div className="mb-1 flex items-center justify-center gap-2">
+            </div> */}
+            {/* <div className="mb-1 flex items-center justify-center gap-2">
               <div className="h-2 w-2 rounded-full bg-red-500"></div>
               <p className="">Balita Gizi Buruk</p>
-            </div>
+            </div> */}
+           
             <div className="flex items-center justify-center gap-2">
               {/* wilayah */}
               <Dropdown
@@ -146,7 +154,9 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
               <div className=" flex h-11 w-35 cursor-pointer items-center justify-center rounded-md border border-gray-300 ">
                 <SvgSearch />
               </div>
+              
             </div>
+            
           </div>
         </div>
         <div>

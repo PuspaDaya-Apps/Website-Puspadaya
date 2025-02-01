@@ -105,10 +105,10 @@ const MapPersebaranBalitaStunting: React.FC = () => {
       <div className="mb-10 flex justify-between">
         <div className="">
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Peta Persebaran Balita Stunting
+            Peta Penyebaran Balita Stunting
           </h1>
           <p className="text-normal text-dark">
-            Menampilkan peta persebaran balita stunting dan tidak stunting
+            Peta Penyebaran Stunting dan Gizi Baik pada Balita
           </p>
         </div>
         <div className="w-fit">

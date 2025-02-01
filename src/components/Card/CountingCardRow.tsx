@@ -21,14 +21,14 @@ const CountingCard: React.FC<CountingCardProps> = ({
   title_secound
 }) => {
   return (
-    <div className="flex flex-col justify-between rounded-xl h-full bg-white p-6 shadow-lg">
-      <div className="flex items-start justify-between">
+    <div className="flex flex-col rounded-xl h-full bg-white p-6 shadow-lg">
+      <div className="flex items-start">
         <div>
-        <h1 className="text-xl text-black font-bold">{title}</h1>
+        <h1 className="text-xl text-black w-70 font-bold">{title}</h1>
         <h1 className="text-xl text-green-500 font-bold">{title_secound}</h1>
       </div>
         <div
-          className="flex h-12 w-16 items-center justify-center rounded-lg"
+          className="flex h-16 w-25 items-center justify-center rounded-lg"
           style={{ backgroundColor: color }}
         >
           <Icon />

@@ -6,6 +6,9 @@ import {
   SvgIconFamily,
   SvgIconLoveBlue,
   SvgIconLoveOrange,
+  SvgIconPregnantMother,
+  SvgIconToilet,
+  SvgIconVillage,
 } from "../ui/Svg";
 import PercentageCard from "../Card/PercentageCard";
 import GrafikTrendStuntingBalita from "../Charts/GrafikTrendStuntingBalita";
@@ -19,6 +22,7 @@ import MapPersebaranBalitaBerdasarkanWIlayah from "../Charts/MapPersebaranBalita
 import MapPersebaranKader from "../Charts/MapPersebaranKader";
 import MapPersebaranKeluargaTanpaMCK from "../Charts/MapPersebaranKeluargaTanpaMCK";
 import MapPersebaranDesa from "../Charts/MapPersebaranDesa";
+import CountingCardRow from "../Card/CountingCardRow";
 
 const Dashboard = () => {
   const colors = ["#34B53A", "#F39D00"];
@@ -43,8 +47,9 @@ const Dashboard = () => {
             isMeningkat={true}
             jumlah={1200}
             peningkatan="20%"
-            subtitle="Jumlah Balita meningkat"
+            subtitle="Jumlah Balita Meningkat"
             title="Jumlah Balita Keseluruhan"
+            title_secound = ""
             color={"#EBF3FE"}
           />
           <CountingCard
@@ -52,8 +57,9 @@ const Dashboard = () => {
             isMeningkat={false}
             jumlah={20}
             peningkatan="4%"
-            subtitle="Jumlah Balita Stunting meningkat"
+            subtitle="Jumlah Balita Stunting Meningkat"
             title="Jumlah Balita Stunting"
+            title_secound = "Aktif Januari 2025"
             color={"#EBF3FE"}
           />
         </div>
@@ -63,28 +69,65 @@ const Dashboard = () => {
 
         <div className="col-span-4 flex flex-col justify-between gap-10">
           <CountingCard
-            icon={SvgIconArtikel}
+            icon={SvgIconBayi}
             isMeningkat={true}
-            jumlah={78}
-            peningkatan="90%"
-            subtitle="Artikel Yang di Publikasi Meningkat"
-            title="Jumlah Artikel"
+            jumlah={12}
+            peningkatan="10%"
+            subtitle="Jumlah Balita Underweigt Menurun"
+            title="Jumlah Balita Underweigt"
+            title_secound = "Aktif Januari 2025"
             color={"#EBF3FE"}
           />
+
           <CountingCard
-            icon={SvgIconFamily}
-            isMeningkat={false}
-            jumlah={30}
-            peningkatan="2%"
-            title={
-              <>
-                Jumlah Keluarga Belum <br /> Memiliki Fasilitas MCK
-              </>
-            }
-            subtitle="Jumlah Keluarga Belum Memiliki Fasilitas MCK Meningkat"
+            icon={SvgIconBayi}
+            isMeningkat={true}
+            jumlah={16}
+            peningkatan="6%"
+            subtitle="Jumlah Balita Underweigt Menurun"
+            title="Jumlah Balita Underweigt"
+            title_secound = "Aktif Januari 2025"
             color={"#EBF3FE"}
           />
         </div>
+
+
+        <div className="col-span-4 flex flex-row gap-10">
+          <CountingCardRow
+            icon={SvgIconVillage}
+            isMeningkat={true}
+            jumlah={200}
+            peningkatan="10%"
+            subtitle="Jumlah Desa Meningkat"
+            title="Jumlah Desa"
+            title_secound = ""
+            color={"#EBF3FE"}
+          />
+
+          <CountingCardRow
+            icon={SvgIconToilet}
+            isMeningkat={false}
+            jumlah={30}
+            peningkatan="9%"
+            subtitle="Jumlah Keluarga Belum Memiliki Fasilitas MCK Meningkat"
+            title="Keluarga tanpa MCK"
+            title_secound = ""
+            color={"#EBF3FE"}
+          />
+
+          <CountingCardRow
+            icon={SvgIconPregnantMother}
+            isMeningkat={false}
+            jumlah={28}
+            peningkatan="3%"
+            subtitle="Jumlah Ibu Hamil Meningkat"
+            title="Jumlah Ibu Hamil"
+            title_secound = "Aktif Januari 2025"
+            color={"#EBF3FE"}
+          />
+          
+        </div>
+       
           
         <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
           <MapPersebaranBalitaStunting />
@@ -105,6 +148,7 @@ const Dashboard = () => {
             jumlah={140}
             peningkatan="18%"
             title="Jumlah Posyandu"
+             title_secound = ""
             subtitle="Jumlah Posyandu Meningkat"
             color={"#EBF3FE"}
           />
@@ -128,6 +172,7 @@ const Dashboard = () => {
             jumlah={200}
             peningkatan="43%"
             title="Jumlah Kader"
+             title_secound = ""
             subtitle="Jumlah Kader Meningkat"
             color={"#EBF3FE"}
           />
@@ -142,6 +187,7 @@ const Dashboard = () => {
             label={["Banyuwangi", "Maluku Tengah"]}
           />
         </div>
+        
         <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
           <MapPersebaranKader />
         </div>

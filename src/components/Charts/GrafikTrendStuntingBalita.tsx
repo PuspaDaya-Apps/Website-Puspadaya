@@ -100,18 +100,19 @@ const GrafikTrendStunting: React.FC = () => {
     xaxis: {
       type: "category",
       categories: [
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
+        "2013",
+        "2014",
+        "2015",
+        "2016",
+        "2017",
+        "2018",
+        "2019",
+        "2020",
+        "2021",
+        "2022",
+        "2023",
+        "2024",
+        "2025",
       ],
       axisBorder: {
         show: false,
@@ -133,9 +134,16 @@ const GrafikTrendStunting: React.FC = () => {
     <div className="col-span-12 rounded-[10px] bg-white px-7.5 pb-6 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card xl:col-span-7">
       <div className="mb-3.5 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div>
+          <div>
           <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Grafik Tren Stunting pada Balita
+            Grafik Tren Gizi pada Balita
           </h4>
+            <h2 className="text-body-0px text-dark dark:text-white">
+            Menampilkan tren gizi pada balita berdasarkan wilayah
+            </h2>
+          </div>
+          
+
           <div className="flex flex-col items-start justify-start gap-1 mt-2">
             <div className="flex items-center justify-center gap-2">
               <div
@@ -170,7 +178,7 @@ const GrafikTrendStunting: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 text-center xsm:flex-row xsm:gap-0">
+      {/* <div className="flex flex-col gap-2 text-center xsm:flex-row xsm:gap-0">
         <div className="border-stroke dark:border-dark-3 xsm:w-1/2 xsm:border-r">
           <p className="font-medium">Balita Gizi Baik</p>
           <h4 className="mt-1 text-xl font-bold text-blue-400 dark:text-white">
@@ -183,7 +191,7 @@ const GrafikTrendStunting: React.FC = () => {
             21
           </h4>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
