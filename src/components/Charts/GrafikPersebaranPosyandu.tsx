@@ -101,18 +101,23 @@ const GrafikPersebaranPosyandu: React.FC = () => {
     <div className="col-span-12 rounded-[10px] bg-white px-7.5 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card xl:col-span-5">
       <div className="mb-4 justify-between gap-4 sm:flex">
         <div>
-          <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Grafik Persebaran Posyandu
-          </h4>
+        <div className="">
+          <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
+            Grafik Persebaran Posyandu 
+          </h1>
+          <p className="text-normal text-dark">
+            Menampilkan grafik posyandu aktif dan tidak aktif
+          </p>
+        </div>
           <div className="mt-2 flex flex-col items-start justify-start gap-1">
-            <div className="flex items-center justify-center gap-2 mt-1">
+            {/* <div className="flex items-center justify-center gap-2 mt-1">
               <div className="h-2 w-2 rounded-full bg-[#F39D00]"></div>
               <p className="">Posyandu Aktif</p>
             </div>
             <div className="flex items-center justify-center gap-2 mb-1">
               <div className="h-2 w-2 rounded-full bg-[#34B53A]"></div>
               <p className="">Posyandu Tidak Aktif</p>
-            </div>
+            </div> */}
             <div className="flex items-center justify-center gap-2">
               {/* wilayah */}
               <Dropdown

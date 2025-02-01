@@ -21,7 +21,7 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
   ];
   // Set nilai default ke Banyuwangi (Bwi)
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(
-    wilayah.find((wilayah) => wilayah.code === "Bwi") || null,
+    wilayah.find((wilayah) => wilayah.code === "Bwi") || null
   );
 
   const [map, setMap] = useState<L.Map | null>(null); // Menyimpan instance peta
@@ -39,6 +39,7 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
       mapInstance.remove(); // Hapus instance peta saat komponen di-unmount
     };
   }, []);
+
   const popupContent = (feature: any) => {
     // Using HTML string instead of JSX for Leaflet to understand
     return `
@@ -48,6 +49,7 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
       </div>
     `;
   };
+
   useEffect(() => {
     if (map && selectedWilayah) {
       // Hapus layer GeoJSON yang sudah ada
@@ -80,6 +82,17 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
             onEachFeature: (feature, layer) => {
               if (feature.properties && feature.properties.name) {
                 layer.bindPopup(popupContent(feature)); // Memanggil popupContent
+
+                // Menambahkan event mouseover untuk menampilkan informasi
+                layer.on("mouseover", () => {
+                  const info = `Keluarga tidak memiliki MCK: ${feature.properties.keluargaTanpaMCK}`;
+                  layer.bindTooltip(info).openTooltip();
+                });
+
+                // Menambahkan event mouseout untuk menghapus informasi
+                layer.on("mouseout", () => {
+                  layer.closeTooltip();
+                });
               }
             },
           }).addTo(map);
@@ -104,10 +117,10 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
       <div className="mb-10 flex justify-between">
         <div className="">
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
-          Peta Persebaran Keluarga Tanpa Fasilitas MCK
+            Peta Persebaran Keluarga Tanpa Fasilitas MCK
           </h1>
           <p className="text-normal text-dark">
-          Menampilkan peta pesebaran keluarga yang tidak memiliki fasilitas MCK
+            Menampilkan peta persebaran keluarga yang tidak memiliki fasilitas MCK
           </p>
         </div>
         <div className="w-fit">
@@ -121,7 +134,10 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
           />
         </div>
       </div>
-      <div id="map-persebaran-keluarga-tanpa-mck" style={{ height: "100vh", width: "100%", zIndex: 1 }} />
+      <div
+        id="map-persebaran-keluarga-tanpa-mck"
+        style={{ height: "100vh", width: "100%", zIndex: 1 }}
+      />
     </div>
   );
 };

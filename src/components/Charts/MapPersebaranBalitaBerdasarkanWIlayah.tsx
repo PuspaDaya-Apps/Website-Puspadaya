@@ -106,11 +106,10 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
       <div className="mb-10 flex justify-between">
         <div className="">
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Peta Pesebaran Balita Berdasarkan Wilayah
+            Peta Penyebaran Balita Berdasarkan Wilayah
           </h1>
           <p className="text-normal text-dark">
-            Menampilkan peta pesebaran balita stunting dan tidak stunting
-            berdasarkan wilayah
+            Menampilkan Status Penyebaran di Setiap Wilayah
           </p>
         </div>
         <div className="w-fit">

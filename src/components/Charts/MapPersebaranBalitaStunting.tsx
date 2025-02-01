@@ -5,7 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Dropdown } from "primereact/dropdown";
 
-// Tipe data untuk GeoJSON
+// Tipe data untuk Wilayah
 interface Wilayah {
   name: string;
   code: string;
@@ -19,47 +19,49 @@ const MapPersebaranBalitaStunting: React.FC = () => {
     { name: "Banyuwangi", code: "Bwi" },
     { name: "Maluku Tengah", code: "MT" },
   ];
-  // Set nilai default ke Banyuwangi (Bwi)
+
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(
     wilayah.find((wilayah) => wilayah.code === "Bwi") || null,
   );
 
-  const [map, setMap] = useState<L.Map | null>(null); // Menyimpan instance peta
-  const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null); // Menyimpan layer GeoJSON
+  const [map, setMap] = useState<L.Map | null>(null);
+  const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null);
 
   useEffect(() => {
-    const mapInstance = L.map("map-balita-stunting").setView(banyuwangiView, 10); // Inisialisasi peta dengan koordinat Banyuwangi
+    const mapInstance = L.map("map-balita-stunting").setView(
+      banyuwangiView,
+      10,
+    );
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
     }).addTo(mapInstance);
 
-    setMap(mapInstance); // Set map instance ke state
+    setMap(mapInstance);
 
     return () => {
-      mapInstance.remove(); // Hapus instance peta saat komponen di-unmount
+      mapInstance.remove();
     };
   }, []);
+
   const popupContent = (feature: any) => {
-    // Using HTML string instead of JSX for Leaflet to understand
     return `
       <div>
         <p><strong>Wilayah:</strong> ${feature.properties.name}</p>
         <p><strong>Memiliki balita stunting:</strong> 80</p>
+        <p><strong>Memiliki balita Wasting:</strong> 10</p>
         <p><strong>Balita gizi baik:</strong> 238</p>
       </div>
     `;
   };
+
   useEffect(() => {
     if (map && selectedWilayah) {
-      // Hapus layer GeoJSON yang sudah ada
       geoJSONLayer?.remove();
 
-      // Sesuaikan setView berdasarkan wilayah yang dipilih
       const view =
         selectedWilayah.code === "Bwi" ? banyuwangiView : malukuTengahView;
       map.setView(view, 10);
 
-      // Load dan tambahkan GeoJSON untuk wilayah yang dipilih
       const fetchGeoJSON = async () => {
         const endpoint =
           selectedWilayah.code === "Bwi"
@@ -80,15 +82,12 @@ const MapPersebaranBalitaStunting: React.FC = () => {
             }),
             onEachFeature: (feature, layer) => {
               if (feature.properties && feature.properties.name) {
-                layer.bindPopup(popupContent(feature)); // Memanggil popupContent
+                layer.bindPopup(popupContent(feature));
               }
             },
           }).addTo(map);
 
-          // Update state untuk menyimpan layer GeoJSON
           setGeoJSONLayer(newGeoJSONLayer);
-
-          // Zoom ke batas GeoJSON
           const bounds = newGeoJSONLayer.getBounds();
           map.fitBounds(bounds);
         } catch (error) {
@@ -98,7 +97,62 @@ const MapPersebaranBalitaStunting: React.FC = () => {
 
       fetchGeoJSON();
     }
-  }, [map, selectedWilayah]); // Menjalankan setiap kali peta atau wilayah dipilih berubah
+  }, [map, selectedWilayah]);
+
+  // Tambahkan titik merah, kuning, hijau berdasarkan tingkat stunting
+  useEffect(() => {
+    if (map) {
+      const titikPenyebaran = [
+        {
+          lat: -8.2192,
+          lng: 114.3691,
+          color: "red",
+          info: "Tingkat stunting tinggi",
+        },
+        {
+          lat: -8.2292,
+          lng: 114.3791,
+          color: "yellow",
+          info: "Tingkat stunting sedang",
+        },
+        {
+          lat: -8.2392,
+          lng: 114.3891,
+          color: "green",
+          info: "Tingkat stunting rendah",
+        },
+
+        {
+          lat: -3.2255,
+          lng: 128.9754,
+          color: "red",
+          info: "Tingkat stunting tinggi (Amahai)",
+        },
+        {
+          lat: -3.2997,
+          lng: 128.9565,
+          color: "yellow",
+          info: "Tingkat stunting sedang (Masohi)",
+        },
+        {
+          lat: -3.3333,
+          lng: 129.0,
+          color: "green",
+          info: "Tingkat stunting rendah (Tehoru)",
+        },
+      ];
+
+      titikPenyebaran.forEach(({ lat, lng, color, info }) => {
+        const marker = L.circleMarker([lat, lng], {
+          color: color,
+          fillColor: color,
+          fillOpacity: 0.8,
+          radius: 8,
+        }).addTo(map);
+        marker.bindPopup(`<b>${info}</b>`);
+      });
+    }
+  }, [map]);
 
   return (
     <div className="">
@@ -122,7 +176,25 @@ const MapPersebaranBalitaStunting: React.FC = () => {
           />
         </div>
       </div>
-      <div id="map-balita-stunting" style={{ height: "100vh", width: "100%", zIndex: 1 }} />
+      <div
+        id="map-balita-stunting"
+        style={{ height: "100vh", width: "100%", zIndex: 1 }}
+      />
+
+
+      <div className="mb-1 flex items-center gap-2">
+        <div className="h-2 w-2 rounded-full bg-red-500"></div>
+        <p className="">Balita Stunting</p>
+      </div>
+      <div className="mt-1 flex items-center gap-2">
+        <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
+        <p className="">Balita Wasting</p>
+      </div>
+      <div className="mb-1 flex items-center gap-2">
+        <div className="h-2 w-2 rounded-full bg-green-500"></div>
+        <p className="">Balita Gizi Baik</p>
+      </div>
+      
     </div>
   );
 };

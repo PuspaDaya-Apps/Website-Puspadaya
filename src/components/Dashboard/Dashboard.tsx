@@ -1,9 +1,7 @@
 import React from "react";
 import CountingCard from "../Card/CountingCard";
 import {
-  SvgIconArtikel,
   SvgIconBayi,
-  SvgIconFamily,
   SvgIconLoveBlue,
   SvgIconLoveOrange,
   SvgIconPregnantMother,
@@ -15,8 +13,6 @@ import GrafikTrendStuntingBalita from "../Charts/GrafikTrendStuntingBalita";
 import GrafikTrendStuntingBanyuwangi from "../Charts/GrafikTrendStuntingBanyuwangi";
 import GrafikPersebaranPosyandu from "../Charts/GrafikPersebaranPosyandu";
 import GrafikPersebaranKaderDanTingkatAktivitas from "../Charts/GrafikPersebaranKaderDanTingkatAktivitas";
-import BanyuwangiMap from "../Charts/BanyuwangiMap";
-import MalukuTengahMap from "../Charts/MalukuTengahMap";
 import MapPersebaranBalitaStunting from "../Charts/MapPersebaranBalitaStunting";
 import MapPersebaranBalitaBerdasarkanWIlayah from "../Charts/MapPersebaranBalitaBerdasarkanWIlayah";
 import MapPersebaranKader from "../Charts/MapPersebaranKader";
@@ -165,11 +161,11 @@ const Dashboard = () => {
           <GrafikPersebaranKaderDanTingkatAktivitas />
         </div>
 
-        <div className="col-span-4 flex flex-col justify-between gap-10">
+        <div className="col-span-4 flex flex-col justify-between gap-4">
           <CountingCard
             icon={SvgIconLoveBlue}
             isMeningkat={true}
-            jumlah={200}
+            jumlah={300}
             peningkatan="43%"
             title="Jumlah Kader"
              title_secound = ""
@@ -194,9 +190,9 @@ const Dashboard = () => {
         <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
           <MapPersebaranKeluargaTanpaMCK />
         </div>
-        <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
+        {/* <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
           <MapPersebaranDesa />
-        </div>
+        </div> */}
       </div>
     </div>
   );

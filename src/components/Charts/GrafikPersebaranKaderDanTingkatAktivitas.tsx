@@ -99,20 +99,25 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
 
   return (
     <div className="col-span-12 rounded-[10px] bg-white px-7.5 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card xl:col-span-5">
-      <div className="mb-4 justify-between gap-4 sm:flex">
+      <div className="mb-14 justify-between gap-4 sm:flex">
         <div>
-          <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Grafik Persebaran Kader dan Tingkat Aktivitas{" "}
-          </h4>
+        <div className="">
+          <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
+            Grafik Persebaran Kader dan Tingkat Aktivitas
+          </h1>
+          <p className="text-normal text-dark">
+            Menampilkan sebaran kader dan tingkat aktivitas
+          </p>
+        </div>
           <div className="mt-2 flex flex-col items-start justify-start gap-1">
-            <div className="mt-1 flex items-center justify-center gap-2">
+            {/* <div className="mt-1 flex items-center justify-center gap-2">
               <div className="h-2 w-2 rounded-full bg-blue-500"></div>
               <p className="">Kader Aktif</p>
             </div>
             <div className="mb-1 flex items-center justify-center gap-2">
               <div className="h-2 w-2 rounded-full bg-red-500"></div>
               <p className="">Kader Tidak Aktif</p>
-            </div>
+            </div> */}
             <div className="flex items-center justify-center gap-2">
               {/* wilayah */}
               <Dropdown
