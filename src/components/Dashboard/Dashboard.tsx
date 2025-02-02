@@ -126,7 +126,7 @@ const Dashboard = () => {
         dataLength={items.length}
         next={fetchMoreData}
         hasMore={hasMore}
-        loader={<h4>Loading...</h4>}
+        loader={<h4></h4>}
       >
         <div className="grid grid-cols-12 gap-10">
           <div className="col-span-8">

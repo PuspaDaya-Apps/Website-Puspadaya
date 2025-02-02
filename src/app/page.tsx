@@ -6,8 +6,8 @@ import ECommerce from "@/components/Dashboard/E-commerce";
 
 export const metadata: Metadata = {
   title:
-    "Dashboard Puspadaya",
-  description: "Dashboard Puspadaya",
+    "Puspadaya",
+  description: "Puspadaya",
 };
 
 export default function Home() {
