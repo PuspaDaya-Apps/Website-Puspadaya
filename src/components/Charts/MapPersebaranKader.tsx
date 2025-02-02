@@ -165,7 +165,7 @@ const MapPersebaranKader: React.FC = () => {
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
             Peta Penyebaran Kader Aktif dan Tidak Aktif
           </h1>
-          <p className="text-normal text-dark">
+          <p className="">
             Menampilkan penyebaran kader aktif dan tidak aktif di wilayah
             tertentu
           </p>

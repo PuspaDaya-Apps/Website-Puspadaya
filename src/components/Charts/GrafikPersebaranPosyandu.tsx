@@ -47,11 +47,11 @@ const GrafikPersebaranPosyandu: React.FC = () => {
     { name: "Sempu", code: "SMP" },
   ];
   const desa: Desa[] = [
-    { name: "desa1", code: "desa1" },
-    { name: "desa2", code: "desa1" },
-    { name: "desa3", code: "desa1" },
-    { name: "desa4", code: "desa1" },
-    { name: "desa5", code: "desa1" },
+    { name: "Aliyan", code: "Aliyan" },
+    { name: "Bubuk", code: "Bubuk" },
+    { name: "Gitik", code: "Gitik" },
+    { name: "Gladak", code: "Gladak" },
+    { name: "Karang Bendo", code: "Karang Bendo" },
   ];
   const options: ApexOptions = {
     series: series,
@@ -105,7 +105,7 @@ const GrafikPersebaranPosyandu: React.FC = () => {
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
             Grafik Persebaran Posyandu 
           </h1>
-          <p className="text-normal text-dark">
+          <p className="p">
             Menampilkan grafik posyandu aktif dan tidak aktif
           </p>
         </div>

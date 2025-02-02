@@ -161,8 +161,8 @@ const MapPersebaranBalitaStunting: React.FC = () => {
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
             Peta Penyebaran Balita Stunting
           </h1>
-          <p className="text-normal text-dark">
-            Peta Penyebaran Stunting dan Gizi Baik pada Balita
+          <p className="">
+            Peta penyebaran stunting dan gizi baik pada balita
           </p>
         </div>
         <div className="w-fit">

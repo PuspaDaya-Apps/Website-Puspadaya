@@ -47,11 +47,11 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
     { name: "Sempu", code: "SMP" },
   ];
   const desa: Desa[] = [
-    { name: "desa1", code: "desa1" },
-    { name: "desa2", code: "desa1" },
-    { name: "desa3", code: "desa1" },
-    { name: "desa4", code: "desa1" },
-    { name: "desa5", code: "desa1" },
+    { name: "Aliyan", code: "Aliyan" },
+    { name: "Bubuk", code: "Bubuk" },
+    { name: "Gitik", code: "Gitik" },
+    { name: "Gladak", code: "Gladak" },
+    { name: "Karang Bendo", code: "Karang Bendo" },
   ];
   const options: ApexOptions = {
     series: series,
@@ -106,9 +106,9 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
             Tingkat Gizi Balita menurut Wilayah Desa
           </h4>
 
-          <h2 className="text-body-0px text-dark dark:text-white">
-            Menampilkan Tren Gizi balita Berdasarkan Pembagian Wilayah Desa
-          </h2>
+          <p className="">
+            Menampilkan tren gizi balita berdasarkan pembagian wilayah desa
+          </p>
           
          </div>
           <div className="mt-2 flex flex-col items-start justify-start gap-1">

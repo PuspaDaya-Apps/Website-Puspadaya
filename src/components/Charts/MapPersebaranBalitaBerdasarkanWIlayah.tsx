@@ -108,8 +108,8 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
             Peta Penyebaran Balita Berdasarkan Wilayah
           </h1>
-          <p className="text-normal text-dark">
-            Menampilkan Status Penyebaran di Setiap Wilayah
+          <p className="">
+            Menampilkan status penyebaran di setiap wilayah
           </p>
         </div>
         <div className="w-fit">

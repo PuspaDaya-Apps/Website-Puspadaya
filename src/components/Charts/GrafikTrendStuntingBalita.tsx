@@ -138,9 +138,9 @@ const GrafikTrendStunting: React.FC = () => {
           <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
             Grafik Tren Gizi pada Balita
           </h4>
-            <h2 className="text-body-0px text-dark dark:text-white">
+            <p className="">
             Menampilkan tren gizi pada balita berdasarkan wilayah
-            </h2>
+            </p>
           </div>
           
 
