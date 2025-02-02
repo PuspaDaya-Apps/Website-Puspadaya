@@ -186,14 +186,17 @@ const MapPersebaranKader: React.FC = () => {
         style={{ height: "100vh", width: "100%", zIndex: 1 }}
       />
 
-      <div className="mb-1 flex items-center gap-2">
-        <div className="h-2 w-2 rounded-full bg-red-500"></div>
-        <p className="">Kader Tidak Aktif</p>
+      <div className="flex gap-4">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-red-500"></div>
+          <p>Kader Tidak Aktif</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-green-500"></div>
+          <p>Kader Aktif</p>
+        </div>
       </div>
-      <div className="mt-1 flex items-center gap-2">
-        <div className="h-2 w-2 rounded-full bg-green-500"></div>
-        <p className="">Kader Aktif</p>
-      </div>
+
     </div>
   );
 };

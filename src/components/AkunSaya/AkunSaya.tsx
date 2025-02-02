@@ -36,7 +36,7 @@ type Dusun = {
 const AkunSaya = () => {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null); // State for profile photo
   const [Akun, setAkun] = useState<Akun>({
-    namaLengkap: "Soke Bahtera",
+    namaLengkap: "Ahmad Hanafi",
     noTelepon: "08976543215",
     email: "sokebah@gmail.com",
     kata_sandi: "sokebah12345",

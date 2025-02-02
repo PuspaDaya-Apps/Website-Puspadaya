@@ -182,18 +182,21 @@ const MapPersebaranBalitaStunting: React.FC = () => {
       />
 
 
-      <div className="mb-1 flex items-center gap-2">
-        <div className="h-2 w-2 rounded-full bg-red-500"></div>
-        <p className="">Balita Stunting</p>
+      <div className="flex gap-4">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-red-500"></div>
+          <p>Balita Stunting</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
+          <p>Balita Wasting</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-green-500"></div>
+          <p>Balita Gizi Baik</p>
+        </div>
       </div>
-      <div className="mt-1 flex items-center gap-2">
-        <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-        <p className="">Balita Wasting</p>
-      </div>
-      <div className="mb-1 flex items-center gap-2">
-        <div className="h-2 w-2 rounded-full bg-green-500"></div>
-        <p className="">Balita Gizi Baik</p>
-      </div>
+
       
     </div>
   );

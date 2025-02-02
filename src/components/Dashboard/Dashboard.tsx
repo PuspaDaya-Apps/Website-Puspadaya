@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import CountingCard from "../Card/CountingCard";
 import {
   SvgIconBayi,
@@ -8,6 +9,7 @@ import {
   SvgIconToilet,
   SvgIconVillage,
 } from "../ui/Svg";
+import InfiniteScroll from "react-infinite-scroll-component";
 import PercentageCard from "../Card/PercentageCard";
 import GrafikTrendStuntingBalita from "../Charts/GrafikTrendStuntingBalita";
 import GrafikTrendStuntingBanyuwangi from "../Charts/GrafikTrendStuntingBanyuwangi";
@@ -27,173 +29,254 @@ const Dashboard = () => {
     { name: "Banyuwangi", value: 65 },
     { name: "Maluku Tengah", value: 35 },
   ];
+
+  const [items, setItems] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Simulasikan data yang akan dimuat dengan delay 2-5 detik
+  const fetchMoreData = () => {
+    if (items.length >= 10000) {
+      setHasMore(false);
+      return;
+    }
+
+    setIsLoading(true);
+
+    const delay = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000; // Random delay antara 2-5 detik
+
+    setTimeout(() => {
+      setItems(items.concat(Array.from({ length: 20 })));
+      setIsLoading(false);
+    }, delay);
+  };
+
+  useEffect(() => {
+    fetchMoreData();
+  }, []);
+
   return (
     <div>
       <div className="mb-10">
         <h1 className="text-3xl font-bold text-black">Dashboard</h1>
         <p className="mt-1">Pantau perkembangan keluarga dan kader disini!</p>
       </div>
-      <div className="grid grid-cols-12 gap-10">
-        <div className="col-span-8">
-          <GrafikTrendStuntingBalita />
-        </div>
-        <div className="col-span-4 flex flex-col justify-between gap-10">
-          <CountingCard
-            icon={SvgIconBayi}
-            isMeningkat={true}
-            jumlah={1200}
-            peningkatan="20%"
-            subtitle="Jumlah Balita Meningkat"
-            title="Jumlah Balita Keseluruhan"
-            title_secound = ""
-            color={"#EBF3FE"}
-          />
-          <CountingCard
-            icon={SvgIconBayi}
-            isMeningkat={false}
-            jumlah={139}
-            peningkatan="4%"
-            subtitle="Jumlah Balita Stunting Meningkat"
-            title="Jumlah Balita Stunting"
-            title_secound = "Aktif Januari 2025"
-            color={"#EBF3FE"}
-          />
-        </div>
-        <div className="col-span-8">
-          <GrafikTrendStuntingBanyuwangi />
-        </div>
 
-        <div className="col-span-4 flex flex-col justify-between gap-10">
-          <CountingCard
-            icon={SvgIconBayi}
-            isMeningkat={true}
-            jumlah={12}
-            peningkatan="10%"
-            subtitle="Jumlah Balita Underweigt Menurun"
-            title="Jumlah Balita Underweigt"
-            title_secound = "Aktif Januari 2025"
-            color={"#EBF3FE"}
-          />
+      <InfiniteScroll
+        dataLength={items.length}
+        next={fetchMoreData}
+        hasMore={hasMore}
+        loader={<h4>Loading...</h4>}
+      >
+        <div className="grid grid-cols-12 gap-10">
+          <div className="col-span-8">
+            {/* Grafik Trend Stunting */}
+            {isLoading ? <h4>Loading..</h4> : <GrafikTrendStuntingBalita />}
+          </div>
 
-          <CountingCard
-            icon={SvgIconBayi}
-            isMeningkat={true}
-            jumlah={16}
-            peningkatan="6%"
-            subtitle="Jumlah Balita Underweigt Menurun"
-            title="Jumlah Balita Underweigt"
-            title_secound = "Aktif Januari 2025"
-            color={"#EBF3FE"}
-          />
-        </div>
+          {/* Card Baita */}
+          <div className="col-span-4 flex flex-col justify-between gap-10">
+            {isLoading ? (
+              <h4></h4>
+            ) : (
+              <>
+                <CountingCard
+                  icon={SvgIconBayi}
+                  isMeningkat={true}
+                  jumlah={1200}
+                  peningkatan="20%"
+                  subtitle="Jumlah Balita Meningkat"
+                  title="Jumlah Balita Keseluruhan"
+                  title_secound=""
+                  color={"#EBF3FE"}
+                />
 
+                <CountingCard
+                  icon={SvgIconBayi}
+                  isMeningkat={false}
+                  jumlah={139}
+                  peningkatan="4%"
+                  subtitle="Jumlah Balita Stunting Meningkat"
+                  title="Jumlah Balita Stunting"
+                  title_secound="Aktif Januari 2025"
+                  color={"#EBF3FE"}
+                />
+              </>
+            )}
+          </div>
 
-        <div className="col-span-4 flex flex-row gap-10">
-          <CountingCardRow
-            icon={SvgIconVillage}
-            isMeningkat={true}
-            jumlah={200}
-            peningkatan="10%"
-            subtitle="Jumlah Desa Meningkat"
-            title="Jumlah Desa"
-            title_secound = ""
-            color={"#EBF3FE"}
-          />
+          {/* Grafik Tren Stunting Banyuwangi */}
+          <div className="col-span-8">
+            {isLoading ? <h4></h4> : <GrafikTrendStuntingBanyuwangi />}
+          </div>
 
-          <CountingCardRow
-            icon={SvgIconToilet}
-            isMeningkat={false}
-            jumlah={30}
-            peningkatan="9%"
-            subtitle="Jumlah Keluarga Belum Memiliki Fasilitas MCK Meningkat"
-            title="Keluarga tanpa MCK"
-            title_secound = ""
-            color={"#EBF3FE"}
-          />
+          {/* Card Balita Underweigt */}
+          <div className="col-span-4 flex flex-col justify-between gap-10">
+            {isLoading ? (
+              <h4></h4>
+            ) : (
+              <>
+                <CountingCard
+                  icon={SvgIconBayi}
+                  isMeningkat={true}
+                  jumlah={12}
+                  peningkatan="10%"
+                  subtitle="Jumlah Balita Underweigt Menurun"
+                  title="Jumlah Balita Underweigt"
+                  title_secound="Aktif Januari 2025"
+                  color={"#EBF3FE"}
+                />
 
-          <CountingCardRow
-            icon={SvgIconPregnantMother}
-            isMeningkat={false}
-            jumlah={28}
-            peningkatan="3%"
-            subtitle="Jumlah Ibu Hamil Meningkat"
-            title="Jumlah Ibu Hamil"
-            title_secound = "Aktif Januari 2025"
-            color={"#EBF3FE"}
-          />
-          
-        </div>
-       
-          
-        <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
-          <MapPersebaranBalitaStunting />
-        </div>
-        
-        <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
-          <MapPersebaranBalitaBerdasarkanWIlayah />
-        </div>
+                <CountingCard
+                  icon={SvgIconBayi}
+                  isMeningkat={true}
+                  jumlah={16}
+                  peningkatan="6%"
+                  subtitle="Jumlah Balita Underweigt Menurun"
+                  title="Jumlah Balita Underweigt"
+                  title_secound="Aktif Januari 2025"
+                  color={"#EBF3FE"}
+                />
+              </>
+            )}
+          </div>
 
-        <div className="col-span-8">
-          <GrafikPersebaranPosyandu />
-        </div>
+          {/* Card Desa, Ibu Hamil */}
+          <div className="col-span-4 flex flex-row gap-10">
+            {isLoading ? (
+              <h4></h4>
+            ) : (
+              <>
+                <CountingCardRow
+                  icon={SvgIconVillage}
+                  isMeningkat={true}
+                  jumlah={200}
+                  peningkatan="10%"
+                  subtitle="Jumlah Desa Meningkat"
+                  title="Jumlah Desa"
+                  title_secound=""
+                  color={"#EBF3FE"}
+                />
 
-        <div className="col-span-4 flex flex-col justify-between gap-10">
-          <CountingCard
-            icon={SvgIconLoveOrange}
-            isMeningkat={true}
-            jumlah={140}
-            peningkatan="18%"
-            title="Jumlah Posyandu"
-             title_secound = ""
-            subtitle="Jumlah Posyandu Meningkat"
-            color={"#EBF3FE"}
-          />
-          <PercentageCard
-            title={"Persentase Jumlah Posyandu"}
-            jumlah={100}
-            color={colors}
-            data={data}
-            label={label}
-          />
-        </div>
+                <CountingCardRow
+                  icon={SvgIconToilet}
+                  isMeningkat={false}
+                  jumlah={30}
+                  peningkatan="9%"
+                  subtitle="Jumlah Keluarga Belum Memiliki Fasilitas MCK Meningkat"
+                  title="Keluarga tanpa MCK"
+                  title_secound=""
+                  color={"#EBF3FE"}
+                />
 
-        <div className="col-span-8">
-          <GrafikPersebaranKaderDanTingkatAktivitas />
-        </div>
+                <CountingCardRow
+                  icon={SvgIconPregnantMother}
+                  isMeningkat={false}
+                  jumlah={28}
+                  peningkatan="3%"
+                  subtitle="Jumlah Ibu Hamil Meningkat"
+                  title="Jumlah Ibu Hamil"
+                  title_secound="Aktif Januari 2025"
+                  color={"#EBF3FE"}
+                />
+              </>
+            )}
+          </div>
 
-        <div className="col-span-4 flex flex-col justify-between gap-4">
-          <CountingCard
-            icon={SvgIconLoveBlue}
-            isMeningkat={true}
-            jumlah={300}
-            peningkatan="43%"
-            title="Jumlah Kader"
-             title_secound = ""
-            subtitle="Jumlah Kader Meningkat"
-            color={"#EBF3FE"}
-          />
-          <PercentageCard
-            title={"Persentase Jumlah Kader"}
-            jumlah={100}
-            color={["#ef4444", "#3b82f6"]}
-            data={[
-              { name: "Banyuwangi", value: 60 },
-              { name: "Maluku Tengah", value: 40 },
-            ]}
-            label={["Banyuwangi", "Maluku Tengah"]}
-          />
+          <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
+            {isLoading ? <h4></h4> : <MapPersebaranBalitaStunting />}
+          </div>
+
+          <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
+            {isLoading ? <h4></h4> : <MapPersebaranBalitaBerdasarkanWIlayah />}
+          </div>
+
+          <div className="col-span-8">
+            {isLoading ? <h4></h4> : <GrafikPersebaranPosyandu />}
+          </div>
+
+          <div className="col-span-4 flex flex-col justify-between gap-10">
+            {isLoading ? (
+              <h4></h4>
+            ) : (
+              <>
+                <CountingCardRow
+                  icon={SvgIconVillage}
+                  isMeningkat={true}
+                  jumlah={200}
+                  peningkatan="10%"
+                  subtitle="Jumlah Desa Meningkat"
+                  title="Jumlah Desa"
+                  title_secound=""
+                  color={"#EBF3FE"}
+                />
+
+                <CountingCard
+                  icon={SvgIconLoveOrange}
+                  isMeningkat={true}
+                  jumlah={140}
+                  peningkatan="18%"
+                  title="Jumlah Posyandu"
+                  title_secound=""
+                  subtitle="Jumlah Posyandu Meningkat"
+                  color={"#EBF3FE"}
+                />
+                <PercentageCard
+                  title={"Persentase Jumlah Posyandu"}
+                  jumlah={100}
+                  color={colors}
+                  data={data}
+                  label={label}
+                />
+              </>
+            )}
+          </div>
+
+          <div className="col-span-8">
+            {isLoading ? (
+              <h4></h4>
+            ) : (
+              <GrafikPersebaranKaderDanTingkatAktivitas />
+            )}
+          </div>
+
+          <div className="col-span-4 flex flex-col justify-between gap-4">
+            {isLoading ? (
+              <h4></h4>
+            ) : (
+              <>
+                <CountingCard
+                  icon={SvgIconLoveBlue}
+                  isMeningkat={true}
+                  jumlah={300}
+                  peningkatan="43%"
+                  title="Jumlah Kader"
+                  title_secound=""
+                  subtitle="Jumlah Kader Meningkat"
+                  color={"#EBF3FE"}
+                />
+                <PercentageCard
+                  title={"Persentase Jumlah Kader"}
+                  jumlah={100}
+                  color={["#ef4444", "#3b82f6"]}
+                  data={[
+                    { name: "Banyuwangi", value: 60 },
+                    { name: "Maluku Tengah", value: 40 },
+                  ]}
+                  label={["Banyuwangi", "Maluku Tengah"]}
+                />
+              </>
+            )}
+          </div>
+
+          <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
+            {isLoading ? <h4></h4> : <MapPersebaranKader />}
+          </div>
+          <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
+            {isLoading ? <h4></h4> : <MapPersebaranKeluargaTanpaMCK />}
+          </div>
         </div>
-        
-        <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
-          <MapPersebaranKader />
-        </div>
-        <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
-          <MapPersebaranKeluargaTanpaMCK />
-        </div>
-        {/* <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
-          <MapPersebaranDesa />
-        </div> */}
-      </div>
+      </InfiniteScroll>
     </div>
   );
 };

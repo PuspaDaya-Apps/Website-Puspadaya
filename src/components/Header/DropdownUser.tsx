@@ -75,10 +75,10 @@ const DropdownUser = () => {
 
             <span className="block">
               <span className="block font-medium text-dark dark:text-white">
-                Jhon Smith
+                Ahmad Hanafi
               </span>
               <span className="block font-medium text-dark-5 dark:text-dark-6">
-                jonson@nextadmin.com
+                hanafi@puspadaya.id
               </span>
             </span>
           </div>
