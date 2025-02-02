@@ -51,7 +51,7 @@ const Dashboard = () => {
           <CountingCard
             icon={SvgIconBayi}
             isMeningkat={false}
-            jumlah={20}
+            jumlah={139}
             peningkatan="4%"
             subtitle="Jumlah Balita Stunting Meningkat"
             title="Jumlah Balita Stunting"
