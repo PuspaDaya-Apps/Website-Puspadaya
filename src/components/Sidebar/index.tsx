@@ -24,6 +24,7 @@ const menuGroups = [
             className="fill-current"
           />
         ),
+
         label: "Dashboard",
         route: "#",
         children: [
@@ -31,8 +32,20 @@ const menuGroups = [
             label: "Superadmin",
             route: "/",
           },
+
+          {
+            label: "Cek ricek",
+            route: "/data-keluarga/cek-ricek",
+          },
+          
         ],
+
+        
+
+
       },
+
+      
 
       // data
 

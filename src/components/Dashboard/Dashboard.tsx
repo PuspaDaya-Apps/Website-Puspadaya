@@ -21,14 +21,21 @@ import MapPersebaranKader from "../Charts/MapPersebaranKader";
 import MapPersebaranKeluargaTanpaMCK from "../Charts/MapPersebaranKeluargaTanpaMCK";
 import MapPersebaranDesa from "../Charts/MapPersebaranDesa";
 import CountingCardRow from "../Card/CountingCardRow";
+import { statistikDashboard } from "@/app/api/statistik/statistik";
 
 const Dashboard = () => {
   const colors = ["#34B53A", "#F39D00"];
+  const [datadash, setData] = useState<any | null>(null);
   const label = ["Banyuwangi", "Maluku Tengah"];
-  const data = [
-    { name: "Banyuwangi", value: 65 },
-    { name: "Maluku Tengah", value: 35 },
+   const [loading, setLoading] = useState<boolean>(true);
+
+
+   const data = [
+    { name: "Banyuwangi", value: datadash?.persentase_posyandu.posyandu_banyuwangi_rate ?? 0 },
+    { name: "Maluku Tengah", value: datadash?.persentase_posyandu.posyandu_maluku_rate ?? 0 },
   ];
+
+  const [error, setError] = useState<string | null>(null);
 
   const [items, setItems] = useState([]);
   const [hasMore, setHasMore] = useState(true);
@@ -44,6 +51,26 @@ const Dashboard = () => {
     countingCard: true,
     countingCardRow: true,
   });
+      useEffect(() => {
+          const fetchData = async () => {
+              const result = await statistikDashboard();
+  
+              console.log("Fetched Data:", result);
+  
+              if (result.successCode === 200 && result.data) {
+                  setData(result.data);
+                  setError(null);
+              } else {
+                  setData(null);
+                  setError("Error fetching data. Please try again.");
+              }
+  
+              setLoading(false);
+          };
+  
+          fetchData();
+      }, []);
+  
 
   const fetchMoreData = () => {
     if (items.length >= 10000) {
@@ -144,10 +171,10 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah={1200}
-                peningkatan="20%"
-                subtitle="Jumlah Balita Meningkat"
-                title="Jumlah Balita Keseluruhan"
+                jumlah = {datadash?.jumlah_anak.jumlah ?? "-"}
+                peningkatan= {datadash?.jumlah_anak.rate ?? "-"}
+                subtitle= {datadash?.jumlah_anak.status ?? "-"}
+                title="Jumlah Anak Keseluruhan"
                 title_secound=""
                 color={"#EBF3FE"}
               />
@@ -159,10 +186,10 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={false}
-                jumlah={139}
-                peningkatan="4%"
-                subtitle="Jumlah Balita Stunting Meningkat"
-                title="Jumlah Balita Stunting"
+                jumlah= {datadash?.jumlah_anak_stunting.jumlah}
+                peningkatan= {datadash?.jumlah_anak_stunting.rate ?? "-"} 
+                subtitle= {datadash?.jumlah_anak_stunting.status ?? "-"}
+                title= "Jumlah Anak Stunting"
                 title_secound="Aktif Januari 2025"
                 color={"#EBF3FE"}
               />
@@ -184,10 +211,10 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah={16}
-                peningkatan="6%"
-                subtitle="Jumlah Balita Underweigt Menurun"
-                title="Jumlah Balita Underweigt"
+                jumlah= {datadash?.jumlah_anak_underweight.jumlah}
+                peningkatan= {datadash?.jumlah_anak_underweight.rate ?? "-"}
+                subtitle= {datadash?.jumlah_anak_underweight.status ?? "-"}
+                title="Jumlah Anak Underweigt"
                 title_secound="Aktif Januari 2025"
                 color={"#EBF3FE"}
               />
@@ -199,10 +226,10 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah={12}
-                peningkatan="10%"
-                subtitle="Jumlah Balita Underweigt Menurun"
-                title="Jumlah Balita Underweigt"
+                jumlah= {datadash?.jumlah_anak_wasting.jumlah}
+                peningkatan= {datadash?.jumlah_anak_wasting.rate ?? "-"}
+                subtitle= {datadash?.jumlah_anak_wasting.status ?? "-"}
+                title="Jumlah Balita Wasting"
                 title_secound="Aktif Januari 2025"
                 color={"#EBF3FE"}
               />
@@ -216,9 +243,9 @@ const Dashboard = () => {
               <CountingCardRow
                 icon={SvgIconVillage}
                 isMeningkat={true}
-                jumlah={200}
-                peningkatan="10%"
-                subtitle="Jumlah Desa Meningkat"
+                jumlah= {datadash?.jumlah_desa.jumlah}
+                peningkatan= {datadash?.jumlah_desa.rate ?? "-"}
+                subtitle= {datadash?.jumlah_desa.status ?? "-"}
                 title="Jumlah Desa"
                 title_secound=""
                 color={"#EBF3FE"}
@@ -246,9 +273,9 @@ const Dashboard = () => {
               <CountingCardRow
                 icon={SvgIconPregnantMother}
                 isMeningkat={false}
-                jumlah={28}
-                peningkatan="3%"
-                subtitle="Jumlah Ibu Hamil Meningkat"
+                jumlah= {datadash?.jumlah_ibu_hamil.jumlah}
+                peningkatan= {datadash?.jumlah_ibu_hamil.rate ?? "-"}
+                subtitle= {datadash?.jumlah_ibu_hamil.status ?? "-"}
                 title="Jumlah Ibu Hamil"
                 title_secound="Aktif Januari 2025"
                 color={"#EBF3FE"}
@@ -287,11 +314,11 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconLoveOrange}
                 isMeningkat={true}
-                jumlah={140}
-                peningkatan="18%"
+                jumlah= {datadash?.jumlah_posyandu.jumlah}
+                peningkatan= {datadash?.jumlah_posyandu.rate ?? "-"}
                 title="Jumlah Posyandu"
                 title_secound=""
-                subtitle="Jumlah Posyandu Meningkat"
+                subtitle= {datadash?.jumlah_posyandu.status ?? "-"}
                 color={"#EBF3FE"}
               />
             )}
@@ -303,7 +330,7 @@ const Dashboard = () => {
                 title={"Persentase Jumlah Posyandu"}
                 jumlah={100}
                 color={colors}
-                data={data}
+                data= {data}
                 label={label}
               />
             )}
@@ -324,11 +351,11 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconLoveBlue}
                 isMeningkat={true}
-                jumlah={300}
-                peningkatan="43%"
-                title="Jumlah Kader"
+                jumlah= {datadash?.jumlah_kader.jumlah}
+                peningkatan= {datadash?.jumlah_kader.rate ?? "-"}
+                title= "Jumlah Kader"
                 title_secound=""
-                subtitle="Jumlah Kader Meningkat"
+                subtitle= {datadash?.jumlah_kader.status ?? ""}
                 color={"#EBF3FE"}
               />
             )}
@@ -341,8 +368,8 @@ const Dashboard = () => {
                 jumlah={100}
                 color={["#ef4444", "#3b82f6"]}
                 data={[
-                  { name: "Banyuwangi", value: 60 },
-                  { name: "Maluku Tengah", value: 40 },
+                  { name: "Banyuwangi", value: datadash?.persentase_kader.kader_banyuwangi_rate ?? 0 },
+                  { name: "Maluku Tengah", value: datadash?.persentase_kader.kader_maluku_rate ?? 0 },
                 ]}
                 label={["Banyuwangi", "Maluku Tengah"]}
               />
