@@ -1,4 +1,6 @@
 "use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import React, { useState } from "react";
@@ -9,6 +11,17 @@ export default function DefaultLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("access_token");
+
+    // Jika tidak ada token, arahkan ke halaman login
+    if (!token) {
+      router.push("/auth/signin");
+    }
+  }, [router]);
+
   return (
     <div className="flex min-h-screen flex-col md:px-10">
       {/* Header and Sidebar fixed at the top */}
