@@ -55,7 +55,7 @@ const Dashboard = () => {
           const fetchData = async () => {
               const result = await statistikDashboard();
   
-              console.log("Fetched Data:", result);
+              // console.log("Fetched Data:", result);
   
               if (result.successCode === 200 && result.data) {
                   setData(result.data);
