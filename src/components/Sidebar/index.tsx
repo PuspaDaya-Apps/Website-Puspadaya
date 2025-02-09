@@ -33,10 +33,10 @@ const menuGroups = [
             route: "/",
           },
 
-          {
-            label: "Cek ricek",
-            route: "/data-keluarga/cek-ricek",
-          },
+          // {
+          //   label: "Cek ricek",
+          //   route: "/data-keluarga/cek-ricek",
+          // },
           
         ],
 
