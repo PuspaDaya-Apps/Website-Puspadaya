@@ -11,19 +11,23 @@ import { Desakelurahanwilayah } from "@/app/api/lokasi/desa";
 const color = ["#3b82f6", "#ef4444"];
 
 interface Wilayah {
+  id: string;
   name: string;
 }
 
 interface Kecamatan {
-  id: string; // Sesuaikan dengan respons API
+  id: string;
   name: string;
+  kabupaten_kota: {
+    id: string;
+  };
 }
 
 interface Desa {
-  id: string; // Sesuaikan dengan respons API
+  id: string;
   name: string;
   kecamatan: {
-    id: string; // Sesuaikan dengan respons API
+    id: string;
   };
 }
 
@@ -42,6 +46,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Fetch data kabupaten
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -50,6 +55,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
         if (response.successCode === 200 && response.data) {
           setData(response.data);
           const wilayahData = response.data.map((kabupaten) => ({
+            id: kabupaten.id,
             name: kabupaten.nama_kabupaten_kota,
           }));
           setWilayah(wilayahData);
@@ -66,6 +72,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
     fetchData();
   }, []);
 
+  // Fetch data kecamatan
   useEffect(() => {
     const fetchKecamatanData = async () => {
       setLoading(true);
@@ -73,9 +80,12 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
         const response = await Kecamatanwilayah();
         if (response.successCode === 200 && response.data) {
           setkecData(response.data);
-          const kecamatanData = response.data.map((kecamatan) => ({
-            id: kecamatan.id,
-            name: kecamatan.nama_kecamatan,
+          const kecamatanData = response.data.map((kec) => ({
+            id: kec.id,
+            name: kec.nama_kecamatan, // Map to the expected 'name' property
+            kabupaten_kota: {
+              id: kec.kabupaten_kota.id,
+            },
           }));
           setKecamatan(kecamatanData);
         } else {
@@ -91,6 +101,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
     fetchKecamatanData();
   }, []);
 
+  // Fetch data desa
   useEffect(() => {
     const fetchDesakelurahanData = async () => {
       setLoading(true);
@@ -100,9 +111,9 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
           setdesData(response.data);
           const desaData = response.data.map((desa) => ({
             id: desa.id,
-            name: desa.nama_desa_kelurahan,
+            name: desa.nama_desa_kelurahan, // Map to the expected 'name' property
             kecamatan: {
-              id: desa.kecamatan.id, // Sesuaikan dengan respons API
+              id: desa.kecamatan.id,
             },
           }));
           setDesa(desaData);
@@ -119,14 +130,52 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
     fetchDesakelurahanData();
   }, []);
 
+  // Filter kecamatan berdasarkan kabupaten yang dipilih
   useEffect(() => {
-    if (selectedKecamatan && desa.length > 0) {
-      const filtered = desa.filter((d) => d.kecamatan.id === selectedKecamatan.id);
-      setFilteredDesa(filtered);
+    if (selectedWilayah && datakec) {
+      const filteredKecamatan = datakec
+        .filter((kec) => kec.kabupaten_kota.id === selectedWilayah.id)
+        .map((kec) => ({
+          id: kec.id,
+          name: kec.nama_kecamatan, // Ensure this matches the expected property
+          kabupaten_kota: {
+            id: kec.kabupaten_kota.id,
+          },
+        }));
+      setKecamatan(filteredKecamatan);
+    } else {
+      setKecamatan([]);
+    }
+  }, [selectedWilayah, datakec]);
+
+  // Filter desa berdasarkan kecamatan yang dipilih
+  useEffect(() => {
+    if (selectedKecamatan && datades) {
+      const filteredDesa = datades
+        .filter((desa) => desa.kecamatan.id === selectedKecamatan.id)
+        .map((desa) => ({
+          id: desa.id,
+          name: desa.nama_desa_kelurahan, // Ensure this matches the expected property
+          kecamatan: {
+            id: desa.kecamatan.id,
+          },
+        }));
+      setFilteredDesa(filteredDesa);
     } else {
       setFilteredDesa([]);
     }
-  }, [selectedKecamatan, desa]);
+  }, [selectedKecamatan, datades]);
+
+  // Reset pilihan kecamatan dan desa saat kabupaten berubah
+  useEffect(() => {
+    setSelectedKecamatan(null);
+    setSelectedDesa(null);
+  }, [selectedWilayah]);
+
+  // Reset pilihan desa saat kecamatan berubah
+  useEffect(() => {
+    setSelectedDesa(null);
+  }, [selectedKecamatan]);
 
   const series = [
     {
@@ -203,7 +252,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
                 onChange={(e) => setSelectedWilayah(e.value)}
                 options={wilayah}
                 optionLabel="name"
-                placeholder="Pilih Wilayah"
+                placeholder="Pilih Kabupaten"
                 className="md:w-14rem h-11 w-full"
               />
               <Dropdown
@@ -213,6 +262,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Kecamatan"
                 className="md:w-14rem h-11 w-full"
+                disabled={!selectedWilayah}
               />
               <Dropdown
                 value={selectedDesa}
