@@ -1,29 +1,114 @@
 "use client";
 import { ApexOptions } from "apexcharts";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import DefaultSelectOption from "@/components/SelectOption/DefaultSelectOption";
 import { Dropdown } from "primereact/dropdown";
 import { SvgSearch } from "../ui/Svg";
+import { Kabupatenwilayah } from "@/app/api/lokasi/kabupaten";
+import { DesakelurahanClass, KabupatenClass, KecamatanClass } from "@/types/dashborad";
+import { Kecamatanwilayah } from "@/app/api/lokasi/kecamatan";
+import { Desakelurahanwilayah } from "@/app/api/lokasi/desa";
 const color = ["#3b82f6", "#ef4444"];
+
 interface Wilayah {
   name: string;
-  code: string;
 }
+
 interface Kecamatan {
   name: string;
-  code: string;
 }
+
 interface Desa {
   name: string;
-  code: string;
 }
+
 const GrafikTrendStuntingBanyuwangi: React.FC = () => {
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
-  const [selectedKecamatan, setSelectedKecamatan] = useState<Kecamatan | null>(
-    null,
-  );
+  const [selectedKecamatan, setSelectedKecamatan] = useState<Kecamatan | null>(null);
   const [selectedDesa, setSelectedDesa] = useState<Desa | null>(null);
+
+  const [datadash, setData] = useState<KabupatenClass[] | null>(null);
+  const [datakec, setkecData] = useState<KecamatanClass[] | null>(null);
+  const [datades, setdesData] = useState<DesakelurahanClass[] | null>(null);
+  const [wilayah, setWilayah] = useState<Wilayah[]>([]);
+  const [kecamatan, setKecamatan] = useState<Kecamatan[]>([]);
+  const [desa, setDesa] = useState<Desa[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await Kabupatenwilayah();
+        if (response.successCode === 200 && response.data) {
+          setData(response.data);
+          const wilayahData = response.data.map((kabupaten) => ({
+            name: kabupaten.nama_kabupaten_kota,
+          }));
+          setWilayah(wilayahData);
+        } else {
+          setError(`Error ${response.successCode}: Gagal mengambil data`);
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan saat mengambil data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchKecamatanData = async () => {
+      setLoading(true);
+      try {
+        const response = await Kecamatanwilayah();
+        if (response.successCode === 200 && response.data) {
+          setkecData(response.data);
+          const kecamatanData = response.data.map((kecamatan) => ({
+            name: kecamatan.nama_kecamatan,
+          }));
+          setKecamatan(kecamatanData);
+        } else {
+          setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan saat mengambil data kecamatan.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchKecamatanData();
+  }, []);
+
+
+  useEffect(() => {
+    const fetchDesakelurahanData = async () => {
+      setLoading(true);
+      try {
+        const response = await Desakelurahanwilayah();
+        if (response.successCode === 200 && response.data) {
+          setdesData(response.data);
+          const desaData = response.data.map((desa) => ({
+            name: desa.nama_desa_kelurahan,
+          }));
+          setDesa(desaData);
+        } else {
+          setError(`Error ${response.successCode}: Gagal mengambil data desa`);
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan saat mengambil data desa.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDesakelurahanData();
+  }, []);
 
   const series = [
     {
@@ -35,24 +120,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
       data: [50, 23, 20, 8, 13, 27, 15, 10, 7],
     },
   ];
-  const wilayah: Wilayah[] = [
-    { name: "Banyuwangi", code: "Bwi" },
-    { name: "Maluku Tengah", code: "MT" },
-  ];
-  const kecamatan: Kecamatan[] = [
-    { name: "Genteng", code: "GTG" },
-    { name: "Srono", code: "SRN" },
-    { name: "Rogojampi", code: "RGJ" },
-    { name: "Banyuwangi", code: "BWI" },
-    { name: "Sempu", code: "SMP" },
-  ];
-  const desa: Desa[] = [
-    { name: "Aliyan", code: "Aliyan" },
-    { name: "Bubuk", code: "Bubuk" },
-    { name: "Gitik", code: "Gitik" },
-    { name: "Gladak", code: "Gladak" },
-    { name: "Karang Bendo", code: "Karang Bendo" },
-  ];
+
   const options: ApexOptions = {
     series: series,
     chart: {
@@ -101,28 +169,17 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
     <div className="col-span-12 rounded-[10px] bg-white px-7.5 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card xl:col-span-5">
       <div className="mb-4 justify-between gap-4 sm:flex">
         <div>
-         <div>
-         <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Tingkat Gizi Balita menurut Wilayah Desa
-          </h4>
+          <div>
+            <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
+              Tingkat Gizi Balita menurut Wilayah Desa
+            </h4>
 
-          <p className="">
-            Menampilkan tren gizi balita berdasarkan pembagian wilayah desa
-          </p>
-          
-         </div>
+            <p className="">
+              Menampilkan tren gizi balita berdasarkan pembagian wilayah desa
+            </p>
+          </div>
           <div className="mt-2 flex flex-col items-start justify-start gap-1">
-          {/* <div className="mt-1 flex items-center justify-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-              <p className="">Balita Gizi Baik</p>
-            </div> */}
-            {/* <div className="mb-1 flex items-center justify-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-red-500"></div>
-              <p className="">Balita Gizi Buruk</p>
-            </div> */}
-           
             <div className="flex items-center justify-center gap-2">
-              {/* wilayah */}
               <Dropdown
                 value={selectedWilayah}
                 onChange={(e) => setSelectedWilayah(e.value)}
@@ -131,8 +188,6 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
                 placeholder="Pilih Wilayah"
                 className="md:w-14rem h-11 w-full"
               />
-
-              {/* kecamatan */}
               <Dropdown
                 value={selectedKecamatan}
                 onChange={(e) => setSelectedKecamatan(e.value)}
@@ -141,7 +196,6 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
                 placeholder="Pilih Kecamatan"
                 className="md:w-14rem h-11 w-full"
               />
-              {/* desa */}
               <Dropdown
                 value={selectedDesa}
                 onChange={(e) => setSelectedDesa(e.value)}
@@ -150,38 +204,13 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
                 placeholder="Pilih Desa"
                 className="md:w-14rem h-11 w-full"
               />
-              {/* searching */}
               <div className=" flex h-11 w-35 cursor-pointer items-center justify-center rounded-md border border-gray-300 ">
                 <SvgSearch />
               </div>
-              
             </div>
-            
-          </div>
-        </div>
-        <div>
-          <div className="flex gap-2">
-            <DefaultSelectOption
-              options={[
-                "Januari",
-                "Februari",
-                "Maret",
-                "April",
-                "Mei",
-                "Juni",
-                "Juli",
-                "Agustus",
-                "September",
-                "Oktober",
-                "November",
-                "Desember",
-              ]}
-            />
-            <DefaultSelectOption options={["2023", "2024", "2025"]} />
           </div>
         </div>
       </div>
-
       <div>
         <div id="chartTwo" className="-ml-3.5">
           <ReactApexChart

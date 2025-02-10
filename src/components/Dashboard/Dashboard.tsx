@@ -27,7 +27,7 @@ const Dashboard = () => {
   const colors = ["#34B53A", "#F39D00"];
   const [datadash, setData] = useState<any | null>(null);
   const label = ["Banyuwangi", "Maluku Tengah"];
-   const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
 
    const data = [
