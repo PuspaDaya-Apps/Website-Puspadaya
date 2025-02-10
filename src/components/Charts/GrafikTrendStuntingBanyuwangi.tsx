@@ -2,7 +2,6 @@
 import { ApexOptions } from "apexcharts";
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
-import DefaultSelectOption from "@/components/SelectOption/DefaultSelectOption";
 import { Dropdown } from "primereact/dropdown";
 import { SvgSearch } from "../ui/Svg";
 import { Kabupatenwilayah } from "@/app/api/lokasi/kabupaten";
@@ -16,11 +15,16 @@ interface Wilayah {
 }
 
 interface Kecamatan {
+  id: string; // Sesuaikan dengan respons API
   name: string;
 }
 
 interface Desa {
+  id: string; // Sesuaikan dengan respons API
   name: string;
+  kecamatan: {
+    id: string; // Sesuaikan dengan respons API
+  };
 }
 
 const GrafikTrendStuntingBanyuwangi: React.FC = () => {
@@ -34,6 +38,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
   const [wilayah, setWilayah] = useState<Wilayah[]>([]);
   const [kecamatan, setKecamatan] = useState<Kecamatan[]>([]);
   const [desa, setDesa] = useState<Desa[]>([]);
+  const [filteredDesa, setFilteredDesa] = useState<Desa[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -69,6 +74,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
         if (response.successCode === 200 && response.data) {
           setkecData(response.data);
           const kecamatanData = response.data.map((kecamatan) => ({
+            id: kecamatan.id,
             name: kecamatan.nama_kecamatan,
           }));
           setKecamatan(kecamatanData);
@@ -85,7 +91,6 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
     fetchKecamatanData();
   }, []);
 
-
   useEffect(() => {
     const fetchDesakelurahanData = async () => {
       setLoading(true);
@@ -94,7 +99,11 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
         if (response.successCode === 200 && response.data) {
           setdesData(response.data);
           const desaData = response.data.map((desa) => ({
+            id: desa.id,
             name: desa.nama_desa_kelurahan,
+            kecamatan: {
+              id: desa.kecamatan.id, // Sesuaikan dengan respons API
+            },
           }));
           setDesa(desaData);
         } else {
@@ -109,6 +118,15 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
 
     fetchDesakelurahanData();
   }, []);
+
+  useEffect(() => {
+    if (selectedKecamatan && desa.length > 0) {
+      const filtered = desa.filter((d) => d.kecamatan.id === selectedKecamatan.id);
+      setFilteredDesa(filtered);
+    } else {
+      setFilteredDesa([]);
+    }
+  }, [selectedKecamatan, desa]);
 
   const series = [
     {
@@ -199,10 +217,11 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
               <Dropdown
                 value={selectedDesa}
                 onChange={(e) => setSelectedDesa(e.value)}
-                options={desa}
+                options={filteredDesa}
                 optionLabel="name"
                 placeholder="Pilih Desa"
                 className="md:w-14rem h-11 w-full"
+                disabled={!selectedKecamatan}
               />
               <div className=" flex h-11 w-35 cursor-pointer items-center justify-center rounded-md border border-gray-300 ">
                 <SvgSearch />
