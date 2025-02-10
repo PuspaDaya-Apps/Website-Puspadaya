@@ -97,3 +97,10 @@ export type DesakelurahanClass = {
     };
   };
   
+
+  export type GiziDusunClass = {
+    id: string;
+    nama_dusun: string;
+    anak_gizi_baik_count: number;
+    anak_gizi_buruk_count: number;
+  };

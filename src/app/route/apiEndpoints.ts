@@ -6,4 +6,6 @@ export const APIEndpoints = {
     KABUPATEN : '/api/v1/kabupaten-kota',
     KECAMATAN : '/api/v1/kecamatan',
     DESAKELURAHAN : '/api/v1/desa-kelurahan', 
+
+    GRAFIKGIZI : '/api/v1/dashboard/tingkat-gizi',
 };

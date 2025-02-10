@@ -8,6 +8,8 @@ import { Kabupatenwilayah } from "@/app/api/lokasi/kabupaten";
 import { DesakelurahanClass, KabupatenClass, KecamatanClass } from "@/types/dashborad";
 import { Kecamatanwilayah } from "@/app/api/lokasi/kecamatan";
 import { Desakelurahanwilayah } from "@/app/api/lokasi/desa";
+import { Grafikgizi } from "@/app/api/statistik/grafiktrendgizi";
+
 const color = ["#3b82f6", "#ef4444"];
 
 interface Wilayah {
@@ -31,6 +33,18 @@ interface Desa {
   };
 }
 
+interface GiziDusunClass {
+  nama_dusun: string;
+  anak_gizi_baik_count: number;
+  anak_gizi_buruk_count: number;
+}
+
+interface StatistikData {
+  categories: string[];
+  giziBaik: number[];
+  giziBuruk: number[];
+}
+
 const GrafikTrendStuntingBanyuwangi: React.FC = () => {
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
   const [selectedKecamatan, setSelectedKecamatan] = useState<Kecamatan | null>(null);
@@ -45,6 +59,11 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
   const [filteredDesa, setFilteredDesa] = useState<Desa[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [statistikData, setStatistikData] = useState<StatistikData>({
+    categories: [],
+    giziBaik: [],
+    giziBuruk: [],
+  });
 
   // Fetch data kabupaten
   useEffect(() => {
@@ -82,7 +101,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
           setkecData(response.data);
           const kecamatanData = response.data.map((kec) => ({
             id: kec.id,
-            name: kec.nama_kecamatan, // Map to the expected 'name' property
+            name: kec.nama_kecamatan,
             kabupaten_kota: {
               id: kec.kabupaten_kota.id,
             },
@@ -111,7 +130,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
           setdesData(response.data);
           const desaData = response.data.map((desa) => ({
             id: desa.id,
-            name: desa.nama_desa_kelurahan, // Map to the expected 'name' property
+            name: desa.nama_desa_kelurahan,
             kecamatan: {
               id: desa.kecamatan.id,
             },
@@ -137,7 +156,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
         .filter((kec) => kec.kabupaten_kota.id === selectedWilayah.id)
         .map((kec) => ({
           id: kec.id,
-          name: kec.nama_kecamatan, // Ensure this matches the expected property
+          name: kec.nama_kecamatan,
           kabupaten_kota: {
             id: kec.kabupaten_kota.id,
           },
@@ -155,7 +174,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
         .filter((desa) => desa.kecamatan.id === selectedKecamatan.id)
         .map((desa) => ({
           id: desa.id,
-          name: desa.nama_desa_kelurahan, // Ensure this matches the expected property
+          name: desa.nama_desa_kelurahan,
           kecamatan: {
             id: desa.kecamatan.id,
           },
@@ -165,6 +184,42 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
       setFilteredDesa([]);
     }
   }, [selectedKecamatan, datades]);
+
+  // Fetch statistik data saat desa dipilih
+  useEffect(() => {
+    const fetchStatistikData = async () => {
+      if (selectedDesa) {
+        setLoading(true);
+        try {
+          const response = await Grafikgizi(selectedDesa.name);
+          if (response.successCode === 200 && response.data) {
+            
+            const dataArray = Array.isArray(response.data) ? response.data : [response.data];
+  
+            const categories = dataArray.map((item: GiziDusunClass) => item.nama_dusun);
+            const giziBaikData = dataArray.map((item: GiziDusunClass) => item.anak_gizi_baik_count);
+            const giziBurukData = dataArray.map((item: GiziDusunClass) => item.anak_gizi_buruk_count);
+  
+            setStatistikData({
+              categories: categories,
+              giziBaik: giziBaikData,
+              giziBuruk: giziBurukData,
+            });
+          } else {
+            setError(`Error ${response.successCode}: Gagal mengambil data statistik`);
+          }
+        } catch (err) {
+          setError("Terjadi kesalahan saat mengambil data statistik.");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+  
+    fetchStatistikData();
+  }, [selectedDesa]);
+
+
 
   // Reset pilihan kecamatan dan desa saat kabupaten berubah
   useEffect(() => {
@@ -179,13 +234,13 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
 
   const series = [
     {
-      name: "Gizi Baik",
-      data: [44, 55, 41, 67, 22, 43, 65, 35, 25],
+      name: 'Gizi Baik',
+      data: statistikData.giziBaik || []
     },
     {
-      name: "Gizi Buruk",
-      data: [50, 23, 20, 8, 13, 27, 15, 10, 7],
-    },
+      name: 'Gizi Buruk',
+      data: statistikData.giziBuruk || []
+    }
   ];
 
   const options: ApexOptions = {
@@ -210,17 +265,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
       colors: ["transparent"],
     },
     xaxis: {
-      categories: [
-        "Kebaman",
-        "Bangorejo",
-        "Purwoharjo",
-        "Wonosobo",
-        "Sukomajo",
-        "Sumbersari",
-        "Srono",
-        "Krajan",
-        "Kabat",
-      ],
+      categories: statistikData.categories || []
     },
     yaxis: {
       title: {
@@ -273,9 +318,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
                 className="md:w-14rem h-11 w-full"
                 disabled={!selectedKecamatan}
               />
-              <div className=" flex h-11 w-35 cursor-pointer items-center justify-center rounded-md border border-gray-300 ">
-                <SvgSearch />
-              </div>
+             
             </div>
           </div>
         </div>

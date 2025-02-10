@@ -24,7 +24,7 @@ export const Desakelurahanwilayah = async (): Promise<FetchResult> => {
         const response = await axios.get(APIEndpoints.DESAKELURAHAN, config);
 
         const { data } = response.data;
-        console.log ("Ini adalah datanya", data);
+        // console.log ("Ini adalah datanya", data);
         sessionStorage.removeItem(Messages.ERROR);
 
         return { successCode: response.status, data };
