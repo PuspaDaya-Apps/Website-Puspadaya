@@ -30,7 +30,7 @@ export const Grafikgizi = async (desaKelurahan: string): Promise<FetchResult> =>
         const response = await axios.get(`${APIEndpoints.GRAFIKGIZI}?desa_kelurahan=${desaKelurahan}`, config);
         
         const { data } = response.data;
-        console.log("ini jeh datanyo", data)
+        // console.log("ini jeh datanyo", data)
         sessionStorage.removeItem(Messages.ERROR);
 
         return { successCode: response.status, data };
