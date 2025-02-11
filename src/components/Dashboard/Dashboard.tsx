@@ -214,7 +214,7 @@ const Dashboard = () => {
                 jumlah= {datadash?.jumlah_anak_underweight.jumlah}
                 peningkatan= {datadash?.jumlah_anak_underweight.rate ?? "-"}
                 subtitle= {datadash?.jumlah_anak_underweight.status ?? "-"}
-                title="Jumlah Anak Underweigt"
+                title="Jumlah Anak Underweight"
                 title_secound="Aktif Januari 2025"
                 color={"#EBF3FE"}
               />

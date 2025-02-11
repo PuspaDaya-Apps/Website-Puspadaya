@@ -47,11 +47,11 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
     { name: "Sempu", code: "SMP" },
   ];
   const desa: Desa[] = [
-    { name: "desa1", code: "desa1" },
-    { name: "desa2", code: "desa1" },
-    { name: "desa3", code: "desa1" },
-    { name: "desa4", code: "desa1" },
-    { name: "desa5", code: "desa1" },
+    { name: "Benculuk", code: "desa1" },
+    { name: "Aliyan", code: "desa1" },
+    { name: "Bubuk", code: "desa1" },
+    { name: "Gitik", code: "desa1" },
+    { name: "Gladak", code: "desa1" },
   ];
   const options: ApexOptions = {
     series: series,
