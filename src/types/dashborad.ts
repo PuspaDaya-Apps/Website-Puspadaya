@@ -47,6 +47,18 @@ export type StatistikClass = {
         posyandu_banyuwangi_rate: number;
         posyandu_maluku_rate: number;
     };
+    jumlah_anak_kenaikan_bb: number;
+    jumlah_anak_bb_tetap: number;
+    jumlah_anak_penurunan_bb: number;
+    jumlah_anak_lulus: number;
+    jumlah_anak_mpasi: number;
+    jumlah_anak_asi_ekslusif: number;
+    jumlah_anak_tidak_punya_nik: number;
+    jumlah_orang_tua_tidak_punya_nik: {
+        ayah_count: number;
+        ibu_count: number;
+    };
+    jumlah_orang_tua_tidak_punya_kk: number;
 }
 
 

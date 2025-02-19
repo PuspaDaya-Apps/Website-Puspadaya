@@ -22,6 +22,7 @@ import MapPersebaranKeluargaTanpaMCK from "../Charts/MapPersebaranKeluargaTanpaM
 import MapPersebaranDesa from "../Charts/MapPersebaranDesa";
 import CountingCardRow from "../Card/CountingCardRow";
 import { statistikDashboard } from "@/app/api/statistik/statistik";
+import ChartDonatBeratBadan from "../Charts/ChartDonatBeratBadan";
 
 const Dashboard = () => {
   const colors = ["#34B53A", "#F39D00"];
@@ -29,10 +30,15 @@ const Dashboard = () => {
   const label = ["Banyuwangi", "Maluku Tengah"];
   const [loading, setLoading] = useState<boolean>(true);
 
-
-   const data = [
-    { name: "Banyuwangi", value: datadash?.persentase_posyandu.posyandu_banyuwangi_rate ?? 0 },
-    { name: "Maluku Tengah", value: datadash?.persentase_posyandu.posyandu_maluku_rate ?? 0 },
+  const data = [
+    {
+      name: "Banyuwangi",
+      value: datadash?.persentase_posyandu.posyandu_banyuwangi_rate ?? 0,
+    },
+    {
+      name: "Maluku Tengah",
+      value: datadash?.persentase_posyandu.posyandu_maluku_rate ?? 0,
+    },
   ];
 
   const [error, setError] = useState<string | null>(null);
@@ -51,26 +57,32 @@ const Dashboard = () => {
     countingCard: true,
     countingCardRow: true,
   });
-      useEffect(() => {
-          const fetchData = async () => {
-              const result = await statistikDashboard();
-  
-              // console.log("Fetched Data:", result);
-  
-              if (result.successCode === 200 && result.data) {
-                  setData(result.data);
-                  setError(null);
-              } else {
-                  setData(null);
-                  setError("Error fetching data. Please try again.");
-              }
-  
-              setLoading(false);
-          };
-  
-          fetchData();
-      }, []);
-  
+
+  const currentDate = new Date();
+  const monthYear = currentDate.toLocaleString("id-ID", {
+    month: "long",
+    year: "numeric",
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await statistikDashboard();
+
+      // console.log("Fetched Data:", result);
+
+      if (result.successCode === 200 && result.data) {
+        setData(result.data);
+        setError(null);
+      } else {
+        setData(null);
+        setError("Error fetching data. Please try again.");
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
 
   const fetchMoreData = () => {
     if (items.length >= 10000) {
@@ -87,17 +99,16 @@ const Dashboard = () => {
   useEffect(() => {
     setTimeout(() => {
       setIsLoading((prev) => ({ ...prev, countingCard: false }));
-    }, 5000); 
+    }, 5000);
 
     setTimeout(() => {
       setIsLoading((prev) => ({ ...prev, countingCardRow: false }));
-    }, 5000); 
-    
+    }, 5000);
 
     // Simulasikan loading untuk setiap komponen dengan delay yang berbeda
     setTimeout(() => {
       setIsLoading((prev) => ({ ...prev, grafikTrendStuntingBalita: false }));
-    }, 8000); 
+    }, 8000);
 
     setTimeout(() => {
       setIsLoading((prev) => ({
@@ -138,8 +149,6 @@ const Dashboard = () => {
         mapPersebaranKeluargaTanpaMCK: false,
       }));
     }, 38000);
-
-   
   }, []);
 
   return (
@@ -171,11 +180,11 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah = {datadash?.jumlah_anak.jumlah ?? "-"}
-                peningkatan= {datadash?.jumlah_anak.rate ?? "-"}
-                subtitle= {datadash?.jumlah_anak.status ?? "-"}
+                jumlah={datadash?.jumlah_anak.jumlah ?? "-"}
+                peningkatan={datadash?.jumlah_anak.rate ?? "-"}
+                subtitle={datadash?.jumlah_anak.status ?? "-"}
                 title="Jumlah Anak Keseluruhan"
-                title_secound=""
+                title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
               />
             )}
@@ -186,11 +195,11 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={false}
-                jumlah= {datadash?.jumlah_anak_stunting.jumlah}
-                peningkatan= {datadash?.jumlah_anak_stunting.rate ?? "-"} 
-                subtitle= {datadash?.jumlah_anak_stunting.status ?? "-"}
-                title= "Jumlah Anak Stunting"
-                title_secound="Aktif Januari 2025"
+                jumlah={datadash?.jumlah_anak_stunting.jumlah}
+                peningkatan={datadash?.jumlah_anak_stunting.rate ?? "-"}
+                subtitle={datadash?.jumlah_anak_stunting.status ?? "-"}
+                title="Jumlah Anak Stunting"
+                title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
               />
             )}
@@ -211,11 +220,11 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah= {datadash?.jumlah_anak_underweight.jumlah}
-                peningkatan= {datadash?.jumlah_anak_underweight.rate ?? "-"}
-                subtitle= {datadash?.jumlah_anak_underweight.status ?? "-"}
+                jumlah={datadash?.jumlah_anak_underweight.jumlah}
+                peningkatan={datadash?.jumlah_anak_underweight.rate ?? "-"}
+                subtitle={datadash?.jumlah_anak_underweight.status ?? "-"}
                 title="Jumlah Anak Underweight"
-                title_secound="Aktif Januari 2025"
+                title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
               />
             )}
@@ -226,62 +235,260 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah= {datadash?.jumlah_anak_wasting.jumlah}
-                peningkatan= {datadash?.jumlah_anak_wasting.rate ?? "-"}
-                subtitle= {datadash?.jumlah_anak_wasting.status ?? "-"}
+                jumlah={datadash?.jumlah_anak_wasting.jumlah}
+                peningkatan={datadash?.jumlah_anak_wasting.rate ?? "-"}
+                subtitle={datadash?.jumlah_anak_wasting.status ?? "-"}
                 title="Jumlah Balita Wasting"
-                title_secound="Aktif Januari 2025"
+                title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
               />
             )}
           </div>
 
-          <div className="col-span-4 flex flex-row gap-10">
-            {isLoading.countingCardRow ? (
+
+          {/* testing */}
+
+          <div className="col-span-8">
+            {isLoading.grafikTrendStuntingBanyuwangi ? (
               <h4>Loading...</h4>
             ) : (
-              <CountingCardRow
-                icon={SvgIconVillage}
+              <ChartDonatBeratBadan />
+
+            )}
+          </div>
+
+          <div className="col-span-4 flex flex-col justify-between gap-10">
+            {isLoading.countingCard ? (
+              <h4>Loading...</h4>
+            ) : (
+              <CountingCard
+                icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah= {datadash?.jumlah_desa.jumlah}
-                peningkatan= {datadash?.jumlah_desa.rate ?? "-"}
-                subtitle= {datadash?.jumlah_desa.status ?? "-"}
-                title="Jumlah Desa"
-                title_secound=""
+                jumlah={datadash?.jumlah_anak_underweight.jumlah}
+                peningkatan={datadash?.jumlah_anak_underweight.rate ?? "-"}
+                subtitle={datadash?.jumlah_anak_underweight.status ?? "-"}
+                title="Jumlah Anak Underweight"
+                title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
               />
             )}
 
-            {isLoading.countingCardRow ? (
+            {isLoading.countingCard ? (
               <h4>Loading...</h4>
             ) : (
-              <CountingCardRow
-                icon={SvgIconToilet}
-                isMeningkat={false}
-                jumlah={30}
-                peningkatan="9%"
-                subtitle="Jumlah Keluarga Belum Memiliki Fasilitas MCK Meningkat"
-                title="Keluarga tanpa MCK"
-                title_secound=""
-                color={"#EBF3FE"}
-              />
-            )}
-
-            {isLoading.countingCardRow ? (
-              <h4>Loading...</h4>
-            ) : (
-              <CountingCardRow
-                icon={SvgIconPregnantMother}
-                isMeningkat={false}
-                jumlah= {datadash?.jumlah_ibu_hamil.jumlah}
-                peningkatan= {datadash?.jumlah_ibu_hamil.rate ?? "-"}
-                subtitle= {datadash?.jumlah_ibu_hamil.status ?? "-"}
-                title="Jumlah Ibu Hamil"
-                title_secound="Aktif Januari 2025"
+              <CountingCard
+                icon={SvgIconBayi}
+                isMeningkat={true}
+                jumlah={datadash?.jumlah_anak_wasting.jumlah}
+                peningkatan={datadash?.jumlah_anak_wasting.rate ?? "-"}
+                subtitle={datadash?.jumlah_anak_wasting.status ?? "-"}
+                title="Jumlah Balita Wasting"
+                title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
               />
             )}
           </div>
+
+
+
+
+
+          {/* card 9 kebawah */}
+
+          <div className="flex flex-col gap-y-10">
+            
+            <div className="col-span-4 flex flex-row gap-10">
+              {isLoading.countingCardRow ? (
+                <h4>Loading...</h4>
+              ) : (
+                <CountingCardRow
+                  icon={SvgIconVillage}
+                  isMeningkat={true}
+                  jumlah={datadash?.jumlah_anak_kenaikan_bb}
+                  peningkatan=""
+                  subtitle=""
+                  title="Jumlah Anak dengan Kenaikan Berat Badan"
+                  title_secound={`Aktif ${monthYear}`}
+                  color={"#EBF3FE"}
+                />
+              )}
+
+              {isLoading.countingCardRow ? (
+                <h4>Loading...</h4>
+              ) : (
+                <CountingCardRow
+                  icon={SvgIconToilet}
+                  isMeningkat={false}
+                  jumlah={datadash?.jumlah_anak_bb_tetap}
+                  peningkatan=""
+                  subtitle=""
+                  title="Jumlah Anak dengan Berat Badan Tetap"
+                  title_secound={`Aktif ${monthYear}`}
+                  color={"#EBF3FE"}
+                />
+              )}
+
+              {isLoading.countingCardRow ? (
+                <h4>Loading...</h4>
+              ) : (
+                <CountingCardRow
+                  icon={SvgIconPregnantMother}
+                  isMeningkat={false}
+                  jumlah={datadash?.jumlah_anak_penurunan_bb}
+                  peningkatan=""
+                  subtitle=""
+                  title="Jumlah Anak dengan Berat Badan Turun"
+                  title_secound={`Aktif ${monthYear}`}
+                  color={"#EBF3FE"}
+                />
+              )}
+            </div>
+            <div className="col-span-4 flex flex-row gap-10">
+              {isLoading.countingCardRow ? (
+                <h4>Loading...</h4>
+              ) : (
+                <CountingCardRow
+                  icon={SvgIconVillage}
+                  isMeningkat={true}
+                  jumlah={datadash?.jumlah_anak_lulus}
+                  peningkatan=""
+                  subtitle=""
+                  title="Jumlah Anak Lulus"
+                  title_secound={`Aktif ${monthYear}`}
+                  color={"#EBF3FE"}
+                />
+              )}
+
+              {isLoading.countingCardRow ? (
+                <h4>Loading...</h4>
+              ) : (
+                <CountingCardRow
+                  icon={SvgIconToilet}
+                  isMeningkat={false}
+                  jumlah={datadash?.jumlah_anak_mpasi}
+                  peningkatan=""
+                  subtitle=""
+                  title="Jumlah Anak Mpasi"
+                  title_secound={`Aktif ${monthYear}`}
+                  color={"#EBF3FE"}
+                />
+              )}
+
+              {isLoading.countingCardRow ? (
+                <h4>Loading...</h4>
+              ) : (
+                <CountingCardRow
+                  icon={SvgIconPregnantMother}
+                  isMeningkat={false}
+                  jumlah={datadash?.jumlah_anak_asi_ekslusif}
+                  peningkatan=""
+                  subtitle=""
+                  title="Jumlah Anak Asi Eklusif"
+                  title_secound={`Aktif ${monthYear}`}
+                  color={"#EBF3FE"}
+                />
+              )}
+            </div>
+            <div className="col-span-4 flex flex-row gap-10">
+              {isLoading.countingCardRow ? (
+                <h4>Loading...</h4>
+              ) : (
+                <CountingCardRow
+                  icon={SvgIconVillage}
+                  isMeningkat={true}
+                  jumlah={datadash?.jumlah_anak_tidak_punya_nik}
+                  peningkatan=""
+                  subtitle=""
+                  title="Jumlah Anak Tidak Memiliki NIK"
+                  title_secound={`Aktif ${monthYear}`}
+                  color={"#EBF3FE"}
+                />
+              )}
+
+              {isLoading.countingCardRow ? (
+                <h4>Loading...</h4>
+              ) : (
+                <CountingCardRow
+                  icon={SvgIconToilet}
+                  isMeningkat={false}
+                  jumlah={
+                    (datadash?.jumlah_orang_tua_tidak_punya_nik.ayah_count ??
+                      0) +
+                    (datadash?.jumlah_orang_tua_tidak_punya_nik.ibu_count ?? 0)
+                  }
+                  peningkatan=""
+                  subtitle=""
+                  title="Jumlah Orang Tua Tidak Miliki NIK"
+                  title_secound={`Aktif ${monthYear}`}
+                  color={"#EBF3FE"}
+                />
+              )}
+
+              {isLoading.countingCardRow ? (
+                <h4>Loading...</h4>
+              ) : (
+                <CountingCardRow
+                  icon={SvgIconPregnantMother}
+                  isMeningkat={false}
+                  jumlah={datadash?.jumlah_orang_tua_tidak_punya_kk}
+                  peningkatan=""
+                  subtitle=""
+                  title="Jumlah Orang Tua Tidak Memiliki KK"
+                  title_secound={`Aktif ${monthYear}`}
+                  color={"#EBF3FE"}
+                />
+              )}
+            </div>
+
+            <div className="col-span-4 flex flex-row gap-10">
+              {isLoading.countingCardRow ? (
+                <h4>Loading...</h4>
+              ) : (
+                <CountingCardRow
+                  icon={SvgIconVillage}
+                  isMeningkat={true}
+                  jumlah={datadash?.jumlah_desa.jumlah}
+                  peningkatan={datadash?.jumlah_desa.rate ?? "-"}
+                  subtitle={datadash?.jumlah_desa.status ?? "-"}
+                  title="Jumlah Desa"
+                  title_secound={`Aktif ${monthYear}`}
+                  color={"#EBF3FE"}
+                />
+              )}
+
+              {isLoading.countingCardRow ? (
+                <h4>Loading...</h4>
+              ) : (
+                <CountingCardRow
+                  icon={SvgIconToilet}
+                  isMeningkat={false}
+                  jumlah={30}
+                  peningkatan="9%"
+                  subtitle="Jumlah Keluarga Belum Memiliki Fasilitas MCK Meningkat"
+                  title="Keluarga tanpa MCK"
+                  title_secound={`Aktif ${monthYear}`}
+                  color={"#EBF3FE"}
+                />
+              )}
+
+              {isLoading.countingCardRow ? (
+                <h4>Loading...</h4>
+              ) : (
+                <CountingCardRow
+                  icon={SvgIconPregnantMother}
+                  isMeningkat={false}
+                  jumlah={datadash?.jumlah_ibu_hamil.jumlah}
+                  peningkatan={datadash?.jumlah_ibu_hamil.rate ?? "-"}
+                  subtitle={datadash?.jumlah_ibu_hamil.status ?? "-"}
+                  title="Jumlah Ibu Hamil"
+                  title_secound={`Aktif ${monthYear}`}
+                  color={"#EBF3FE"}
+                />
+              )}
+            </div>
+          </div>
+
+          {/* card 9 kebawah */}
 
           <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
             {isLoading.mapPersebaranBalitaStunting ? (
@@ -314,11 +521,11 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconLoveOrange}
                 isMeningkat={true}
-                jumlah= {datadash?.jumlah_posyandu.jumlah}
-                peningkatan= {datadash?.jumlah_posyandu.rate ?? "-"}
+                jumlah={datadash?.jumlah_posyandu.jumlah}
+                peningkatan={datadash?.jumlah_posyandu.rate ?? "-"}
                 title="Jumlah Posyandu"
                 title_secound=""
-                subtitle= {datadash?.jumlah_posyandu.status ?? "-"}
+                subtitle={datadash?.jumlah_posyandu.status ?? "-"}
                 color={"#EBF3FE"}
               />
             )}
@@ -330,7 +537,7 @@ const Dashboard = () => {
                 title={"Persentase Jumlah Posyandu"}
                 jumlah={100}
                 color={colors}
-                data= {data}
+                data={data}
                 label={label}
               />
             )}
@@ -351,11 +558,11 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconLoveBlue}
                 isMeningkat={true}
-                jumlah= {datadash?.jumlah_kader.jumlah}
-                peningkatan= {datadash?.jumlah_kader.rate ?? "-"}
-                title= "Jumlah Kader"
+                jumlah={datadash?.jumlah_kader.jumlah}
+                peningkatan={datadash?.jumlah_kader.rate ?? "-"}
+                title="Jumlah Kader"
                 title_secound=""
-                subtitle= {datadash?.jumlah_kader.status ?? ""}
+                subtitle={datadash?.jumlah_kader.status ?? ""}
                 color={"#EBF3FE"}
               />
             )}
@@ -368,8 +575,15 @@ const Dashboard = () => {
                 jumlah={100}
                 color={["#ef4444", "#3b82f6"]}
                 data={[
-                  { name: "Banyuwangi", value: datadash?.persentase_kader.kader_banyuwangi_rate ?? 0 },
-                  { name: "Maluku Tengah", value: datadash?.persentase_kader.kader_maluku_rate ?? 0 },
+                  {
+                    name: "Banyuwangi",
+                    value:
+                      datadash?.persentase_kader.kader_banyuwangi_rate ?? 0,
+                  },
+                  {
+                    name: "Maluku Tengah",
+                    value: datadash?.persentase_kader.kader_maluku_rate ?? 0,
+                  },
                 ]}
                 label={["Banyuwangi", "Maluku Tengah"]}
               />
