@@ -138,7 +138,7 @@ const GrafikTrendStunting: React.FC = () => {
           <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
             Grafik Tren Gizi pada Balita
           </h4>
-            <p className="">
+            <p className="text-black">
             Menampilkan tren gizi pada balita berdasarkan wilayah
             </p>
           </div>
@@ -149,13 +149,13 @@ const GrafikTrendStunting: React.FC = () => {
               <div
                 className="h-2 w-2 rounded-full bg-blue-500"
               ></div>
-              <p className="">Balita Gizi Baik</p>
+              <p className="text-black">Balita Gizi Baik</p>
             </div>
             <div className="flex items-center justify-center gap-2">
               <div
                 className="h-2 w-2 rounded-full bg-red-500"
               ></div>
-              <p className="">Balita Gizi Buruk</p>
+              <p className="text-black">Balita Gizi Buruk</p>
             </div>
           </div>
         </div>
@@ -168,7 +168,7 @@ const GrafikTrendStunting: React.FC = () => {
         </div>
       </div>
       <div>
-        <div className="-ml-4 -mr-5">
+        <div className="-ml-4 -mr-5 text-black">
           <ReactApexChart
             options={options}
             series={series}
@@ -178,20 +178,7 @@ const GrafikTrendStunting: React.FC = () => {
         </div>
       </div>
 
-      {/* <div className="flex flex-col gap-2 text-center xsm:flex-row xsm:gap-0">
-        <div className="border-stroke dark:border-dark-3 xsm:w-1/2 xsm:border-r">
-          <p className="font-medium">Balita Gizi Baik</p>
-          <h4 className="mt-1 text-xl font-bold text-blue-400 dark:text-white">
-            182
-          </h4>
-        </div>
-        <div className="xsm:w-1/2">
-          <p className="font-medium">Balita Gizi Buruk</p>
-          <h4 className="mt-1 text-xl font-bold text-red-400 dark:text-white">
-            21
-          </h4>
-        </div>
-      </div> */}
+     
     </div>
   );
 };

@@ -119,7 +119,7 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
             Peta Persebaran Keluarga Tanpa Fasilitas MCK
           </h1>
-          <p className="">
+          <p className="text-dark">
             Menampilkan peta persebaran keluarga yang tidak memiliki fasilitas MCK
           </p>
         </div>

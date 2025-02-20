@@ -286,7 +286,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
               Tingkat Gizi Balita menurut Wilayah Desa
             </h4>
 
-            <p className="">
+            <p className="text-black">
               Menampilkan tren gizi balita berdasarkan pembagian wilayah desa
             </p>
           </div>
@@ -324,7 +324,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
         </div>
       </div>
       <div>
-        <div id="chartTwo" className="-ml-3.5">
+        <div id="chartTwo" className="-ml-3.5 text-black">
           <ReactApexChart
             options={options}
             series={series}
