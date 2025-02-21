@@ -19,6 +19,48 @@ export type StatistikClass = {
         status: any;
         rate : number;
     };
+
+    jumlah_anak_kenaikan_bb: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };
+
+    jumlah_anak_bb_tetap: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };
+
+    jumlah_anak_penurunan_bb: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };
+
+    jumlah_anak_lulus: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };
+
+    jumlah_anak_mpasi: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };
+
+    jumlah_anak_asi_ekslusif: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };
+    jumlah_anak_tidak_punya_nik: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };
+
     jumlah_desa: {
         jumlah: number;
         status: any;
@@ -47,20 +89,29 @@ export type StatistikClass = {
         posyandu_banyuwangi_rate: number;
         posyandu_maluku_rate: number;
     };
-    jumlah_anak_kenaikan_bb: number;
-    jumlah_anak_bb_tetap: number;
-    jumlah_anak_penurunan_bb: number;
-    jumlah_anak_lulus: number;
-    jumlah_anak_mpasi: number;
-    jumlah_anak_asi_ekslusif: number;
-    jumlah_anak_tidak_punya_nik: number;
-    jumlah_orang_tua_tidak_punya_nik: {
-        ayah_count: number;
-        ibu_count: number;
-    };
-    jumlah_orang_tua_tidak_punya_kk: number;
-}
 
+    jumlah_ibu_tidak_punya_nik: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };
+    jumlah_ayah_tidak_punya_nik: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };
+
+    // jumlah_orang_tua_tidak_punya_nik: {
+    //     ayah_count: number;
+    //     ibu_count: number;
+    // };
+
+    jumlah_orang_tua_tidak_punya_kk: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };  
+}
 
 
 export type Provinsi = {

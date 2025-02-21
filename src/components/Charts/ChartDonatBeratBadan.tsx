@@ -6,10 +6,11 @@ import { statistikDashboard } from "@/app/api/statistik/statistik";
 
 const ChartDonatBeratBadan: React.FC = () => {
   const [data, setData] = useState<{ 
-    jumlah_anak_kenaikan_bb: number;
-    jumlah_anak_bb_tetap: number;
-    jumlah_anak_penurunan_bb: number;
+    kenaikan_bb: number;
+    bb_tetap: number;
+    penurunan_bb: number;
   } | null>(null);
+  
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,11 +20,15 @@ const ChartDonatBeratBadan: React.FC = () => {
         const result = await statistikDashboard();
 
         if (result.successCode === 200 && result.data) {
-          setData(result.data);
+          setData({
+            kenaikan_bb: result.data.jumlah_anak_kenaikan_bb?.jumlah || 0,
+            bb_tetap: result.data.jumlah_anak_bb_tetap?.jumlah || 0,
+            penurunan_bb: result.data.jumlah_anak_penurunan_bb?.jumlah || 0,
+          });
           setError(null);
         } else {
           setData(null);
-          setError("Error fetching data. Please try again.");
+          setError("Data tidak ditemukan atau format tidak sesuai.");
         }
       } catch (err) {
         setError("Terjadi kesalahan saat mengambil data.");
@@ -77,26 +82,26 @@ const ChartDonatBeratBadan: React.FC = () => {
   };
 
   const chartSeries = data
-    ? [data.jumlah_anak_kenaikan_bb, data.jumlah_anak_bb_tetap, data.jumlah_anak_penurunan_bb]
+    ? [data.kenaikan_bb, data.bb_tetap, data.penurunan_bb]
     : [];
 
   return (
     <div className="p-7 bg-white shadow-lg rounded-lg">
-
       <div>
-          <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
+        <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
           Statistik Berat Badan Anak
-          </h4>
-            <p className="text-black">
-            Pemantauan Pertumbuhan Anak Berdasarkan Data Berat Badan
-            </p>
-          </div>
+        </h4>
+        <p className="text-black">
+          Pemantauan Pertumbuhan Anak Berdasarkan Data Berat Badan
+        </p>
+      </div>
 
-      
       {loading ? (
         <p>Loading...</p>
       ) : error ? (
         <p className="text-red-500">{error}</p>
+      ) : chartSeries.every(value => value === 0) ? (
+        <p className="text-gray-500">Tidak ada data untuk ditampilkan.</p>
       ) : (
         <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={380} />
       )}

@@ -6,7 +6,8 @@ import { statistikDashboard } from "@/app/api/statistik/statistik";
 
 const ChartDonatNik: React.FC = () => {
   const [data, setData] = useState<{ 
-    jumlah_orang_tua_tidak_punya_nik: number;
+    jumlah_ayah_tidak_punya_nik: number;
+    jumlah_ibu_tidak_punya_nik: number;
     jumlah_anak_tidak_punya_nik: number;
   } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -18,13 +19,13 @@ const ChartDonatNik: React.FC = () => {
         const result = await statistikDashboard();
 
         if (result.successCode === 200 && result.data) {
-          const jumlahOrangTua =
-            (result.data.jumlah_orang_tua_tidak_punya_nik.ayah_count ?? 0) +
-            (result.data.jumlah_orang_tua_tidak_punya_nik.ibu_count ?? 0);
-          const jumlahAnak = result.data.jumlah_anak_tidak_punya_nik ?? 0;
+          const jumlahAyah = result.data.jumlah_ayah_tidak_punya_nik?.jumlah ?? 0;
+          const jumlahIbu = result.data.jumlah_ibu_tidak_punya_nik?.jumlah ?? 0;
+          const jumlahAnak = result.data.jumlah_anak_tidak_punya_nik?.jumlah ?? 0;
 
           setData({
-            jumlah_orang_tua_tidak_punya_nik: jumlahOrangTua,
+            jumlah_ayah_tidak_punya_nik: jumlahAyah,
+            jumlah_ibu_tidak_punya_nik: jumlahIbu,
             jumlah_anak_tidak_punya_nik: jumlahAnak,
           });
           setError(null);
@@ -46,10 +47,11 @@ const ChartDonatNik: React.FC = () => {
   let total = 0;
 
   if (data) {
-    total = data.jumlah_orang_tua_tidak_punya_nik + data.jumlah_anak_tidak_punya_nik;
+    total = data.jumlah_ayah_tidak_punya_nik + data.jumlah_ibu_tidak_punya_nik + data.jumlah_anak_tidak_punya_nik;
     if (total > 0) {
       chartSeries = [
-        (data.jumlah_orang_tua_tidak_punya_nik / total) * 100,
+        (data.jumlah_ayah_tidak_punya_nik / total) * 100,
+        (data.jumlah_ibu_tidak_punya_nik / total) * 100,
         (data.jumlah_anak_tidak_punya_nik / total) * 100
       ];
     }
@@ -59,8 +61,8 @@ const ChartDonatNik: React.FC = () => {
     chart: {
       type: "donut",
     },
-    labels: ["Orang Tua Tidak Punya NIK", "Anak Tidak Punya NIK"],
-    colors: ["#F97316", "#10B981"], // Orange & Hijau untuk kontras
+    labels: ["Ayah Tidak Punya NIK", "Ibu Tidak Punya NIK", "Anak Tidak Punya NIK"],
+    colors: ["#F97316", "#10B981", "#3B82F6"], // Orange, Hijau, Biru untuk kontras
     legend: {
       position: "bottom",
       labels: {
@@ -106,26 +108,23 @@ const ChartDonatNik: React.FC = () => {
           <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
           Statistik NIK Orang Tua dan Anak
           </h4>
-            <p className="text-black">
+          <p className="text-black">
             Monitoring Status Pendaftaran NIK Orang Tua dan Anak
-            </p>
-          </div>
+          </p>
+       </div>
 
-      
       {loading ? (
         <p className="text-gray-600">Loading...</p>
       ) : error ? (
         <p className="text-red-500">{error}</p>
-      ) : data?.jumlah_anak_tidak_punya_nik === 0 ? (
+      ) : total === 0 ? (
         <div className="flex items-center justify-center min-h-[350px] w-full">
           <p className="text-green-600 text-lg font-semibold">
-            Tidak ada balita yang tidak memiliki Nomor Induk Keluarga
+            Tidak ada data terkait status NIK
           </p>
         </div>
-      ) : total > 0 ? (
-        <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={380} />
       ) : (
-        <p className="text-gray-600">Data tidak tersedia</p>
+        <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={380} />
       )}
     </div>
   );

@@ -248,9 +248,9 @@ const Dashboard = () => {
           </div>
 
 
-           {/* testing kedua */}
+          {/* testing kedua */}
 
-           <div className="col-span-8">
+          <div className="col-span-8">
             {isLoading.grafikTrendStuntingBanyuwangi ? (
               <h4>Loading...</h4>
             ) : (
@@ -266,12 +266,12 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_anak_lulus}
-                  peningkatan=""
-                  subtitle=""
-                  title="Jumlah Anak Lulus"
-                  title_secound={`Aktif ${monthYear}`}
-                  color={"#EBF3FE"}
+                jumlah={datadash?.jumlah_anak_lulus.jumlah}
+                peningkatan={datadash?.jumlah_anak_lulus.rate ?? "-"}
+                subtitle= {datadash?.jumlah_anak_lulus.status ?? "-"}
+                title="Jumlah Anak Lulus"
+                title_secound={`Aktif ${monthYear}`}
+                color={"#EBF3FE"}
               />
             )}
 
@@ -281,19 +281,19 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_orang_tua_tidak_punya_kk}
-                  peningkatan=""
-                  subtitle=""
-                  title="Jumlah Orang Tua Tidak Memiliki KK"
-                  title_secound={`Aktif ${monthYear}`}
-                  color={"#EBF3FE"}
+                jumlah={datadash?.jumlah_orang_tua_tidak_punya_kk?.jumlah}
+                peningkatan= {datadash?.jumlah_orang_tua_tidak_punya_kk.rate ?? "-"}
+                subtitle=  {datadash?.jumlah_orang_tua_tidak_punya_kk.status ?? "-"}
+                title="Jumlah Orang Tua Tidak Memiliki KK"
+                title_secound={`Aktif ${monthYear}`}
+                color={"#EBF3FE"}
               />
             )}
           </div>
 
-             {/* testing */}
+          {/* testing */}
 
-             <div className="col-span-8">
+          <div className="col-span-8">
             {isLoading.grafikTrendStuntingBanyuwangi ? (
               <h4>Loading...</h4>
             ) : (
@@ -309,9 +309,9 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_anak_mpasi}
-                peningkatan=""
-                subtitle=""
+                jumlah={datadash?.jumlah_anak_mpasi.jumlah}
+                peningkatan=  {datadash?.jumlah_anak_mpasi.rate ?? "-"}
+                subtitle= {datadash?.jumlah_anak_mpasi.status ?? "-"}
                 title="Jumlah Anak Hadir"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -324,12 +324,12 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_anak_asi_ekslusif}
-                  peningkatan=""
-                  subtitle=""
-                  title="Jumlah Ibu Hamil Melahirkan"
-                  title_secound={`Aktif ${monthYear}`}
-                  color={"#EBF3FE"}
+                jumlah={datadash?.jumlah_anak_asi_ekslusif.jumlah}
+                peningkatan= {datadash?.jumlah_anak_asi_ekslusif.rate ?? "-"}
+                subtitle= {datadash?.jumlah_anak_asi_ekslusif.status ?? "-"}
+                title="Jumlah Ibu Hamil Melahirkan"
+                title_secound={`Aktif ${monthYear}`}
+                color={"#EBF3FE"}
               />
             )}
           </div>
@@ -353,9 +353,9 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_anak_mpasi}
-                peningkatan=""
-                subtitle=""
+                jumlah={datadash?.jumlah_anak_mpasi.jumlah}
+                peningkatan= {datadash?.jumlah_anak_mpasi.rate ?? "-"}
+                subtitle= {datadash?.jumlah_anak_mpasi.status ?? "-"}
                 title="Jumlah Anak Mpasi"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -368,12 +368,12 @@ const Dashboard = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_anak_asi_ekslusif}
-                  peningkatan=""
-                  subtitle=""
-                  title="Jumlah Anak Asi Eklusif"
-                  title_secound={`Aktif ${monthYear}`}
-                  color={"#EBF3FE"}
+                jumlah={datadash?.jumlah_anak_asi_ekslusif.jumlah}
+                peningkatan= {datadash?.jumlah_anak_asi_ekslusif.rate ?? "-"}
+                subtitle= {datadash?.jumlah_anak_asi_ekslusif.status ?? "-"}
+                title="Jumlah Anak Asi Eklusif"
+                title_secound={`Aktif ${monthYear}`}
+                color={"#EBF3FE"}
               />
             )}
           </div>
