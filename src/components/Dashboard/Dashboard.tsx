@@ -240,7 +240,7 @@ const Dashboard = () => {
                 jumlah={datadash?.jumlah_anak_wasting.jumlah}
                 peningkatan={datadash?.jumlah_anak_wasting.rate ?? "-"}
                 subtitle={datadash?.jumlah_anak_wasting.status ?? "-"}
-                title="Jumlah Balita Wasting"
+                title="Jumlah Anak Wasting"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
               />

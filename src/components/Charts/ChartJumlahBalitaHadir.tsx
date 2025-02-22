@@ -49,7 +49,7 @@ const ChartJumlahBalitaHadir: React.FC = () => {
 
   const chartSeries = [
     {
-      name: "Jumlah Balita Hadir",
+      name: "Jumlah Anak Hadir",
       data: [100, 80, 120, 60, 140, 90, 180, 160, 120, 200, 140, 220], // Data bervariasi
     },
   ];
@@ -58,10 +58,10 @@ const ChartJumlahBalitaHadir: React.FC = () => {
     <div className="p-6 bg-white shadow-lg rounded-lg">
        <div>
           <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
-          Statistik Kehadiran Balita
+          Statistik Kehadiran Anak
           </h4>
             <p className="text-black">
-            Analisis Kehadiran Balita untuk Pemantauan Perkembangan dan Gizi
+            Analisis Kehadiran Anak untuk Pemantauan Perkembangan dan Gizi
             </p>
           </div>
       

@@ -8,11 +8,11 @@ const color = ["#3b82f6","#ef4444"]
 const GrafikTrendStunting: React.FC = () => {
   const series = [
     {
-      name: "Balita Gizi Baik",
+      name: "Anak Gizi Baik",
       data: [0, 20, 35, 45, 35, 55, 65, 50, 65, 75, 60, 75],
     },
     {
-      name: "Balita Gizi Buruk",
+      name: "Anak Gizi Buruk",
       data: [42, 32, 31, 30, 21, 31, 19, 20, 14, 12,8, 4],
     },
   ];
@@ -136,10 +136,10 @@ const GrafikTrendStunting: React.FC = () => {
         <div>
           <div>
           <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Grafik Tren Gizi pada Balita
+            Grafik Tren Gizi pada Anak
           </h4>
             <p className="text-black">
-            Menampilkan tren gizi pada balita berdasarkan wilayah
+            Menampilkan tren gizi pada Anak berdasarkan wilayah
             </p>
           </div>
           
@@ -149,13 +149,13 @@ const GrafikTrendStunting: React.FC = () => {
               <div
                 className="h-2 w-2 rounded-full bg-blue-500"
               ></div>
-              <p className="text-black">Balita Gizi Baik</p>
+              <p className="text-black">Anak Gizi Baik</p>
             </div>
             <div className="flex items-center justify-center gap-2">
               <div
                 className="h-2 w-2 rounded-full bg-red-500"
               ></div>
-              <p className="text-black">Balita Gizi Buruk</p>
+              <p className="text-black">Anak Gizi Buruk</p>
             </div>
           </div>
         </div>

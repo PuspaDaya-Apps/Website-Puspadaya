@@ -283,11 +283,11 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
         <div>
           <div>
             <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
-              Tingkat Gizi Balita menurut Wilayah Desa
+              Tingkat Gizi Anak menurut Wilayah Desa
             </h4>
 
             <p className="text-black">
-              Menampilkan tren gizi balita berdasarkan pembagian wilayah desa
+              Menampilkan tren gizi Anak berdasarkan pembagian wilayah desa
             </p>
           </div>
           <div className="mt-2 flex flex-col items-start justify-start gap-1">

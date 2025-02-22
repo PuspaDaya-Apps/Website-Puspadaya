@@ -47,9 +47,9 @@ const MapPersebaranBalitaStunting: React.FC = () => {
     return `
       <div>
         <p><strong>Wilayah:</strong> ${feature.properties.name}</p>
-        <p><strong>Memiliki balita stunting:</strong> 80</p>
-        <p><strong>Memiliki balita Wasting:</strong> 10</p>
-        <p><strong>Balita gizi baik:</strong> 238</p>
+        <p><strong>Memiliki Anak stunting:</strong> 80</p>
+        <p><strong>Memiliki Anak Wasting:</strong> 10</p>
+        <p><strong>Anak gizi baik:</strong> 238</p>
       </div>
     `;
   };
@@ -159,10 +159,10 @@ const MapPersebaranBalitaStunting: React.FC = () => {
       <div className="mb-10 flex justify-between">
         <div className="">
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Peta Penyebaran Balita Stunting
+            Peta Penyebaran Anak Stunting
           </h1>
           <p className="text-dark">
-            Peta penyebaran stunting dan gizi baik pada balita
+            Peta penyebaran stunting dan gizi baik pada Anak
           </p>
         </div>
         <div className="w-fit">
@@ -185,15 +185,15 @@ const MapPersebaranBalitaStunting: React.FC = () => {
       <div className="flex gap-4">
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-red-500"></div>
-          <p className="text-dark">Balita Stunting</p>
+          <p className="text-dark">Anak Stunting</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-          <p className="text-dark">Balita Wasting</p>
+          <p className="text-dark">Anak Wasting</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-green-500"></div>
-          <p className="text-dark">Balita Gizi Baik</p>
+          <p className="text-dark">Anak Gizi Baik</p>
         </div>
       </div>
 

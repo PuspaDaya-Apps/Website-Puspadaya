@@ -44,9 +44,9 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
     return `
       <div>
         <p><strong>Wilayah:</strong> ${feature.properties.name}</p>
-        <p><strong>Jumlah Balita:</strong> 100</p>
-        <p><strong>Balita Stunting:</strong> 30</p>
-        <p><strong>Balita gizi baik:</strong> 70</p>
+        <p><strong>Jumlah Anak:</strong> 100</p>
+        <p><strong>Anak Stunting:</strong> 30</p>
+        <p><strong>Anak gizi baik:</strong> 70</p>
       </div>
     `;
   };
@@ -106,7 +106,7 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
       <div className="mb-10 flex justify-between">
         <div className="">
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Peta Penyebaran Balita Berdasarkan Wilayah
+            Peta Penyebaran Anak Berdasarkan Wilayah
           </h1>
           <p className="text-dark">
             Menampilkan status penyebaran di setiap wilayah
