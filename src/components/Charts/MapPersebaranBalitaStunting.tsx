@@ -161,7 +161,7 @@ const MapPersebaranBalitaStunting: React.FC = () => {
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
             Peta Penyebaran Balita Stunting
           </h1>
-          <p className="">
+          <p className="text-dark">
             Peta penyebaran stunting dan gizi baik pada balita
           </p>
         </div>
@@ -185,15 +185,15 @@ const MapPersebaranBalitaStunting: React.FC = () => {
       <div className="flex gap-4">
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-red-500"></div>
-          <p>Balita Stunting</p>
+          <p className="text-dark">Balita Stunting</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-          <p>Balita Wasting</p>
+          <p className="text-dark">Balita Wasting</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-green-500"></div>
-          <p>Balita Gizi Baik</p>
+          <p className="text-dark">Balita Gizi Baik</p>
         </div>
       </div>
 

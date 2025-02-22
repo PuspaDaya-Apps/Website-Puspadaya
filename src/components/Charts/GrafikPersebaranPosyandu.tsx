@@ -40,19 +40,22 @@ const GrafikPersebaranPosyandu: React.FC = () => {
     { name: "Maluku Tengah", code: "MT" },
   ];
   const kecamatan: Kecamatan[] = [
-    { name: "Genteng", code: "GTG" },
-    { name: "Srono", code: "SRN" },
-    { name: "Rogojampi", code: "RGJ" },
-    { name: "Banyuwangi", code: "BWI" },
-    { name: "Sempu", code: "SMP" },
+    { name: "Cluring", code: "GTG" },
   ];
+
   const desa: Desa[] = [
-    { name: "Aliyan", code: "Aliyan" },
-    { name: "Bubuk", code: "Bubuk" },
-    { name: "Gitik", code: "Gitik" },
-    { name: "Gladak", code: "Gladak" },
-    { name: "Karang Bendo", code: "Karang Bendo" },
-  ];
+    { name: "Benculuk", code: "Benculuk" },
+    { name: "Cluring", code: "Cluring" },
+    { name: "Plampangrejo", code: "Plampangrejo" },
+    { name: "Sarimulyo", code: "Sarimulyo" },
+    { name: "Sraten", code: "Sraten" },
+    { name: "Tampo", code: "Tampo" },
+    { name: "Tegalsari", code: "Tegalsari" },
+    { name: "Tembokrejo", code: "Tembokrejo" },
+    { name: "Wringinputih", code: "Wringinputih" },
+];
+
+
   const options: ApexOptions = {
     series: series,
     chart: {
@@ -76,17 +79,18 @@ const GrafikPersebaranPosyandu: React.FC = () => {
     },
     xaxis: {
       categories: [
-        "Kebaman",
-        "Bangorejo",
-        "Purwoharjo",
-        "Wonosobo",
-        "Sukomajo",
-        "Sumbersari",
-        "Srono",
-        "Krajan",
-        "Kabat",
+        "Benculuk",
+        "Cluring",
+        "Plampangrejo",
+        "Sarimulyo",
+        "Sraten",
+        "Tampo",
+        "Tegalsari",
+        "Tembokrejo",
+        "Wringinputih",
       ],
     },
+    
     yaxis: {
       title: {
         text: "",
@@ -105,7 +109,7 @@ const GrafikPersebaranPosyandu: React.FC = () => {
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
             Grafik Persebaran Posyandu 
           </h1>
-          <p className="p">
+          <p className="p text-black">
             Menampilkan grafik posyandu aktif dan tidak aktif
           </p>
         </div>
@@ -155,7 +159,7 @@ const GrafikPersebaranPosyandu: React.FC = () => {
           </div>
         </div>
         <div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 text-black">
             <DefaultSelectOption
               options={[
                 "Januari",
