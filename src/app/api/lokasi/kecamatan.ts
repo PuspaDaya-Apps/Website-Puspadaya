@@ -7,7 +7,7 @@ import axios from 'axios';
 
 interface FetchResult {
     successCode: number;
-    data: KecamatanClass[] | null; 
+    data: KecamatanClass[] | null;
 }
 
 export const Kecamatanwilayah = async (): Promise<FetchResult> => {
@@ -22,13 +22,23 @@ export const Kecamatanwilayah = async (): Promise<FetchResult> => {
             headers: { Authorization: `Bearer ${accessToken}` },
         };
 
-        const response = await axios.get(APIEndpoints.KECAMATAN, config);
+        let allData: KecamatanClass[] = [];
+        let currentPage = 3;
+        let totalPages = 5;
 
-        const { data } = response.data;
-        // console.log ("Ini adalah datanya", data);
+        // Loop untuk ambil semua halaman
+        do {
+            const response = await axios.get(`${APIEndpoints.KECAMATAN}?page=${currentPage}`, config);
+            const { data, total_pages } = response.data; 
+
+            allData = [...allData, ...data]; // Gabung semua data
+            totalPages = total_pages; // Update total halaman dari API
+            currentPage++; // Pindah ke halaman berikutnya
+        } while (currentPage <= totalPages); // Loop sampai semua halaman diambil
+
         sessionStorage.removeItem(Messages.ERROR);
 
-        return { successCode: response.status, data };
+        return { successCode: 200, data: allData };
 
     } catch (err: any) {
         const { status, message } = handleError(err);

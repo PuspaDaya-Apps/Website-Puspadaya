@@ -1,63 +1,238 @@
 "use client";
 import { ApexOptions } from "apexcharts";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import DefaultSelectOption from "@/components/SelectOption/DefaultSelectOption";
 import { Dropdown } from "primereact/dropdown";
 import { SvgSearch } from "../ui/Svg";
-const color = ["#F39D00","#34B53A"];
+import { DesakelurahanClass, KabupatenClass, KecamatanClass } from "@/types/dashborad";
+import { Kabupatenwilayah } from "@/app/api/lokasi/kabupaten";
+import { Kecamatanwilayah } from "@/app/api/lokasi/kecamatan";
+import { Desakelurahanwilayah } from "@/app/api/lokasi/desa";
+import { trendPersebaranPosyandu } from "@/app/api/statistik/persebaranposyandu";
+
+const color = ["#F39D00", "#34B53A"];
+
 interface Wilayah {
+  id: string;
   name: string;
-  code: string;
 }
+
 interface Kecamatan {
+  id: string;
   name: string;
-  code: string;
+  kabupaten_kota: {
+    id: string;
+  };
 }
+
 interface Desa {
+  id: string;
   name: string;
-  code: string;
+  kecamatan: {
+    id: string;
+  };
 }
+
+interface StatistikData {
+  categories: string[];
+  aktif: number[];
+  tidakAktif: number[];
+}
+
 const GrafikPersebaranPosyandu: React.FC = () => {
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
-  const [selectedKecamatan, setSelectedKecamatan] = useState<Kecamatan | null>(
-    null,
-  );
+  const [selectedKecamatan, setSelectedKecamatan] = useState<Kecamatan | null>(null);
   const [selectedDesa, setSelectedDesa] = useState<Desa | null>(null);
 
-  const series = [
-    {
-      name: "Aktif",
-      data: [44, 55, 41, 67, 22, 43, 65,35,25],
-    },
-    {
-      name: "Tidak Aktif",
-      data: [50, 23, 20, 8, 13, 27, 15,10,7],
-    },
-  ];
-  const wilayah: Wilayah[] = [
-    { name: "Banyuwangi", code: "Bwi" },
-    { name: "Maluku Tengah", code: "MT" },
-  ];
-  const kecamatan: Kecamatan[] = [
-    { name: "Cluring", code: "GTG" },
-  ];
+  const [datadash, setData] = useState<KabupatenClass[] | null>(null);
+  const [datakec, setkecData] = useState<KecamatanClass[] | null>(null);
+  const [datades, setdesData] = useState<DesakelurahanClass[] | null>(null);
+  const [wilayah, setWilayah] = useState<Wilayah[]>([]);
+  const [kecamatan, setKecamatan] = useState<Kecamatan[]>([]);
+  const [desa, setDesa] = useState<Desa[]>([]);
+  const [filteredDesa, setFilteredDesa] = useState<Desa[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [statistikData, setStatistikData] = useState<StatistikData>({
+    categories: [],
+    aktif: [],
+    tidakAktif: [],
+  });
 
-  const desa: Desa[] = [
-    { name: "Benculuk", code: "Benculuk" },
-    { name: "Cluring", code: "Cluring" },
-    { name: "Plampangrejo", code: "Plampangrejo" },
-    { name: "Sarimulyo", code: "Sarimulyo" },
-    { name: "Sraten", code: "Sraten" },
-    { name: "Tampo", code: "Tampo" },
-    { name: "Tegalsari", code: "Tegalsari" },
-    { name: "Tembokrejo", code: "Tembokrejo" },
-    { name: "Wringinputih", code: "Wringinputih" },
-];
+  // Fetch data kabupaten
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await Kabupatenwilayah();
+        if (response.successCode === 200 && response.data) {
+          setData(response.data);
+          const wilayahData = response.data.map((kabupaten) => ({
+            id: kabupaten.id,
+            name: kabupaten.nama_kabupaten_kota,
+          }));
+          setWilayah(wilayahData);
+        } else {
+          setError(`Error ${response.successCode}: Gagal mengambil data`);
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan saat mengambil data.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchData();
+  }, []);
+
+  // Fetch data kecamatan
+  useEffect(() => {
+    const fetchKecamatanData = async () => {
+      setLoading(true);
+      try {
+        const response = await Kecamatanwilayah();
+        if (response.successCode === 200 && response.data) {
+          setkecData(response.data);
+          const kecamatanData = response.data.map((kec) => ({
+            id: kec.id,
+            name: kec.nama_kecamatan,
+            kabupaten_kota: {
+              id: kec.kabupaten_kota.id,
+            },
+          }));
+          setKecamatan(kecamatanData);
+        } else {
+          setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan saat mengambil data kecamatan.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchKecamatanData();
+  }, []);
+
+  // Fetch data desa
+  useEffect(() => {
+    const fetchDesakelurahanData = async () => {
+      setLoading(true);
+      try {
+        const response = await Desakelurahanwilayah();
+        if (response.successCode === 200 && response.data) {
+          setdesData(response.data);
+          const desaData = response.data.map((desa) => ({
+            id: desa.id,
+            name: desa.nama_desa_kelurahan,
+            kecamatan: {
+              id: desa.kecamatan.id,
+            },
+          }));
+          setDesa(desaData);
+        } else {
+          setError(`Error ${response.successCode}: Gagal mengambil data desa`);
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan saat mengambil data desa.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDesakelurahanData();
+  }, []);
+
+  // Filter kecamatan berdasarkan kabupaten yang dipilih
+  useEffect(() => {
+    if (selectedWilayah && datakec) {
+      const filteredKecamatan = datakec
+        .filter((kec) => kec.kabupaten_kota.id === selectedWilayah.id)
+        .map((kec) => ({
+          id: kec.id,
+          name: kec.nama_kecamatan,
+          kabupaten_kota: {
+            id: kec.kabupaten_kota.id,
+          },
+        }));
+      setKecamatan(filteredKecamatan);
+    } else {
+      setKecamatan([]);
+    }
+  }, [selectedWilayah, datakec]);
+
+  // Filter desa berdasarkan kecamatan yang dipilih
+  useEffect(() => {
+    if (selectedKecamatan && datades) {
+      const filteredDesa = datades
+        .filter((desa) => desa.kecamatan.id === selectedKecamatan.id)
+        .map((desa) => ({
+          id: desa.id,
+          name: desa.nama_desa_kelurahan,
+          kecamatan: {
+            id: desa.kecamatan.id,
+          },
+        }));
+      setFilteredDesa(filteredDesa);
+    } else {
+      setFilteredDesa([]);
+    }
+  }, [selectedKecamatan, datades]);
+
+  // Fetch statistik data saat desa dipilih
+  useEffect(() => {
+    const fetchStatistikData = async () => {
+      if (selectedDesa) {
+        setLoading(true);
+        try {
+          const response = await trendPersebaranPosyandu(selectedDesa.name);
+          if (response.successCode === 200 && response.data) {
+            const categories = response.data.data.map((item) => item.nama_dusun);
+            const aktifData = response.data.data.map((item) => item.posyandu_aktif_count);
+            const tidakAktifData = response.data.data.map((item) => item.posyandu_tidak_aktif_count);
+
+            setStatistikData({
+              categories: categories,
+              aktif: aktifData,
+              tidakAktif: tidakAktifData,
+            });
+          } else {
+            setError(`Error ${response.successCode}: Gagal mengambil data statistik`);
+          }
+        } catch (err) {
+          setError("Terjadi kesalahan saat mengambil data statistik.");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchStatistikData();
+  }, [selectedDesa]);
+
+  // Reset pilihan kecamatan dan desa saat kabupaten berubah
+  useEffect(() => {
+    setSelectedKecamatan(null);
+    setSelectedDesa(null);
+  }, [selectedWilayah]);
+
+  // Reset pilihan desa saat kecamatan berubah
+  useEffect(() => {
+    setSelectedDesa(null);
+  }, [selectedKecamatan]);
 
   const options: ApexOptions = {
-    series: series,
+    series: [
+      {
+        name: "Aktif",
+        data: statistikData.aktif,
+      },
+      {
+        name: "Tidak Aktif",
+        data: statistikData.tidakAktif,
+      },
+    ],
     chart: {
       type: "bar",
       height: 350,
@@ -78,19 +253,8 @@ const GrafikPersebaranPosyandu: React.FC = () => {
       colors: ["transparent"],
     },
     xaxis: {
-      categories: [
-        "Benculuk",
-        "Cluring",
-        "Plampangrejo",
-        "Sarimulyo",
-        "Sraten",
-        "Tampo",
-        "Tegalsari",
-        "Tembokrejo",
-        "Wringinputih",
-      ],
+      categories: statistikData.categories,
     },
-    
     yaxis: {
       title: {
         text: "",
@@ -105,25 +269,14 @@ const GrafikPersebaranPosyandu: React.FC = () => {
     <div className="col-span-12 rounded-[10px] bg-white px-7.5 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card xl:col-span-5">
       <div className="mb-12 justify-between gap-4 sm:flex">
         <div>
-        <div className="">
-          <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Grafik Persebaran Posyandu 
-          </h1>
-          <p className="p text-black">
-            Menampilkan grafik posyandu aktif dan tidak aktif
-          </p>
-        </div>
+          <div className="">
+            <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
+              Grafik Persebaran Posyandu
+            </h1>
+            <p className="p text-black">Menampilkan grafik posyandu aktif dan tidak aktif</p>
+          </div>
           <div className="mt-2 flex flex-col items-start justify-start gap-1">
-            {/* <div className="flex items-center justify-center gap-2 mt-1">
-              <div className="h-2 w-2 rounded-full bg-[#F39D00]"></div>
-              <p className="">Posyandu Aktif</p>
-            </div>
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <div className="h-2 w-2 rounded-full bg-[#34B53A]"></div>
-              <p className="">Posyandu Tidak Aktif</p>
-            </div> */}
             <div className="flex items-center justify-center gap-2">
-              {/* wilayah */}
               <Dropdown
                 value={selectedWilayah}
                 onChange={(e) => setSelectedWilayah(e.value)}
@@ -132,8 +285,6 @@ const GrafikPersebaranPosyandu: React.FC = () => {
                 placeholder="Pilih Wilayah"
                 className="md:w-14rem h-11 w-full"
               />
-
-              {/* kecamatan */}
               <Dropdown
                 value={selectedKecamatan}
                 onChange={(e) => setSelectedKecamatan(e.value)}
@@ -142,50 +293,26 @@ const GrafikPersebaranPosyandu: React.FC = () => {
                 placeholder="Pilih Kecamatan"
                 className="md:w-14rem h-11 w-full"
               />
-              {/* desa */}
               <Dropdown
                 value={selectedDesa}
                 onChange={(e) => setSelectedDesa(e.value)}
-                options={desa}
+                options={filteredDesa}
                 optionLabel="name"
                 placeholder="Pilih Desa"
                 className="md:w-14rem h-11 w-full"
               />
-              {/* searching */}
-              <div className=" flex h-11 w-35 items-center cursor-pointer justify-center rounded-md border border-gray-300 ">
-                <SvgSearch />
-              </div>
+            
             </div>
           </div>
         </div>
-        <div>
-        <div className="flex gap-2 text-black">
-            <DefaultSelectOption
-              options={[
-                "Januari",
-                "Februari",
-                "Maret",
-                "April",
-                "Mei",
-                "Juni",
-                "Juli",
-                "Agustus",
-                "September",
-                "Oktober",
-                "November",
-                "Desember",
-              ]}
-            />
-            <DefaultSelectOption options={["2023", "2024", "2025"]} />
-          </div>
-        </div>
+     
       </div>
 
       <div>
         <div id="chartTwo" className="-ml-3.5">
           <ReactApexChart
             options={options}
-            series={series}
+            series={options.series}
             type="bar"
             height={370}
           />

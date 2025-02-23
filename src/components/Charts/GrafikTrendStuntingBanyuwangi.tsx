@@ -232,6 +232,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
     setSelectedDesa(null);
   }, [selectedKecamatan]);
 
+  
   const series = [
     {
       name: 'Gizi Baik',

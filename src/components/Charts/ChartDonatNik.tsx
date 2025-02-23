@@ -50,9 +50,9 @@ const ChartDonatNik: React.FC = () => {
     total = data.jumlah_ayah_tidak_punya_nik + data.jumlah_ibu_tidak_punya_nik + data.jumlah_anak_tidak_punya_nik;
     if (total > 0) {
       chartSeries = [
-        (data.jumlah_ayah_tidak_punya_nik / total) * 100,
-        (data.jumlah_ibu_tidak_punya_nik / total) * 100,
-        (data.jumlah_anak_tidak_punya_nik / total) * 100
+        data.jumlah_ayah_tidak_punya_nik,
+        data.jumlah_ibu_tidak_punya_nik,
+        data.jumlah_anak_tidak_punya_nik
       ];
     }
   }
@@ -88,16 +88,22 @@ const ChartDonatNik: React.FC = () => {
     },
     dataLabels: {
       enabled: true,
-      formatter: (val: number) => `${Math.round(val)}%`, 
+      formatter: (val: number, opts) => {
+        const seriesIndex = opts.seriesIndex;
+        return chartSeries[seriesIndex].toString(); // Menampilkan nilai absolut
+      },
       style: {
         fontSize: "14px",
-        colors: ["#fff"], 
+        colors: ["#ffffff"], 
       },
     },
     tooltip: {
       theme: "dark",
       y: {
-        formatter: (val: number) => `${Math.round(val)}%`,
+        formatter: (val: number, opts) => {
+          const seriesIndex = opts.seriesIndex;
+          return chartSeries[seriesIndex].toString(); 
+        },
       },
     },
   };
@@ -109,7 +115,7 @@ const ChartDonatNik: React.FC = () => {
           Statistik NIK Orang Tua dan Anak
           </h4>
           <p className="text-black">
-            Monitoring Status Pendaftaran NIK Orang Tua dan Anak
+          Monitoring NIK Orang Tua dan Anak yang Tidak Terdaftar
           </p>
        </div>
 

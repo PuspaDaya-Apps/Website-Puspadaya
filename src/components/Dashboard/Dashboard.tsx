@@ -19,7 +19,6 @@ import MapPersebaranBalitaStunting from "../Charts/MapPersebaranBalitaStunting";
 import MapPersebaranBalitaBerdasarkanWIlayah from "../Charts/MapPersebaranBalitaBerdasarkanWIlayah";
 import MapPersebaranKader from "../Charts/MapPersebaranKader";
 import MapPersebaranKeluargaTanpaMCK from "../Charts/MapPersebaranKeluargaTanpaMCK";
-import MapPersebaranDesa from "../Charts/MapPersebaranDesa";
 import CountingCardRow from "../Card/CountingCardRow";
 import { statistikDashboard } from "@/app/api/statistik/statistik";
 import ChartDonatBeratBadan from "../Charts/ChartDonatBeratBadan";
@@ -35,11 +34,11 @@ const Dashboard = () => {
   const data = [
     {
       name: "Banyuwangi",
-      value: datadash?.persentase_posyandu.posyandu_banyuwangi_rate ?? 0,
+      value: datadash?.persentase_posyandu.banyuwangi_rate ?? 0,
     },
     {
       name: "Maluku Tengah",
-      value: datadash?.persentase_posyandu.posyandu_maluku_rate ?? 0,
+      value: datadash?.persentase_posyandu.maluku_rate ?? 0,
     },
   ];
 
@@ -404,11 +403,11 @@ const Dashboard = () => {
                 <CountingCardRow
                   icon={SvgIconToilet}
                   isMeningkat={false}
-                  jumlah={30}
-                  peningkatan="9%"
-                  subtitle="Jumlah Keluarga Belum Memiliki Fasilitas MCK Meningkat"
-                  title="Keluarga tanpa MCK"
-                  title_secound={`Aktif ${monthYear}`}
+                  jumlah= {datadash?.keluarga_tanpa_mck.jumlah}
+                  peningkatan= {datadash?.keluarga_tanpa_mck.rate ?? "-"}
+                  subtitle= {datadash?.keluarga_tanpa_mck.status ?? "-"}
+                  title= "Keluarga tanpa MCK"
+                  title_secound= {`Aktif ${monthYear}`}
                   color={"#EBF3FE"}
                 />
               )}
@@ -478,12 +477,13 @@ const Dashboard = () => {
             ) : (
               <PercentageCard
                 title={"Persentase Jumlah Posyandu"}
-                jumlah={100}
+                jumlah= {100}
                 color={colors}
-                data={data}
+                data= {data}
                 label={label}
               />
             )}
+
           </div>
 
           <div className="col-span-8">
@@ -521,11 +521,11 @@ const Dashboard = () => {
                   {
                     name: "Banyuwangi",
                     value:
-                      datadash?.persentase_kader.kader_banyuwangi_rate ?? 0,
+                      datadash?.persentase_kader.banyuwangi_rate ?? 0,
                   },
                   {
                     name: "Maluku Tengah",
-                    value: datadash?.persentase_kader.kader_maluku_rate ?? 0,
+                    value: datadash?.persentase_kader.maluku_rate ?? 0,
                   },
                 ]}
                 label={["Banyuwangi", "Maluku Tengah"]}

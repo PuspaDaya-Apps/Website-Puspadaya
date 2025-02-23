@@ -40,6 +40,10 @@ const ChartDonatBeratBadan: React.FC = () => {
     fetchData();
   }, []);
 
+  const chartSeries = data
+    ? [data.kenaikan_bb, data.bb_tetap, data.penurunan_bb]
+    : [];
+
   const chartOptions: ApexOptions = {
     chart: {
       type: "donut",
@@ -63,6 +67,10 @@ const ChartDonatBeratBadan: React.FC = () => {
               label: "Total",
               fontSize: "16px",
               color: "#374151",
+              formatter: () => {
+                const total = chartSeries.reduce((acc, val) => acc + val, 0);
+                return total.toString(); // Menampilkan total
+              },
             },
           },
         },
@@ -70,7 +78,10 @@ const ChartDonatBeratBadan: React.FC = () => {
     },
     dataLabels: {
       enabled: true,
-      formatter: (val: number) => Math.round(val), 
+      formatter: (val: number, opts) => {
+        const seriesIndex = opts.seriesIndex;
+        return chartSeries[seriesIndex].toString(); // Menampilkan nilai absolut
+      },
       style: {
         fontSize: "14px",
         colors: ["#fff"], 
@@ -78,12 +89,14 @@ const ChartDonatBeratBadan: React.FC = () => {
     },
     tooltip: {
       theme: "dark",
+      y: {
+        formatter: (val: number, opts) => {
+          const seriesIndex = opts.seriesIndex;
+          return chartSeries[seriesIndex].toString(); // Menampilkan nilai absolut
+        },
+      },
     },
   };
-
-  const chartSeries = data
-    ? [data.kenaikan_bb, data.bb_tetap, data.penurunan_bb]
-    : [];
 
   return (
     <div className="p-7 bg-white shadow-lg rounded-lg">

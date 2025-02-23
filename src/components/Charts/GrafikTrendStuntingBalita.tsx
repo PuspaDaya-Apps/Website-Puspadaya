@@ -1,21 +1,54 @@
 "use client";
 import { ApexOptions } from "apexcharts";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import DefaultSelectOption from "@/components/SelectOption/DefaultSelectOption";
+import { statistikTrenGizi } from "@/app/api/statistik/trengizi";
+import { TrenGizi, TrenGiziResponse } from "@/types/dashborad";
 
-const color = ["#3b82f6","#ef4444"]
+const color = ["#3b82f6", "#ef4444"];
+
 const GrafikTrendStunting: React.FC = () => {
+  const [data, setData] = useState<TrenGizi[] | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await statistikTrenGizi(); // Tipe kembalian adalah FetchResult
+
+        if (result.data && result.data.length > 0) {
+          // Periksa result.data (array)
+          setData(result.data); // Set data dengan result.data
+          setError(null);
+        } else {
+          setData(null);
+          setError("Data tidak ditemukan atau format tidak sesuai.");
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan saat mengambil data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Memetakan data dari API ke dalam format grafik
   const series = [
     {
       name: "Anak Gizi Baik",
-      data: [0, 20, 35, 45, 35, 55, 65, 50, 65, 75, 60, 75],
+      data: data ? data.map((item) => item.jumlah_gizi_baik) : [],
     },
     {
       name: "Anak Gizi Buruk",
-      data: [42, 32, 31, 30, 21, 31, 19, 20, 14, 12,8, 4],
+      data: data ? data.map((item) => item.jumlah_gizi_buruk) : [],
     },
   ];
+
+  const categories = data ? data.map((item) => item.tahun.toString()) : [];
 
   const options: ApexOptions = {
     legend: {
@@ -59,7 +92,6 @@ const GrafikTrendStunting: React.FC = () => {
     stroke: {
       curve: "smooth",
     },
-
     markers: {
       size: 0,
     },
@@ -81,10 +113,10 @@ const GrafikTrendStunting: React.FC = () => {
     },
     tooltip: {
       fixed: {
-        enabled: !1,
+        enabled: false,
       },
       x: {
-        show: !1,
+        show: false,
       },
       y: {
         title: {
@@ -94,26 +126,12 @@ const GrafikTrendStunting: React.FC = () => {
         },
       },
       marker: {
-        show: !1,
+        show: false,
       },
     },
     xaxis: {
       type: "category",
-      categories: [
-        "2013",
-        "2014",
-        "2015",
-        "2016",
-        "2017",
-        "2018",
-        "2019",
-        "2020",
-        "2021",
-        "2022",
-        "2023",
-        "2024",
-        "2025",
-      ],
+      categories: categories,
       axisBorder: {
         show: false,
       },
@@ -134,51 +152,42 @@ const GrafikTrendStunting: React.FC = () => {
     <div className="col-span-12 rounded-[10px] bg-white px-7.5 pb-6 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card xl:col-span-7">
       <div className="mb-3.5 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div>
           <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
             Grafik Tren Gizi pada Anak
           </h4>
-            <p className="text-black">
+          <p className="text-black">
             Menampilkan tren gizi pada Anak berdasarkan wilayah
-            </p>
-          </div>
-          
-
-          <div className="flex flex-col items-start justify-start gap-1 mt-2">
-            <div className="flex items-center justify-center gap-2">
-              <div
-                className="h-2 w-2 rounded-full bg-blue-500"
-              ></div>
-              <p className="text-black">Anak Gizi Baik</p>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <div
-                className="h-2 w-2 rounded-full bg-red-500"
-              ></div>
-              <p className="text-black">Anak Gizi Buruk</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <p className="font-medium text-dark dark:text-dark-6">
-            Pilih Wilayah
           </p>
-          <DefaultSelectOption options={["Banyuwangi", "Maluku Tengah"]} />
-        </div>
-      </div>
-      <div>
-        <div className="-ml-4 -mr-5 text-black">
-          <ReactApexChart
-            options={options}
-            series={series}
-            type="area"
-            height={310}
-          />
         </div>
       </div>
 
-     
+      <div>
+        {loading ? (
+          <p className="text-center text-gray-600">Memuat data...</p>
+        ) : error ? (
+          <p className="text-center text-red-500">{error}</p>
+        ) : (
+          <div className="-ml-4 -mr-5 text-black">
+            <ReactApexChart
+              options={options}
+              series={series}
+              type="area"
+              height={310}
+            />
+          </div>
+        )}
+
+        <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+            <p className="text-black">Anak Gizi Baik</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-red-500"></div>
+            <p className="text-black">Anak Gizi Buruk</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
