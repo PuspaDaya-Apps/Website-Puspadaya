@@ -59,6 +59,10 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
     tidakAktif: [],
   });
 
+  // Retrieve nama_provinsi and nama_role from sessionStorage
+  const namaProvinsi = sessionStorage.getItem("nama_provinsi");
+  const namaRole = sessionStorage.getItem("nama_role");
+
   // Fetch data kabupaten
   useEffect(() => {
     const fetchData = async () => {
@@ -72,6 +76,19 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
             name: kabupaten.nama_kabupaten_kota,
           }));
           setWilayah(wilayahData);
+
+          // Automatically set selectedWilayah based on nama_provinsi and role
+          if (namaRole !== "Admin") {
+            let defaultWilayah = null;
+            if (namaProvinsi === "Jawa Timur") {
+              defaultWilayah = wilayahData.find((w) => w.name === "Banyuwangi");
+            } else {
+              defaultWilayah = wilayahData.find((w) => w.name === "Maluku");
+            }
+            if (defaultWilayah) {
+              setSelectedWilayah(defaultWilayah);
+            }
+          }
         } else {
           setError(`Error ${response.successCode}: Gagal mengambil data`);
         }
@@ -83,7 +100,7 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, [namaProvinsi, namaRole]);
 
   // Fetch data kecamatan
   useEffect(() => {
@@ -283,6 +300,7 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Wilayah"
                 className="md:w-14rem h-11 w-full"
+                disabled={namaRole !== "Admin"} // Disable if role is not Admin
               />
               <Dropdown
                 value={selectedKecamatan}
@@ -291,6 +309,7 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Kecamatan"
                 className="md:w-14rem h-11 w-full"
+                disabled={!selectedWilayah}
               />
               <Dropdown
                 value={selectedDesa}
@@ -299,12 +318,11 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Desa"
                 className="md:w-14rem h-11 w-full"
+                disabled={!selectedKecamatan}
               />
-         
             </div>
           </div>
         </div>
-     
       </div>
 
       <div>

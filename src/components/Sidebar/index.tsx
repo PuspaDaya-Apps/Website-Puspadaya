@@ -14,6 +14,8 @@ interface SidebarProps {
 const menuGroups = [
   {
     menuItems: [
+
+      
       {
         icon: (
           <Image
@@ -24,26 +26,10 @@ const menuGroups = [
             className="fill-current"
           />
         ),
-
         label: "Dashboard",
-        route: "#",
-        children: [
-          {
-            label: "Superadmin",
-            route: "/",
-          },
-
-          // {
-          //   label: "Cek ricek",
-          //   route: "/data-keluarga/cek-ricek",
-          // },
-          
-        ],
-
-        
-
-
+        route: "/", 
       },
+      
 
       
 

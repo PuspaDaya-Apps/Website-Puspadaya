@@ -12,6 +12,9 @@ const DropdownUser = () => {
     window.location.href = '/auth/signin'; 
   };
 
+  const roleUser = sessionStorage.getItem("nama_role");
+  const namaLengkap = sessionStorage.getItem("nama_lengkap");
+
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
       <Link
@@ -34,7 +37,7 @@ const DropdownUser = () => {
         </span>
 
         <span className="flex items-center gap-1 font-medium text-dark dark:text-dark-6">
-          <span className="hidden lg:block">Ahmad Hanafi</span>
+          <span className="hidden lg:block">{namaLengkap}</span>
 
           <svg
             className={`fill-current duration-200 ease-in ${dropdownOpen && "rotate-180"}`}
@@ -78,10 +81,10 @@ const DropdownUser = () => {
 
             <span className="block">
               <span className="block font-medium text-dark dark:text-white">
-                Ahmad Hanafi
+               {namaLengkap}
               </span>
               <span className="block font-medium text-dark-5 dark:text-dark-6">
-                hanafi@puspadaya.id
+                {roleUser}
               </span>
             </span>
           </div>

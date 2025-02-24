@@ -65,6 +65,10 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
     giziBuruk: [],
   });
 
+  // Retrieve nama_provinsi and nama_role from sessionStorage
+  const namaProvinsi = sessionStorage.getItem("nama_provinsi");
+  const namaRole = sessionStorage.getItem("nama_role");
+
   // Fetch data kabupaten
   useEffect(() => {
     const fetchData = async () => {
@@ -78,6 +82,19 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
             name: kabupaten.nama_kabupaten_kota,
           }));
           setWilayah(wilayahData);
+
+          // Automatically set selectedWilayah based on nama_provinsi and role
+          if (namaRole !== "Admin") {
+            let defaultWilayah = null;
+            if (namaProvinsi === "Jawa Timur") {
+              defaultWilayah = wilayahData.find((w) => w.name === "Banyuwangi");
+            } else {
+              defaultWilayah = wilayahData.find((w) => w.name === "Maluku");
+            }
+            if (defaultWilayah) {
+              setSelectedWilayah(defaultWilayah);
+            }
+          }
         } else {
           setError(`Error ${response.successCode}: Gagal mengambil data`);
         }
@@ -89,7 +106,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, [namaProvinsi, namaRole]);
 
   // Fetch data kecamatan
   useEffect(() => {
@@ -193,13 +210,12 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
         try {
           const response = await Grafikgizi(selectedDesa.name);
           if (response.successCode === 200 && response.data) {
-            
             const dataArray = Array.isArray(response.data) ? response.data : [response.data];
-  
+
             const categories = dataArray.map((item: GiziDusunClass) => item.nama_dusun);
             const giziBaikData = dataArray.map((item: GiziDusunClass) => item.anak_gizi_baik_count);
             const giziBurukData = dataArray.map((item: GiziDusunClass) => item.anak_gizi_buruk_count);
-  
+
             setStatistikData({
               categories: categories,
               giziBaik: giziBaikData,
@@ -215,11 +231,9 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
         }
       }
     };
-  
+
     fetchStatistikData();
   }, [selectedDesa]);
-
-
 
   // Reset pilihan kecamatan dan desa saat kabupaten berubah
   useEffect(() => {
@@ -232,7 +246,6 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
     setSelectedDesa(null);
   }, [selectedKecamatan]);
 
-  
   const series = [
     {
       name: 'Gizi Baik',
@@ -300,6 +313,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Kabupaten"
                 className="md:w-14rem h-11 w-full"
+                disabled={namaRole !== "Admin"} // Disable if role is not Admin
               />
               <Dropdown
                 value={selectedKecamatan}
@@ -319,7 +333,6 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
                 className="md:w-14rem h-11 w-full"
                 disabled={!selectedKecamatan}
               />
-             
             </div>
           </div>
         </div>

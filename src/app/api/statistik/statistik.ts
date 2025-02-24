@@ -6,7 +6,7 @@ import axios from 'axios';
 
 interface FetchResult {
     successCode: number;
-    data: StatistikClass | null; // Mengubah menjadi objek, bukan array
+    data: StatistikClass | null;
 }
 
 export const statistikDashboard = async (): Promise<FetchResult> => {
@@ -16,20 +16,39 @@ export const statistikDashboard = async (): Promise<FetchResult> => {
 
     try {
         const accessToken = sessionStorage.getItem("access_token");
+        const userRole = sessionStorage.getItem("user_role"); // Ambil role dari sessionStorage
 
-        // console.log("Access Token:", accessToken);
-        // console.log("API Endpoint:", APIEndpoints.DASHBOARD);
-
-        if (!accessToken) {
+        if (!accessToken || !userRole) {
             return { successCode: 401, data: null };
+        }
+
+        // Pilih endpoint berdasarkan role
+        let endpoint = APIEndpoints.DASHBOARD; // Default untuk Admin
+        switch (userRole) {
+            case 'Dinas Sosial':
+                endpoint = APIEndpoints.DASHBOARDDINASSOSIAL;
+                break;
+            case 'Kepala Desa':
+                endpoint = APIEndpoints.DASHBOARDKEPALADESA;
+                break;
+            case 'Posyandu':
+                endpoint = APIEndpoints.DASHBOARDPOSYANDU;
+                break;
+            case 'Dinas Kesehatan':
+                endpoint = APIEndpoints.DASHBOARDDINASKESEHATAN;
+                break;
+            case 'TPG':
+                endpoint = APIEndpoints.DASHBOARDTPG;
+                break;
+            default:
+                endpoint = APIEndpoints.DASHBOARD; // Default Admin
         }
 
         const config = {
             headers: { Authorization: `Bearer ${accessToken}` },
         };
 
-        const response = await axios.get(APIEndpoints.DASHBOARD, config);
-        // console.log("API Response:", response.data);
+        const response = await axios.get(endpoint, config);
 
         const { data } = response.data;
         sessionStorage.removeItem(Messages.ERROR);
@@ -42,4 +61,3 @@ export const statistikDashboard = async (): Promise<FetchResult> => {
         return { successCode: status, data: null };
     }
 };
-
