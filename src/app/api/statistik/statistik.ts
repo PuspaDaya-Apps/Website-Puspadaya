@@ -31,9 +31,12 @@ export const statistikDashboard = async (): Promise<FetchResult> => {
             case 'Kepala Desa':
                 endpoint = APIEndpoints.DASHBOARDKEPALADESA;
                 break;
-            case 'Posyandu':
+            case 'Ketua Kader':
                 endpoint = APIEndpoints.DASHBOARDPOSYANDU;
                 break;
+            case 'Kader':
+                    endpoint = APIEndpoints.DASHBOARDPOSYANDU;
+                    break;
             case 'Dinas Kesehatan':
                 endpoint = APIEndpoints.DASHBOARDDINASKESEHATAN;
                 break;

@@ -37,8 +37,10 @@ const DropdownUser = () => {
         </span>
 
         <span className="flex items-center gap-1 font-medium text-dark dark:text-dark-6">
+          <div>
           <span className="hidden lg:block">{namaLengkap}</span>
-
+          <span className="hidden lg:block">{roleUser}</span>
+          </div>
           <svg
             className={`fill-current duration-200 ease-in ${dropdownOpen && "rotate-180"}`}
             width="20"
