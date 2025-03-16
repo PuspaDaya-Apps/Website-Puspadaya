@@ -8,8 +8,8 @@ const Dashboard = () => {
 
   if (namaRole === "Admin") {
     return <DashboardAdmin />;
-  } else if (namaRole === "Kader") {
-    return <DashboardKtuaKader />;
+  } else if (namaRole === "Ketua Kader") {
+    // return <DashboardKtuaKader />;
   } else {
     return <p>Anda tidak memiliki akses ke dashboard ini.</p>;
   }

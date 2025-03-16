@@ -18,6 +18,7 @@ const ChartPerhitunganIbuHamil: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay 2 detik
         const result = await statistikDashboard();
 
         if (result.successCode === 200 && result.data) {

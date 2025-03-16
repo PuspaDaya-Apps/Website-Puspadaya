@@ -17,6 +17,9 @@ const ChartDonatBeratBadan: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Tambahkan delay 2 detik sebelum memanggil API
+        await new Promise((resolve) => setTimeout(resolve, 3000)); 
+
         const result = await statistikDashboard();
 
         if (result.successCode === 200 && result.data) {
@@ -49,7 +52,7 @@ const ChartDonatBeratBadan: React.FC = () => {
       type: "donut",
     },
     labels: ["Kenaikan BB", "BB Tetap", "Penurunan BB"],
-    colors: ["#16A34A", "#EAB308", "#DC2626"], // Warna lebih soft: hijau, kuning, merah
+    colors: ["#16A34A", "#EAB308", "#DC2626"], 
     legend: {
       position: "bottom",
       labels: {
@@ -69,7 +72,7 @@ const ChartDonatBeratBadan: React.FC = () => {
               color: "#374151",
               formatter: () => {
                 const total = chartSeries.reduce((acc, val) => acc + val, 0);
-                return total.toString(); // Menampilkan total
+                return total.toString();
               },
             },
           },
@@ -80,7 +83,7 @@ const ChartDonatBeratBadan: React.FC = () => {
       enabled: true,
       formatter: (val: number, opts) => {
         const seriesIndex = opts.seriesIndex;
-        return chartSeries[seriesIndex].toString(); // Menampilkan nilai absolut
+        return chartSeries[seriesIndex].toString(); 
       },
       style: {
         fontSize: "14px",

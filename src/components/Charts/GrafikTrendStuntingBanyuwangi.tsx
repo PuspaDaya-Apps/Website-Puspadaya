@@ -3,7 +3,6 @@ import { ApexOptions } from "apexcharts";
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import { Dropdown } from "primereact/dropdown";
-import { SvgSearch } from "../ui/Svg";
 import { Kabupatenwilayah } from "@/app/api/lokasi/kabupaten";
 import { DesakelurahanClass, KabupatenClass, KecamatanClass } from "@/types/dashborad";
 import { Kecamatanwilayah } from "@/app/api/lokasi/kecamatan";
@@ -69,6 +68,15 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
   const namaProvinsi = sessionStorage.getItem("nama_provinsi");
   const namaRole = sessionStorage.getItem("user_role");
 
+  // Debounce function
+  const debounce = (func: (...args: any[]) => void, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  };
+
   // Fetch data kabupaten
   useEffect(() => {
     const fetchData = async () => {
@@ -108,63 +116,110 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
     fetchData();
   }, [namaProvinsi, namaRole]);
 
-  // Fetch data kecamatan
-  useEffect(() => {
-    const fetchKecamatanData = async () => {
+  // Fetch data kecamatan dengan debouncing
+  const fetchKecamatanData = async () => {
+    setLoading(true);
+    try {
+      const response = await Kecamatanwilayah();
+      if (response.successCode === 200 && response.data) {
+        setkecData(response.data);
+        const kecamatanData = response.data.map((kec) => ({
+          id: kec.id,
+          name: kec.nama_kecamatan,
+          kabupaten_kota: {
+            id: kec.kabupaten_kota.id,
+          },
+        }));
+        setKecamatan(kecamatanData);
+      } else {
+        setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan saat mengambil data kecamatan.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data desa dengan debouncing
+  const fetchDesakelurahanData = async () => {
+    setLoading(true);
+    try {
+      const response = await Desakelurahanwilayah();
+      if (response.successCode === 200 && response.data) {
+        setdesData(response.data);
+        const desaData = response.data.map((desa) => ({
+          id: desa.id,
+          name: desa.nama_desa_kelurahan,
+          kecamatan: {
+            id: desa.kecamatan.id,
+          },
+        }));
+        setDesa(desaData);
+      } else {
+        setError(`Error ${response.successCode}: Gagal mengambil data desa`);
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan saat mengambil data desa.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch statistik data dengan debouncing
+  const fetchStatistikData = async () => {
+    if (selectedDesa) {
       setLoading(true);
       try {
-        const response = await Kecamatanwilayah();
+        const response = await Grafikgizi(selectedDesa.name);
         if (response.successCode === 200 && response.data) {
-          setkecData(response.data);
-          const kecamatanData = response.data.map((kec) => ({
-            id: kec.id,
-            name: kec.nama_kecamatan,
-            kabupaten_kota: {
-              id: kec.kabupaten_kota.id,
-            },
-          }));
-          setKecamatan(kecamatanData);
+          const dataArray = Array.isArray(response.data) ? response.data : [response.data];
+
+          const categories = dataArray.map((item: GiziDusunClass) => item.nama_dusun);
+          const giziBaikData = dataArray.map((item: GiziDusunClass) => item.anak_gizi_baik_count);
+          const giziBurukData = dataArray.map((item: GiziDusunClass) => item.anak_gizi_buruk_count);
+
+          setStatistikData({
+            categories: categories,
+            giziBaik: giziBaikData,
+            giziBuruk: giziBurukData,
+          });
         } else {
-          setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
+          setError(`Error ${response.successCode}: Gagal mengambil data statistik`);
         }
       } catch (err) {
-        setError("Terjadi kesalahan saat mengambil data kecamatan.");
+        setError("Terjadi kesalahan saat mengambil data statistik.");
       } finally {
         setLoading(false);
       }
-    };
+    }
+  };
 
-    fetchKecamatanData();
-  }, []);
+  // Debounced functions
+  const debouncedFetchKecamatanData = debounce(fetchKecamatanData, 1000); // Delay 1 detik
+  const debouncedFetchDesakelurahanData = debounce(fetchDesakelurahanData, 1000); // Delay 1 detik
+  const debouncedFetchStatistikData = debounce(fetchStatistikData, 1000); // Delay 1 detik
 
-  // Fetch data desa
+  // Panggil fungsi debounced saat selectedWilayah berubah
   useEffect(() => {
-    const fetchDesakelurahanData = async () => {
-      setLoading(true);
-      try {
-        const response = await Desakelurahanwilayah();
-        if (response.successCode === 200 && response.data) {
-          setdesData(response.data);
-          const desaData = response.data.map((desa) => ({
-            id: desa.id,
-            name: desa.nama_desa_kelurahan,
-            kecamatan: {
-              id: desa.kecamatan.id,
-            },
-          }));
-          setDesa(desaData);
-        } else {
-          setError(`Error ${response.successCode}: Gagal mengambil data desa`);
-        }
-      } catch (err) {
-        setError("Terjadi kesalahan saat mengambil data desa.");
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (selectedWilayah) {
+      debouncedFetchKecamatanData();
+    }
+  }, [selectedWilayah]);
 
-    fetchDesakelurahanData();
-  }, []);
+  // Panggil fungsi debounced saat selectedKecamatan berubah
+  useEffect(() => {
+    if (selectedKecamatan) {
+      debouncedFetchDesakelurahanData();
+    }
+  }, [selectedKecamatan]);
+
+  // Panggil fungsi debounced saat selectedDesa berubah
+  useEffect(() => {
+    if (selectedDesa) {
+      debouncedFetchStatistikData();
+    }
+  }, [selectedDesa]);
 
   // Filter kecamatan berdasarkan kabupaten yang dipilih
   useEffect(() => {
@@ -202,39 +257,6 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
     }
   }, [selectedKecamatan, datades]);
 
-  // Fetch statistik data saat desa dipilih
-  useEffect(() => {
-    const fetchStatistikData = async () => {
-      if (selectedDesa) {
-        setLoading(true);
-        try {
-          const response = await Grafikgizi(selectedDesa.name);
-          if (response.successCode === 200 && response.data) {
-            const dataArray = Array.isArray(response.data) ? response.data : [response.data];
-
-            const categories = dataArray.map((item: GiziDusunClass) => item.nama_dusun);
-            const giziBaikData = dataArray.map((item: GiziDusunClass) => item.anak_gizi_baik_count);
-            const giziBurukData = dataArray.map((item: GiziDusunClass) => item.anak_gizi_buruk_count);
-
-            setStatistikData({
-              categories: categories,
-              giziBaik: giziBaikData,
-              giziBuruk: giziBurukData,
-            });
-          } else {
-            setError(`Error ${response.successCode}: Gagal mengambil data statistik`);
-          }
-        } catch (err) {
-          setError("Terjadi kesalahan saat mengambil data statistik.");
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchStatistikData();
-  }, [selectedDesa]);
-
   // Reset pilihan kecamatan dan desa saat kabupaten berubah
   useEffect(() => {
     setSelectedKecamatan(null);
@@ -248,13 +270,13 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
 
   const series = [
     {
-      name: 'Gizi Baik',
-      data: statistikData.giziBaik || []
+      name: "Gizi Baik",
+      data: statistikData.giziBaik || [],
     },
     {
-      name: 'Gizi Buruk',
-      data: statistikData.giziBuruk || []
-    }
+      name: "Gizi Buruk",
+      data: statistikData.giziBuruk || [],
+    },
   ];
 
   const options: ApexOptions = {
@@ -279,7 +301,7 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
       colors: ["transparent"],
     },
     xaxis: {
-      categories: statistikData.categories || []
+      categories: statistikData.categories || [],
     },
     yaxis: {
       title: {
@@ -299,7 +321,6 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
             <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
               Tingkat Gizi Anak menurut Wilayah Desa
             </h4>
-
             <p className="text-black">
               Menampilkan tren gizi Anak berdasarkan pembagian wilayah desa
             </p>

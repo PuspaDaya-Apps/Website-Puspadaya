@@ -19,8 +19,11 @@ const ChartPerhitunganSkdn: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Tambahkan delay 2 detik sebelum memanggil API
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay 2 detik
+  
         const result = await statistikDashboard();
-
+  
         if (result.successCode === 200 && result.data) {
           setData({
             D_: result.data.jumlah_anak_kenaikan_kbm.D_,
@@ -40,10 +43,9 @@ const ChartPerhitunganSkdn: React.FC = () => {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, []);
-
   const chartSeries = data ? [data.D_, data.O, data.B, data.T] : [];
 
   const chartOptions: ApexOptions = {

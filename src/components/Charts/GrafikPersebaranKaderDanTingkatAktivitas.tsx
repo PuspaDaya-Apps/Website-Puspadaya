@@ -41,7 +41,6 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
   const [selectedKecamatan, setSelectedKecamatan] = useState<Kecamatan | null>(null);
   const [selectedDesa, setSelectedDesa] = useState<Desa | null>(null);
-
   const [datadash, setData] = useState<KabupatenClass[] | null>(null);
   const [datakec, setkecData] = useState<KecamatanClass[] | null>(null);
   const [datades, setdesData] = useState<DesakelurahanClass[] | null>(null);
@@ -57,15 +56,22 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
     tidakAktif: [],
   });
 
-  // Retrieve nama_provinsi and nama_role from sessionStorage
   const namaProvinsi = sessionStorage.getItem("nama_provinsi");
   const namaRole = sessionStorage.getItem("user_role");
 
-  // Fetch data kabupaten
+  const debounce = (func: (...args: any[]) => void, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         const response = await Kabupatenwilayahaktivitas();
         if (response.successCode === 200 && response.data) {
           setData(response.data);
@@ -75,7 +81,6 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
           }));
           setWilayah(wilayahData);
 
-          // Automatically set selectedWilayah based on nama_provinsi and role
           if (namaRole !== "Admin") {
             let defaultWilayah = null;
             if (namaProvinsi === "Jawa Timur") {
@@ -100,86 +105,122 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
     fetchData();
   }, [namaProvinsi, namaRole]);
 
-  // Fetch data kecamatan
- useEffect(() => {
-     const fetchKecamatanData = async () => {
-       setLoading(true);
-       try {
-         const response = await Kecamatanwilayahaktivitas();
-         if (response.successCode === 200 && response.data) {
-           setkecData(response.data);
-           const kecamatanData = response.data.map((kec) => ({
-             id: kec.id,
-             name: kec.nama_kecamatan,
-             kabupaten_kota: {
-               id: kec.kabupaten_kota.id,
-             },
-           }));
-           setKecamatan(kecamatanData);
-         } else {
-           setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
-         }
-       } catch (err) {
-         setError("Terjadi kesalahan saat mengambil data kecamatan.");
-       } finally {
-         setLoading(false);
-       }
-     };
- 
-     fetchKecamatanData();
-   }, []);
+  const fetchKecamatanData = async () => {
+    setLoading(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await Kecamatanwilayahaktivitas();
+      if (response.successCode === 200 && response.data) {
+        setkecData(response.data);
+        const kecamatanData = response.data.map((kec) => ({
+          id: kec.id,
+          name: kec.nama_kecamatan,
+          kabupaten_kota: {
+            id: kec.kabupaten_kota.id,
+          },
+        }));
+        setKecamatan(kecamatanData);
+      } else {
+        setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan saat mengambil data kecamatan.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Fetch data desa
-  useEffect(() => {
-    const fetchDesakelurahanData = async () => {
+  const fetchDesakelurahanData = async () => {
+    setLoading(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await Desakelurahanwilayahaktivitas();
+      if (response.successCode === 200 && response.data) {
+        setdesData(response.data);
+        const desaData = response.data.map((desa) => ({
+          id: desa.id,
+          name: desa.nama_desa_kelurahan,
+          kecamatan: {
+            id: desa.kecamatan.id,
+          },
+        }));
+        setDesa(desaData);
+      } else {
+        setError(`Error ${response.successCode}: Gagal mengambil data desa`);
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan saat mengambil data desa.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStatistikData = async () => {
+    if (selectedDesa) {
       setLoading(true);
       try {
-        const response = await Desakelurahanwilayahaktivitas();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const response = await trendPersebaranKader(selectedDesa.name);
         if (response.successCode === 200 && response.data) {
-          setdesData(response.data);
-          const desaData = response.data.map((desa) => ({
-            id: desa.id,
-            name: desa.nama_desa_kelurahan,
-            kecamatan: {
-              id: desa.kecamatan.id,
-            },
-          }));
-          setDesa(desaData);
+          const categories = response.data.data.map((item) => item.nama_dusun);
+          const aktifData = response.data.data.map((item) => item.kader_aktif_count);
+          const tidakAktifData = response.data.data.map((item) => item.kader_tidak_aktif_count);
+
+          setStatistikData({
+            categories: categories,
+            aktif: aktifData,
+            tidakAktif: tidakAktifData,
+          });
         } else {
-          setError(`Error ${response.successCode}: Gagal mengambil data desa`);
+          setError(`Error ${response.successCode}: Gagal mengambil data statistik`);
         }
       } catch (err) {
-        setError("Terjadi kesalahan saat mengambil data desa.");
+        setError("Terjadi kesalahan saat mengambil data statistik.");
       } finally {
         setLoading(false);
       }
-    };
+    }
+  };
 
-    fetchDesakelurahanData();
-  }, []);
+  const debouncedFetchKecamatanData = debounce(fetchKecamatanData, 1000);
+  const debouncedFetchDesakelurahanData = debounce(fetchDesakelurahanData, 1000);
+  const debouncedFetchStatistikData = debounce(fetchStatistikData, 1000);
 
-  // Filter kecamatan berdasarkan kabupaten yang dipilih
-useEffect(() => {
-  if (selectedWilayah && datakec) {
-    // console.log("Filtering Kecamatan for Wilayah:", selectedWilayah);
-    const filteredKecamatan = datakec
-      .filter((kec) => kec.kabupaten_kota.id === selectedWilayah.id)
-      .map((kec) => ({
-        id: kec.id,
-        name: kec.nama_kecamatan,
-        kabupaten_kota: {
-          id: kec.kabupaten_kota.id,
-        },
-      }));
-    // console.log("Filtered Kecamatan:", filteredKecamatan);
-    setKecamatan(filteredKecamatan);
-  } else {
-    // console.log("No Wilayah selected or no Kecamatan data.");
-    setKecamatan([]);
-  }
-}, [selectedWilayah, datakec]);
+  useEffect(() => {
+    if (selectedWilayah) {
+      debouncedFetchKecamatanData();
+    }
+  }, [selectedWilayah]);
 
-  // Filter desa berdasarkan kecamatan yang dipilih
+  useEffect(() => {
+    if (selectedKecamatan) {
+      debouncedFetchDesakelurahanData();
+    }
+  }, [selectedKecamatan]);
+
+  useEffect(() => {
+    if (selectedDesa) {
+      debouncedFetchStatistikData();
+    }
+  }, [selectedDesa]);
+
+  useEffect(() => {
+    if (selectedWilayah && datakec) {
+      const filteredKecamatan = datakec
+        .filter((kec) => kec.kabupaten_kota.id === selectedWilayah.id)
+        .map((kec) => ({
+          id: kec.id,
+          name: kec.nama_kecamatan,
+          kabupaten_kota: {
+            id: kec.kabupaten_kota.id,
+          },
+        }));
+      setKecamatan(filteredKecamatan);
+    } else {
+      setKecamatan([]);
+    }
+  }, [selectedWilayah, datakec]);
+
   useEffect(() => {
     if (selectedKecamatan && datades) {
       const filteredDesa = datades
@@ -197,44 +238,11 @@ useEffect(() => {
     }
   }, [selectedKecamatan, datades]);
 
-  // Fetch statistik data saat desa dipilih
-  useEffect(() => {
-    const fetchStatistikData = async () => {
-      if (selectedDesa) {
-        setLoading(true);
-        try {
-          const response = await trendPersebaranKader(selectedDesa.name);
-          if (response.successCode === 200 && response.data) {
-            const categories = response.data.data.map((item) => item.nama_dusun);
-            const aktifData = response.data.data.map((item) => item.kader_aktif_count);
-            const tidakAktifData = response.data.data.map((item) => item.kader_tidak_aktif_count);
-
-            setStatistikData({
-              categories: categories,
-              aktif: aktifData,
-              tidakAktif: tidakAktifData,
-            });
-          } else {
-            setError(`Error ${response.successCode}: Gagal mengambil data statistik`);
-          }
-        } catch (err) {
-          setError("Terjadi kesalahan saat mengambil data statistik.");
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchStatistikData();
-  }, [selectedDesa]);
-
-  // Reset pilihan kecamatan dan desa saat kabupaten berubah
   useEffect(() => {
     setSelectedKecamatan(null);
     setSelectedDesa(null);
   }, [selectedWilayah]);
 
-  // Reset pilihan desa saat kecamatan berubah
   useEffect(() => {
     setSelectedDesa(null);
   }, [selectedKecamatan]);
@@ -281,25 +289,6 @@ useEffect(() => {
       opacity: 1,
     },
   };
-
-  const handleWilayahChange = (e: { value: Wilayah | null }) => {
-    setSelectedWilayah(e.value);
-    sessionStorage.setItem("selected_wilayah", JSON.stringify(e.value));
-  };
-
-  const wilayahData = sessionStorage.getItem("selected_wilayah");
-  if (wilayahData) {
-    // Parse data JSON
-    const parsedData = JSON.parse(wilayahData);
-
-    // Ambil properti 'name'
-    const name = parsedData.name;
-
-    // Cetak properti 'name' ke console
-    // console.log("Selected Wilayah Name:", name);
-  } else {
-    // console.log("No data found in sessionStorage for 'selected_wilayah'.");
-  }
 
   return (
     <div className="col-span-12 rounded-[10px] bg-white px-7.5 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card xl:col-span-5">

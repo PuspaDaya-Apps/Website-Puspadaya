@@ -29,7 +29,7 @@ export const Kecamatanwilayahaktivitas = async (): Promise<FetchResult> => {
         for (let currentPage = 1; currentPage <= totalPages; currentPage++) {
             const response = await axios.get(`${APIEndpoints.KECAMATAN}?page=${currentPage}`, config);
             const { data } = response.data;
-            console.log("Data Kecamatan uyy:", response.data);
+            // console.log("Data Kecamatan uyy:", response.data);
 
             allData = [...allData, ...data]; // Gabung semua data
             // console.log(`Data dari halaman ${currentPage} berhasil diambil.`); // Debugging

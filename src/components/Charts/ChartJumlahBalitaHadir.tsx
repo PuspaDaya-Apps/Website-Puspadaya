@@ -31,9 +31,13 @@ const ChartJumlahBalitaHadir: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await statistikTrenKehadiran(); // Tipe kembalian adalah FetchResult
+        
+        await new Promise((resolve) => setTimeout(resolve, 2000)); 
 
-        if (result.data && result.data.data.length > 0) { // Periksa result.data.data
+        const result = await statistikTrenKehadiran(); 
+
+        if (result.data && result.data.data.length > 0) {
+          // Periksa result.data.data
           const sortedData = result.data.data.sort((a, b) => a.bulan - b.bulan);
 
           setChartSeries([
@@ -56,6 +60,8 @@ const ChartJumlahBalitaHadir: React.FC = () => {
 
     fetchData();
   }, []);
+
+
 
   const chartOptions: ApexOptions = {
     chart: {

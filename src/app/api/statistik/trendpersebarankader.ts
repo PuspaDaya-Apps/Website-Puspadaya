@@ -12,38 +12,38 @@ interface FetchResult {
 // Fungsi untuk mendapatkan data trend persebaran kader berdasarkan desa/kelurahan
 export const trendPersebaranKader = async (desaKelurahan: string): Promise<FetchResult> => {
     if (typeof window === 'undefined') {
-        console.log("❌ Fungsi tidak dapat berjalan di server-side.");
+        // console.log("❌ Fungsi tidak dapat berjalan di server-side.");
         return { successCode: 500, data: null };
     }
 
     try {
-        console.log("🔍 Mencari token akses di sessionStorage...");
+        // console.log("🔍 Mencari token akses di sessionStorage...");
         const accessToken = sessionStorage.getItem("access_token");
 
         if (!accessToken) {
-            console.log("❌ Token akses tidak ditemukan.");
+            // console.log("❌ Token akses tidak ditemukan.");
             return { successCode: 401, data: null };
         }
 
-        console.log("✅ Token ditemukan, melanjutkan permintaan API...");
+        // console.log("✅ Token ditemukan, melanjutkan permintaan API...");
         const config = {
             headers: { Authorization: `Bearer ${accessToken}` },
         };
 
-        console.log(`📡 Mengambil data dari API: ${APIEndpoints.TRENDPERSEBARANKADER}?desa_kelurahan=${desaKelurahan}`);
+        // console.log(`📡 Mengambil data dari API: ${APIEndpoints.TRENDPERSEBARANKADER}?desa_kelurahan=${desaKelurahan}`);
         const response = await axios.get<ApiResponsePersebaranKaderDusun>(
             `${APIEndpoints.TRENDPERSEBARANKADER}?desa_kelurahan=${desaKelurahan}`,
             config
         );
 
-        console.log("✅ Data berhasil diambil:", response.data);
+        // console.log("✅ Data berhasil diambil:", response.data);
         sessionStorage.removeItem(Messages.ERROR);
 
         return { successCode: response.status, data: response.data };
 
     } catch (err: any) {
         const { status, message } = handleError(err);
-        console.error("❌ Error fetching data:", message);
+        // console.error("❌ Error fetching data:", message);
         return { successCode: status, data: null };
     }
 };

@@ -3,14 +3,12 @@ import React, { useEffect, useState } from "react";
 
 
 import InfiniteScroll from "react-infinite-scroll-component";
-
-
 import PercentageCard from "@/components/Card/PercentageCard";
 import GrafikTrendStuntingBanyuwangi from "@/components/Charts/GrafikTrendStuntingBanyuwangi";
 import CountingCard from "@/components/Card/CountingCard";
 import { statistikDashboard } from "@/app/api/statistik/statistik";
 import { SvgIconAnakHadir, SvgIconBayi, SvgIconLoveBlue, SvgIconLoveOrange, SvgIconOrangTuaTidakMemilikiKK, SvgIconPregnantMother, SvgIconVillage } from "@/components/ui/Svg";
-import ChartJumlahBalitaHadir from "@/components/Charts/ChartJumlahBalitaHadir";
+import ChartJumlahBalitaHadir from "@/components/Charts/ChartJumlahBalitaHadir"; //
 import ChartDonatBeratBadan from "@/components/Charts/ChartDonatBeratBadan";
 import ChartPerhitunganSkdn from "@/components/Charts/ChartPerhitunganSkdn";
 import ChartDonatNik from "@/components/Charts/ChartDonatNik";
@@ -68,6 +66,8 @@ const DashboardAdmin = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       const result = await statistikDashboard();
 
       // console.log("Fetched Data:", result);

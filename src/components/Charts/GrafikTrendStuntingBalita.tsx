@@ -16,6 +16,7 @@ const GrafikTrendStunting: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         const result = await statistikTrenGizi(); // Tipe kembalian adalah FetchResult
 
         if (result.data && result.data.length > 0) {

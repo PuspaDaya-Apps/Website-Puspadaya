@@ -2,9 +2,7 @@
 import { ApexOptions } from "apexcharts";
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
-import DefaultSelectOption from "@/components/SelectOption/DefaultSelectOption";
 import { Dropdown } from "primereact/dropdown";
-import { SvgSearch } from "../ui/Svg";
 import { DesakelurahanClass, KabupatenClass, KecamatanClass } from "@/types/dashborad";
 import { Kabupatenwilayah } from "@/app/api/lokasi/kabupaten";
 import { Kecamatanwilayah } from "@/app/api/lokasi/kecamatan";
@@ -64,6 +62,15 @@ const GrafikPersebaranPosyandu: React.FC = () => {
   const namaProvinsi = sessionStorage.getItem("nama_provinsi");
   const namaRole = sessionStorage.getItem("user_role");
 
+  // Debounce function
+  const debounce = (func: (...args: any[]) => void, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  };
+
   // Fetch data kabupaten
   useEffect(() => {
     const fetchData = async () => {
@@ -103,63 +110,108 @@ const GrafikPersebaranPosyandu: React.FC = () => {
     fetchData();
   }, [namaProvinsi, namaRole]);
 
-  // Fetch data kecamatan
-  useEffect(() => {
-    const fetchKecamatanData = async () => {
+  // Fetch data kecamatan dengan debouncing
+  const fetchKecamatanData = async () => {
+    setLoading(true);
+    try {
+      const response = await Kecamatanwilayah();
+      if (response.successCode === 200 && response.data) {
+        setkecData(response.data);
+        const kecamatanData = response.data.map((kec) => ({
+          id: kec.id,
+          name: kec.nama_kecamatan,
+          kabupaten_kota: {
+            id: kec.kabupaten_kota.id,
+          },
+        }));
+        setKecamatan(kecamatanData);
+      } else {
+        setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan saat mengambil data kecamatan.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data desa dengan debouncing
+  const fetchDesakelurahanData = async () => {
+    setLoading(true);
+    try {
+      const response = await Desakelurahanwilayah();
+      if (response.successCode === 200 && response.data) {
+        setdesData(response.data);
+        const desaData = response.data.map((desa) => ({
+          id: desa.id,
+          name: desa.nama_desa_kelurahan,
+          kecamatan: {
+            id: desa.kecamatan.id,
+          },
+        }));
+        setDesa(desaData);
+      } else {
+        setError(`Error ${response.successCode}: Gagal mengambil data desa`);
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan saat mengambil data desa.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch statistik data dengan debouncing
+  const fetchStatistikData = async () => {
+    if (selectedDesa) {
       setLoading(true);
       try {
-        const response = await Kecamatanwilayah();
+        const response = await trendPersebaranPosyandu(selectedDesa.name);
         if (response.successCode === 200 && response.data) {
-          setkecData(response.data);
-          const kecamatanData = response.data.map((kec) => ({
-            id: kec.id,
-            name: kec.nama_kecamatan,
-            kabupaten_kota: {
-              id: kec.kabupaten_kota.id,
-            },
-          }));
-          setKecamatan(kecamatanData);
+          const categories = response.data.data.map((item) => item.nama_dusun);
+          const aktifData = response.data.data.map((item) => item.posyandu_aktif_count);
+          const tidakAktifData = response.data.data.map((item) => item.posyandu_tidak_aktif_count);
+
+          setStatistikData({
+            categories: categories,
+            aktif: aktifData,
+            tidakAktif: tidakAktifData,
+          });
         } else {
-          setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
+          setError(`Error ${response.successCode}: Gagal mengambil data statistik`);
         }
       } catch (err) {
-        setError("Terjadi kesalahan saat mengambil data kecamatan.");
+        setError("Terjadi kesalahan saat mengambil data statistik.");
       } finally {
         setLoading(false);
       }
-    };
+    }
+  };
 
-    fetchKecamatanData();
-  }, []);
+  // Debounced functions
+  const debouncedFetchKecamatanData = debounce(fetchKecamatanData, 1000); // Delay 1 detik
+  const debouncedFetchDesakelurahanData = debounce(fetchDesakelurahanData, 1000); // Delay 1 detik
+  const debouncedFetchStatistikData = debounce(fetchStatistikData, 1000); // Delay 1 detik
 
-  // Fetch data desa
+  // Panggil fungsi debounced saat selectedWilayah berubah
   useEffect(() => {
-    const fetchDesakelurahanData = async () => {
-      setLoading(true);
-      try {
-        const response = await Desakelurahanwilayah();
-        if (response.successCode === 200 && response.data) {
-          setdesData(response.data);
-          const desaData = response.data.map((desa) => ({
-            id: desa.id,
-            name: desa.nama_desa_kelurahan,
-            kecamatan: {
-              id: desa.kecamatan.id,
-            },
-          }));
-          setDesa(desaData);
-        } else {
-          setError(`Error ${response.successCode}: Gagal mengambil data desa`);
-        }
-      } catch (err) {
-        setError("Terjadi kesalahan saat mengambil data desa.");
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (selectedWilayah) {
+      debouncedFetchKecamatanData();
+    }
+  }, [selectedWilayah]);
 
-    fetchDesakelurahanData();
-  }, []);
+  // Panggil fungsi debounced saat selectedKecamatan berubah
+  useEffect(() => {
+    if (selectedKecamatan) {
+      debouncedFetchDesakelurahanData();
+    }
+  }, [selectedKecamatan]);
+
+  // Panggil fungsi debounced saat selectedDesa berubah
+  useEffect(() => {
+    if (selectedDesa) {
+      debouncedFetchStatistikData();
+    }
+  }, [selectedDesa]);
 
   // Filter kecamatan berdasarkan kabupaten yang dipilih
   useEffect(() => {
@@ -197,37 +249,6 @@ const GrafikPersebaranPosyandu: React.FC = () => {
     }
   }, [selectedKecamatan, datades]);
 
-  // Fetch statistik data saat desa dipilih
-  useEffect(() => {
-    const fetchStatistikData = async () => {
-      if (selectedDesa) {
-        setLoading(true);
-        try {
-          const response = await trendPersebaranPosyandu(selectedDesa.name);
-          if (response.successCode === 200 && response.data) {
-            const categories = response.data.data.map((item) => item.nama_dusun);
-            const aktifData = response.data.data.map((item) => item.posyandu_aktif_count);
-            const tidakAktifData = response.data.data.map((item) => item.posyandu_tidak_aktif_count);
-
-            setStatistikData({
-              categories: categories,
-              aktif: aktifData,
-              tidakAktif: tidakAktifData,
-            });
-          } else {
-            setError(`Error ${response.successCode}: Gagal mengambil data statistik`);
-          }
-        } catch (err) {
-          setError("Terjadi kesalahan saat mengambil data statistik.");
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchStatistikData();
-  }, [selectedDesa]);
-
   // Reset pilihan kecamatan dan desa saat kabupaten berubah
   useEffect(() => {
     setSelectedKecamatan(null);
@@ -238,7 +259,6 @@ const GrafikPersebaranPosyandu: React.FC = () => {
   useEffect(() => {
     setSelectedDesa(null);
   }, [selectedKecamatan]);
-  
 
   const options: ApexOptions = {
     series: [
