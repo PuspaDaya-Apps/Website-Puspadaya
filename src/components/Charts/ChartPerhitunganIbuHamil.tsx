@@ -93,7 +93,7 @@ const ChartPerhitunganIbuHamil: React.FC = () => {
       </div>
 
       <p className="text-black">
-        Pemantauan ibu hamil dengan kondisi berisiko untuk mencegah komplikasi.
+      Pemantauan Kesehatan Ibu Hamil untuk Mencegah Risiko
       </p>
 
       {loading ? (
