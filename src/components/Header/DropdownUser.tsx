@@ -2,18 +2,46 @@ import ClickOutside from "@/components/ClickOutside";
 import { IconSettings } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const handleLogout = () => {
+  const AUTO_LOGOUT_TIME = 10 * 60 * 1000;
+
+  // Menggunakan useMemo untuk menghindari pengambilan data dari sessionStorage setiap render
+  const roleUser = useMemo(() => sessionStorage.getItem("user_role"), []);
+  const namaLengkap = useMemo(() => sessionStorage.getItem("nama_lengkap"), []);
+
+  // Menggunakan useCallback untuk memastikan referensi fungsi tetap konsisten
+  const handleLogout = useCallback(() => {
     sessionStorage.clear();
     localStorage.clear();
-    window.location.href = '/auth/signin'; 
-  };
+    window.location.href = '/auth/signin';
+  }, []);
 
-  const roleUser = sessionStorage.getItem("user_role");
-  const namaLengkap = sessionStorage.getItem("nama_lengkap");
+  // Efek untuk menangani auto logout setelah periode tidak aktif
+  useEffect(() => {
+    let logoutTimer: any; // Tipe eksplisit untuk lingkungan browser
+
+    const resetTimer = () => {
+      clearTimeout(logoutTimer);
+      logoutTimer = setTimeout(handleLogout, AUTO_LOGOUT_TIME);
+    };
+
+    const activityEvents = ["mousemove", "keydown", "scroll", "click"];
+    activityEvents.forEach((event) =>
+      document.addEventListener(event, resetTimer)
+    );
+
+    resetTimer(); // Inisialisasi timer pertama kali
+
+    return () => {
+      clearTimeout(logoutTimer);
+      activityEvents.forEach((event) =>
+        document.removeEventListener(event, resetTimer)
+      );
+    };
+  }, [handleLogout]);
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -38,8 +66,8 @@ const DropdownUser = () => {
 
         <span className="flex items-center gap-1 font-medium text-dark dark:text-dark-6">
           <div>
-          <span className="hidden lg:block">{namaLengkap}</span>
-          <span className="hidden lg:block">{roleUser}</span>
+            <span className="hidden lg:block">{namaLengkap}</span>
+            <span className="hidden lg:block">{roleUser}</span>
           </div>
           <svg
             className={`fill-current duration-200 ease-in ${dropdownOpen && "rotate-180"}`}
@@ -59,7 +87,7 @@ const DropdownUser = () => {
         </span>
       </Link>
 
-      {/* <!-- Dropdown Star --> */}
+      {/* Dropdown Menu */}
       {dropdownOpen && (
         <div
           className={`absolute right-0 mt-7.5 flex w-[280px] flex-col rounded-lg border-[0.5px] border-stroke bg-white shadow-default dark:border-dark-3 dark:bg-gray-dark`}
@@ -83,7 +111,7 @@ const DropdownUser = () => {
 
             <span className="block">
               <span className="block font-medium text-dark dark:text-white">
-               {namaLengkap}
+                {namaLengkap}
               </span>
               <span className="block font-medium text-dark-5 dark:text-dark-6">
                 {roleUser}
@@ -124,7 +152,7 @@ const DropdownUser = () => {
           <div className="p-2.5">
             <button
               className="flex w-full items-center gap-2.5 rounded-[7px] p-2.5 text-sm font-medium text-dark-4 duration-300 ease-in-out hover:bg-gray-2 hover:text-dark dark:text-dark-6 dark:hover:bg-dark-3 dark:hover:text-white lg:text-base"
-              onClick={handleLogout} // Menambahkan handler untuk event onClick
+              onClick={handleLogout}
             >
               <svg
                 className="fill-current"
@@ -155,7 +183,6 @@ const DropdownUser = () => {
           </div>
         </div>
       )}
-      {/* <!-- Dropdown End --> */}
     </ClickOutside>
   );
 };

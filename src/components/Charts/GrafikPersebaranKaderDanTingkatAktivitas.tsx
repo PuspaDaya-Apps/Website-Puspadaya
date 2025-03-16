@@ -2,14 +2,12 @@
 import { ApexOptions } from "apexcharts";
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
-import DefaultSelectOption from "@/components/SelectOption/DefaultSelectOption";
 import { Dropdown } from "primereact/dropdown";
-import { SvgSearch } from "../ui/Svg";
 import { trendPersebaranKader } from "@/app/api/statistik/trendpersebarankader";
-import { Desakelurahanwilayah } from "@/app/api/lokasi/desa";
-import { Kecamatanwilayah } from "@/app/api/lokasi/kecamatan";
-import { Kabupatenwilayah } from "@/app/api/lokasi/kabupaten";
 import { DesakelurahanClass, KabupatenClass, KecamatanClass } from "@/types/dashborad";
+import { Desakelurahanwilayahaktivitas } from "@/app/api/lokasi/desaaktivitas";
+import { Kabupatenwilayahaktivitas } from "@/app/api/lokasi/kabupatenaktivitas";
+import { Kecamatanwilayahaktivitas } from "@/app/api/lokasi/kecamatanaktivitas";
 const color = ["#3b82f6", "#ef4444"];
 
 interface Wilayah {
@@ -68,7 +66,7 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await Kabupatenwilayah();
+        const response = await Kabupatenwilayahaktivitas();
         if (response.successCode === 200 && response.data) {
           setData(response.data);
           const wilayahData = response.data.map((kabupaten) => ({
@@ -107,7 +105,7 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
      const fetchKecamatanData = async () => {
        setLoading(true);
        try {
-         const response = await Kecamatanwilayah();
+         const response = await Kecamatanwilayahaktivitas();
          if (response.successCode === 200 && response.data) {
            setkecData(response.data);
            const kecamatanData = response.data.map((kec) => ({
@@ -136,7 +134,7 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
     const fetchDesakelurahanData = async () => {
       setLoading(true);
       try {
-        const response = await Desakelurahanwilayah();
+        const response = await Desakelurahanwilayahaktivitas();
         if (response.successCode === 200 && response.data) {
           setdesData(response.data);
           const desaData = response.data.map((desa) => ({
@@ -163,7 +161,7 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
   // Filter kecamatan berdasarkan kabupaten yang dipilih
 useEffect(() => {
   if (selectedWilayah && datakec) {
-    console.log("Filtering Kecamatan for Wilayah:", selectedWilayah);
+    // console.log("Filtering Kecamatan for Wilayah:", selectedWilayah);
     const filteredKecamatan = datakec
       .filter((kec) => kec.kabupaten_kota.id === selectedWilayah.id)
       .map((kec) => ({
@@ -173,10 +171,10 @@ useEffect(() => {
           id: kec.kabupaten_kota.id,
         },
       }));
-    console.log("Filtered Kecamatan:", filteredKecamatan);
+    // console.log("Filtered Kecamatan:", filteredKecamatan);
     setKecamatan(filteredKecamatan);
   } else {
-    console.log("No Wilayah selected or no Kecamatan data.");
+    // console.log("No Wilayah selected or no Kecamatan data.");
     setKecamatan([]);
   }
 }, [selectedWilayah, datakec]);
@@ -284,6 +282,25 @@ useEffect(() => {
     },
   };
 
+  const handleWilayahChange = (e: { value: Wilayah | null }) => {
+    setSelectedWilayah(e.value);
+    sessionStorage.setItem("selected_wilayah", JSON.stringify(e.value));
+  };
+
+  const wilayahData = sessionStorage.getItem("selected_wilayah");
+  if (wilayahData) {
+    // Parse data JSON
+    const parsedData = JSON.parse(wilayahData);
+
+    // Ambil properti 'name'
+    const name = parsedData.name;
+
+    // Cetak properti 'name' ke console
+    // console.log("Selected Wilayah Name:", name);
+  } else {
+    // console.log("No data found in sessionStorage for 'selected_wilayah'.");
+  }
+
   return (
     <div className="col-span-12 rounded-[10px] bg-white px-7.5 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card xl:col-span-5">
       <div className="mb-14 justify-between gap-4 sm:flex">
@@ -303,7 +320,7 @@ useEffect(() => {
                 optionLabel="name"
                 placeholder="Pilih Wilayah"
                 className="md:w-14rem h-11 w-full"
-                disabled={namaRole !== "Admin"} // Disable if role is not Admin
+                disabled={namaRole !== "Admin"} 
               />
               <Dropdown
                 value={selectedKecamatan}
