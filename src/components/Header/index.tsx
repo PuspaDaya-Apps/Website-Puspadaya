@@ -33,6 +33,7 @@ const Header = (props: {
           <h1 className="mb-0.5 text-heading-5 font-bold text-dark dark:text-white">
             Dashboards
           </h1>
+          
           <p className="font-medium">Puspadaya</p>
         </div>
       </div>

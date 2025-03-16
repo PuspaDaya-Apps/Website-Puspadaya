@@ -61,7 +61,7 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
 
   // Retrieve nama_provinsi and nama_role from sessionStorage
   const namaProvinsi = sessionStorage.getItem("nama_provinsi");
-  const namaRole = sessionStorage.getItem("nama_role");
+  const namaRole = sessionStorage.getItem("user_role");
 
   // Fetch data kabupaten
   useEffect(() => {
@@ -103,33 +103,33 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
   }, [namaProvinsi, namaRole]);
 
   // Fetch data kecamatan
-  useEffect(() => {
-    const fetchKecamatanData = async () => {
-      setLoading(true);
-      try {
-        const response = await Kecamatanwilayah();
-        if (response.successCode === 200 && response.data) {
-          setkecData(response.data);
-          const kecamatanData = response.data.map((kec) => ({
-            id: kec.id,
-            name: kec.nama_kecamatan,
-            kabupaten_kota: {
-              id: kec.kabupaten_kota.id,
-            },
-          }));
-          setKecamatan(kecamatanData);
-        } else {
-          setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
-        }
-      } catch (err) {
-        setError("Terjadi kesalahan saat mengambil data kecamatan.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchKecamatanData();
-  }, []);
+ useEffect(() => {
+     const fetchKecamatanData = async () => {
+       setLoading(true);
+       try {
+         const response = await Kecamatanwilayah();
+         if (response.successCode === 200 && response.data) {
+           setkecData(response.data);
+           const kecamatanData = response.data.map((kec) => ({
+             id: kec.id,
+             name: kec.nama_kecamatan,
+             kabupaten_kota: {
+               id: kec.kabupaten_kota.id,
+             },
+           }));
+           setKecamatan(kecamatanData);
+         } else {
+           setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
+         }
+       } catch (err) {
+         setError("Terjadi kesalahan saat mengambil data kecamatan.");
+       } finally {
+         setLoading(false);
+       }
+     };
+ 
+     fetchKecamatanData();
+   }, []);
 
   // Fetch data desa
   useEffect(() => {
@@ -161,22 +161,25 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
   }, []);
 
   // Filter kecamatan berdasarkan kabupaten yang dipilih
-  useEffect(() => {
-    if (selectedWilayah && datakec) {
-      const filteredKecamatan = datakec
-        .filter((kec) => kec.kabupaten_kota.id === selectedWilayah.id)
-        .map((kec) => ({
-          id: kec.id,
-          name: kec.nama_kecamatan,
-          kabupaten_kota: {
-            id: kec.kabupaten_kota.id,
-          },
-        }));
-      setKecamatan(filteredKecamatan);
-    } else {
-      setKecamatan([]);
-    }
-  }, [selectedWilayah, datakec]);
+useEffect(() => {
+  if (selectedWilayah && datakec) {
+    console.log("Filtering Kecamatan for Wilayah:", selectedWilayah);
+    const filteredKecamatan = datakec
+      .filter((kec) => kec.kabupaten_kota.id === selectedWilayah.id)
+      .map((kec) => ({
+        id: kec.id,
+        name: kec.nama_kecamatan,
+        kabupaten_kota: {
+          id: kec.kabupaten_kota.id,
+        },
+      }));
+    console.log("Filtered Kecamatan:", filteredKecamatan);
+    setKecamatan(filteredKecamatan);
+  } else {
+    console.log("No Wilayah selected or no Kecamatan data.");
+    setKecamatan([]);
+  }
+}, [selectedWilayah, datakec]);
 
   // Filter desa berdasarkan kecamatan yang dipilih
   useEffect(() => {

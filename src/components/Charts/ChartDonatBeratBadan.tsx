@@ -114,7 +114,12 @@ const ChartDonatBeratBadan: React.FC = () => {
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : chartSeries.every(value => value === 0) ? (
-        <p className="text-gray-500">Tidak ada data untuk ditampilkan.</p>
+        <div className="flex items-center justify-center min-h-[350px] w-full">
+        <p className="text-green-600 text-lg font-semibold">
+          Tidak ada data untuk ditampilkan.
+        </p>
+      </div>
+      
       ) : (
         <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={380} />
       )}

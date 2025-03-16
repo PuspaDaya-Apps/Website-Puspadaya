@@ -7,17 +7,17 @@ export type StatistikClass = {
     jumlah_anak_stunting: {
         jumlah: number;
         status: any;
-        rate: number;
+        rate: any;
     };
     jumlah_anak_underweight: {
         jumlah: number;
         status: any;
-        rate: number;
+        rate: any;
     };
     jumlah_anak_wasting: {
         jumlah: number;
         status: any;
-        rate: number;
+        rate: any;
     };
     jumlah_anak_kenaikan_bb: {
         jumlah: number;
@@ -33,6 +33,25 @@ export type StatistikClass = {
         jumlah: number;
         status: any;
         rate: any;
+    };
+    jumlah_anak_kenaikan_kbm: {
+        D_: number;
+        O: number;
+        B: number;
+        T: number;
+        persentaseKenaikanBBKbm: string;
+    };
+    perhitungan_skdn: {
+        D_S: {
+            jumlah: number;
+            status: any;
+            rate: any;
+        };
+        K_S: {
+            jumlah: number;
+            status: any;
+            rate: any;
+        };
     };
     jumlah_anak_lulus: {
         jumlah: number;
@@ -72,22 +91,42 @@ export type StatistikClass = {
     jumlah_desa: {
         jumlah: number;
         status: any;
-        rate: number;
+        rate: any;
     };
     jumlah_ibu_hamil: {
         jumlah: number;
         status: any;
-        rate: number;
+        rate: any;
+    };
+    jumlah_ibu_hamil_kurang_dari_20: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };
+    jumlah_ibu_hamil_lebih_dari_35: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };
+    jumlah_anak_terlalu_banyak: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };
+    jumlah_kehamilan_terlalu_dekat: {
+        jumlah: number;
+        status: any;
+        rate: any;
     };
     jumlah_posyandu: {
         jumlah: number;
         status: any;
-        rate: number;
+        rate: any;
     };
     jumlah_kader: {
         jumlah: number;
         status: any;
-        rate: number;
+        rate: any;
     };
     keluarga_tanpa_mck: {
         jumlah: number;
@@ -108,6 +147,7 @@ export type StatistikClass = {
         maluku_rate: number;
     };
 };
+
 
 
 export type TrenGiziResponse = {
@@ -196,22 +236,25 @@ export interface PosyanduData {
     posyandu_tidak_aktif_count: number;
   }
   
-  export interface PersebaranPosyanduResponse {
+export interface PersebaranPosyanduResponse {
     message: string;
     data: PosyanduData[];
-  }
+}
 
 
-  export interface DataPersebaranKaderDusun {
-    id: string;
+
+
+export interface DataPersebaranKaderDusun {
+    id: string; // Readonly karena biasanya ID tidak berubah
     nama_dusun: string;
     kader_aktif_count: number;
     kader_tidak_aktif_count: number;
-  }
-  
-  export interface ApiResponsePersebaranKaderDusun {
+}
+
+export interface ApiResponsePersebaranKaderDusun {
     message: string;
-    data: DataPersebaranKaderDusun[];
-  }
+    data: DataPersebaranKaderDusun[]; // Pastikan API tidak mengembalikan `null`, sebaiknya `[]`
+}
+
   
   

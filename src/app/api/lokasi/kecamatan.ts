@@ -23,18 +23,16 @@ export const Kecamatanwilayah = async (): Promise<FetchResult> => {
         };
 
         let allData: KecamatanClass[] = [];
-        let currentPage = 3;
-        let totalPages = 5;
+        const totalPages = 5; // Total halaman yang ingin diambil (1-5)
 
-        // Loop untuk ambil semua halaman
-        do {
+        // Loop untuk ambil semua halaman dari 1 hingga 5
+        for (let currentPage = 1; currentPage <= totalPages; currentPage++) {
             const response = await axios.get(`${APIEndpoints.KECAMATAN}?page=${currentPage}`, config);
-            const { data, total_pages } = response.data; 
+            const { data } = response.data;
 
             allData = [...allData, ...data]; // Gabung semua data
-            totalPages = total_pages; // Update total halaman dari API
-            currentPage++; // Pindah ke halaman berikutnya
-        } while (currentPage <= totalPages); // Loop sampai semua halaman diambil
+            // console.log(`Data dari halaman ${currentPage} berhasil diambil.`); // Debugging
+        }
 
         sessionStorage.removeItem(Messages.ERROR);
 

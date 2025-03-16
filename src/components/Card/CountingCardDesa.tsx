@@ -5,15 +5,17 @@ type CountingCardProps = {
   title:  React.ReactNode|string; // Judul kartu
   title_secound : React.ReactNode|string; // Bulan judul
   jumlah: number; // Angka jumlah
+  jumlah_keluarga :number;
   isMeningkat: boolean; // Apakah jumlah meningkat
   subtitle:string;
   peningkatan:string;
   color: string;
 };
-const CountingCard: React.FC<CountingCardProps> = ({
+const CountingCardDesa: React.FC<CountingCardProps> = ({
   icon: Icon,
   title,
   jumlah,
+  jumlah_keluarga,
   isMeningkat,
   peningkatan,
   subtitle,
@@ -34,7 +36,15 @@ const CountingCard: React.FC<CountingCardProps> = ({
           <Icon />
         </div>
       </div>
-      <h1 className="mb-4 text-6xl font-bold text-black">{jumlah}</h1>
+
+
+      <div className="flex flex-col items-start">
+      <h1 className="text-6xl font-bold text-black">{jumlah}</h1>
+      <p className="text-lg text-gray-700">{jumlah_keluarga} Keluarga tidak memiliki MCK</p>
+    </div>
+
+
+    
 
       <p>
         {subtitle+" "}
@@ -46,4 +56,4 @@ const CountingCard: React.FC<CountingCardProps> = ({
   );
 };
 
-export default CountingCard;
+export default CountingCardDesa;

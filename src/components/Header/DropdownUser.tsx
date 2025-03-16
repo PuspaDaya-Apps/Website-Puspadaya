@@ -12,7 +12,7 @@ const DropdownUser = () => {
     window.location.href = '/auth/signin'; 
   };
 
-  const roleUser = sessionStorage.getItem("nama_role");
+  const roleUser = sessionStorage.getItem("user_role");
   const namaLengkap = sessionStorage.getItem("nama_lengkap");
 
   return (

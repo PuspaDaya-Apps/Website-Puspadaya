@@ -109,7 +109,7 @@ const ChartDonatNik: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-white shadow-lg rounded-lg flex flex-col justify-center min-h-[400px]">
+    <div className="p-10 bg-white shadow-lg rounded-lg flex flex-col justify-center min-h-[400px]">
        <div>
           <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
           Statistik NIK Orang Tua dan Anak

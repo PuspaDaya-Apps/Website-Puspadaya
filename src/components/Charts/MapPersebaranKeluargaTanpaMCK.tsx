@@ -11,37 +11,46 @@ interface Wilayah {
   code: string;
 }
 
-const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691]; // Koordinat Banyuwangi
-const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228]; // Koordinat Maluku Tengah
+const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691];
+const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228];
 
 const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
   const wilayah: Wilayah[] = [
     { name: "Banyuwangi", code: "Bwi" },
     { name: "Maluku Tengah", code: "MT" },
   ];
-  // Set nilai default ke Banyuwangi (Bwi)
+
+  // Ambil data provinsi dan role dari sessionStorage
+  const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
+  const role: string = sessionStorage.getItem("role") ?? "";
+
+  // Jika provinsi Jawa Timur, maka default ke Banyuwangi
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(
-    wilayah.find((wilayah) => wilayah.code === "Bwi") || null
+    provinsi === "Jawa Timur"
+      ? wilayah.find((w) => w.code === "Bwi") || null
+      : wilayah.find((w) => w.code === "MT") || null
   );
 
-  const [map, setMap] = useState<L.Map | null>(null); // Menyimpan instance peta
-  const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null); // Menyimpan layer GeoJSON
+  const [map, setMap] = useState<L.Map | null>(null);
+  const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null);
 
   useEffect(() => {
-    const mapInstance = L.map("map-persebaran-keluarga-tanpa-mck").setView(banyuwangiView, 10); // Inisialisasi peta dengan koordinat Banyuwangi
+    const mapInstance = L.map("map-persebaran-keluarga-tanpa-mck").setView(
+      banyuwangiView,
+      10
+    );
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
     }).addTo(mapInstance);
 
-    setMap(mapInstance); // Set map instance ke state
+    setMap(mapInstance);
 
     return () => {
-      mapInstance.remove(); // Hapus instance peta saat komponen di-unmount
+      mapInstance.remove();
     };
   }, []);
 
   const popupContent = (feature: any) => {
-    // Using HTML string instead of JSX for Leaflet to understand
     return `
       <div>
         <p><strong>Wilayah:</strong> ${feature.properties.name}</p>
@@ -52,15 +61,12 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
 
   useEffect(() => {
     if (map && selectedWilayah) {
-      // Hapus layer GeoJSON yang sudah ada
       geoJSONLayer?.remove();
 
-      // Sesuaikan setView berdasarkan wilayah yang dipilih
       const view =
         selectedWilayah.code === "Bwi" ? banyuwangiView : malukuTengahView;
       map.setView(view, 10);
 
-      // Load dan tambahkan GeoJSON untuk wilayah yang dipilih
       const fetchGeoJSON = async () => {
         const endpoint =
           selectedWilayah.code === "Bwi"
@@ -81,15 +87,13 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
             }),
             onEachFeature: (feature, layer) => {
               if (feature.properties && feature.properties.name) {
-                layer.bindPopup(popupContent(feature)); // Memanggil popupContent
+                layer.bindPopup(popupContent(feature));
 
-                // Menambahkan event mouseover untuk menampilkan informasi
                 layer.on("mouseover", () => {
                   const info = `Keluarga tidak memiliki MCK: ${feature.properties.keluargaTanpaMCK}`;
                   layer.bindTooltip(info).openTooltip();
                 });
 
-                // Menambahkan event mouseout untuk menghapus informasi
                 layer.on("mouseout", () => {
                   layer.closeTooltip();
                 });
@@ -97,12 +101,8 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
             },
           }).addTo(map);
 
-          // Update state untuk menyimpan layer GeoJSON
           setGeoJSONLayer(newGeoJSONLayer);
-
-          // Zoom ke batas GeoJSON
-          const bounds = newGeoJSONLayer.getBounds();
-          map.fitBounds(bounds);
+          map.fitBounds(newGeoJSONLayer.getBounds());
         } catch (error) {
           console.error("Error loading GeoJSON:", error);
         }
@@ -110,7 +110,7 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
 
       fetchGeoJSON();
     }
-  }, [map, selectedWilayah]); // Menjalankan setiap kali peta atau wilayah dipilih berubah
+  }, [map, selectedWilayah]);
 
   return (
     <div className="">
@@ -120,7 +120,8 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
             Peta Persebaran Keluarga Tanpa Fasilitas MCK
           </h1>
           <p className="text-dark">
-            Menampilkan peta persebaran keluarga yang tidak memiliki fasilitas MCK
+            Menampilkan peta persebaran keluarga yang tidak memiliki fasilitas
+            MCK
           </p>
         </div>
         <div className="w-fit">
@@ -131,6 +132,7 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
             optionLabel="name"
             placeholder="Pilih Wilayah"
             className="md:w-14rem h-11 w-full"
+            disabled={provinsi === "Jawa Timur" && role !== "Admin"}
           />
         </div>
       </div>

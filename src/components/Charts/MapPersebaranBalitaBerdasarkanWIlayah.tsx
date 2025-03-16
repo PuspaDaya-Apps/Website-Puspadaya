@@ -19,6 +19,11 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
     { name: "Banyuwangi", code: "Bwi" },
     { name: "Maluku Tengah", code: "MT" },
   ];
+
+    // Ambil data provinsi dan role dari sessionStorage
+    const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
+    const role: string = sessionStorage.getItem("role") ?? "";
+    
   // Set nilai default ke Banyuwangi (Bwi)
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(
     wilayah.find((wilayah) => wilayah.code === "Bwi") || null,
@@ -99,7 +104,7 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
 
       fetchGeoJSON();
     }
-  }, [map, selectedWilayah]); // Menjalankan setiap kali peta atau wilayah dipilih berubah
+  }, [map, selectedWilayah]);
 
   return (
     <div className="">

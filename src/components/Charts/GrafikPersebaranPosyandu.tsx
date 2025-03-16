@@ -62,7 +62,7 @@ const GrafikPersebaranPosyandu: React.FC = () => {
 
   // Retrieve nama_provinsi and nama_role from sessionStorage
   const namaProvinsi = sessionStorage.getItem("nama_provinsi");
-  const namaRole = sessionStorage.getItem("nama_role");
+  const namaRole = sessionStorage.getItem("user_role");
 
   // Fetch data kabupaten
   useEffect(() => {
@@ -238,6 +238,7 @@ const GrafikPersebaranPosyandu: React.FC = () => {
   useEffect(() => {
     setSelectedDesa(null);
   }, [selectedKecamatan]);
+  
 
   const options: ApexOptions = {
     series: [

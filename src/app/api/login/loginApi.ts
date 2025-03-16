@@ -13,7 +13,7 @@ export const loginUser = async (username: string, password: string): Promise<str
 
         if (response.status === 200) {
             const { data } = response.data;
-            // console.log("ini datanya", data);
+            //  console.log("ini datanya", data);
 
 
             if (data?.access_token && data?.refresh_token) {
@@ -26,6 +26,7 @@ export const loginUser = async (username: string, password: string): Promise<str
             } else {
                 throw new Error(Messages.TOKEN_INVALID);
             }
+            
         } else {
             throw new Error(Messages.BAD_REQUEST);
         }

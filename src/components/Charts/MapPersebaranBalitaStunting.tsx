@@ -16,14 +16,15 @@ const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228]; // Koordinat Maluku
 
 const MapPersebaranBalitaStunting: React.FC = () => {
   const wilayah: Wilayah[] = [
-    { name: "Banyuwangi", code: "Bwi" },
+    { name: "Banyuwangi", code: "Banyuwangi" },
     { name: "Maluku Tengah", code: "MT" },
   ];
 
-  const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(
-    wilayah.find((wilayah) => wilayah.code === "Bwi") || null,
-  );
+  // Ambil data provinsi dan role dari sessionStorage
+  const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
+  const role: string = sessionStorage.getItem("user_role") ?? "";
 
+  const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
   const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null);
 
@@ -43,6 +44,15 @@ const MapPersebaranBalitaStunting: React.FC = () => {
     };
   }, []);
 
+  // Otomatis pilih wilayah berdasarkan provinsi
+  useEffect(() => {
+    if (provinsi === "Jawa Timur") {
+      setSelectedWilayah(wilayah.find((wil) => wil.code === "Banyuwangi") || null);
+    } else {
+      setSelectedWilayah(wilayah.find((wil) => wil.code === "MT") || null);
+    }
+  }, [provinsi]);
+
   const popupContent = (feature: any) => {
     return `
       <div>
@@ -59,12 +69,12 @@ const MapPersebaranBalitaStunting: React.FC = () => {
       geoJSONLayer?.remove();
 
       const view =
-        selectedWilayah.code === "Bwi" ? banyuwangiView : malukuTengahView;
+        selectedWilayah.code === "Banyuwangi" ? banyuwangiView : malukuTengahView;
       map.setView(view, 10);
 
       const fetchGeoJSON = async () => {
         const endpoint =
-          selectedWilayah.code === "Bwi"
+          selectedWilayah.code === "Banyuwangi"
             ? "/api/geojson/banyuwangi"
             : "/api/geojson/maluku-tengah";
 
@@ -74,10 +84,10 @@ const MapPersebaranBalitaStunting: React.FC = () => {
 
           const newGeoJSONLayer = L.geoJSON(geoJSONData, {
             style: () => ({
-              color: selectedWilayah.code === "Bwi" ? "blue" : "green",
+              color: selectedWilayah.code === "Banyuwangi" ? "blue" : "green",
               weight: 2,
               fillColor:
-                selectedWilayah.code === "Bwi" ? "lightblue" : "lightgreen",
+                selectedWilayah.code === "Banyuwangi" ? "lightblue" : "lightgreen",
               fillOpacity: 0.5,
             }),
             onEachFeature: (feature, layer) => {
@@ -173,6 +183,7 @@ const MapPersebaranBalitaStunting: React.FC = () => {
             optionLabel="name"
             placeholder="Pilih Wilayah"
             className="md:w-14rem h-11 w-full"
+            disabled={role !== "Admin"} // Nonaktifkan dropdown jika role bukan Admin
           />
         </div>
       </div>
@@ -180,7 +191,6 @@ const MapPersebaranBalitaStunting: React.FC = () => {
         id="map-balita-stunting"
         style={{ height: "100vh", width: "100%", zIndex: 1 }}
       />
-
 
       <div className="flex gap-4">
         <div className="flex items-center gap-2">
@@ -196,8 +206,6 @@ const MapPersebaranBalitaStunting: React.FC = () => {
           <p className="text-dark">Anak Gizi Baik</p>
         </div>
       </div>
-
-      
     </div>
   );
 };
