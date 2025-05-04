@@ -4,7 +4,7 @@ import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts"; 
 import { statistikDashboard } from "@/app/api/statistik/statistik";
 
-const ChartDonatNik: React.FC = () => {
+const StatistikNikOrangTua: React.FC = () => {
   const [data, setData] = useState<{ 
     jumlah_ayah_tidak_punya_nik: number;
     jumlah_ibu_tidak_punya_nik: number;
@@ -133,10 +133,10 @@ const ChartDonatNik: React.FC = () => {
           </p>
         </div>
       ) : (
-        <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={380} />
+        <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={400} />
       )}
     </div>
   );
 };
 
-export default ChartDonatNik;
+export default StatistikNikOrangTua;

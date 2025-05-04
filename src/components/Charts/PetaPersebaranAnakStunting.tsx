@@ -14,7 +14,7 @@ interface Wilayah {
 const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691]; // Koordinat Banyuwangi
 const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228]; // Koordinat Maluku Tengah
 
-const MapPersebaranBalitaStunting: React.FC = () => {
+const PetaPersebaranAnakStunting: React.FC = () => {
   const wilayah: Wilayah[] = [
     { name: "Banyuwangi", code: "Banyuwangi" },
     { name: "Maluku Tengah", code: "MT" },
@@ -210,4 +210,4 @@ const MapPersebaranBalitaStunting: React.FC = () => {
   );
 };
 
-export default MapPersebaranBalitaStunting;
+export default PetaPersebaranAnakStunting;

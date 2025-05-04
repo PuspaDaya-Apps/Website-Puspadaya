@@ -1,27 +1,24 @@
 "use client";
 import React, { useEffect, useState } from "react";
-
-
 import InfiniteScroll from "react-infinite-scroll-component";
 import PercentageCard from "@/components/Card/PercentageCard";
 import GrafikTrendStuntingBanyuwangi from "@/components/Charts/GrafikTrendStuntingBanyuwangi";
 import CountingCard from "@/components/Card/CountingCard";
 import { statistikDashboard } from "@/app/api/statistik/statistik";
-import { SvgIconAnakHadir, SvgIconBayi, SvgIconLoveBlue, SvgIconLoveOrange, SvgIconOrangTuaTidakMemilikiKK, SvgIconPregnantMother, SvgIconVillage } from "@/components/ui/Svg";
+import { svgIbuhamil, svgIconAnakHadir, SvgIconAnakHadir, svgIconAnaklulus, svgIconAsieklusif, SvgIconBayi, SvgIconLoveBlue, SvgIconLoveOrange, svgIconMpasi, SvgIconPregnantMother, svgIconTingkatpartisispasi, SvgIconVillage, svgIxonJangankauan, svgStunting, svgUnderweight, svgWasting } from "@/components/ui/Svg";
 import ChartJumlahBalitaHadir from "@/components/Charts/ChartJumlahBalitaHadir"; //
 import ChartDonatBeratBadan from "@/components/Charts/ChartDonatBeratBadan";
 import ChartPerhitunganSkdn from "@/components/Charts/ChartPerhitunganSkdn";
-import ChartDonatNik from "@/components/Charts/ChartDonatNik";
 import CountingCardDesa from "@/components/Card/CountingCardDesa";
-import ChartPerhitunganIbuHamil from "@/components/Charts/ChartPerhitunganIbuHamil";
-import CountingCardRow from "@/components/Card/CountingCardRow";
-import MapPersebaranBalitaStunting from "@/components/Charts/MapPersebaranBalitaStunting";
+import MapPersebaranBalitaStunting from "@/components/Charts/PetaPersebaranAnakStunting";
 import GrafikPersebaranPosyandu from "@/components/Charts/GrafikPersebaranPosyandu";
 import GrafikPersebaranKaderDanTingkatAktivitas from "@/components/Charts/GrafikPersebaranKaderDanTingkatAktivitas";
 import MapPersebaranBalitaBerdasarkanWIlayah from "@/components/Charts/MapPersebaranBalitaBerdasarkanWIlayah";
 import MapPersebaranKader from "@/components/Charts/MapPersebaranKader";
 import MapPersebaranKeluargaTanpaMCK from "@/components/Charts/MapPersebaranKeluargaTanpaMCK";
 import GrafikTrendStuntingBalita from "@/components/Charts/GrafikTrendStuntingBalita";
+import StatistikRisikoKehamilan from "@/components/Charts/StatistikRisikoKehamilan";
+import StatistikNikOrangTua from "@/components/Charts/StatistikNikOrangTua;";
 
 const DashboardAdmin = () => {
   const colors = ["#34B53A", "#F39D00"];
@@ -171,7 +168,7 @@ const DashboardAdmin = () => {
             {isLoading.grafikTrendStuntingBalita ? (
               <h4>Loading...</h4>
             ) : (
-              <GrafikTrendStuntingBalita/>
+              <GrafikTrendStuntingBalita />
             )}
           </div>
 
@@ -195,7 +192,7 @@ const DashboardAdmin = () => {
               <h4>Loading...</h4>
             ) : (
               <CountingCard
-                icon={SvgIconBayi}
+                icon={svgStunting}
                 isMeningkat={false}
                 jumlah={datadash?.jumlah_anak_stunting.jumlah}
                 peningkatan={datadash?.jumlah_anak_stunting.rate ?? "-"}
@@ -220,8 +217,8 @@ const DashboardAdmin = () => {
               <h4>Loading...</h4>
             ) : (
               <CountingCard
-                icon={SvgIconBayi}
-                isMeningkat={true}
+                icon={svgUnderweight}
+                isMeningkat={false}
                 jumlah={datadash?.jumlah_anak_underweight.jumlah}
                 peningkatan={datadash?.jumlah_anak_underweight.rate ?? "-"}
                 subtitle={datadash?.jumlah_anak_underweight.status ?? "-"}
@@ -235,8 +232,8 @@ const DashboardAdmin = () => {
               <h4>Loading...</h4>
             ) : (
               <CountingCard
-                icon={SvgIconBayi}
-                isMeningkat={true}
+                icon={svgWasting}
+                isMeningkat={false}
                 jumlah={datadash?.jumlah_anak_wasting.jumlah}
                 peningkatan={datadash?.jumlah_anak_wasting.rate ?? "-"}
                 subtitle={datadash?.jumlah_anak_wasting.status ?? "-"}
@@ -247,14 +244,11 @@ const DashboardAdmin = () => {
             )}
           </div>
 
-
-          {/* testing */}
           <div className="col-span-8">
             {isLoading.grafikTrendStuntingBanyuwangi ? (
               <h4>Loading...</h4>
             ) : (
               <ChartJumlahBalitaHadir />
-
             )}
           </div>
 
@@ -263,17 +257,15 @@ const DashboardAdmin = () => {
               <h4>Loading...</h4>
             ) : (
               <CountingCard
-                icon={SvgIconAnakHadir}
+                icon={svgIconAnakHadir}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_anak_mpasi.jumlah}
-                peningkatan={datadash?.jumlah_anak_mpasi.rate ?? "-"}
-                subtitle={datadash?.jumlah_anak_mpasi.status ?? "-"}
+                jumlah={datadash?.jumlah_anak_hadir.jumlah}
+                peningkatan={datadash?.jumlah_anak_hadir.rate ?? "-"}
+                subtitle={datadash?.jumlah_anak_hadir.status ?? "-"}
                 title="Jumlah Anak Hadir"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
               />
-
-
             )}
 
             {isLoading.countingCard ? (
@@ -281,7 +273,7 @@ const DashboardAdmin = () => {
             ) : (
 
               <CountingCard
-                icon={SvgIconBayi}
+                icon={svgIconAnaklulus}
                 isMeningkat={true}
                 jumlah={datadash?.jumlah_anak_lulus.jumlah}
                 peningkatan={datadash?.jumlah_anak_lulus.rate ?? "-"}
@@ -306,26 +298,12 @@ const DashboardAdmin = () => {
           </div>
 
           <div className="col-span-4 flex flex-col justify-between gap-10">
-            {isLoading.countingCard ? (
-              <h4>Loading...</h4>
-            ) : (
-              <CountingCard
-                icon={SvgIconBayi}
-                isMeningkat={true}
-                jumlah={datadash?.jumlah_anak_mpasi.jumlah}
-                peningkatan={datadash?.jumlah_anak_mpasi.rate ?? "-"}
-                subtitle={datadash?.jumlah_anak_mpasi.status ?? "-"}
-                title="Jumlah Anak Mpasi"
-                title_secound={`Aktif ${monthYear}`}
-                color={"#EBF3FE"}
-              />
-            )}
 
-            {isLoading.countingCard ? (
+          {isLoading.countingCard ? (
               <h4>Loading...</h4>
             ) : (
               <CountingCard
-                icon={SvgIconBayi}
+                icon={svgIconAsieklusif}
                 isMeningkat={true}
                 jumlah={datadash?.jumlah_anak_asi_ekslusif.jumlah}
                 peningkatan={datadash?.jumlah_anak_asi_ekslusif.rate ?? "-"}
@@ -335,11 +313,27 @@ const DashboardAdmin = () => {
                 color={"#EBF3FE"}
               />
             )}
+
+            {isLoading.countingCard ? (
+              <h4>Loading...</h4>
+            ) : (
+              <CountingCard
+                icon={svgIconMpasi}
+                isMeningkat={true}
+                jumlah={datadash?.jumlah_anak_mpasi.jumlah}
+                peningkatan={datadash?.jumlah_anak_mpasi.rate ?? "-"}
+                subtitle={datadash?.jumlah_anak_mpasi.status ?? "-"}
+                title="Jumlah Anak Mpasi"
+                title_secound={`Aktif ${monthYear}`}
+                color={"#EBF3FE"}
+              />
+            )}
+           
+            
           </div>
 
 
           {/* Perhitungan SKDN */}
-
           <div className="col-span-8">
             {isLoading.grafikTrendStuntingBanyuwangi ? (
               <h4>Loading...</h4>
@@ -353,7 +347,7 @@ const DashboardAdmin = () => {
               <h4>Loading...</h4>
             ) : (
               <CountingCard
-                icon={SvgIconBayi}
+                icon={svgIconTingkatpartisispasi}
                 isMeningkat={true}
                 jumlah={datadash?.perhitungan_skdn.D_S.jumlah}
                 peningkatan={datadash?.perhitungan_skdn.D_S.rate ?? "-"}
@@ -368,7 +362,7 @@ const DashboardAdmin = () => {
               <h4>Loading...</h4>
             ) : (
               <CountingCard
-                icon={SvgIconBayi}
+                icon={svgIxonJangankauan}
                 isMeningkat={true}
                 jumlah={datadash?.perhitungan_skdn.K_S.jumlah}
                 peningkatan={datadash?.perhitungan_skdn.K_S.rate ?? "-"}
@@ -386,7 +380,7 @@ const DashboardAdmin = () => {
             {isLoading.grafikTrendStuntingBanyuwangi ? (
               <h4>Loading...</h4>
             ) : (
-              <ChartDonatNik />
+              <StatistikNikOrangTua />
 
             )}
           </div>
@@ -395,7 +389,6 @@ const DashboardAdmin = () => {
             {isLoading.countingCard ? (
               <h4>Loading...</h4>
             ) : (
-
               <CountingCardDesa
                 icon={SvgIconVillage}
                 isMeningkat={true}
@@ -413,17 +406,17 @@ const DashboardAdmin = () => {
               <h4>Loading...</h4>
             ) : (
               <CountingCard
-                icon={SvgIconOrangTuaTidakMemilikiKK}
+                icon={SvgIconAnakHadir}
                 isMeningkat={true}
                 jumlah={datadash?.jumlah_orang_tua_tidak_punya_kk?.jumlah}
                 peningkatan={datadash?.jumlah_orang_tua_tidak_punya_kk.rate ?? "-"}
                 subtitle={datadash?.jumlah_orang_tua_tidak_punya_kk.status ?? "-"}
-                title="Jumlah Orang Tua Tidak Memiliki KK"
+                title="Jumlah Orang Tua Tidak Memiliki Kartu Keluarga"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
               />
-
             )}
+
           </div>
 
           {/* Perhitungan Ibu Hamil */}
@@ -431,17 +424,18 @@ const DashboardAdmin = () => {
             {isLoading.grafikTrendStuntingBanyuwangi ? (
               <h4>Loading...</h4>
             ) : (
-              <ChartPerhitunganIbuHamil />
+              <StatistikRisikoKehamilan />
             )}
           </div>
 
           <div className="col-span-4 flex flex-col justify-between gap-10">
+
             {isLoading.countingCard ? (
               <h4>Loading...</h4>
             ) : (
-              <CountingCardRow
-                icon={SvgIconPregnantMother}
-                isMeningkat={false}
+              <CountingCard
+                icon={svgIbuhamil}
+                isMeningkat={true}
                 jumlah={datadash?.jumlah_ibu_hamil.jumlah ?? "-"}
                 peningkatan={datadash?.jumlah_ibu_hamil.rate ?? "-"}
                 subtitle={datadash?.jumlah_ibu_hamil.status ?? "-"}
@@ -450,16 +444,16 @@ const DashboardAdmin = () => {
                 color={"#EBF3FE"}
               />
             )}
-
+            {/* end point ini ndak ada */}
             {isLoading.countingCard ? (
               <h4>Loading...</h4>
             ) : (
               <CountingCard
                 icon={SvgIconPregnantMother}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_anak_asi_ekslusif.jumlah}
-                peningkatan={datadash?.jumlah_anak_asi_ekslusif.rate ?? "-"}
-                subtitle={datadash?.jumlah_anak_asi_ekslusif.status ?? "-"}
+                jumlah={datadash?.jumlah_ibu_hamil.jumlah ?? "-"}
+                peningkatan={datadash?.jumlah_ibu_hamil.rate ?? "-"}
+                subtitle={datadash?.jumlah_ibu_hamil.status ?? "-"}
                 title="Jumlah Ibu Hamil Menjelang Persalinan"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -505,10 +499,10 @@ const DashboardAdmin = () => {
             ) : (
               <PercentageCard
                 title={"Persentase Jumlah Posyandu"}
-                jumlah={100}
-                color={colors}
-                data={data}
-                label={label}
+                jumlah= {100}
+                color= {colors}
+                data= {data}
+                label= {label}
               />
             )}
 

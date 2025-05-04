@@ -1,7 +1,8 @@
 "use client";
 
-import DashboardAdmin from "./component/Dashboardadmin";
-import DashboardKtuaKader from "./component/DashboardKtuaKader";
+
+import DashboardAdmin from "./component/DashboardAdmin";
+import DashboardKetuaKader from "./component/DashboardKetuaKader";
 
 const Dashboard = () => {
   const namaRole = sessionStorage.getItem("user_role");
@@ -9,7 +10,7 @@ const Dashboard = () => {
   if (namaRole === "Admin") {
     return <DashboardAdmin />;
   } else if (namaRole === "Ketua Kader") {
-    // return <DashboardKtuaKader />;
+     return <DashboardKetuaKader />;
   } else {
     return <p>Anda tidak memiliki akses ke dashboard ini.</p>;
   }

@@ -4,7 +4,7 @@ import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { statistikDashboard } from "@/app/api/statistik/statistik";
 
-const ChartPerhitunganIbuHamil: React.FC = () => {
+const StatistikRisikoKehamilan: React.FC = () => {
   const [data, setData] = useState<{
     kurangDari20: number;
     lebihDari35: number;
@@ -106,10 +106,10 @@ const ChartPerhitunganIbuHamil: React.FC = () => {
           <p className="text-green-600 text-lg font-semibold">Tidak ada data untuk ditampilkan.</p>
         </div>
       ) : (
-        <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={380} />
+        <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={400} />
       )}
     </div>
   );
 };
 
-export default ChartPerhitunganIbuHamil;
+export default StatistikRisikoKehamilan;
