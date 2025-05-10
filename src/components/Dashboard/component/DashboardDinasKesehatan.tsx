@@ -19,11 +19,8 @@ import MapPersebaranKeluargaTanpaMCK from "@/components/Charts/MapPersebaranKelu
 import GrafikTrendStuntingBalita from "@/components/Charts/GrafikTrendGiziBalita GrafikTrendGiziBalita";
 import StatistikRisikoKehamilan from "@/components/Charts/StatistikRisikoKehamilan";
 import StatistikNikOrangTua from "@/components/Charts/StatistikNikOrangTua;";
-import { currentUser } from "@/app/api/user/current";
-import TingkatGiziAnakWilayahDesa from "@/components/Charts/TingkatGiziAnakWilayahDesa TingkatGiziAnakWilayahDesa";
-import GrafikTrendGiziBalita from "@/components/Charts/GrafikTrendGiziBalita GrafikTrendGiziBalita";
 
-const DashboardAdmin = () => {
+const DashboardDinasKesehatan = () => {
   const colors = ["#34B53A", "#F39D00"];
   const [datadash, setData] = useState<any | null>(null);
   const label = ["Banyuwangi", "Maluku Tengah"];
@@ -63,7 +60,6 @@ const DashboardAdmin = () => {
     month: "long",
     year: "numeric",
   });
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -172,7 +168,7 @@ const DashboardAdmin = () => {
             {isLoading.grafikTrendStuntingBalita ? (
               <h4>Loading...</h4>
             ) : (
-             <GrafikTrendGiziBalita/>
+              <GrafikTrendStuntingBalita />
             )}
           </div>
 
@@ -183,9 +179,9 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={SvgIconBayi}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_anak.jumlah ?? "0"}
+                jumlah={datadash?.jumlah_anak.jumlah ?? "-"}
                 peningkatan={datadash?.jumlah_anak.rate ?? "-"}
-                subtitle={datadash?.jumlah_anak.status ?? ""}
+                subtitle={datadash?.jumlah_anak.status ?? "-"}
                 title="Jumlah Anak Keseluruhan"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -198,9 +194,9 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={svgStunting}
                 isMeningkat={false}
-                jumlah={datadash?.jumlah_anak_stunting.jumlah ?? "0"}
+                jumlah={datadash?.jumlah_anak_stunting.jumlah}
                 peningkatan={datadash?.jumlah_anak_stunting.rate ?? "-"}
-                subtitle={datadash?.jumlah_anak_stunting.status ?? ""}
+                subtitle={datadash?.jumlah_anak_stunting.status ?? "-"}
                 title="Jumlah Anak Stunting"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -212,7 +208,7 @@ const DashboardAdmin = () => {
             {isLoading.grafikTrendStuntingBanyuwangi ? (
               <h4>Loading...</h4>
             ) : (
-             <TingkatGiziAnakWilayahDesa/>
+              <GrafikTrendStuntingBanyuwangi />
             )}
           </div>
 
@@ -223,9 +219,9 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={svgUnderweight}
                 isMeningkat={false}
-                jumlah={datadash?.jumlah_anak_underweight.jumlah ?? "0"}
+                jumlah={datadash?.jumlah_anak_underweight.jumlah}
                 peningkatan={datadash?.jumlah_anak_underweight.rate ?? "-"}
-                subtitle={datadash?.jumlah_anak_underweight.status ?? ""}
+                subtitle={datadash?.jumlah_anak_underweight.status ?? "-"}
                 title="Jumlah Anak Underweight"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -238,9 +234,9 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={svgWasting}
                 isMeningkat={false}
-                jumlah={datadash?.jumlah_anak_wasting.jumlah ?? "0"}
+                jumlah={datadash?.jumlah_anak_wasting.jumlah}
                 peningkatan={datadash?.jumlah_anak_wasting.rate ?? "-"}
-                subtitle={datadash?.jumlah_anak_wasting.status ?? ""}
+                subtitle={datadash?.jumlah_anak_wasting.status ?? "-"}
                 title="Jumlah Anak Wasting"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -263,9 +259,9 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={svgIconAnakHadir}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_anak_hadir.jumlah ?? "0"}
+                jumlah={datadash?.jumlah_anak_hadir.jumlah}
                 peningkatan={datadash?.jumlah_anak_hadir.rate ?? "-"}
-                subtitle={datadash?.jumlah_anak_hadir.status ?? ""}
+                subtitle={datadash?.jumlah_anak_hadir.status ?? "-"}
                 title="Jumlah Anak Hadir"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -279,9 +275,9 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={svgIconAnaklulus}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_anak_lulus.jumlah?? "0"}
+                jumlah={datadash?.jumlah_anak_lulus.jumlah}
                 peningkatan={datadash?.jumlah_anak_lulus.rate ?? "-"}
-                subtitle={datadash?.jumlah_anak_lulus.status ?? ""}
+                subtitle={datadash?.jumlah_anak_lulus.status ?? "-"}
                 title="Jumlah Anak Lulus"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -309,9 +305,9 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={svgIconAsieklusif}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_anak_asi_ekslusif.jumlah ?? "0"}
+                jumlah={datadash?.jumlah_anak_asi_ekslusif.jumlah}
                 peningkatan={datadash?.jumlah_anak_asi_ekslusif.rate ?? "-"}
-                subtitle={datadash?.jumlah_anak_asi_ekslusif.status ?? ""}
+                subtitle={datadash?.jumlah_anak_asi_ekslusif.status ?? "-"}
                 title="Jumlah Anak Asi Eklusif"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -324,9 +320,9 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={svgIconMpasi}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_anak_mpasi.jumlah ?? "0"}
+                jumlah={datadash?.jumlah_anak_mpasi.jumlah}
                 peningkatan={datadash?.jumlah_anak_mpasi.rate ?? "-"}
-                subtitle={datadash?.jumlah_anak_mpasi.status ?? ""}
+                subtitle={datadash?.jumlah_anak_mpasi.status ?? "-"}
                 title="Jumlah Anak Mpasi"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -353,9 +349,9 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={svgIconTingkatpartisispasi}
                 isMeningkat={true}
-                jumlah={datadash?.perhitungan_skdn.D_S.jumlah ?? "0"}
+                jumlah={datadash?.perhitungan_skdn.D_S.jumlah}
                 peningkatan={datadash?.perhitungan_skdn.D_S.rate ?? "-"}
-                subtitle={datadash?.perhitungan_skdn.D_S.status ?? ""}
+                subtitle={datadash?.perhitungan_skdn.D_S.status ?? "-"}
                 title="Tingkat Partisipasi Posyandu"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -368,9 +364,9 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={svgIxonJangankauan}
                 isMeningkat={true}
-                jumlah={datadash?.perhitungan_skdn.K_S.jumlah ?? "0"}
+                jumlah={datadash?.perhitungan_skdn.K_S.jumlah}
                 peningkatan={datadash?.perhitungan_skdn.K_S.rate ?? "-"}
-                subtitle={datadash?.perhitungan_skdn.K_S.status ?? ""}
+                subtitle={datadash?.perhitungan_skdn.K_S.status ?? "-"}
                 title="Jangkauan Posyandu terhadap Balita KMS"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -396,10 +392,10 @@ const DashboardAdmin = () => {
               <CountingCardDesa
                 icon={SvgIconVillage}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_desa.jumlah ?? "0"}
-                jumlah_keluarga={datadash?.keluarga_tanpa_mck.jumlah ?? "0"}
+                jumlah={datadash?.jumlah_desa.jumlah}
+                jumlah_keluarga={datadash?.keluarga_tanpa_mck.jumlah}
                 peningkatan={datadash?.jumlah_desa.rate ?? "-"}
-                subtitle={datadash?.jumlah_desa.status ?? ""}
+                subtitle={datadash?.jumlah_desa.status ?? "-"}
                 title="Jumlah Desa"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -412,9 +408,9 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={SvgIconAnakHadir}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_orang_tua_tidak_punya_kk?.jumlah ?? "0"}
+                jumlah={datadash?.jumlah_orang_tua_tidak_punya_kk?.jumlah}
                 peningkatan={datadash?.jumlah_orang_tua_tidak_punya_kk.rate ?? "-"}
-                subtitle={datadash?.jumlah_orang_tua_tidak_punya_kk.status ?? ""}
+                subtitle={datadash?.jumlah_orang_tua_tidak_punya_kk.status ?? "-"}
                 title="Jumlah Orang Tua Tidak Memiliki Kartu Keluarga"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -440,9 +436,9 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={svgIbuhamil}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_ibu_hamil.jumlah ?? "0"}
+                jumlah={datadash?.jumlah_ibu_hamil.jumlah ?? "-"}
                 peningkatan={datadash?.jumlah_ibu_hamil.rate ?? "-"}
-                subtitle={datadash?.jumlah_ibu_hamil.status ?? ""}
+                subtitle={datadash?.jumlah_ibu_hamil.status ?? "-"}
                 title="Jumlah Ibu Hamil"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -455,9 +451,9 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={SvgIconPregnantMother}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_ibu_hamil.jumlah ?? "0"}
+                jumlah={datadash?.jumlah_ibu_hamil.jumlah ?? "-"}
                 peningkatan={datadash?.jumlah_ibu_hamil.rate ?? "-"}
-                subtitle={datadash?.jumlah_ibu_hamil.status ?? ""}
+                subtitle={datadash?.jumlah_ibu_hamil.status ?? "-"}
                 title="Jumlah Ibu Hamil Menjelang Persalinan"
                 title_secound={`Aktif ${monthYear}`}
                 color={"#EBF3FE"}
@@ -489,11 +485,11 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={SvgIconLoveOrange}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_posyandu.jumlah ?? "0"}
+                jumlah={datadash?.jumlah_posyandu.jumlah}
                 peningkatan={datadash?.jumlah_posyandu.rate ?? "-"}
                 title="Jumlah Posyandu"
                 title_secound=""
-                subtitle={datadash?.jumlah_posyandu.status ?? ""}
+                subtitle={datadash?.jumlah_posyandu.status ?? "-"}
                 color={"#EBF3FE"}
               />
             )}
@@ -527,7 +523,7 @@ const DashboardAdmin = () => {
               <CountingCard
                 icon={SvgIconLoveBlue}
                 isMeningkat={true}
-                jumlah={datadash?.jumlah_kader.jumlah ?? "0"}
+                jumlah={datadash?.jumlah_kader.jumlah}
                 peningkatan={datadash?.jumlah_kader.rate ?? "-"}
                 title="Jumlah Kader"
                 title_secound=""
@@ -587,4 +583,4 @@ const DashboardAdmin = () => {
   );
 };
 
-export default DashboardAdmin;
+export default DashboardDinasKesehatan;

@@ -1,54 +1,173 @@
-"use client"; // This directive allows the use of client-side features
-// import DefaultLayout from "@/components/Layouts/DefaultLayout"; // Make sure the layout import is correct
-import { Metadata } from "next";
-import React, { useState } from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { SvgEditProfile, SvgEyeHide, SvgEyeShow } from "@/components/ui/Svg";
+import { SvgEditProfile } from "@/components/ui/Svg";
 import { InputText } from "primereact/inputtext";
-import { Password } from "primereact/password";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
-import { Akun } from "@/types/akun";
 import { Role } from "@/types/role";
-import ProfileBox from "../ProfileBox";
-import SettingBoxes from "../SettingBoxes";
+import { currentUser } from "@/app/api/user/current";
 
-type Kabupaten = {
-  name: string;
-  code: string;
+type Kabupaten = { name: string; code: string };
+type Kecamatan = { name: string; code: string };
+type Desa = { name: string; code: string };
+type Dusun = { name: string; code: string };
+
+interface UserCurrent {
+  id: string;
+  nama_lengkap: string;
+  nomor_telepon: string;
+  tanggal_lahir: string;
+  rt: string;
+  rw: string;
+  alamat_lengkap: string;
+  provinsi: { nama_provinsi: string };
+  kabupaten_kota: { nama_kabupaten_kota: string };
+  kecamatan: { nama_kecamatan: string };
+  desa_kelurahan: { nama_desa_kelurahan: string };
+  dusun: { nama_dusun: string };
+  role: { nama_role: string };
+  posyandu: { nama_posyandu: string };
+  foto_profil?: string;
+}
+
+interface Akun {
+  namaLengkap: string;
+  noTelepon: string;
+  kata_sandi: string;
+  tanggalLahir: string;
+  konfirmasi_sandi: string;
+  posisi: Role;
+  alamat: {
+    kabupaten: string;
+    kecamatan: string;
+    desa: string;
+    dusun: string;
+  };
+}
+
+const kabupatenOptions: Kabupaten[] = [
+  { name: "Banyuwangi", code: "BWI" },
+  { name: "Maluku Tengah", code: "MT" },
+];
+
+const kecamatanOptions: Record<string, Kecamatan[]> = {
+  BWI: [
+    { name: "Rogojampi", code: "K1" },
+    { name: "Glagah", code: "K2" },
+  ],
+  MT: [
+    { name: "Masohi", code: "K3" },
+    { name: "Amahai", code: "K4" },
+  ],
 };
 
-type Kecamatan = {
-  name: string;
-  code: string;
+const desaOptions: Record<string, Desa[]> = {
+  K1: [{ name: "Pangatigan", code: "D1" }],
+  K2: [{ name: "Glagah Desa", code: "D2" }],
+  K3: [{ name: "Masohi Desa", code: "D3" }],
+  K4: [{ name: "Amahai Desa", code: "D4" }],
 };
 
-type Desa = {
-  name: string;
-  code: string;
-};
-
-type Dusun = {
-  name: string;
-  code: string;
+const dusunOptions: Record<string, Dusun[]> = {
+  D1: [{ name: "Krajan", code: "DS1" }],
+  D2: [{ name: "Dusun 2", code: "DS2" }],
+  D3: [{ name: "Dusun 3", code: "DS3" }],
+  D4: [{ name: "Dusun 4", code: "DS4" }],
 };
 
 const AkunSaya = () => {
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null); // State for profile photo
-  const [Akun, setAkun] = useState<Akun>({
-    namaLengkap: "Ahmad Hanafi",
-    noTelepon: "08976543215",
-    email: "sokebah@gmail.com",
-    kata_sandi: "sokebah12345",
-    konfirmasi_sandi: "sokebah12345",
-    posisi: Role.AnggotaKader, // Anda bisa mengisi ini sesuai kebutuhan
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [user, setUser] = useState<UserCurrent | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const [akun, setAkun] = useState<Akun>({
+    namaLengkap: "",
+    noTelepon: "",
+    tanggalLahir: "",
+    kata_sandi: "",
+    konfirmasi_sandi: "",
+    posisi: Role.AnggotaKader,
     alamat: {
-      kabupaten: "Banyuwangi",
-      kecamatan: "Rogojampi",
-      desa: "Pangatigan",
-      dusun: "Krajan",
+      kabupaten: "",
+      kecamatan: "",
+      desa: "",
+      dusun: "",
     },
   });
+
+  const [selectedKabupaten, setSelectedKabupaten] = useState<Kabupaten | null>(null);
+  const [selectedKecamatan, setSelectedKecamatan] = useState<Kecamatan | null>(null);
+  const [selectedDesa, setSelectedDesa] = useState<Desa | null>(null);
+  const [selectedDusun, setSelectedDusun] = useState<Dusun | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        setLoading(true);
+        const result = await currentUser();
+
+        if (result.successCode === 200 && result.data) {
+          const userData = Array.isArray(result.data) ? result.data[0] : result.data;
+          setUser(userData);
+
+          // Set form data
+          setAkun({
+            namaLengkap: userData.nama_lengkap || "",
+            noTelepon: userData.nomor_telepon || "",
+            tanggalLahir: userData.tanggal_lahir || "",
+            kata_sandi: "",
+            konfirmasi_sandi: "",
+            posisi: (userData.role?.nama_role as Role) || Role.AnggotaKader,
+            alamat: {
+              kabupaten: userData.kabupaten_kota?.nama_kabupaten_kota || "",
+              kecamatan: userData.kecamatan?.nama_kecamatan || "",
+              desa: userData.desa_kelurahan?.nama_desa_kelurahan || "",
+              dusun: userData.dusun?.nama_dusun || "",
+            },
+          });
+
+          // Set dropdown values
+          const kabupaten = kabupatenOptions.find(
+            (k) => k.name === userData.kabupaten_kota?.nama_kabupaten_kota
+          );
+          setSelectedKabupaten(kabupaten || null);
+
+          if (kabupaten) {
+            const kecamatan = kecamatanOptions[kabupaten.code]?.find(
+              (k) => k.name === userData.kecamatan?.nama_kecamatan
+            );
+            setSelectedKecamatan(kecamatan || null);
+
+            if (kecamatan) {
+              const desa = desaOptions[kecamatan.code]?.find(
+                (d) => d.name === userData.desa_kelurahan?.nama_desa_kelurahan
+              );
+              setSelectedDesa(desa || null);
+
+              if (desa) {
+                const dusun = dusunOptions[desa.code]?.find(
+                  (ds) => ds.name === userData.dusun?.nama_dusun
+                );
+                setSelectedDusun(dusun || null);
+              }
+            }
+          }
+        } else {
+          setError('Gagal mengambil data user');
+        }
+      } catch (err) {
+        setError('Terjadi kesalahan saat mengambil data user');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -59,10 +178,31 @@ const AkunSaya = () => {
       reader.readAsDataURL(file);
     }
   };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setAkun((prevAkun) => ({ ...prevAkun, [name]: value }));
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-4">
+        <div className="text-center text-gray-500">Memuat data pengguna...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-4">
+        <div className="text-center text-red-500">{error}</div>
+      </div>
+    );
+  }
+
+  const roleName = user?.role?.nama_role || "Admin";
+  const imageSrc = profilePhoto || roleImageMap[roleName] || "/images/user/user-03.png";
+
   return (
     <div className="container mx-auto">
       <div className="mb-4">
@@ -73,17 +213,240 @@ const AkunSaya = () => {
           </p>
         </div>
       </div>
-      {/* Card Wrapper */}
+
       <div className="overflow-hidden rounded-[10px] bg-white px-18 py-9 pt-6 shadow-1">
         <ProfilePicture
           profilePhoto={profilePhoto}
           onPhotoChange={handlePhotoChange}
+          imageSrc={imageSrc}
         />
-        <FormProfile Akun={Akun} handleInputChange={handleInputChange} />
+
+        {user && (
+          <FormProfile
+            akun={akun}
+            handleInputChange={handleInputChange}
+            selectedKabupaten={selectedKabupaten}
+            setSelectedKabupaten={setSelectedKabupaten}
+            selectedKecamatan={selectedKecamatan}
+            setSelectedKecamatan={setSelectedKecamatan}
+            selectedDesa={selectedDesa}
+            setSelectedDesa={setSelectedDesa}
+            selectedDusun={selectedDusun}
+            setSelectedDusun={setSelectedDusun}
+            roleName={roleName}
+          />
+        )}
+
         <div className="mt-14 flex items-center justify-center px-4">
-          <Button
-            label="Simpan"
-            className="w-full max-w-[370px] bg-[#486284]"
+          {roleName !== "Admin" && (
+            <Button
+              label="Simpan"
+              className="w-full max-w-[370px] bg-[#486284]"
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const roleImageMap: { [key: string]: string } = {
+  "Admin": "/images/user/admin.png",
+  "Dinas Kesehatan": "/images/user/dinkes.png",
+  "Dinas Sosial": "/images/user/dinsos.svg",
+  "Kepala Camat": "/images/user/kepala_desa_kec.png",
+  "Kepala Desa": "/images/user/kepala_desa_kecs.png",
+  "TPG": "/images/user/tpg.png",
+  "Ketua Kader": "/images/user/ketua.png",
+  "Kader": "/images/user/anggota.png",
+};
+
+const ProfilePicture = ({
+  profilePhoto,
+  onPhotoChange,
+  imageSrc
+}: {
+  profilePhoto: string | null;
+  onPhotoChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  imageSrc: string;
+}) => {
+  return (
+    <div className="flex items-center justify-center">
+      <div className="relative">
+        <div className="relative flex h-30 w-30 justify-items-center rounded-full drop-shadow-2">
+          <Image
+            src={imageSrc}
+            width={160}
+            height={160}
+            className="h-30 w-30 rounded-full object-cover"
+            alt="profile"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FormProfile = ({
+  akun,
+  handleInputChange,
+  selectedKabupaten,
+  setSelectedKabupaten,
+  selectedKecamatan,
+  setSelectedKecamatan,
+  selectedDesa,
+  setSelectedDesa,
+  selectedDusun,
+  setSelectedDusun,
+  roleName,
+}: {
+  akun: Akun;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  selectedKabupaten: Kabupaten | null;
+  setSelectedKabupaten: (kab: Kabupaten | null) => void;
+  selectedKecamatan: Kecamatan | null;
+  setSelectedKecamatan: (kec: Kecamatan | null) => void;
+  selectedDesa: Desa | null;
+  setSelectedDesa: (desa: Desa | null) => void;
+  selectedDusun: Dusun | null;
+  setSelectedDusun: (dusun: Dusun | null) => void;
+  roleName: string;
+}) => {
+  const getKecamatanOptions = () =>
+    selectedKabupaten ? kecamatanOptions[selectedKabupaten.code] || [] : [];
+
+  const getDesaOptions = () =>
+    selectedKecamatan ? desaOptions[selectedKecamatan.code] || [] : [];
+
+  const getDusunOptions = () =>
+    selectedDesa ? dusunOptions[selectedDesa.code] || [] : [];
+
+  return (
+    <div className="mt-10 grid grid-cols-2 gap-10">
+      <div className="left">
+        <div className="mb-3 w-full">
+          <label htmlFor="namaLengkap">Nama Lengkap</label>
+          <InputText
+            id="namaLengkap"
+            name="namaLengkap"
+            className="mt-2 w-full"
+            value={akun.namaLengkap}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        <div className="mb-3 w-full">
+          <label htmlFor="telepon">Nomor Telepon (WA Aktif)</label>
+          {roleName === "Admin" ? (
+            <InputText
+              id="telepon"
+              name="noTelepon"
+              value="*************"
+              readOnly
+              className="mt-2 w-full"
+            />
+          ) : (
+            <InputText
+              id="telepon"
+              name="noTelepon"
+              value={akun.noTelepon}
+              onChange={handleInputChange}
+              inputMode="tel"
+              className="mt-2 w-full"
+            />
+          )}
+        </div>
+
+        <div className="mb-3 w-full">
+          <label htmlFor="tanggalLahir">Tanggal Lahir</label>
+          <input
+            type="date"
+            id="tanggalLahir"
+            name="tanggalLahir"
+            value={akun.tanggalLahir}
+            onChange={handleInputChange}
+            disabled={roleName === "Admin"}
+            className="mt-2 w-full rounded border px-2 py-3"
+          />
+        </div>
+
+        {roleName !== "Admin" && (
+          <div className="grid grid-cols-2 gap-5">
+            <div className="relative mb-3 w-full">
+              <label htmlFor="password">Password</label>
+              <InputText
+                id="password"
+                name="kata_sandi"
+                value={akun.kata_sandi}
+                onChange={handleInputChange}
+                type="password"
+                className="mt-2 w-full"
+              />
+            </div>
+            <div className="relative mb-3 w-full">
+              <label htmlFor="konfirmasiPassword">Konfirmasi Password</label>
+              <InputText
+                id="konfirmasiPassword"
+                name="konfirmasi_sandi"
+                value={akun.konfirmasi_sandi}
+                onChange={handleInputChange}
+                type="password"
+                className="mt-2 w-full"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="right">
+        <div className="mb-3 w-full">
+          <label htmlFor="posisi">Posisi/Peran</label>
+          <InputText
+            id="posisi"
+            name="posisi"
+            value={akun.posisi}
+            readOnly
+            disabled
+            className="mt-2 w-full"
+          />
+        </div>
+
+        <label>Alamat</label>
+        <div className="grid grid-cols-2 gap-5">
+          <InputText
+            id="kabupaten"
+            name="alamat.kabupaten"
+            value={akun.alamat.kabupaten}
+            readOnly
+            disabled
+            className="mb-4 mt-2 w-full"
+          />
+
+          <InputText
+            id="kecamatan"
+            name="alamat.kecamatan"
+            value={akun.alamat.kecamatan}
+            readOnly
+            disabled
+            className="mb-4 mt-2 w-full"
+          />
+
+          <InputText
+            id="desa"
+            name="alamat.desa"
+            value={akun.alamat.desa}
+            readOnly
+            disabled
+            className="mb-4 mt-2 w-full"
+          />
+
+          <InputText
+            id="dusun"
+            name="alamat.dusun"
+            value={akun.alamat.dusun}
+            readOnly
+            disabled
+            className="mb-4 mt-2 w-full"
           />
         </div>
       </div>
@@ -92,267 +455,3 @@ const AkunSaya = () => {
 };
 
 export default AkunSaya;
-
-function ProfilePicture({
-  profilePhoto,
-  onPhotoChange,
-}: {
-  profilePhoto: string | null;
-  onPhotoChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-}) {
-  return (
-    <div className="flex items-center justify-center">
-      <div className="relative">
-        <div className="relative flex h-30 w-30 justify-items-center rounded-full drop-shadow-2">
-          <Image
-            src={profilePhoto || "/images/user/user-03.png"} // Default image if no photo is selected
-            width={160}
-            height={160}
-            className="h-30 w-30 rounded-full object-cover"
-            alt="profile"
-          />
-        </div>
-        <label
-          htmlFor="profilePhoto"
-          className="absolute bottom-[-.25rem] right-[.25rem] flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full bg-[#486284] text-white hover:bg-opacity-90"
-        >
-          <SvgEditProfile />
-          <input
-            type="file"
-            name="profilePhoto"
-            id="profilePhoto"
-            className="sr-only"
-            accept="image/png, image/jpg, image/jpeg"
-            onChange={onPhotoChange} // Call the handler when the photo changes
-          />
-        </label>
-      </div>
-    </div>
-  );
-}
-
-function FormProfile({
-  Akun,
-  handleInputChange,
-}: {
-  Akun: Akun;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}) {
-  const [selectedKabupaten, setSelectedKabupaten] = useState<Kabupaten | null>(
-    null,
-  );
-  const [selectedKecamatan, setSelectedKecamatan] = useState<Kecamatan | null>(
-    null,
-  );
-  const [selectedDesa, setSelectedDesa] = useState<Desa | null>(null);
-  const [selectedDusun, setSelectedDusun] = useState<Dusun | null>(null);
-  // Data Kabupaten
-  const kabupatenOptions: Kabupaten[] = [
-    { name: "Banyuwangi", code: "BWI" },
-    { name: "Maluku Tengah", code: "MT" },
-  ];
-
-  // Data Kecamatan sesuai dengan Kabupaten yang dipilih
-  const kecamatanOptions: Record<string, Kecamatan[]> = {
-    BWI: [
-      { name: "Kecamatan 1 Banyuwangi", code: "K1" },
-      { name: "Kecamatan 2 Banyuwangi", code: "K2" },
-    ],
-    MT: [
-      { name: "Kecamatan 1 Maluku Tengah", code: "K1" },
-      { name: "Kecamatan 2 Maluku Tengah", code: "K2" },
-    ],
-  };
-
-  // Data Desa sesuai dengan Kecamatan yang dipilih
-  const desaOptions: Record<string, Desa[]> = {
-    K1: [
-      { name: "Desa 1 Kecamatan 1", code: "D1K1" },
-      { name: "Desa 2 Kecamatan 1", code: "D2K1" },
-    ],
-    K2: [
-      { name: "Desa 1 Kecamatan 2", code: "D1K2" },
-      { name: "Desa 2 Kecamatan 2", code: "D2K2" },
-    ],
-  };
-
-  // Data Dusun sesuai dengan Desa yang dipilih
-  const dusunOptions: Record<string, Dusun[]> = {
-    D1K1: [
-      { name: "Dusun 1 Desa 1 Kecamatan 1", code: "Dusun1D1K1" },
-      { name: "Dusun 2 Desa 1 Kecamatan 1", code: "Dusun2D1K1" },
-    ],
-    D2K1: [
-      { name: "Dusun 1 Desa 2 Kecamatan 1", code: "Dusun1D2K1" },
-      { name: "Dusun 2 Desa 2 Kecamatan 1", code: "Dusun2D2K1" },
-    ],
-    D1K2: [
-      { name: "Dusun 1 Desa 1 Kecamatan 2", code: "Dusun1D1K2" },
-      { name: "Dusun 2 Desa 1 Kecamatan 2", code: "Dusun2D1K2" },
-    ],
-    D2K2: [
-      { name: "Dusun 1 Desa 2 Kecamatan 2", code: "Dusun1D2K2" },
-      { name: "Dusun 2 Desa 2 Kecamatan 2", code: "Dusun2D2K2" },
-    ],
-  };
-
-  // Ambil kecamatan berdasarkan kabupaten yang dipilih
-  const getKecamatanOptions = () => {
-    return selectedKabupaten ? kecamatanOptions[selectedKabupaten.code] : [];
-  };
-
-  // Ambil desa berdasarkan kecamatan yang dipilih
-  const getDesaOptions = () => {
-    return selectedKecamatan ? desaOptions[selectedKecamatan.code] : [];
-  };
-
-  // Ambil dusun berdasarkan desa yang dipilih
-  const getDusunOptions = () => {
-    return selectedDesa ? dusunOptions[selectedDesa.code] : [];
-  };
-
-  return (
-    <div className="mt-10 grid grid-cols-2 gap-10">
-      <div className="left">
-        {/* Nama Lengkap */}
-        <div className="mb-3 w-full">
-          <label htmlFor="namaLengkap">Nama Lengkap</label>
-          <InputText
-            id="namaLengkap"
-            name="namaLengkap"
-            className="mt-2 w-full"
-            value={Akun.namaLengkap}
-            onChange={handleInputChange}
-          />
-        </div>
-        {/* Telepon */}
-        <div className="mb-3 w-full">
-          <label htmlFor="telepon">Nomor Telepon (WA Aktif)</label>
-          <InputText
-            id="telepon"
-            name="telepon"
-            value={Akun.noTelepon}
-            onChange={handleInputChange}
-            inputMode="tel"
-            className="mt-2 w-full"
-          />
-        </div>
-        {/* Email */}
-        <div className="mb-3 w-full">
-          <label htmlFor="email">Email</label>
-          <InputText
-            id="email"
-            name="email"
-            value={Akun.email}
-            onChange={handleInputChange}
-            inputMode="email"
-            className="mt-2 w-full"
-          />
-        </div>
-        {/* Kata Sandi */}
-        <div className="grid grid-cols-2 gap-5">
-          {/* Password Field */}
-          <div className="relative mb-3 w-full">
-            <label htmlFor="password">Password</label>
-            <InputText
-              id="password"
-              name="password"
-              value={Akun.kata_sandi}
-              onChange={handleInputChange}
-              type={"password"}
-              inputMode="text"
-              className="mt-2 w-full"
-            />
-          </div>
-
-          {/* Confirm Password Field */}
-          <div className="relative mb-3 w-full">
-            <label htmlFor="konfirmasiPassword">Konfirmasi Password</label>
-            <InputText
-              id="konfirmasiPassword"
-              name="konfirmasiPassword"
-              value={Akun.konfirmasi_sandi}
-              onChange={handleInputChange}
-              type={"password"}
-              inputMode="text"
-              className="mt-2 w-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div className="right">
-        {/* posisi/peran */}
-        <div className="mb-3 w-full">
-          <label htmlFor="posisi">Posisi/Peran</label>
-          <InputText
-            id="posisi"
-            name="posisi"
-            inputMode="text"
-            value={Akun.posisi}
-            readOnly={true}
-            disabled={true}
-            className="mt-2 w-full"
-          />
-        </div>
-        {/* alamat */}
-        <label htmlFor="alamat">Alamat</label>
-        <div className="grid grid-cols-2 gap-5">
-          {/* Dropdown Kabupaten */}
-          <Dropdown
-            value={selectedKabupaten}
-            onChange={(e) => {
-              setSelectedKabupaten(e.value);
-              setSelectedKecamatan(null); // Reset kecamatan saat kabupaten berubah
-              setSelectedDesa(null); // Reset desa saat kabupaten berubah
-              setSelectedDusun(null); // Reset dusun saat kabupaten berubah
-            }}
-            options={kabupatenOptions}
-            optionLabel="name"
-            placeholder="Kabupaten"
-            className="mb-4 mt-2 w-full"
-          />
-
-          {/* Dropdown Kecamatan */}
-          <Dropdown
-            value={selectedKecamatan}
-            onChange={(e) => {
-              setSelectedKecamatan(e.value);
-              setSelectedDesa(null); // Reset desa saat kecamatan berubah
-              setSelectedDusun(null); // Reset dusun saat kecamatan berubah
-            }}
-            options={getKecamatanOptions()}
-            optionLabel="name"
-            placeholder="Kecamatan"
-            className="mb-4 mt-2 w-full"
-            disabled={!selectedKabupaten} // Nonaktifkan jika tidak ada kabupaten yang dipilih
-          />
-
-          {/* Dropdown Desa */}
-          <Dropdown
-            value={selectedDesa}
-            onChange={(e) => {
-              setSelectedDesa(e.value);
-              setSelectedDusun(null); // Reset dusun saat desa berubah
-            }}
-            options={getDesaOptions()}
-            optionLabel="name"
-            placeholder="Desa"
-            className="mb-4 mt-2 w-full"
-            disabled={!selectedKecamatan} // Nonaktifkan jika tidak ada kecamatan yang dipilih
-          />
-
-          {/* Dropdown Dusun */}
-          <Dropdown
-            value={selectedDusun}
-            onChange={(e) => setSelectedDusun(e.value)}
-            options={getDusunOptions()}
-            optionLabel="name"
-            placeholder="Dusun"
-            className="mb-4 mt-2 w-full"
-            disabled={!selectedDesa} // Nonaktifkan jika tidak ada desa yang dipilih
-          />
-        </div>
-      </div>
-    </div>
-  );
-}

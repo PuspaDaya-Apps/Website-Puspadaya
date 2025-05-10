@@ -44,7 +44,7 @@ interface StatistikData {
   giziBuruk: number[];
 }
 
-const GrafikTrendStuntingBanyuwangi: React.FC = () => {
+const TingkatGiziAnakWilayahDesa: React.FC = () => {
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
   const [selectedKecamatan, setSelectedKecamatan] = useState<Kecamatan | null>(null);
   const [selectedDesa, setSelectedDesa] = useState<Desa | null>(null);
@@ -372,4 +372,4 @@ const GrafikTrendStuntingBanyuwangi: React.FC = () => {
   );
 };
 
-export default GrafikTrendStuntingBanyuwangi;
+export default TingkatGiziAnakWilayahDesa;

@@ -11,8 +11,10 @@ interface Wilayah {
   code: string;
 }
 
-const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691]; // Koordinat Banyuwangi
-const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228]; // Koordinat Maluku Tengah
+const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691];
+
+
+const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228]; 
 
 const PetaPersebaranAnakStunting: React.FC = () => {
   const wilayah: Wilayah[] = [
@@ -46,7 +48,8 @@ const PetaPersebaranAnakStunting: React.FC = () => {
 
   // Otomatis pilih wilayah berdasarkan provinsi
   useEffect(() => {
-    if (provinsi === "Jawa Timur") {
+    // Default ke Banyuwangi jika provinsi tidak terdeteksi atau provinsi Jawa Timur
+    if (!provinsi || provinsi === "Jawa Timur") {
       setSelectedWilayah(wilayah.find((wil) => wil.code === "Banyuwangi") || null);
     } else {
       setSelectedWilayah(wilayah.find((wil) => wil.code === "MT") || null);
@@ -77,7 +80,6 @@ const PetaPersebaranAnakStunting: React.FC = () => {
           selectedWilayah.code === "Banyuwangi"
             ? "/api/geojson/banyuwangi"
             : "/api/geojson/maluku-tengah";
-
         try {
           const response = await fetch(endpoint);
           const geoJSONData: any = await response.json();
@@ -183,7 +185,7 @@ const PetaPersebaranAnakStunting: React.FC = () => {
             optionLabel="name"
             placeholder="Pilih Wilayah"
             className="md:w-14rem h-11 w-full"
-            disabled={role !== "Admin"} // Nonaktifkan dropdown jika role bukan Admin
+            disabled={role !== "Admin"} 
           />
         </div>
       </div>

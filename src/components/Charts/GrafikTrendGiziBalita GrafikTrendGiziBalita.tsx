@@ -8,7 +8,7 @@ import { TrenGizi, TrenGiziResponse } from "@/types/dashborad";
 
 const color = ["#3b82f6", "#ef4444"];
 
-const GrafikTrendStunting: React.FC = () => {
+const GrafikTrendGiziBalita: React.FC = () => {
   const [data, setData] = useState<TrenGizi[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -193,4 +193,4 @@ const GrafikTrendStunting: React.FC = () => {
   );
 };
 
-export default GrafikTrendStunting;
+export default GrafikTrendGiziBalita;

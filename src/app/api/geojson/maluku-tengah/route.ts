@@ -5,7 +5,7 @@ import path from 'path';
 
 export async function GET() {
   try {
-    const filePath = path.join(process.cwd(), 'public', 'data', 'maluku_tengah.geojson');
+    const filePath = path.join(process.cwd(), 'public', 'data', 'maluku_tengah_new.geojson');
     const fileContents = fs.readFileSync(filePath, 'utf8');
     const geoJSON = JSON.parse(fileContents);
     return NextResponse.json(geoJSON);

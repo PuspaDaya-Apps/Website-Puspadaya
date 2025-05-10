@@ -31,7 +31,7 @@ const ChartDonatBeratBadan: React.FC = () => {
           setError(null);
         } else {
           setData(null);
-          setError("Data tidak ditemukan atau format tidak sesuai.");
+          setError("Data tidak ditemukan!");
         }
       } catch (err) {
         setError("Terjadi kesalahan saat mengambil data.");
@@ -103,30 +103,35 @@ const ChartDonatBeratBadan: React.FC = () => {
 
   return (
     <div className="p-7 bg-white shadow-lg rounded-lg">
-      <div>
-        <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
-          Statistik Berat Badan Anak
-        </h4>
-        <p className="text-black">
-          Pemantauan Pertumbuhan Anak Berdasarkan Data Berat Badan
-        </p>
-      </div>
+  <div>
+    <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
+      Statistik Berat Badan Anak
+    </h4>
+    <p className="text-black">
+      Pemantauan Pertumbuhan Anak Berdasarkan Data Berat Badan
+    </p>
+  </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p className="text-red-500">{error}</p>
-      ) : chartSeries.every(value => value === 0) ? (
-        <div className="flex items-center justify-center min-h-[350px] w-full">
-        <p className="text-green-600 text-lg font-semibold">
-          Tidak ada data untuk ditampilkan.
-        </p>
-      </div>
-      
-      ) : (
-        <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={380} />
-      )}
-    </div>
+  <div className="flex items-center justify-center min-h-[380px] w-full">
+    {loading ? (
+      <p>Loading...</p>
+    ) : error ? (
+      <p className="text-red-500">{error}</p>
+    ) : chartSeries.every(value => value === 0) ? (
+      <p className="text-green-600 text-lg font-semibold">
+        Tidak ada data untuk ditampilkan.
+      </p>
+    ) : (
+      <ReactApexChart
+        options={chartOptions}
+        series={chartSeries}
+        type="donut"
+        height={380}
+      />
+    )}
+  </div>
+</div>
+
   );
 };
 

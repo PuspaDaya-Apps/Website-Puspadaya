@@ -11,7 +11,7 @@ export const APIEndpoints = {
 
     DASHBOARDPOSYANDU : '/api/v1/dashboard/posyandu',
 
-    DASHBOARDDINASKESEHATAN : '/api/v1/dashboard/dinas-kesehatan',
+    DASHBOARDDINASKESEHATAN : '/api/v1/dashboard/provinsi',
 
     DASHBOARDTPG : '/api/v1/dashboard/tpg',
 

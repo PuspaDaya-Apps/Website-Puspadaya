@@ -34,7 +34,7 @@ const StatistikNikOrangTua: React.FC = () => {
           setError(null);
         } else {
           setData(null);
-          setError("Error fetching data. Please try again.");
+          setError("Data tidak ditemukan!");
         }
       } catch (err) {
         setError("Terjadi kesalahan saat mengambil data.");
@@ -112,7 +112,7 @@ const StatistikNikOrangTua: React.FC = () => {
   };
 
   return (
-    <div className="p-10 bg-white shadow-lg rounded-lg flex flex-col justify-center min-h-[400px]">
+    <div className="p-7 bg-white shadow-lg rounded-lg">
        <div>
           <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
           Statistik NIK Orang Tua dan Anak
@@ -122,7 +122,8 @@ const StatistikNikOrangTua: React.FC = () => {
           </p>
        </div>
 
-      {loading ? (
+       <div className="flex items-center justify-center min-h-[380px] w-full">
+       {loading ? (
         <p className="text-gray-600">Loading...</p>
       ) : error ? (
         <p className="text-red-500">{error}</p>
@@ -133,8 +134,9 @@ const StatistikNikOrangTua: React.FC = () => {
           </p>
         </div>
       ) : (
-        <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={400} />
+        <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={600} />
       )}
+       </div>
     </div>
   );
 };

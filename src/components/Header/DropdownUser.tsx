@@ -19,9 +19,25 @@ const DropdownUser = () => {
     window.location.href = '/auth/signin';
   }, []);
 
+  const roleImageMap: { [key: string]: string } = {
+    "Admin": "/images/user/admin.png",
+    "Dinas Kesehatan": "/images/user/dinkes.png",
+    "Dinas Sosial": "/images/user/dinsos.svg",
+    "Kepala Camat": "/images/user/kepala_desa_kec.png",
+    "Kepala Desa": "/images/user/kepala_desa_kecs.png",
+    "TPG": "/images/user/tpg.png",
+    "Ketua Kader": "/images/user/ketua.png",
+    "Kader": "/images/user/anggota.png",
+  };
+
+  const role = "Admin";
+
+  const imageSrc = roleImageMap[role] || "/images/user/user-03.png"; 
+
+
   // Efek untuk menangani auto logout setelah periode tidak aktif
   useEffect(() => {
-    let logoutTimer: any; // Tipe eksplisit untuk lingkungan browser
+    let logoutTimer: any;
 
     const resetTimer = () => {
       clearTimeout(logoutTimer);
@@ -33,7 +49,7 @@ const DropdownUser = () => {
       document.addEventListener(event, resetTimer)
     );
 
-    resetTimer(); // Inisialisasi timer pertama kali
+    resetTimer();
 
     return () => {
       clearTimeout(logoutTimer);
@@ -51,18 +67,15 @@ const DropdownUser = () => {
         href="#"
       >
         <span className="h-10 w-10 rounded-full">
-          <Image
-            width={190}
-            height={190}
-            src="/images/user/user-03.png"
-            style={{
-              width: "auto",
-              height: "auto",
-            }}
-            alt="User"
-            className="overflow-hidden rounded-full"
-          />
-        </span>
+  <Image
+    width={190}
+    height={190}
+    src={imageSrc}
+    alt="User"
+    style={{ width: "auto", height: "auto" }}
+    className="overflow-hidden rounded-full"
+  />
+</span>
 
         <span className="flex items-center gap-1 font-medium text-dark dark:text-dark-6">
           <div>

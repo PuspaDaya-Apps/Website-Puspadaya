@@ -27,6 +27,7 @@ interface FetchResult {
   
       const response = await axios.get(APIEndpoints.TRENGIZI, config);
       const { data } = response.data; // Pastikan data adalah array TrenGizi[]
+      // console.log("ini adalah datanya", data)
       sessionStorage.removeItem(Messages.ERROR);
   
       return { successCode: response.status, data };

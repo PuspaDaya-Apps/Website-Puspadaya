@@ -26,27 +26,29 @@ const ChartJumlahBalitaHadir: React.FC = () => {
   const [chartSeries, setChartSeries] = useState<{ name: string; data: number[] }[]>([
     { name: "Jumlah Anak Hadir", data: [] },
   ]);
+  const [maxY, setMaxY] = useState<number>(0);
   const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        
         await new Promise((resolve) => setTimeout(resolve, 2000)); 
-
+  
         const result = await statistikTrenKehadiran(); 
-
+  
         if (result.data && result.data.data.length > 0) {
-          // Periksa result.data.data
           const sortedData = result.data.data.sort((a, b) => a.bulan - b.bulan);
-
+          const dataJumlah = sortedData.map((item) => item.jumlah_hadir);
+          const maxVal = Math.max(...dataJumlah);
+  
           setChartSeries([
             {
               name: "Jumlah Anak Hadir",
-              data: sortedData.map((item) => item.jumlah_hadir),
+              data: dataJumlah,
             },
           ]);
           setCategories(sortedData.map((item) => bulanMap[item.bulan]));
+          setMaxY(maxVal); // simpan maxY di state
           setError(null);
         } else {
           setError("Data tidak ditemukan atau format tidak sesuai.");
@@ -57,10 +59,9 @@ const ChartJumlahBalitaHadir: React.FC = () => {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, []);
-
 
 
   const chartOptions: ApexOptions = {
@@ -73,12 +74,13 @@ const ChartJumlahBalitaHadir: React.FC = () => {
     },
     yaxis: {
       labels: {
-        formatter: (value) => `${value}`,
+        formatter: (value) => `${Math.round(value)}`,
       },
       min: 0,
-      max: 240,
+      max: maxY === 0 ? undefined : Math.ceil(maxY * 1.1),
       tickAmount: 6,
     },
+    
     stroke: {
       curve: "smooth",
     },

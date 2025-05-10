@@ -2,15 +2,16 @@
 
 
 import DashboardAdmin from "./component/DashboardAdmin";
-import DashboardKetuaKader from "./component/DashboardKetuaKader";
+import DashboardDinasKesehatan from "./component/DashboardDinasKesehatan";
+
 
 const Dashboard = () => {
   const namaRole = sessionStorage.getItem("user_role");
 
   if (namaRole === "Admin") {
     return <DashboardAdmin />;
-  } else if (namaRole === "Ketua Kader") {
-     return <DashboardKetuaKader />;
+  } else if (namaRole === "Dinas Kesehatan") {
+     return <DashboardDinasKesehatan />;
   } else {
     return <p>Anda tidak memiliki akses ke dashboard ini.</p>;
   }

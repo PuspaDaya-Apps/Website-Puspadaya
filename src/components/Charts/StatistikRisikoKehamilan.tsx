@@ -31,7 +31,7 @@ const StatistikRisikoKehamilan: React.FC = () => {
           setError(null);
         } else {
           setData(null);
-          setError("Data tidak ditemukan atau format tidak sesuai.");
+          setError("Data tidak ditemukan!");
         }
       } catch (err) {
         setError("Terjadi kesalahan saat mengambil data.");
@@ -94,20 +94,24 @@ const StatistikRisikoKehamilan: React.FC = () => {
       </div>
 
       <p className="text-black">
-      Pemantauan Kesehatan Ibu Hamil untuk Mencegah Risiko
+        Pemantauan Kesehatan Ibu Hamil untuk Mencegah Risiko
       </p>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p className="text-red-500">{error}</p>
-      ) : chartSeries.every(value => value === 0) ? (
-        <div className="flex items-center justify-center min-h-[350px] w-full">
-          <p className="text-green-600 text-lg font-semibold">Tidak ada data untuk ditampilkan.</p>
-        </div>
-      ) : (
-        <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={400} />
-      )}
+      <div className="flex items-center justify-center min-h-[380px] w-full" >
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : chartSeries.every(value => value === 0) ? (
+          <div className="flex items-center justify-center min-h-[350px] w-full">
+            <p className="text-green-600 text-lg font-semibold">Tidak ada data untuk ditampilkan.</p>
+          </div>
+        ) : (
+          <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={400} />
+        )}
+
+      </div>
+
     </div>
   );
 };
