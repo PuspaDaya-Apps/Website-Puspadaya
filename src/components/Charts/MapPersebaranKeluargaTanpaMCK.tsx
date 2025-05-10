@@ -5,121 +5,121 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Dropdown } from "primereact/dropdown";
 
+// Tipe data untuk Wilayah
 interface Wilayah {
   name: string;
   code: string;
 }
 
-const DEFAULT_VIEWS = {
-  Bwi: [-8.2192, 114.3691] as L.LatLngTuple,
-  MT: [-3.3746, 128.1228] as L.LatLngTuple,
-};
+const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691];
+const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228];
 
 const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
   const wilayah: Wilayah[] = [
-    { name: "Banyuwangi", code: "Bwi" },
+    { name: "Banyuwangi", code: "Banyuwangi" },
     { name: "Maluku Tengah", code: "MT" },
   ];
 
-  // Get data from sessionStorage
-  const provinsi = sessionStorage.getItem("nama_provinsi") ?? "";
-  const role = sessionStorage.getItem("role") ?? "";
-
-  // Determine default wilayah
-  const getDefaultWilayah = (): Wilayah | null => {
-    if (provinsi === "Jawa Timur") return wilayah.find(w => w.code === "Bwi") ?? null;
-    if (provinsi) return wilayah.find(w => w.code === "MT") ?? null;
-    return wilayah.find(w => w.code === "Bwi") ?? null; // Fallback to Banyuwangi
-  };
+  // Ambil data provinsi dan role dari sessionStorage
+  const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
+  const role: string = sessionStorage.getItem("user_role") ?? "";
 
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
   const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null);
 
-  // Initialize map and default wilayah
   useEffect(() => {
     const mapInstance = L.map("map-persebaran-keluarga-tanpa-mck").setView(
-      DEFAULT_VIEWS.Bwi, // Default to Banyuwangi view
+      banyuwangiView,
       10
     );
-    
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
     }).addTo(mapInstance);
 
     setMap(mapInstance);
-    setSelectedWilayah(getDefaultWilayah());
 
     return () => {
       mapInstance.remove();
     };
   }, []);
 
+  // Otomatis pilih wilayah berdasarkan provinsi
+  useEffect(() => {
+    // Default ke Banyuwangi jika provinsi tidak terdeteksi atau provinsi Jawa Timur
+    if (!provinsi || provinsi === "Jawa Timur") {
+      setSelectedWilayah(wilayah.find((wil) => wil.code === "Banyuwangi") || null);
+    } else {
+      setSelectedWilayah(wilayah.find((wil) => wil.code === "MT") || null);
+    }
+  }, [provinsi]);
+
   const popupContent = (feature: any) => {
-    const count = feature.properties.keluargaTanpaMCK || 0;
     return `
-      <div class="p-2">
-        <p class="font-semibold">${feature.properties.name}</p>
-        <p>Keluarga tanpa MCK: <span class="font-bold">${count}</span></p>
+      <div>
+        <p><strong>Wilayah:</strong> ${feature.properties.name}</p>
+        <p><strong>Keluarga Tanpa MCK:</strong> ${feature.properties.keluargaTanpaMCK || 0}</p>
       </div>
     `;
   };
 
-  // Handle wilayah change and GeoJSON loading
   useEffect(() => {
-    if (!map || !selectedWilayah) return;
+    if (map && selectedWilayah) {
+      geoJSONLayer?.remove();
 
-    geoJSONLayer?.remove();
+      const view =
+        selectedWilayah.code === "Banyuwangi" ? banyuwangiView : malukuTengahView;
+      map.setView(view, 10);
 
-    const view = DEFAULT_VIEWS[selectedWilayah.code as keyof typeof DEFAULT_VIEWS];
-    map.setView(view, 10);
+      const fetchGeoJSON = async () => {
+        const endpoint =
+          selectedWilayah.code === "Banyuwangi"
+            ? "/api/geojson/banyuwangi"
+            : "/api/geojson/maluku-tengah";
+        try {
+          const response = await fetch(endpoint);
+          const geoJSONData: any = await response.json();
 
-    const fetchGeoJSON = async () => {
-      const endpoint = `/api/geojson/${selectedWilayah.code === "Bwi" ? "banyuwangi" : "maluku-tengah"}`;
+          const newGeoJSONLayer = L.geoJSON(geoJSONData, {
+            style: () => ({
+              color: selectedWilayah.code === "Banyuwangi" ? "blue" : "green",
+              weight: 2,
+              fillColor:
+                selectedWilayah.code === "Banyuwangi" ? "lightblue" : "lightgreen",
+              fillOpacity: 0.5,
+            }),
+            onEachFeature: (feature, layer) => {
+              if (feature.properties && feature.properties.name) {
+                layer.bindPopup(popupContent(feature));
+                
+                layer.on("mouseover", () => {
+                  const info = `Keluarga tidak memiliki MCK: ${feature.properties.keluargaTanpaMCK || 0}`;
+                  layer.bindTooltip(info).openTooltip();
+                });
 
-      try {
-        const response = await fetch(endpoint);
-        const geoJSONData = await response.json();
+                layer.on("mouseout", () => {
+                  layer.closeTooltip();
+                });
+              }
+            },
+          }).addTo(map);
 
-        const newGeoJSONLayer = L.geoJSON(geoJSONData, {
-          style: {
-            color: selectedWilayah.code === "Bwi" ? "#3b82f6" : "#10b981",
-            weight: 2,
-            fillColor: selectedWilayah.code === "Bwi" ? "#93c5fd" : "#a7f3d0",
-            fillOpacity: 0.5,
-          },
-          onEachFeature: (feature, layer) => {
-            if (feature.properties?.name) {
-              layer.bindPopup(popupContent(feature));
-              
-              layer.on({
-                mouseover: () => {
-                  layer.bindTooltip(`Keluarga tanpa MCK: ${feature.properties.keluargaTanpaMCK || 0}`)
-                    .openTooltip();
-                },
-                mouseout: () => layer.closeTooltip()
-              });
-            }
-          },
-        }).addTo(map);
+          setGeoJSONLayer(newGeoJSONLayer);
+          const bounds = newGeoJSONLayer.getBounds();
+          map.fitBounds(bounds);
+        } catch (error) {
+          console.error("Error loading GeoJSON:", error);
+        }
+      };
 
-        setGeoJSONLayer(newGeoJSONLayer);
-        map.fitBounds(newGeoJSONLayer.getBounds());
-      } catch (error) {
-        console.error("Error loading GeoJSON:", error);
-      }
-    };
-
-    fetchGeoJSON();
+      fetchGeoJSON();
+    }
   }, [map, selectedWilayah]);
 
-  // Determine if dropdown should be disabled
-  const isDropdownDisabled = provinsi === "Jawa Timur" && role !== "Admin";
-
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
+    <div className="">
+      <div className="mb-10 flex justify-between">
+        <div className="">
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
             Peta Persebaran Keluarga Tanpa Fasilitas MCK
           </h1>
@@ -127,24 +127,33 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
             Menampilkan peta persebaran keluarga yang tidak memiliki fasilitas MCK
           </p>
         </div>
-        
-        <div className="w-full md:w-fit">
+        <div className="w-fit">
           <Dropdown
             value={selectedWilayah}
             onChange={(e) => setSelectedWilayah(e.value)}
             options={wilayah}
             optionLabel="name"
             placeholder="Pilih Wilayah"
-            className="w-full md:w-56"
-            disabled={isDropdownDisabled}
+            className="md:w-14rem h-11 w-full"
+            disabled={role !== "Admin"} 
           />
         </div>
       </div>
-      
       <div
         id="map-persebaran-keluarga-tanpa-mck"
-        className="h-[calc(100vh-180px)] w-full rounded-lg border shadow-sm"
+        style={{ height: "100vh", width: "100%", zIndex: 1 }}
       />
+
+      <div className="flex gap-4">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+          <p className="text-dark">Wilayah Banyuwangi</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-green-500"></div>
+          <p className="text-dark">Wilayah Maluku Tengah</p>
+        </div>
+      </div>
     </div>
   );
 };
