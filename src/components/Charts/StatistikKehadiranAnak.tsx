@@ -20,7 +20,7 @@ const bulanMap: { [key: number]: string } = {
   12: "Desember",
 };
 
-const ChartJumlahBalitaHadir: React.FC = () => {
+const StatistikKehadiranAnak: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [chartSeries, setChartSeries] = useState<{ name: string; data: number[] }[]>([
@@ -115,4 +115,4 @@ const ChartJumlahBalitaHadir: React.FC = () => {
   );
 };
 
-export default ChartJumlahBalitaHadir;
+export default StatistikKehadiranAnak;

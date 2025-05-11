@@ -133,6 +133,11 @@ export type StatistikClass = {
         status: any;
         rate: any;
     };
+    jumlah_ibu_hamil_hpl: {
+        jumlah: number;
+        status: any;
+        rate: any;
+    };
     jumlah_anak_hadir: {
         jumlah: number;
         status: any;
@@ -153,53 +158,53 @@ export type StatistikClass = {
 export type TrenGiziResponse = {
     message: string;
     data: TrenGizi[];
-  };
-  
-  export type TrenGizi = {
+};
+
+export type TrenGizi = {
     tahun: number;
     jumlah_gizi_baik: number;
     jumlah_gizi_buruk: number;
-  };
+};
 
 
-  export type KehadiranStatistikResponse = {
+export type KehadiranStatistikResponse = {
     message: string;
     data: KehadiranStatistik[];
-  };
-  
-  export type KehadiranStatistik = {
+};
+
+export type KehadiranStatistik = {
     bulan: number;
     jumlah_hadir: number;
-  };
-  
-  
+};
+
+
 
 
 export type Provinsi = {
     id: string;
     nama_provinsi: string;
-  };
-  
-  export type KabupatenClass = {
+};
+
+export type KabupatenClass = {
     id: string;
     nama_kabupaten_kota: string;
     provinsi: Provinsi;
-  };
-  
-  export type KabupatenResponse = {
+};
+
+export type KabupatenResponse = {
     data: KabupatenClass[];
     meta: {
-      itemsPerPage: number;
-      totalItems: number;
-      currentPage: number;
-      totalPages: number;
+        itemsPerPage: number;
+        totalItems: number;
+        currentPage: number;
+        totalPages: number;
     };
     links: {
-      first: string;
-      last: string;
-      current: string;
-      next?: string;
-      previous?: string;
+        first: string;
+        last: string;
+        current: string;
+        next?: string;
+        previous?: string;
     };
     message: string;
 };
@@ -216,11 +221,11 @@ export type DesakelurahanClass = {
     id: string;
     nama_desa_kelurahan: string;
     kecamatan: {
-      id: string;
-      nama_kecamatan: string;
+        id: string;
+        nama_kecamatan: string;
     };
-  };
-  
+};
+
 
 export type GiziDusunClass = {
     id: string;
@@ -234,8 +239,8 @@ export interface PosyanduData {
     nama_dusun: string;
     posyandu_aktif_count: number;
     posyandu_tidak_aktif_count: number;
-  }
-  
+}
+
 export interface PersebaranPosyanduResponse {
     message: string;
     data: PosyanduData[];
@@ -256,5 +261,4 @@ export interface ApiResponsePersebaranKaderDusun {
     data: DataPersebaranKaderDusun[]; // Pastikan API tidak mengembalikan `null`, sebaiknya `[]`
 }
 
-  
-  
+

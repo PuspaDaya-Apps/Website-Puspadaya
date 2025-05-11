@@ -6,7 +6,7 @@ import GrafikTrendStuntingBanyuwangi from "@/components/Charts/TingkatGiziAnakWi
 import CountingCard from "@/components/Card/CountingCard";
 import { statistikDashboard } from "@/app/api/statistik/statistik";
 import { svgIbuhamil, svgIconAnakHadir, SvgIconAnakHadir, svgIconAnaklulus, svgIconAsieklusif, SvgIconBayi, SvgIconLoveBlue, SvgIconLoveOrange, svgIconMpasi, SvgIconPregnantMother, svgIconTingkatpartisispasi, SvgIconVillage, svgIxonJangankauan, svgStunting, svgUnderweight, svgWasting } from "@/components/ui/Svg";
-import ChartJumlahBalitaHadir from "@/components/Charts/ChartJumlahBalitaHadir"; //
+import ChartJumlahBalitaHadir from "@/components/Charts/StatistikKehadiranAnak"; //
 import ChartDonatBeratBadan from "@/components/Charts/ChartDonatBeratBadan";
 import ChartPerhitunganSkdn from "@/components/Charts/ChartPerhitunganSkdn";
 import CountingCardDesa from "@/components/Card/CountingCardDesa";
