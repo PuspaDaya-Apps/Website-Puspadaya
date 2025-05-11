@@ -3,6 +3,7 @@ import { usePathname } from "next/navigation";
 
 const SidebarDropdown = ({ item }: any) => {
   const pathname = usePathname();
+  
 
   return (
     <div className="mt-2 flex flex-col">

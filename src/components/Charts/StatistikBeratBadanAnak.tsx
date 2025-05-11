@@ -4,33 +4,29 @@ import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { statistikDashboard } from "@/app/api/statistik/statistik";
 
-const StatistikNikOrangTua: React.FC = () => {
+const StatistikBeratBadanAnak: React.FC = () => {
   const [data, setData] = useState<{
-    jumlah_ayah_tidak_punya_nik: number;
-    jumlah_ibu_tidak_punya_nik: number;
-    jumlah_anak_tidak_punya_nik: number;
+    kenaikan_bb: number;
+    bb_tetap: number;
+    penurunan_bb: number;
   } | null>(null);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay 2 detik
+        // Tambahkan delay 2 detik sebelum memanggil API
+        await new Promise((resolve) => setTimeout(resolve, 3000));
 
         const result = await statistikDashboard();
 
         if (result.successCode === 200 && result.data) {
-          const jumlahAyah =
-            result.data.jumlah_ayah_tidak_punya_nik?.jumlah ?? 0;
-          const jumlahIbu = result.data.jumlah_ibu_tidak_punya_nik?.jumlah ?? 0;
-          const jumlahAnak =
-            result.data.jumlah_anak_tidak_punya_nik?.jumlah ?? 0;
-
           setData({
-            jumlah_ayah_tidak_punya_nik: jumlahAyah,
-            jumlah_ibu_tidak_punya_nik: jumlahIbu,
-            jumlah_anak_tidak_punya_nik: jumlahAnak,
+            kenaikan_bb: result.data.jumlah_anak_kenaikan_bb?.jumlah || 0,
+            bb_tetap: result.data.jumlah_anak_bb_tetap?.jumlah || 0,
+            penurunan_bb: result.data.jumlah_anak_penurunan_bb?.jumlah || 0,
           });
           setError(null);
         } else {
@@ -47,34 +43,16 @@ const StatistikNikOrangTua: React.FC = () => {
     fetchData();
   }, []);
 
-  let chartSeries: number[] = [];
-  let total = 0;
-
-  if (data) {
-    total =
-      data.jumlah_ayah_tidak_punya_nik +
-      data.jumlah_ibu_tidak_punya_nik +
-      data.jumlah_anak_tidak_punya_nik;
-    if (total > 0) {
-      chartSeries = [
-        data.jumlah_ayah_tidak_punya_nik,
-        data.jumlah_ibu_tidak_punya_nik,
-        data.jumlah_anak_tidak_punya_nik,
-      ];
-    }
-  }
+  const chartSeries = data
+    ? [data.kenaikan_bb, data.bb_tetap, data.penurunan_bb]
+    : [];
 
   const chartOptions: ApexOptions = {
     chart: {
       type: "donut",
-      height: 400,
     },
-    labels: [
-      "Ayah Tidak Punya NIK",
-      "Ibu Tidak Punya NIK",
-      "Anak Tidak Punya NIK",
-    ],
-    colors: ["#F97316", "#10B981", "#3B82F6"],
+    labels: ["Kenaikan BB", "BB Tetap", "Penurunan BB"],
+    colors: ["#16A34A", "#EAB308", "#DC2626"],
     legend: {
       position: "bottom",
       horizontalAlign: "center",
@@ -106,6 +84,25 @@ const StatistikNikOrangTua: React.FC = () => {
         highlightDataSeries: true,
       },
     },
+    plotOptions: {
+      pie: {
+        donut: {
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: "Total",
+              fontSize: "16px",
+              color: "#374151",
+              formatter: () => {
+                const total = chartSeries.reduce((acc, val) => acc + val, 0);
+                return total.toString();
+              },
+            },
+          },
+        },
+      },
+    },
 
     dataLabels: {
       enabled: true,
@@ -122,29 +119,6 @@ const StatistikNikOrangTua: React.FC = () => {
         enabled: false, // Disable shadow agar teks lebih jelas
       },
     },
-    plotOptions: {
-      pie: {
-        donut: {
-          labels: {
-            show: true,
-            total: {
-              show: true,
-              label: "Total Kasus",
-              fontSize: "16px",
-              fontWeight: "bold",
-              color: "#000000",
-              formatter: () => total.toString(),
-            },
-            value: {
-              fontSize: "20px",
-              color: "#000000",
-              fontWeight: "bold",
-            },
-          },
-        },
-      },
-    },
-
     tooltip: {
       enabled: true,
       theme: "dark",
@@ -176,24 +150,22 @@ const StatistikNikOrangTua: React.FC = () => {
     <div className="rounded-lg bg-white p-7 shadow-lg">
       <div>
         <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
-          Statistik NIK Orang Tua dan Anak
+          Statistik Berat Badan Anak
         </h4>
         <p className="text-black">
-          Monitoring NIK Orang Tua dan Anak yang Tidak Terdaftar
+          Pemantauan Pertumbuhan Anak Berdasarkan Data Berat Badan
         </p>
       </div>
 
       <div className="flex min-h-[380px] w-full items-center justify-center">
         {loading ? (
-          <p className="text-gray-600">Loading...</p>
+          <p>Loading...</p>
         ) : error ? (
           <p className="text-red-500">{error}</p>
-        ) : total === 0 ? (
-          <div className="flex min-h-[350px] w-full items-center justify-center">
-            <p className="text-lg font-semibold text-green-600">
-              Tidak ada data terkait status NIK
-            </p>
-          </div>
+        ) : chartSeries.every((value) => value === 0) ? (
+          <p className="text-lg font-semibold text-green-600">
+            Tidak ada data untuk ditampilkan.
+          </p>
         ) : (
           <div className="w-full">
             <ReactApexChart
@@ -209,4 +181,4 @@ const StatistikNikOrangTua: React.FC = () => {
   );
 };
 
-export default StatistikNikOrangTua;
+export default StatistikBeratBadanAnak;

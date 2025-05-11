@@ -52,32 +52,103 @@ const ChartPerhitunganSkdn: React.FC = () => {
     chart: { type: "donut" },
     labels: ["Balita Naik BB D'", "Balita Tidak Datang", "Balita Baru", "Balita Tidak Naik BB"],
     colors: ["#16A34A", "#EAB308", "#DC2626", "#2563EB"],
-    legend: { position: "bottom", labels: { colors: "#374151" } },
-    plotOptions: {
-      pie: {
-        donut: {
-          labels: {
+     legend: {
+  position: "bottom",
+  horizontalAlign: "center",
+  floating: false,
+  fontSize: "12px",
+  fontWeight: 500,
+  labels: {
+    colors: "#374151",
+    useSeriesColors: false,
+  },
+  markers: {
+    width: 12,
+    height: 12,
+    radius: 6,
+    offsetX: -5,
+    offsetY: 0,
+  },
+  itemMargin: {
+    horizontal: 15,
+    vertical: 5,
+  },
+    formatter: function(seriesName) {
+      return seriesName; 
+    },
+  onItemClick: {
+    toggleDataSeries: true,
+  },
+  onItemHover: {
+    highlightDataSeries: true,
+  },
+},
+  plotOptions: {
+    pie: {
+      donut: {
+        size: '65%',
+           labels: {
+          show: true,
+          total: {
             show: true,
-            total: {
-              show: true,
-              label: "Total",
-              fontSize: "16px",
-              color: "#374151",
-              formatter: () => chartSeries.reduce((acc, val) => acc + val, 0).toString(),
-            },
+            showAlways: true,
+            label: 'Total Kasus',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            color: '#374151',
+            formatter: () => chartSeries.reduce((a, b) => a + b, 0).toString()
           },
-        },
-      },
-    },
+          value: {
+            fontSize: '20px',
+            color: '#374151',
+            fontWeight: 'bold'
+          }
+        }
+      }
+    }
+  },
     dataLabels: {
-      enabled: true,
-      formatter: (_, opts) => chartSeries[opts.seriesIndex].toString(),
-      style: { fontSize: "14px", colors: ["#fff"] },
+    enabled: true,
+    formatter: (val: number, opts) => {
+      const value = chartSeries[opts.seriesIndex];
+      return value > 0 ? value.toString() : ''; 
     },
-    tooltip: {
-      theme: "dark",
-      y: { formatter: (_, opts) => chartSeries[opts.seriesIndex].toString() },
+    style: {
+      fontSize: "14px",
+      fontWeight: "bold",
+       colors: ["#000000"]
     },
+    dropShadow: {
+     enabled: true,
+      top: 1,
+      left: 1,
+      blur: 1,
+      opacity: 0.5
+    }
+  },
+   tooltip: {
+    enabled: true,
+    theme: "dark",
+    y: {
+      formatter: (val, opts) => {
+        const value = chartSeries[opts.seriesIndex];
+        return `${value} kasus (${val.toFixed(1)}%)`;
+      },
+      title: {
+        formatter: (seriesName) => seriesName
+      }
+    }
+  },
+ responsive: [{
+  breakpoint: 480,
+  options: {
+    legend: {
+      position: "bottom",
+      horizontalAlign: "center"
+    }
+  }
+}]
+
   };
 
   return (
@@ -113,7 +184,14 @@ const ChartPerhitunganSkdn: React.FC = () => {
             <p className="text-green-600 text-lg font-semibold">Tidak ada data untuk ditampilkan.</p>
           </div>
         ) : (
-          <ReactApexChart options={chartOptions} series={chartSeries} type="donut" height={380} />
+             <div className="w-full">
+          <ReactApexChart 
+            options={chartOptions} 
+            series={chartSeries} 
+            type="donut" 
+            height={400}
+          />
+        </div>
         )}
       </div>
 

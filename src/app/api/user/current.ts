@@ -15,7 +15,7 @@ interface FetchResult {
   
     try {
       const accessToken = sessionStorage.getItem("access_token");
-      console.log("ini adlaah datanya")
+      // console.log("ini adlaah datanya")
   
       if (!accessToken) {
         return { successCode: 401, data: null };
@@ -28,8 +28,8 @@ interface FetchResult {
       const response = await axios.get(APIEndpoints.CURRENT, config);
       const { data } = response.data; 
       
-      console.log("ini datanya uy", data)
-      console.log(data)
+      // console.log("ini datanya uy", data)
+      // console.log(data)
 
       sessionStorage.removeItem(Messages.ERROR);
   

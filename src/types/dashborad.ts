@@ -153,6 +153,27 @@ export type StatistikClass = {
     };
 };
 
+//grafik maps anak stunting
+export type DusunData = {
+  nama_dusun: string;
+  count_stunting: number;
+  count_wasting: number;
+  count_gizi_baik: number;
+};
+
+export type DesaData = {
+  nama_desa: string;
+  count_stunting: number;
+  count_wasting: number;
+  count_gizi_baik: number;
+  dusun: DusunData[];
+};
+
+export type MapPersebaranResponse = {
+  message: string;
+  data: DesaData[];
+};
+
 
 
 export type TrenGiziResponse = {

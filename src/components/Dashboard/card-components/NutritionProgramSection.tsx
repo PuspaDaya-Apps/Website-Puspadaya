@@ -1,7 +1,7 @@
 import React from 'react';
 import { DashboardSectionProps } from './types';
 import CountingCard from "@/components/Card/CountingCard";
-import ChartDonatBeratBadan from "@/components/Charts/ChartDonatBeratBadan";
+import StatistikBeratBadanAnak from "@/components/Charts/StatistikBeratBadanAnak";
 import { svgIconAsieklusif, svgIconMpasi } from "@/components/ui/Svg";
 
 const NutritionProgramSection: React.FC<DashboardSectionProps> = ({ isLoading, datadash, monthYear }) => {
@@ -11,7 +11,7 @@ const NutritionProgramSection: React.FC<DashboardSectionProps> = ({ isLoading, d
         {isLoading.grafikTrendStuntingBanyuwangi ? (
           <h4>Loading...</h4>
         ) : (
-          <ChartDonatBeratBadan />
+          <StatistikBeratBadanAnak />
         )}
       </div>
 

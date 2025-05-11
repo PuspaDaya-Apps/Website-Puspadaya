@@ -25,5 +25,9 @@ export const APIEndpoints = {
     GRAFIKGIZI : '/api/v1/dashboard/tingkat-gizi',
     TRENDPOSYANDU : '/api/v1/dashboard/persebaran-posyandu',
     TRENDPERSEBARANKADER : '/api/v1/dashboard/persebaran-kader',
+
+    //Grafik Maps
+    MAPANAKSTUNTING : '/api/v1/dashboard/map-anak-stunting',
+
     
 };

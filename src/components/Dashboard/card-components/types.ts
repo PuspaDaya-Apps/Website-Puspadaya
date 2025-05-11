@@ -47,14 +47,13 @@ export interface DashboardData {
 export interface DashboardLoadingStates {
   grafikTrendStuntingBalita?: boolean;
   grafikTrendStuntingBanyuwangi?: boolean;
-  
-  countingCard?: boolean;
-  
 
+  countingCard?: boolean;
   mapPersebaranBalitaStunting?: boolean;
   mapPersebaranBalitaBerdasarkanWilayah?: boolean;
+  mapPersebaranKader?: boolean;
+  mapPersebaranKeluargaTanpaMCK?: boolean;
 }
-
 
 export interface DashboardSectionProps {
   isLoading: {
@@ -69,3 +68,4 @@ export interface DashboardSectionProps {
   monthYear: string;
 }
 
+export type MapType = "stunting" | "wilayah" | "kader" | "mck";

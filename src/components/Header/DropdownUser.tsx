@@ -16,24 +16,23 @@ const DropdownUser = () => {
   const handleLogout = useCallback(() => {
     sessionStorage.clear();
     localStorage.clear();
-    window.location.href = '/auth/signin';
+    window.location.href = "/auth/signin";
   }, []);
 
   const roleImageMap: { [key: string]: string } = {
-    "Admin": "/images/user/admin.png",
+    Admin: "/images/user/admin.png",
     "Dinas Kesehatan": "/images/user/dinkes.png",
     "Dinas Sosial": "/images/user/dinsos.svg",
     "Kepala Camat": "/images/user/kepala_desa_kec.png",
     "Kepala Desa": "/images/user/kepala_desa_kecs.png",
-    "TPG": "/images/user/tpg.png",
+    TPG: "/images/user/tpg.png",
     "Ketua Kader": "/images/user/ketua_kader.png",
-    "Kader": "/images/user/anggota.png",
+    Kader: "/images/user/anggota.png",
   };
 
   const role = "Admin";
 
-  const imageSrc = roleImageMap[role] || "/images/user/user-03.png"; 
-
+  const imageSrc = roleImageMap[role] || "/images/user/user-03.png";
 
   // Efek untuk menangani auto logout setelah periode tidak aktif
   useEffect(() => {
@@ -46,7 +45,7 @@ const DropdownUser = () => {
 
     const activityEvents = ["mousemove", "keydown", "scroll", "click"];
     activityEvents.forEach((event) =>
-      document.addEventListener(event, resetTimer)
+      document.addEventListener(event, resetTimer),
     );
 
     resetTimer();
@@ -54,7 +53,7 @@ const DropdownUser = () => {
     return () => {
       clearTimeout(logoutTimer);
       activityEvents.forEach((event) =>
-        document.removeEventListener(event, resetTimer)
+        document.removeEventListener(event, resetTimer),
       );
     };
   }, [handleLogout]);
@@ -67,15 +66,15 @@ const DropdownUser = () => {
         href="#"
       >
         <span className="h-10 w-10 rounded-full">
-  <Image
-    width={190}
-    height={190}
-    src={imageSrc}
-    alt="User"
-    style={{ width: "auto", height: "auto" }}
-    className="overflow-hidden rounded-full"
-  />
-</span>
+          <Image
+            width={190}
+            height={190}
+            src={imageSrc}
+            alt="User"
+            style={{ width: "auto", height: "auto" }}
+            className="overflow-hidden rounded-full"
+          />
+        </span>
 
         <span className="flex items-center gap-1 font-medium text-dark dark:text-dark-6">
           <div>
@@ -110,12 +109,9 @@ const DropdownUser = () => {
               <Image
                 width={112}
                 height={112}
-                src="/images/user/user-03.png"
-                style={{
-                  width: "auto",
-                  height: "auto",
-                }}
+                src={imageSrc}
                 alt="User"
+                style={{ width: "auto", height: "auto" }}
                 className="overflow-hidden rounded-full"
               />
 

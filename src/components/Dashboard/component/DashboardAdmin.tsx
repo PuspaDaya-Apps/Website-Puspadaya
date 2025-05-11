@@ -1,41 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import PercentageCard from "@/components/Card/PercentageCard";
-import CountingCard from "@/components/Card/CountingCard";
 import { statistikDashboard } from "@/app/api/statistik/statistik";
-import {
-  svgIbuhamil,
-  svgIconAnakHadir,
-  SvgIconAnakHadir,
-  svgIconAnaklulus,
-  svgIconAsieklusif,
-  SvgIconBayi,
-  SvgIconLoveBlue,
-  SvgIconLoveOrange,
-  svgIconMpasi,
-  SvgIconPregnantMother,
-  svgIconTingkatpartisispasi,
-  SvgIconVillage,
-  svgIxonJangankauan,
-  svgStunting,
-  svgUnderweight,
-  svgWasting,
-} from "@/components/ui/Svg";
-import ChartJumlahBalitaHadir from "@/components/Charts/StatistikKehadiranAnak"; //
-import ChartDonatBeratBadan from "@/components/Charts/ChartDonatBeratBadan";
-import ChartPerhitunganSkdn from "@/components/Charts/ChartPerhitunganSkdn";
-import CountingCardDesa from "@/components/Card/CountingCardDesa";
 import MapPersebaranBalitaStunting from "@/components/Charts/PetaPersebaranAnakStunting";
-import GrafikPersebaranPosyandu from "@/components/Charts/GrafikPersebaranPosyandu";
-import GrafikPersebaranKaderDanTingkatAktivitas from "@/components/Charts/GrafikPersebaranKaderDanTingkatAktivitas";
 import MapPersebaranBalitaBerdasarkanWIlayah from "@/components/Charts/MapPersebaranBalitaBerdasarkanWIlayah";
 import MapPersebaranKader from "@/components/Charts/MapPersebaranKader";
 import MapPersebaranKeluargaTanpaMCK from "@/components/Charts/MapPersebaranKeluargaTanpaMCK";
-import StatistikRisikoKehamilan from "@/components/Charts/StatistikRisikoKehamilan";
-import StatistikNikOrangTua from "@/components/Charts/StatistikNikOrangTua;";
-import TingkatGiziAnakWilayahDesa from "@/components/Charts/TingkatGiziAnakWilayahDesa TingkatGiziAnakWilayahDesa";
-import GrafikTrendGiziBalita from "@/components/Charts/GrafikTrendGiziBalita GrafikTrendGiziBalita";
 import TrendSection from "../card-components/TrendSection";
 import NutritionStatusSection from "../card-components/NutritionStatusSection";
 import AttendanceSection from "../card-components/AttendanceSection";
@@ -43,6 +13,8 @@ import NutritionProgramSection from "../card-components/NutritionProgramSection"
 import SKDNSection from "../card-components/SKDNSection";
 import NIKStatisticsSection from "../card-components/NIKStatisticsSection";
 import PregnancyRiskSection from "../card-components/PregnancyRiskSection";
+import PosyanduDistributionSection from "../card-components/PosyanduDistributionSection";
+import KaderDistributionSection from "../card-components/KaderDistributionSection";
 
 const DashboardAdmin = () => {
   const [datadash, setData] = useState<any | null>(null);
@@ -91,72 +63,46 @@ const DashboardAdmin = () => {
     fetchData();
   }, []);
 
-  const fetchMoreData = () => {
-    if (items.length >= 10000) {
-      setHasMore(false);
-      return;
-    }
+const fetchMoreData = () => {
+  if (items.length >= 1000) { // Mengurangi batas maksimal dari 10000 ke 1000
+    setHasMore(false);
+    return;
+  }
 
-    // Simulasikan loading dengan delay
+  // Mengurangi waktu loading dari 2 detik menjadi 500ms
+  setTimeout(() => {
+    setItems(items.concat(Array.from({ length: 20 })));
+  }, 500);
+};
+
+useEffect(() => {
+  // Mengatur waktu loading yang lebih singkat dan bervariasi
+  const loadingTimeouts = [
+    { key: 'countingCard', delay: 800 },
+    { key: 'countingCardRow', delay: 1000 },
+    { key: 'grafikTrendStuntingBalita', delay: 1200 },
+    { key: 'grafikTrendStuntingBanyuwangi', delay: 1500 },
+    { key: 'mapPersebaranBalitaStunting', delay: 1800 },
+    { key: 'mapPersebaranBalitaBerdasarkanWilayah', delay: 2000 },
+    { key: 'grafikPersebaranPosyandu', delay: 2200 },
+    { key: 'grafikPersebaranKaderDanTingkatAktivitas', delay: 2500 },
+    { key: 'mapPersebaranKader', delay: 2800 },
+    { key: 'mapPersebaranKeluargaTanpaMCK', delay: 3000 }
+  ];
+
+  loadingTimeouts.forEach(({ key, delay }) => {
     setTimeout(() => {
-      setItems(items.concat(Array.from({ length: 20 })));
-    }, 2000); // Delay 2 detik untuk setiap batch data
+      setIsLoading(prev => ({ ...prev, [key]: false }));
+    }, delay);
+  });
+
+  // Membersihkan timeout saat komponen unmount
+  return () => {
+    loadingTimeouts.forEach(({ key, delay }) => {
+      clearTimeout(setTimeout(() => {}, delay));
+    });
   };
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsLoading((prev) => ({ ...prev, countingCard: false }));
-    }, 5000);
-
-    setTimeout(() => {
-      setIsLoading((prev) => ({ ...prev, countingCardRow: false }));
-    }, 5000);
-
-    // Simulasikan loading untuk setiap komponen dengan delay yang berbeda
-    setTimeout(() => {
-      setIsLoading((prev) => ({ ...prev, grafikTrendStuntingBalita: false }));
-    }, 8000);
-
-    setTimeout(() => {
-      setIsLoading((prev) => ({
-        ...prev,
-        grafikTrendStuntingBanyuwangi: false,
-      }));
-    }, 17000);
-
-    setTimeout(() => {
-      setIsLoading((prev) => ({ ...prev, mapPersebaranBalitaStunting: false }));
-    }, 19000);
-
-    setTimeout(() => {
-      setIsLoading((prev) => ({
-        ...prev,
-        mapPersebaranBalitaBerdasarkanWilayah: false,
-      }));
-    }, 23000);
-
-    setTimeout(() => {
-      setIsLoading((prev) => ({ ...prev, grafikPersebaranPosyandu: false }));
-    }, 26000);
-
-    setTimeout(() => {
-      setIsLoading((prev) => ({
-        ...prev,
-        grafikPersebaranKaderDanTingkatAktivitas: false,
-      }));
-    }, 26000);
-
-    setTimeout(() => {
-      setIsLoading((prev) => ({ ...prev, mapPersebaranKader: false }));
-    }, 35000);
-
-    setTimeout(() => {
-      setIsLoading((prev) => ({
-        ...prev,
-        mapPersebaranKeluargaTanpaMCK: false,
-      }));
-    }, 38000);
-  }, []);
+}, []);
 
   return (
     <div>
@@ -174,52 +120,48 @@ const DashboardAdmin = () => {
         loader={<h4></h4>}
       >
         <div className="grid grid-cols-12 gap-10">
-
-          
-            <TrendSection
+          <TrendSection
             isLoading={isLoading}
             datadash={datadash}
             monthYear={monthYear}
           />
 
           <NutritionStatusSection
-          isLoading={isLoading}
-          datadash={datadash}
-          monthYear={monthYear}
-        />
-       
-       
-        <AttendanceSection 
-          isLoading={isLoading}
-          datadash={datadash}
-          monthYear={monthYear}
-        />
-        
-        <NutritionProgramSection 
-          isLoading={isLoading}
-          datadash={datadash}
-          monthYear={monthYear}
-        />
+            isLoading={isLoading}
+            datadash={datadash}
+            monthYear={monthYear}
+          />
 
-         <SKDNSection 
-          isLoading={isLoading}
-          datadash={datadash}
-          monthYear={monthYear}
-        />
-        
-        <NIKStatisticsSection 
-          isLoading={isLoading}
-          datadash={datadash}
-          monthYear={monthYear}
-        />
+          <AttendanceSection
+            isLoading={isLoading}
+            datadash={datadash}
+            monthYear={monthYear}
+          />
 
-       <PregnancyRiskSection 
-          isLoading={isLoading}
-          datadash={datadash}
-          monthYear={monthYear}
-        />
+          <NutritionProgramSection
+            isLoading={isLoading}
+            datadash={datadash}
+            monthYear={monthYear}
+          />
 
-          {/* ini mapya */}
+          <SKDNSection
+            isLoading={isLoading}
+            datadash={datadash}
+            monthYear={monthYear}
+          />
+
+          <NIKStatisticsSection
+            isLoading={isLoading}
+            datadash={datadash}
+            monthYear={monthYear}
+          />
+
+          <PregnancyRiskSection
+            isLoading={isLoading}
+            datadash={datadash}
+            monthYear={monthYear}
+          />
+
           <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
             {isLoading.mapPersebaranBalitaStunting ? (
               <h4>Loading...</h4>
@@ -228,107 +170,17 @@ const DashboardAdmin = () => {
             )}
           </div>
 
-          <div className="col-span-8">
-            {isLoading.grafikPersebaranPosyandu ? (
-              <h4>Loading...</h4>
-            ) : (
-              <GrafikPersebaranPosyandu />
-            )}
-          </div>
+          <PosyanduDistributionSection
+            isLoading={isLoading}
+            datadash={datadash}
+            monthYear={monthYear}
+          />
 
-          <div className="col-span-4 flex flex-col justify-between gap-10">
-            {isLoading.countingCard ? (
-              <h4>Loading...</h4>
-            ) : (
-              <CountingCard
-                icon={SvgIconLoveOrange}
-                isMeningkat={true}
-                jumlah={datadash?.jumlah_posyandu.jumlah ?? "0"}
-                peningkatan={
-                  datadash?.jumlah_posyandu.rate != null
-                    ? `${datadash.jumlah_posyandu.rate}%`
-                    : "-"
-                }
-                title="Jumlah Posyandu"
-                title_secound=""
-                subtitle={datadash?.jumlah_posyandu.status ?? ""}
-                color={"#EBF3FE"}
-              />
-            )}
-
-            {isLoading.countingCard ? (
-              <h4>Loading...</h4>
-            ) : (
-              <PercentageCard
-                title={"Persentase Jumlah Posyandu"}
-                jumlah={100}
-                color={["#34B53A", "#F39D00"]}
-                data={[
-                    {
-                    name: "Banyuwangi",
-                    value: datadash?.persentase_posyandu.banyuwangi_rate ?? 0,
-                  },
-                  {
-                    name: "Maluku Tengah",
-                    value: datadash?.persentase_posyandu.maluku_rate ?? 0,
-                  },
-                ]}
-                label={["Banyuwangi", "Maluku Tengah"]}
-              />
-            )}
-          </div>
-
-
-          
-          <div className="col-span-8">
-            {isLoading.grafikPersebaranKaderDanTingkatAktivitas ? (
-              <h4>Loading...</h4>
-            ) : (
-              <GrafikPersebaranKaderDanTingkatAktivitas />
-            )}
-          </div>
-
-          <div className="col-span-4 flex flex-col justify-between gap-4">
-            {isLoading.countingCard ? (
-              <h4>Loading...</h4>
-            ) : (
-              <CountingCard
-                icon={SvgIconLoveBlue}
-                isMeningkat={true}
-                jumlah={datadash?.jumlah_kader.jumlah ?? "0"}
-                peningkatan={
-                  datadash?.jumlah_kader.rate != null
-                    ? `${datadash.jumlah_kader.rate}%`
-                    : "-"
-                }
-                title="Jumlah Kader"
-                title_secound=""
-                subtitle={datadash?.jumlah_kader.status ?? ""}
-                color={"#EBF3FE"}
-              />
-            )}
-
-            {isLoading.countingCardRow ? (
-              <h4>Loading...</h4>
-            ) : (
-              <PercentageCard
-                title={"Persentase Jumlah Kader"}
-                jumlah={100}
-                color={["#ef4444", "#3b82f6"]}
-                data={[
-                  {
-                    name: "Banyuwangi",
-                    value: datadash?.persentase_kader.banyuwangi_rate ?? 0,
-                  },
-                  {
-                    name: "Maluku Tengah",
-                    value: datadash?.persentase_kader.maluku_rate ?? 0,
-                  },
-                ]}
-                label={["Banyuwangi", "Maluku Tengah"]}
-              />
-            )}
-          </div>
+          <KaderDistributionSection
+            isLoading={isLoading}
+            datadash={datadash}
+            monthYear={monthYear}
+          />
 
           <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
             {isLoading.mapPersebaranBalitaBerdasarkanWilayah ? (
@@ -345,6 +197,7 @@ const DashboardAdmin = () => {
               <MapPersebaranKader />
             )}
           </div>
+
           <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
             {isLoading.mapPersebaranKeluargaTanpaMCK ? (
               <h4>Loading...</h4>
