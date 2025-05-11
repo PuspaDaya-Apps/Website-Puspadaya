@@ -1,11 +1,10 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Dropdown } from "primereact/dropdown";
 import { DesaData, MapPersebaranResponse } from "@/types/dashborad";
-import { mapStunting } from "@/app/api/statistik-maps/mapstunting";
+import { mapStunting } from "@/app/api/statistik-maps/mapStunting";
 
 // Tipe data untuk Wilayah
 interface Wilayah {
