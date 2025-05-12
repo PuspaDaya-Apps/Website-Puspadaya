@@ -67,7 +67,8 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
 
   // Retrieve nama_provinsi and nama_role from sessionStorage
   const namaProvinsi = sessionStorage.getItem("nama_provinsi");
-  console.log( "ini nama e", namaProvinsi)
+  const namaKecamatan = sessionStorage.getItem("nama_kecamatan");
+  const namaDesa = sessionStorage.getItem("nama_desa_kelurahan");
   const namaRole = sessionStorage.getItem("user_role");
 
   // Debounce function
@@ -80,18 +81,15 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
   };
 
   useEffect(() => {
-  const fetchUser = async () => {
-    if (!sessionStorage.getItem("nama_provinsi")) {
-      const result = await currentUser();
-      if (result.successCode === 200) {
-        // console.log("Nama provinsi:", sessionStorage.getItem("nama_provinsi"));
+    const fetchUser = async () => {
+      if (!sessionStorage.getItem("nama_provinsi")) {
+        const result = await currentUser();
+        if (result.successCode === 200) {
+        }
       }
-    }
-  };
-
-  fetchUser();
-}, []);
-
+    };
+    fetchUser();
+  }, []);
 
   // Fetch data kabupaten
   useEffect(() => {
@@ -107,8 +105,7 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
           }));
           setWilayah(wilayahData);
 
-       
-            if (namaRole !== "Admin") {
+          if (namaRole !== "Admin") {
             let defaultWilayah = null;
             if (namaProvinsi === "Jawa Timur") {
               defaultWilayah = wilayahData.find((w) => w.name === "Banyuwangi");
@@ -119,7 +116,6 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
               setSelectedWilayah(defaultWilayah);
             }
           }
-          
         } else {
           setError(`Error ${response.successCode}: Gagal mengambil data`);
         }
@@ -140,14 +136,36 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
       const response = await Kecamatanwilayah();
       if (response.successCode === 200 && response.data) {
         setkecData(response.data);
-        const kecamatanData = response.data.map((kec) => ({
+
+        // Filter kecamatan berdasarkan kabupaten yang dipilih
+        let filteredKecamatan = response.data;
+        if (selectedWilayah) {
+          filteredKecamatan = response.data.filter(
+            (kec) => kec.kabupaten_kota.id === selectedWilayah.id
+          );
+        }
+
+        const kecamatanData = filteredKecamatan.map((kec) => ({
           id: kec.id,
           name: kec.nama_kecamatan,
           kabupaten_kota: {
             id: kec.kabupaten_kota.id,
           },
         }));
+
         setKecamatan(kecamatanData);
+
+        if (
+          !["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "") &&
+          namaKecamatan
+        ) {
+          const defaultKecamatan = kecamatanData.find(
+            (kec) => kec.name === namaKecamatan
+          );
+          if (defaultKecamatan) {
+            setSelectedKecamatan(defaultKecamatan);
+          }
+        }
       } else {
         setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
       }
@@ -173,6 +191,16 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
           },
         }));
         setDesa(desaData);
+        if (
+          !["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "") &&
+          namaDesa
+        ) {
+          const defaultDesa = desaData.find((desa) => desa.name === namaDesa);
+          if (defaultDesa) {
+            setSelectedDesa(defaultDesa);
+          }
+        }
+
       } else {
         setError(`Error ${response.successCode}: Gagal mengambil data desa`);
       }
@@ -213,9 +241,9 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
   };
 
   // Debounced functions
-  const debouncedFetchKecamatanData = debounce(fetchKecamatanData, 1000); // Delay 1 detik
-  const debouncedFetchDesakelurahanData = debounce(fetchDesakelurahanData, 1000); // Delay 1 detik
-  const debouncedFetchStatistikData = debounce(fetchStatistikData, 1000); // Delay 1 detik
+  const debouncedFetchKecamatanData = debounce(fetchKecamatanData, 1000);
+  const debouncedFetchDesakelurahanData = debounce(fetchDesakelurahanData, 1000);
+  const debouncedFetchStatistikData = debounce(fetchStatistikData, 1000);
 
   // Panggil fungsi debounced saat selectedWilayah berubah
   useEffect(() => {
@@ -351,7 +379,7 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Kabupaten"
                 className="md:w-14rem h-11 w-full"
-                disabled={namaRole !== "Admin"} // Disable if role is not Admin
+                disabled={namaRole !== "Admin"}
               />
               <Dropdown
                 value={selectedKecamatan}
@@ -360,7 +388,10 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Kecamatan"
                 className="md:w-14rem h-11 w-full"
-                disabled={!selectedWilayah}
+                disabled={!(
+                  ["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "")
+                ) || !selectedWilayah}
+
               />
               <Dropdown
                 value={selectedDesa}
@@ -369,7 +400,9 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Desa"
                 className="md:w-14rem h-11 w-full"
-                disabled={!selectedKecamatan}
+                disabled={!(
+                  ["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "")
+                ) || !selectedWilayah}
               />
             </div>
           </div>

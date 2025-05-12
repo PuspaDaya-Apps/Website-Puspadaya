@@ -30,7 +30,12 @@ interface FetchResult {
 
       if (data?.provinsi?.nama_provinsi) {
         sessionStorage.setItem('nama_provinsi', data.provinsi.nama_provinsi);
+        sessionStorage.setItem('nama_kecamatan', data.kecamatan.nama_kecamatan);
+        sessionStorage.setItem('nama_desa_kelurahan', data.desa_kelurahan.nama_desa_kelurahan);
+        sessionStorage.setItem('nama_dusun', data.dusun.nama_dusun);
+        
       }
+     
      
       sessionStorage.removeItem(Messages.ERROR);
   

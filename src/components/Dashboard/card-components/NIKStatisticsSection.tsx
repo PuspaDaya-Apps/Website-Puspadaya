@@ -28,7 +28,7 @@ const NIKStatisticsSection: React.FC<DashboardSectionProps> = ({ isLoading, data
         {isLoading.countingCard ? (
           <h4>Loading...</h4>
         ) : (
-          !["Kepala Desa", "TPG"].includes(userRole||"") &&(
+          !["Kepala Desa", "TPG", "Ketua Kader", "Kader"].includes(userRole || "") && (
             <CountingCardDesa
               icon={SvgIconVillage}
               isMeningkat={true}
@@ -50,6 +50,28 @@ const NIKStatisticsSection: React.FC<DashboardSectionProps> = ({ isLoading, data
         {isLoading.countingCard ? (
           <h4>Loading...</h4>
         ) : (
+          ["Ketua Kader", "Kader"].includes(userRole || "") && (
+            <CountingCard
+              icon={SvgIconAnakHadir}
+              isMeningkat={true}
+              jumlah={datadash?.keluarga_tanpa_mck?.jumlah ?? "0"}
+              peningkatan={
+                datadash?.keluarga_tanpa_mck.rate !== undefined
+                  ? `${datadash.keluarga_tanpa_mck.rate}%`
+                  : "-"
+              }
+              subtitle={datadash?.keluarga_tanpa_mck.status ?? ""}
+              title="Jumlah Keluarga Tanpa MCK"
+              title_secound={`Aktif ${monthYear}`}
+              color={"#EBF3FE"}
+            />
+          )
+        )}
+
+        {isLoading.countingCard ? (
+          <h4>Loading...</h4>
+        ) : (
+
           <CountingCard
             icon={SvgIconAnakHadir}
             isMeningkat={true}

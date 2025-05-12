@@ -55,6 +55,7 @@ const KaderDistributionSection: React.FC<DashboardSectionProps> = ({
           <div className="h-48 animate-pulse rounded-lg bg-gray-100"></div>
         ) : (
 
+           !["Ketua Kader", "Kader"].includes(userRole || "") && (
           <PercentageCard
             title="Persentase Jumlah Kader"
             jumlah={100}
@@ -72,7 +73,7 @@ const KaderDistributionSection: React.FC<DashboardSectionProps> = ({
             label={["Banyuwangi", "Maluku Tengah"]}
             isDinsos={userRole === "Dinas Sosial"}
           />
-
+          )
         )}
       </div>
     </>

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Dropdown } from "primereact/dropdown";
+import { DesaData } from "@/types/dashborad";
 
 // Tipe data untuk Wilayah
 interface Wilayah {
@@ -15,10 +16,16 @@ const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691];
 const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228];
 
 const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
+
+
   const wilayah: Wilayah[] = [
     { name: "Banyuwangi", code: "Banyuwangi" },
     { name: "Maluku Tengah", code: "MT" },
   ];
+
+  const [dataMap, setDataMap] = useState<DesaData[] | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Ambil data provinsi dan role dari sessionStorage
   const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";

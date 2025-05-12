@@ -8,6 +8,9 @@ import { DesakelurahanClass, KabupatenClass, KecamatanClass } from "@/types/dash
 import { Desakelurahanwilayahaktivitas } from "@/app/api/lokasi/desaaktivitas";
 import { Kabupatenwilayahaktivitas } from "@/app/api/lokasi/kabupatenaktivitas";
 import { Kecamatanwilayahaktivitas } from "@/app/api/lokasi/kecamatanaktivitas";
+import { Kecamatanwilayah } from "@/app/api/lokasi/kecamatan";
+import { Desakelurahanwilayah } from "@/app/api/lokasi/desa";
+import { currentUser } from "@/app/api/user/currentUser";
 const color = ["#3b82f6", "#ef4444"];
 
 interface Wilayah {
@@ -56,9 +59,12 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
     tidakAktif: [],
   });
 
-  const namaProvinsi = sessionStorage.getItem("nama_provinsi");
+ const namaProvinsi = sessionStorage.getItem("nama_provinsi");
+  const namaKecamatan = sessionStorage.getItem("nama_kecamatan");
+  const namaDesa = sessionStorage.getItem("nama_desa_kelurahan");
   const namaRole = sessionStorage.getItem("user_role");
 
+  // Debounce function
   const debounce = (func: (...args: any[]) => void, delay: number) => {
     let timeoutId: NodeJS.Timeout;
     return (...args: any[]) => {
@@ -67,6 +73,18 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
     };
   };
 
+    useEffect(() => {
+      const fetchUser = async () => {
+        if (!sessionStorage.getItem("nama_provinsi")) {
+          const result = await currentUser();
+          if (result.successCode === 200) {
+          }
+        }
+      };
+      fetchUser();
+    }, []);
+
+  //kabupaten
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -106,35 +124,55 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
   }, [namaProvinsi, namaRole]);
 
   const fetchKecamatanData = async () => {
-    setLoading(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const response = await Kecamatanwilayahaktivitas();
-      if (response.successCode === 200 && response.data) {
-        setkecData(response.data);
-        const kecamatanData = response.data.map((kec) => ({
-          id: kec.id,
-          name: kec.nama_kecamatan,
-          kabupaten_kota: {
-            id: kec.kabupaten_kota.id,
-          },
-        }));
-        setKecamatan(kecamatanData);
-      } else {
-        setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
+      setLoading(true);
+      try {
+        const response = await Kecamatanwilayah();
+        if (response.successCode === 200 && response.data) {
+          setkecData(response.data);
+  
+          // Filter kecamatan berdasarkan kabupaten yang dipilih
+          let filteredKecamatan = response.data;
+          if (selectedWilayah) {
+            filteredKecamatan = response.data.filter(
+              (kec) => kec.kabupaten_kota.id === selectedWilayah.id
+            );
+          }
+  
+          const kecamatanData = filteredKecamatan.map((kec) => ({
+            id: kec.id,
+            name: kec.nama_kecamatan,
+            kabupaten_kota: {
+              id: kec.kabupaten_kota.id,
+            },
+          }));
+  
+          setKecamatan(kecamatanData);
+  
+          if (
+            !["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "") &&
+            namaKecamatan
+          ) {
+            const defaultKecamatan = kecamatanData.find(
+              (kec) => kec.name === namaKecamatan
+            );
+            if (defaultKecamatan) {
+              setSelectedKecamatan(defaultKecamatan);
+            }
+          }
+        } else {
+          setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan saat mengambil data kecamatan.");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError("Terjadi kesalahan saat mengambil data kecamatan.");
-    } finally {
-      setLoading(false);
-    }
   };
 
   const fetchDesakelurahanData = async () => {
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const response = await Desakelurahanwilayahaktivitas();
+      const response = await Desakelurahanwilayah();
       if (response.successCode === 200 && response.data) {
         setdesData(response.data);
         const desaData = response.data.map((desa) => ({
@@ -145,6 +183,16 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
           },
         }));
         setDesa(desaData);
+        if (
+          !["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "") &&
+          namaDesa
+        ) {
+          const defaultDesa = desaData.find((desa) => desa.name === namaDesa);
+          if (defaultDesa) {
+            setSelectedDesa(defaultDesa);
+          }
+        }
+
       } else {
         setError(`Error ${response.successCode}: Gagal mengambil data desa`);
       }
@@ -154,6 +202,7 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
       setLoading(false);
     }
   };
+
 
   const fetchStatistikData = async () => {
     if (selectedDesa) {
@@ -318,7 +367,9 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Kecamatan"
                 className="md:w-14rem h-11 w-full"
-                disabled={!selectedWilayah}
+                  disabled={!(
+                  ["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "")
+                ) || !selectedWilayah}
               />
               <Dropdown
                 value={selectedDesa}
@@ -327,7 +378,9 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Desa"
                 className="md:w-14rem h-11 w-full"
-                disabled={!selectedKecamatan}
+                  disabled={!(
+                  ["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "")
+                ) || !selectedWilayah}
               />
             </div>
           </div>

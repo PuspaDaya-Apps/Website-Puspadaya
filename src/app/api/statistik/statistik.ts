@@ -41,7 +41,7 @@ export const statistikDashboard = async (): Promise<FetchResult> => {
                 endpoint = APIEndpoints.DASHBOARDDINASKESEHATAN; // done
                 break;
             case 'TPG':
-                endpoint = APIEndpoints.DASHBOARDTPG;
+                endpoint = APIEndpoints.DASHBOARDTPG; //done
                 break;
             default:
                 endpoint = APIEndpoints.DASHBOARD; // Default Admin

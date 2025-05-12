@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import CountingCard from "@/components/Card/CountingCard";
 import PercentageCard from "@/components/Card/PercentageCard";
 import GrafikPersebaranPosyandu from "@/components/Charts/GrafikPersebaranPosyandu";
@@ -10,6 +10,12 @@ const PosyanduDistributionSection: React.FC<DashboardSectionProps> = ({
   datadash, 
   monthYear 
 }) => {
+    const [userRole, setUserRole] = useState<string | null>(null);
+  
+    useEffect(() => {
+      const role = sessionStorage.getItem("user_role");
+      setUserRole(role);
+    }, []);
 
   return (
     <>
@@ -19,7 +25,9 @@ const PosyanduDistributionSection: React.FC<DashboardSectionProps> = ({
             Memuat grafik posyandu...
           </div>
         ) : (
+           ![ "Ketua Kader"].includes(userRole||"") &&(
           <GrafikPersebaranPosyandu />
+           )
         )}
       </div>
 
@@ -27,6 +35,7 @@ const PosyanduDistributionSection: React.FC<DashboardSectionProps> = ({
         {isLoading.countingCard ? (
           <div className="h-48 bg-gray-100 rounded-lg animate-pulse"></div>
         ) : (
+          ![ "Ketua Kader"].includes(userRole||"") &&(
           <CountingCard
             icon={SvgIconLoveOrange}
             isMeningkat={true}
@@ -41,11 +50,13 @@ const PosyanduDistributionSection: React.FC<DashboardSectionProps> = ({
             subtitle={datadash?.jumlah_posyandu?.status || ""}
             color="#EBF3FE"
           />
+          )
         )}
 
         {isLoading.countingCard ? (
           <div className="h-48 bg-gray-100 rounded-lg animate-pulse"></div>
         ) : (
+          ![ "Ketua Kader"].includes(userRole||"") &&(
             <PercentageCard
                 title={"Persentase Jumlah Posyandu"}
                 jumlah={100}
@@ -62,6 +73,7 @@ const PosyanduDistributionSection: React.FC<DashboardSectionProps> = ({
                 ]}
                 label={["Banyuwangi", "Maluku Tengah"]}
               />
+          )
         )}
       </div>
     </>

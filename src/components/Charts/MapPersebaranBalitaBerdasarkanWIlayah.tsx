@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Dropdown } from "primereact/dropdown";
+import { DesaData } from "@/types/dashborad";
 
 // Tipe data untuk GeoJSON
 interface Wilayah {
@@ -11,26 +12,32 @@ interface Wilayah {
   code: string;
 }
 
-const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691]; // Koordinat Banyuwangi
-const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228]; // Koordinat Maluku Tengah
+const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691];
+const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228]; 
 
 const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
+  
   const wilayah: Wilayah[] = [
-    { name: "Banyuwangi", code: "Bwi" },
+    { name: "Banyuwangi", code: "Banyuwangi" },
     { name: "Maluku Tengah", code: "MT" },
   ];
 
-    // Ambil data provinsi dan role dari sessionStorage
-    const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
-    const role: string = sessionStorage.getItem("role") ?? "";
-    
-  // Set nilai default ke Banyuwangi (Bwi)
-  const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(
-    wilayah.find((wilayah) => wilayah.code === "Bwi") || null,
-  );
+  const [dataMap, setDataMap] = useState<DesaData[] | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const [map, setMap] = useState<L.Map | null>(null); // Menyimpan instance peta
-  const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null); // Menyimpan layer GeoJSON
+  
+
+
+  // Ambil data provinsi dan role dari sessionStorage
+  const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
+  const role: string = sessionStorage.getItem("user_role") ?? "";
+
+  const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
+  const [map, setMap] = useState<L.Map | null>(null);
+  const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null);
+
+
 
   useEffect(() => {
     const mapInstance = L.map("map-persebaran-balita-berdasarkan-wilayah").setView(banyuwangiView, 10); // Inisialisasi peta dengan koordinat Banyuwangi
@@ -44,6 +51,16 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
       mapInstance.remove(); // Hapus instance peta saat komponen di-unmount
     };
   }, []);
+
+    useEffect(() => {
+      // Default ke Banyuwangi jika provinsi tidak terdeteksi atau provinsi Jawa Timur
+      if (!provinsi || provinsi === "Jawa Timur") {
+        setSelectedWilayah(wilayah.find((wil) => wil.code === "Banyuwangi") || null);
+      } else {
+        setSelectedWilayah(wilayah.find((wil) => wil.code === "MT") || null);
+      }
+    }, [provinsi]);
+
   const popupContent = (feature: any) => {
     // Using HTML string instead of JSX for Leaflet to understand
     return `
@@ -57,18 +74,16 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
   };
   useEffect(() => {
     if (map && selectedWilayah) {
-      // Hapus layer GeoJSON yang sudah ada
       geoJSONLayer?.remove();
 
-      // Sesuaikan setView berdasarkan wilayah yang dipilih
       const view =
-        selectedWilayah.code === "Bwi" ? banyuwangiView : malukuTengahView;
+        selectedWilayah.code === "Banyuwangi" ? banyuwangiView : malukuTengahView;
       map.setView(view, 10);
 
       // Load dan tambahkan GeoJSON untuk wilayah yang dipilih
       const fetchGeoJSON = async () => {
         const endpoint =
-          selectedWilayah.code === "Bwi"
+          selectedWilayah.code === "Banyuwangi"
             ? "/api/geojson/banyuwangi"
             : "/api/geojson/maluku-tengah";
 
@@ -78,23 +93,21 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
 
           const newGeoJSONLayer = L.geoJSON(geoJSONData, {
             style: () => ({
-              color: selectedWilayah.code === "Bwi" ? "blue" : "green",
+              color: selectedWilayah.code === "Banyuwangi" ? "blue" : "green",
               weight: 2,
               fillColor:
-                selectedWilayah.code === "Bwi" ? "lightblue" : "lightgreen",
+                selectedWilayah.code === "Banyuwangi" ? "lightblue" : "lightgreen",
               fillOpacity: 0.5,
             }),
             onEachFeature: (feature, layer) => {
               if (feature.properties && feature.properties.name) {
-                layer.bindPopup(popupContent(feature)); // Memanggil popupContent
+                layer.bindPopup(popupContent(feature)); 
               }
             },
           }).addTo(map);
 
           // Update state untuk menyimpan layer GeoJSON
           setGeoJSONLayer(newGeoJSONLayer);
-
-          // Zoom ke batas GeoJSON
           const bounds = newGeoJSONLayer.getBounds();
           map.fitBounds(bounds);
         } catch (error) {
@@ -125,6 +138,7 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
             optionLabel="name"
             placeholder="Pilih Wilayah"
             className="md:w-14rem h-11 w-full"
+             disabled={role !== "Admin"} 
           />
         </div>
       </div>

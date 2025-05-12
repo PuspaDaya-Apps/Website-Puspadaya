@@ -8,6 +8,7 @@ import { Kabupatenwilayah } from "@/app/api/lokasi/kabupaten";
 import { Kecamatanwilayah } from "@/app/api/lokasi/kecamatan";
 import { Desakelurahanwilayah } from "@/app/api/lokasi/desa";
 import { trendPersebaranPosyandu } from "@/app/api/statistik/persebaranposyandu";
+import { currentUser } from "@/app/api/user/currentUser";
 
 const color = ["#F39D00", "#34B53A"];
 
@@ -60,6 +61,8 @@ const GrafikPersebaranPosyandu: React.FC = () => {
 
   // Retrieve nama_provinsi and nama_role from sessionStorage
   const namaProvinsi = sessionStorage.getItem("nama_provinsi");
+  const namaKecamatan = sessionStorage.getItem("nama_kecamatan");
+  const namaDesa = sessionStorage.getItem("nama_desa_kelurahan");
   const namaRole = sessionStorage.getItem("user_role");
 
   // Debounce function
@@ -70,6 +73,17 @@ const GrafikPersebaranPosyandu: React.FC = () => {
       timeoutId = setTimeout(() => func(...args), delay);
     };
   };
+
+   useEffect(() => {
+      const fetchUser = async () => {
+        if (!sessionStorage.getItem("nama_provinsi")) {
+          const result = await currentUser();
+          if (result.successCode === 200) {
+          }
+        }
+      };
+      fetchUser();
+    }, []);
 
   // Fetch data kabupaten
   useEffect(() => {
@@ -117,14 +131,36 @@ const GrafikPersebaranPosyandu: React.FC = () => {
       const response = await Kecamatanwilayah();
       if (response.successCode === 200 && response.data) {
         setkecData(response.data);
-        const kecamatanData = response.data.map((kec) => ({
+
+        // Filter kecamatan berdasarkan kabupaten yang dipilih
+        let filteredKecamatan = response.data;
+        if (selectedWilayah) {
+          filteredKecamatan = response.data.filter(
+            (kec) => kec.kabupaten_kota.id === selectedWilayah.id
+          );
+        }
+
+        const kecamatanData = filteredKecamatan.map((kec) => ({
           id: kec.id,
           name: kec.nama_kecamatan,
           kabupaten_kota: {
             id: kec.kabupaten_kota.id,
           },
         }));
+
         setKecamatan(kecamatanData);
+
+        if (
+          !["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "") &&
+          namaKecamatan
+        ) {
+          const defaultKecamatan = kecamatanData.find(
+            (kec) => kec.name === namaKecamatan
+          );
+          if (defaultKecamatan) {
+            setSelectedKecamatan(defaultKecamatan);
+          }
+        }
       } else {
         setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
       }
@@ -150,6 +186,16 @@ const GrafikPersebaranPosyandu: React.FC = () => {
           },
         }));
         setDesa(desaData);
+        if (
+          !["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "") &&
+          namaDesa
+        ) {
+          const defaultDesa = desaData.find((desa) => desa.name === namaDesa);
+          if (defaultDesa) {
+            setSelectedDesa(defaultDesa);
+          }
+        }
+
       } else {
         setError(`Error ${response.successCode}: Gagal mengambil data desa`);
       }
@@ -331,7 +377,9 @@ const GrafikPersebaranPosyandu: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Kecamatan"
                 className="md:w-14rem h-11 w-full"
-                disabled={!selectedWilayah}
+                disabled={!(
+                  ["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "")
+                ) || !selectedWilayah}
               />
               <Dropdown
                 value={selectedDesa}
@@ -340,7 +388,9 @@ const GrafikPersebaranPosyandu: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Desa"
                 className="md:w-14rem h-11 w-full"
-                disabled={!selectedKecamatan}
+                  disabled={!(
+                  ["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "")
+                ) || !selectedWilayah}
               />
             </div>
           </div>

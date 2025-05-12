@@ -257,8 +257,8 @@ const roleImageMap: { [key: string]: string } = {
   "Kepala Camat": "/images/user/kepala_desa_kec.png",
   "Kepala Desa": "/images/user/kepala_desa_kec.png",
   "TPG": "/images/user/tpg.png",
-  "Ketua Kader": "/images/user/ketua.png",
-  "Kader": "/images/user/anggota.png",
+  "Ketua Kader": "/images/user/ketua_kader.png",
+  "Kader": "/images/user/anggota_kader.png",
 };
 
 const ProfilePicture = ({
