@@ -64,12 +64,11 @@ const DashboardAdmin = () => {
   }, []);
 
 const fetchMoreData = () => {
-  if (items.length >= 1000) { // Mengurangi batas maksimal dari 10000 ke 1000
+  if (items.length >= 1000) { 
     setHasMore(false);
     return;
   }
 
-  // Mengurangi waktu loading dari 2 detik menjadi 500ms
   setTimeout(() => {
     setItems(items.concat(Array.from({ length: 20 })));
   }, 500);
@@ -205,6 +204,7 @@ useEffect(() => {
               <MapPersebaranKeluargaTanpaMCK />
             )}
           </div>
+          
         </div>
       </InfiniteScroll>
     </div>

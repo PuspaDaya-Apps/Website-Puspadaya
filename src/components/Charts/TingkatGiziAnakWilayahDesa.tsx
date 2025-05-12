@@ -8,6 +8,7 @@ import { DesakelurahanClass, KabupatenClass, KecamatanClass } from "@/types/dash
 import { Kecamatanwilayah } from "@/app/api/lokasi/kecamatan";
 import { Desakelurahanwilayah } from "@/app/api/lokasi/desa";
 import { Grafikgizi } from "@/app/api/statistik/grafiktrendgizi";
+import { currentUser } from "@/app/api/user/currentUser";
 
 const color = ["#3b82f6", "#ef4444"];
 
@@ -66,6 +67,7 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
 
   // Retrieve nama_provinsi and nama_role from sessionStorage
   const namaProvinsi = sessionStorage.getItem("nama_provinsi");
+  console.log( "ini nama e", namaProvinsi)
   const namaRole = sessionStorage.getItem("user_role");
 
   // Debounce function
@@ -76,6 +78,20 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
       timeoutId = setTimeout(() => func(...args), delay);
     };
   };
+
+  useEffect(() => {
+  const fetchUser = async () => {
+    if (!sessionStorage.getItem("nama_provinsi")) {
+      const result = await currentUser();
+      if (result.successCode === 200) {
+        // console.log("Nama provinsi:", sessionStorage.getItem("nama_provinsi"));
+      }
+    }
+  };
+
+  fetchUser();
+}, []);
+
 
   // Fetch data kabupaten
   useEffect(() => {
@@ -91,8 +107,8 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
           }));
           setWilayah(wilayahData);
 
-          // Automatically set selectedWilayah based on nama_provinsi and role
-          if (namaRole !== "Admin") {
+       
+            if (namaRole !== "Admin") {
             let defaultWilayah = null;
             if (namaProvinsi === "Jawa Timur") {
               defaultWilayah = wilayahData.find((w) => w.name === "Banyuwangi");
@@ -103,6 +119,7 @@ const TingkatGiziAnakWilayahDesa: React.FC = () => {
               setSelectedWilayah(defaultWilayah);
             }
           }
+          
         } else {
           setError(`Error ${response.successCode}: Gagal mengambil data`);
         }

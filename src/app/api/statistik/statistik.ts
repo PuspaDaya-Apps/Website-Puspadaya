@@ -26,10 +26,10 @@ export const statistikDashboard = async (): Promise<FetchResult> => {
         let endpoint = APIEndpoints.DASHBOARD; // Default untuk Admin
         switch (userRole) {
             case 'Dinas Sosial':
-                endpoint = APIEndpoints.DASHBOARDDINASSOSIAL;
+                endpoint = APIEndpoints.DASHBOARDDINASSOSIAL; // done
                 break;
             case 'Kepala Desa':
-                endpoint = APIEndpoints.DASHBOARDKEPALADESA;
+                endpoint = APIEndpoints.DASHBOARDKEPALADESA; //done
                 break;
             case 'Ketua Kader':
                 endpoint = APIEndpoints.DASHBOARDPOSYANDU;
@@ -37,8 +37,8 @@ export const statistikDashboard = async (): Promise<FetchResult> => {
             case 'Kader':
                     endpoint = APIEndpoints.DASHBOARDPOSYANDU;
                     break;
-            case 'Dinas Kesehatan':
-                endpoint = APIEndpoints.DASHBOARDDINASKESEHATAN;
+            case 'Dinas Kesehatan': //done
+                endpoint = APIEndpoints.DASHBOARDDINASKESEHATAN; // done
                 break;
             case 'TPG':
                 endpoint = APIEndpoints.DASHBOARDTPG;

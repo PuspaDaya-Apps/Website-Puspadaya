@@ -29,7 +29,7 @@ export const mapStunting = async (): Promise<FetchResult> => {
         const response = await axios.get(endpoint, config);
 
         // Debug output
-        console.log("Raw API response:", response.data);
+        // console.log("Raw API response:", response.data);
 
         const responseData: MapPersebaranResponse = response.data;
 

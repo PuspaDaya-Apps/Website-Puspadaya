@@ -5,15 +5,15 @@ export const APIEndpoints = {
 
     DASHBOARD : '/api/v1/dashboard',
 
-    DASHBOARDDINASSOSIAL : '/api/v1/dashboard/dinas-sosial',
+    DASHBOARDDINASSOSIAL : '/api/v1/dashboard/provinsi',
 
-    DASHBOARDKEPALADESA : '/api/v1/dashboard/kepala-desa',
+    DASHBOARDKEPALADESA : '/api/v1/dashboard/desa-kelurahan',
 
     DASHBOARDPOSYANDU : '/api/v1/dashboard/posyandu',
 
     DASHBOARDDINASKESEHATAN : '/api/v1/dashboard/provinsi',
 
-    DASHBOARDTPG : '/api/v1/dashboard/tpg',
+    DASHBOARDTPG : '/api/v1/dashboard/desa-kelurahan',
 
     TRENGIZI : '/api/v1/dashboard/tren-gizi',
     TRENKEHADIRAN : '/api/v1/dashboard/kehadiran-statistik',

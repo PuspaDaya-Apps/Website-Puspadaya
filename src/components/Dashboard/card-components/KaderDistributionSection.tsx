@@ -1,14 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CountingCard from "@/components/Card/CountingCard";
 import PercentageCard from "@/components/Card/PercentageCard";
 import GrafikPersebaranKaderDanTingkatAktivitas from "@/components/Charts/GrafikPersebaranKaderDanTingkatAktivitas";
 import { SvgIconLoveBlue } from "@/components/ui/Svg";
 import { DashboardSectionProps } from "./types";
+
 const KaderDistributionSection: React.FC<DashboardSectionProps> = ({
   isLoading,
   datadash,
   monthYear,
 }) => {
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const role = sessionStorage.getItem("user_role");
+    setUserRole(role);
+  }, []);
+
   return (
     <>
       <div className="col-span-8">
@@ -25,25 +33,28 @@ const KaderDistributionSection: React.FC<DashboardSectionProps> = ({
         {isLoading.countingCard ? (
           <div className="h-48 animate-pulse rounded-lg bg-gray-100"></div>
         ) : (
-          <CountingCard
-            icon={SvgIconLoveBlue}
-            isMeningkat={true}
-            jumlah={datadash?.jumlah_kader?.jumlah || "0"}
-            peningkatan={
-              datadash?.jumlah_kader?.rate != null
-                ? `${datadash.jumlah_kader.rate}%`
-                : "-"
-            }
-            title="Jumlah Kader"
-            title_secound=""
-            subtitle={datadash?.jumlah_kader?.status || ""}
-            color="#EBF3FE"
-          />
+          userRole !== "Dinas Sosial" && (
+            <CountingCard
+              icon={SvgIconLoveBlue}
+              isMeningkat={true}
+              jumlah={datadash?.jumlah_kader?.jumlah || "0"}
+              peningkatan={
+                datadash?.jumlah_kader?.rate != null
+                  ? `${datadash.jumlah_kader.rate}%`
+                  : "-"
+              }
+              title="Jumlah Kader"
+              title_secound=""
+              subtitle={datadash?.jumlah_kader?.status || ""}
+              color="#EBF3FE"
+            />
+          )
         )}
 
         {isLoading.countingCardRow ? (
           <div className="h-48 animate-pulse rounded-lg bg-gray-100"></div>
         ) : (
+
           <PercentageCard
             title="Persentase Jumlah Kader"
             jumlah={100}
@@ -59,7 +70,9 @@ const KaderDistributionSection: React.FC<DashboardSectionProps> = ({
               },
             ]}
             label={["Banyuwangi", "Maluku Tengah"]}
+            isDinsos={userRole === "Dinas Sosial"}
           />
+
         )}
       </div>
     </>

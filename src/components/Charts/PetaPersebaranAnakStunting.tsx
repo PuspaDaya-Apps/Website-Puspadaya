@@ -13,8 +13,6 @@ interface Wilayah {
 }
 
 const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691];
-
-
 const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228]; 
 
 
@@ -29,7 +27,6 @@ const PetaPersebaranAnakStunting: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-
     useEffect(() => {
     const fetchStuntingData = async () => {
       setLoading(true);
@@ -37,11 +34,11 @@ const PetaPersebaranAnakStunting: React.FC = () => {
 
       if (result.data) {
         const response = result.data as MapPersebaranResponse;
-        console.log("Data berhasil diambil:", response);
+        // console.log("Data berhasil diambil:", response);
         setDataMap(response.data);
         setMessage(response.message);
       } else {
-        console.warn("Gagal mengambil data, kode:", result.successCode);
+        // console.warn("Gagal mengambil data, kode:", result.successCode);
       }
 
       setLoading(false);
@@ -140,7 +137,6 @@ const PetaPersebaranAnakStunting: React.FC = () => {
     }
   }, [map, selectedWilayah]);
 
-  // Tambahkan titik merah, kuning, hijau berdasarkan tingkat stunting
   useEffect(() => {
     if (map) {
       const titikPenyebaran = [
@@ -150,37 +146,7 @@ const PetaPersebaranAnakStunting: React.FC = () => {
           color: "red",
           info: "Tingkat stunting tinggi",
         },
-        {
-          lat: -8.2292,
-          lng: 114.3791,
-          color: "yellow",
-          info: "Tingkat stunting sedang",
-        },
-        {
-          lat: -8.2392,
-          lng: 114.3891,
-          color: "green",
-          info: "Tingkat stunting rendah",
-        },
-
-        {
-          lat: -3.2255,
-          lng: 128.9754,
-          color: "red",
-          info: "Tingkat stunting tinggi (Amahai)",
-        },
-        {
-          lat: -3.2997,
-          lng: 128.9565,
-          color: "yellow",
-          info: "Tingkat stunting sedang (Masohi)",
-        },
-        {
-          lat: -3.3333,
-          lng: 129.0,
-          color: "green",
-          info: "Tingkat stunting rendah (Tehoru)",
-        },
+       
       ];
 
       titikPenyebaran.forEach(({ lat, lng, color, info }) => {

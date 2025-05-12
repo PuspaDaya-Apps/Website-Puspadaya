@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { DashboardSectionProps } from './types';
 import CountingCard from "@/components/Card/CountingCard";
 import CountingCardDesa from "@/components/Card/CountingCardDesa";
@@ -6,6 +6,14 @@ import { SvgIconVillage, SvgIconAnakHadir } from "@/components/ui/Svg";
 import StatistikNikOrangTua from '@/components/Charts/StatistikNikOrangTua;';
 
 const NIKStatisticsSection: React.FC<DashboardSectionProps> = ({ isLoading, datadash, monthYear }) => {
+
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const role = sessionStorage.getItem("user_role");
+    setUserRole(role);
+  }, []);
+
   return (
     <>
       <div className="col-span-8">
@@ -20,21 +28,23 @@ const NIKStatisticsSection: React.FC<DashboardSectionProps> = ({ isLoading, data
         {isLoading.countingCard ? (
           <h4>Loading...</h4>
         ) : (
-          <CountingCardDesa
-            icon={SvgIconVillage}
-            isMeningkat={true}
-            jumlah={datadash?.jumlah_desa.jumlah ?? "0"}
-            jumlah_keluarga={datadash?.keluarga_tanpa_mck.jumlah ?? "0"}
-            peningkatan={
-              datadash?.jumlah_desa.rate !== undefined
-                ? `${datadash.jumlah_desa.rate}%`
-                : "-"
-            }
-            subtitle={datadash?.jumlah_desa.status ?? ""}
-            title="Jumlah Desa"
-            title_secound={`Aktif ${monthYear}`}
-            color={"#EBF3FE"}
-          />
+          !["Kepala Desa", "TPG"].includes(userRole||"") &&(
+            <CountingCardDesa
+              icon={SvgIconVillage}
+              isMeningkat={true}
+              jumlah={datadash?.jumlah_desa.jumlah ?? "0"}
+              jumlah_keluarga={datadash?.keluarga_tanpa_mck.jumlah ?? "0"}
+              peningkatan={
+                datadash?.jumlah_desa.rate !== undefined
+                  ? `${datadash.jumlah_desa.rate}%`
+                  : "-"
+              }
+              subtitle={datadash?.jumlah_desa.status ?? ""}
+              title="Jumlah Desa"
+              title_secound={`Aktif ${monthYear}`}
+              color={"#EBF3FE"}
+            />
+          )
         )}
 
         {isLoading.countingCard ? (

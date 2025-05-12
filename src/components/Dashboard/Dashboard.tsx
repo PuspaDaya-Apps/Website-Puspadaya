@@ -3,6 +3,9 @@
 
 import DashboardAdmin from "./component/DashboardAdmin";
 import DashboardDinasKesehatan from "./component/DashboardDinasKesehatan";
+import DashboardDinasSosial from "./component/DashboardDinasSosial";
+import DashboardKepalaDesa from "./component/DashboardKepalaDesa";
+import DashboardTenagaPelaksanaGizi from "./component/DashboardTenagaPelaksanaGizi";
 
 
 const Dashboard = () => {
@@ -12,7 +15,17 @@ const Dashboard = () => {
     return <DashboardAdmin />;
   } else if (namaRole === "Dinas Kesehatan") {
      return <DashboardDinasKesehatan />;
-  } else {
+  }
+   else if (namaRole === "Dinas Sosial") {
+     return <DashboardDinasSosial/>;
+  }
+   else if (namaRole === "Kepala Desa") {
+     return <DashboardKepalaDesa/>;
+  }
+  else if (namaRole === "TPG") {
+     return <DashboardTenagaPelaksanaGizi/>;
+  }
+  else {
     return <p>Anda tidak memiliki akses ke dashboard ini.</p>;
   }
 };

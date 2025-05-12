@@ -8,13 +8,14 @@ type DataItem = {
 };
 
 type CountingCardProps = {
-  title: string; // Judul kartu
-  jumlah: number; // Angka jumlah
+  title: string;
+  jumlah: number;
   color: string[];
   data: DataItem[];
   label: string[];
+  isDinsos?: boolean; 
 };
-//
+
 
 const PercentageCard: React.FC<CountingCardProps> = ({
   title,
@@ -22,9 +23,14 @@ const PercentageCard: React.FC<CountingCardProps> = ({
   data,
   color,
   label,
+  isDinsos = false, // default false
 }) => {
   return (
-    <div className="flex h-[331px] flex-col justify-between rounded-xl bg-white p-6 shadow-lg">
+    <div
+      className={`flex flex-col justify-between rounded-xl bg-white p-6 shadow-lg ${
+        isDinsos ? "h-[575px]" : "h-[331px]"
+      }`}
+    >
       <h1 className="text-xl font-bold text-black">{title}</h1>
       <h1 className="relative flex items-center justify-center">
         <h1 className="absolute text-slate-700 font-bold">{jumlah}%</h1>
@@ -49,5 +55,6 @@ const PercentageCard: React.FC<CountingCardProps> = ({
     </div>
   );
 };
+
 
 export default PercentageCard;

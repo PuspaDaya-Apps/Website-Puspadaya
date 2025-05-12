@@ -27,10 +27,11 @@ interface FetchResult {
   
       const response = await axios.get(APIEndpoints.CURRENT, config);
       const { data } = response.data; 
-      
-      // console.log("ini datanya uy", data)
-      // console.log(data)
 
+      if (data?.provinsi?.nama_provinsi) {
+        sessionStorage.setItem('nama_provinsi', data.provinsi.nama_provinsi);
+      }
+     
       sessionStorage.removeItem(Messages.ERROR);
   
       return { successCode: response.status, data };

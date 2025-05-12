@@ -16,7 +16,7 @@ import PregnancyRiskSection from "../card-components/PregnancyRiskSection";
 import PosyanduDistributionSection from "../card-components/PosyanduDistributionSection";
 import KaderDistributionSection from "../card-components/KaderDistributionSection";
 
-const DashboardDinasKesehatan = () => {
+const DashboardTenagaPelaksanaGizi = () => {
   const [datadash, setData] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -149,6 +149,12 @@ useEffect(() => {
             monthYear={monthYear}
           />
 
+          <NIKStatisticsSection
+            isLoading={isLoading}
+            datadash={datadash}
+            monthYear={monthYear}
+          />
+
           <PregnancyRiskSection
             isLoading={isLoading}
             datadash={datadash}
@@ -175,8 +181,6 @@ useEffect(() => {
             monthYear={monthYear}
           />
 
-           
-
           <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
             {isLoading.mapPersebaranBalitaBerdasarkanWilayah ? (
               <h4>Loading...</h4>
@@ -193,10 +197,18 @@ useEffect(() => {
             )}
           </div>
 
+          <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
+            {isLoading.mapPersebaranKeluargaTanpaMCK ? (
+              <h4>Loading...</h4>
+            ) : (
+              <MapPersebaranKeluargaTanpaMCK />
+            )}
+          </div>
+          
         </div>
       </InfiniteScroll>
     </div>
   );
 };
 
-export default DashboardDinasKesehatan;
+export default DashboardTenagaPelaksanaGizi;

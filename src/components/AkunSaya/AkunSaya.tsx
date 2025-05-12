@@ -6,7 +6,7 @@ import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Role } from "@/types/role";
-import { currentUser } from "@/app/api/user/current";
+import { currentUser } from "@/app/api/user/currentUser";
 
 type Kabupaten = { name: string; code: string };
 type Kecamatan = { name: string; code: string };
@@ -255,7 +255,7 @@ const roleImageMap: { [key: string]: string } = {
   "Dinas Kesehatan": "/images/user/dinkes.png",
   "Dinas Sosial": "/images/user/dinsos.svg",
   "Kepala Camat": "/images/user/kepala_desa_kec.png",
-  "Kepala Desa": "/images/user/kepala_desa_kecs.png",
+  "Kepala Desa": "/images/user/kepala_desa_kec.png",
   "TPG": "/images/user/tpg.png",
   "Ketua Kader": "/images/user/ketua.png",
   "Kader": "/images/user/anggota.png",

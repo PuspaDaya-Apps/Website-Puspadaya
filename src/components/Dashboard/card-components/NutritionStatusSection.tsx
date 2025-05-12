@@ -2,7 +2,7 @@ import React from 'react';
 import { DashboardSectionProps } from './types';
 import CountingCard from "@/components/Card/CountingCard";
 import { svgUnderweight, svgWasting } from "@/components/ui/Svg";
-import TingkatGiziAnakWilayahDesa from '@/components/Charts/TingkatGiziAnakWilayahDesa TingkatGiziAnakWilayahDesa';
+import TingkatGiziAnakWilayahDesa from '@/components/Charts/TingkatGiziAnakWilayahDesa';
 
 const NutritionStatusSection: React.FC<DashboardSectionProps> = ({ isLoading, datadash, monthYear }) => {
   return (
