@@ -28,6 +28,8 @@ export const APIEndpoints = {
 
     //Grafik Maps
     MAPANAKSTUNTING : '/api/v1/dashboard/map-anak-stunting',
+    MAPPERSEBARANANAK : '/api/v1/dashboard/map-persebaran-anak',
+    MAPPERSEBARANKADERAKTIFNONAKTIF : '/api/v1/dashboard/map-persebaran-kader',
 
     
 };

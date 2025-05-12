@@ -174,6 +174,46 @@ export type MapPersebaranResponse = {
   data: DesaData[];
 };
 
+//map persebaran anak
+export type Dusun = {
+    nama_dusun: string;
+    count: number;
+};
+
+export type Desa = {
+    nama_desa: string;
+    count: number;
+    dusun: Dusun[];
+};
+
+export type PersebaranAnakResponse = {
+    message: string;
+    data: Desa[];
+};
+
+// map persebaran kader aktif dan tidak aktif
+export type DusunKader = {
+    nama_dusun: string;
+    count_aktif: number;
+    count_tidak_aktif: number;
+};
+
+export type DesaKader = {
+    nama_desa: string;
+    count_aktif: number;
+    count_tidak_aktif: number;
+    dusun: DusunKader[];
+};
+
+export type PersebaranKaderResponse = {
+    message: string;
+    data: {
+        data: DesaKader[];
+    };
+};
+
+//
+
 
 
 export type TrenGiziResponse = {

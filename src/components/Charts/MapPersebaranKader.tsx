@@ -4,12 +4,21 @@ import React, { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Dropdown } from "primereact/dropdown";
-import { DesaData } from "@/types/dashborad";
+import { DesaKader, PersebaranKaderResponse } from "@/types/dashborad";
+import { mapPersebaranKader } from "@/app/api/statistik-maps/mapPersebaranKader";
 
 // Tipe data untuk GeoJSON
 interface Wilayah {
   name: string;
   code: string;
+}
+
+interface GeoJSONFeature extends GeoJSON.Feature {
+  properties: {
+    NAMOBJ?: string;
+    WADMKD?: string;
+    name?: string;
+  };
 }
 
 const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691];
@@ -22,17 +31,40 @@ const MapPersebaranKader: React.FC = () => {
     { name: "Maluku Tengah", code: "MT" },
   ];
 
-  const [dataMap, setDataMap] = useState<DesaData[] | null>(null);
+  const [dataMap, setDataMap] = useState<DesaKader[] | null>();
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
+  const [map, setMap] = useState<L.Map | null>(null);
+  const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null);
+
+  useEffect(() => {
+  const fetchStuntingData = async () => {
+    setLoading(true);
+    const result = await mapPersebaranKader();
+
+    if (result.data) {
+      const response = result.data as PersebaranKaderResponse;
+      setDataMap(response.data.data); 
+      setMessage(response.message);
+    } else {
+      // console.warn("Gagal mengambil data, kode:", result.successCode);
+    }
+
+    setLoading(false);
+  };
+
+  fetchStuntingData();
+}, []);
+
+
+
+  
 
   // Ambil data provinsi dan role dari sessionStorage
   const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
   const role: string = sessionStorage.getItem("user_role") ?? "";
 
-  const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
-  const [map, setMap] = useState<L.Map | null>(null);
-  const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null);
 
 
 
@@ -40,15 +72,15 @@ const MapPersebaranKader: React.FC = () => {
     const mapInstance = L.map("map-persebaran-desa").setView(
       banyuwangiView,
       10,
-    ); // Inisialisasi peta dengan koordinat Banyuwangi
+    ); 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
     }).addTo(mapInstance);
 
-    setMap(mapInstance); // Set map instance ke state
+    setMap(mapInstance);
 
     return () => {
-      mapInstance.remove(); // Hapus instance peta saat komponen di-unmount
+      mapInstance.remove(); 
     };
   }, []);
 

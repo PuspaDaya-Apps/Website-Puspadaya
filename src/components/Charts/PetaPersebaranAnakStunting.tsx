@@ -6,7 +6,6 @@ import { Dropdown } from "primereact/dropdown";
 import { DesaData, MapPersebaranResponse } from "@/types/dashborad";
 import { mapStunting } from "@/app/api/statistik-maps/mapStunting";
 
-// Tipe data untuk Wilayah
 interface Wilayah {
   name: string;
   code: string;
@@ -14,8 +13,6 @@ interface Wilayah {
 
 const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691];
 const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228]; 
-
-
 
 const PetaPersebaranAnakStunting: React.FC = () => {
   const wilayah: Wilayah[] = [
@@ -27,18 +24,17 @@ const PetaPersebaranAnakStunting: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchStuntingData = async () => {
       setLoading(true);
       const result = await mapStunting();
 
       if (result.data) {
         const response = result.data as MapPersebaranResponse;
-        // console.log("Data berhasil diambil:", response);
         setDataMap(response.data);
         setMessage(response.message);
       } else {
-        // console.warn("Gagal mengambil data, kode:", result.successCode);
+        console.warn("Gagal mengambil data, kode:", result.successCode);
       }
 
       setLoading(false);
@@ -47,8 +43,6 @@ const PetaPersebaranAnakStunting: React.FC = () => {
     fetchStuntingData();
   }, []);
 
-
-  // Ambil data provinsi dan role dari sessionStorage
   const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
   const role: string = sessionStorage.getItem("user_role") ?? "";
 
@@ -57,10 +51,7 @@ const PetaPersebaranAnakStunting: React.FC = () => {
   const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null);
 
   useEffect(() => {
-    const mapInstance = L.map("map-balita-stunting").setView(
-      banyuwangiView,
-      10,
-    );
+    const mapInstance = L.map("map-balita-stunting").setView(banyuwangiView, 10);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
     }).addTo(mapInstance);
@@ -72,9 +63,7 @@ const PetaPersebaranAnakStunting: React.FC = () => {
     };
   }, []);
 
-  // Otomatis pilih wilayah berdasarkan provinsi
   useEffect(() => {
-    // Default ke Banyuwangi jika provinsi tidak terdeteksi atau provinsi Jawa Timur
     if (!provinsi || provinsi === "Jawa Timur") {
       setSelectedWilayah(wilayah.find((wil) => wil.code === "Banyuwangi") || null);
     } else {
@@ -82,13 +71,51 @@ const PetaPersebaranAnakStunting: React.FC = () => {
     }
   }, [provinsi]);
 
-  const popupContent = (feature: any) => {
+  const normalizeName = (name: string): string => {
+    return name.toLowerCase().trim().replace(/\s+/g, ' ');
+  };
+
+  const getDesaData = (feature: any): DesaData | undefined => {
+    if (!dataMap || !feature.properties) return undefined;
+    
+    return dataMap.find(desa => {
+      const normalizedDesaName = normalizeName(desa.nama_desa);
+      const normalizedFeatureName1 = normalizeName(feature.properties.NAMOBJ || "");
+      const normalizedFeatureName2 = normalizeName(feature.properties.WADMKD || "");
+      
+      return normalizedDesaName === normalizedFeatureName1 || 
+             normalizedDesaName === normalizedFeatureName2;
+    });
+  };
+
+  const getColorForPercentage = (percentage: number): string => {
+    if (percentage <= 25) return '#00FF00'; // Green
+    if (percentage <= 50) return '#FFFF00'; // Yellow
+    if (percentage <= 75) return '#FFA500'; // Orange
+    return '#FF0000'; // Red
+  };
+
+  const popupContent = (feature: any, desaData?: DesaData) => {
+    if (desaData) {
+      const totalChildren = desaData.count_stunting + desaData.count_wasting + desaData.count_gizi_baik;
+      const stuntingPercentage = totalChildren > 0 ? Math.round((desaData.count_stunting / totalChildren) * 100) : 0;
+      const wastingPercentage = totalChildren > 0 ? Math.round((desaData.count_wasting / totalChildren) * 100) : 0;
+      const giziBaikPercentage = totalChildren > 0 ? Math.round((desaData.count_gizi_baik / totalChildren) * 100) : 0;
+      
+      return `
+        <div>
+          <p><strong>Wilayah:</strong> ${feature.properties.NAMOBJ || feature.properties.WADMKD || feature.properties.name}</p>
+          <p><strong>Total Anak:</strong> ${totalChildren}</p>
+          <p><strong>Anak Stunting:</strong> ${desaData.count_stunting} (${stuntingPercentage}%)</p>
+          <p><strong>Anak Wasting:</strong> ${desaData.count_wasting} (${wastingPercentage}%)</p>
+          <p><strong>Anak Gizi Baik:</strong> ${desaData.count_gizi_baik} (${giziBaikPercentage}%)</p>
+        </div>
+      `;
+    }
     return `
       <div>
-        <p><strong>Wilayah:</strong> ${feature.properties.name}</p>
-        <p><strong>Memiliki Anak stunting:</strong> 80</p>
-        <p><strong>Memiliki Anak Wasting:</strong> 10</p>
-        <p><strong>Anak gizi baik:</strong> 238</p>
+        <p><strong>Wilayah:</strong> ${feature.properties.NAMOBJ || feature.properties.WADMKD || feature.properties.name}</p>
+        <p>Data stunting tidak tersedia</p>
       </div>
     `;
   };
@@ -97,31 +124,48 @@ const PetaPersebaranAnakStunting: React.FC = () => {
     if (map && selectedWilayah) {
       geoJSONLayer?.remove();
 
-      const view =
-        selectedWilayah.code === "Banyuwangi" ? banyuwangiView : malukuTengahView;
+      const view = selectedWilayah.code === "Banyuwangi" ? banyuwangiView : malukuTengahView;
       map.setView(view, 10);
 
       const fetchGeoJSON = async () => {
-        const endpoint =
-          selectedWilayah.code === "Banyuwangi"
-            ? "/api/geojson/banyuwangi"
-            : "/api/geojson/maluku-tengah";
+        const endpoint = selectedWilayah.code === "Banyuwangi"
+          ? "/api/geojson/banyuwangi"
+          : "/api/geojson/maluku-tengah";
         try {
           const response = await fetch(endpoint);
           const geoJSONData: any = await response.json();
 
           const newGeoJSONLayer = L.geoJSON(geoJSONData, {
-            style: () => ({
-              color: selectedWilayah.code === "Banyuwangi" ? "blue" : "green",
-              weight: 2,
-              fillColor:
-                selectedWilayah.code === "Banyuwangi" ? "lightblue" : "lightgreen",
-              fillOpacity: 0.5,
-            }),
-            onEachFeature: (feature, layer) => {
-              if (feature.properties && feature.properties.name) {
-                layer.bindPopup(popupContent(feature));
+            style: (feature) => {
+              const desaData = getDesaData(feature);
+              const baseColor = selectedWilayah.code === "Banyuwangi" ? "blue" : "green";
+              
+              if (desaData) {
+                const totalChildren = desaData.count_stunting + desaData.count_wasting + desaData.count_gizi_baik;
+                const stuntingWastingPercentage = totalChildren > 0 
+                  ? Math.round(((desaData.count_stunting + desaData.count_wasting) / totalChildren) * 100)
+                  : 0;
+                
+                const fillColor = getColorForPercentage(stuntingWastingPercentage);
+                
+                return {
+                  color: "black",
+                  weight: 1,
+                  fillColor: fillColor,
+                  fillOpacity: 0.7
+                };
               }
+              // Default color
+              return {
+                color: baseColor,
+                weight: 1,
+                fillColor: baseColor === "blue" ? "lightblue" : "lightgreen",
+                fillOpacity: 0.5
+              };
+            },
+            onEachFeature: (feature, layer) => {
+              const desaData = getDesaData(feature);
+              layer.bindPopup(popupContent(feature, desaData));
             },
           }).addTo(map);
 
@@ -135,31 +179,7 @@ const PetaPersebaranAnakStunting: React.FC = () => {
 
       fetchGeoJSON();
     }
-  }, [map, selectedWilayah]);
-
-  useEffect(() => {
-    if (map) {
-      const titikPenyebaran = [
-        {
-          lat: -8.2192,
-          lng: 114.3691,
-          color: "red",
-          info: "Tingkat stunting tinggi",
-        },
-       
-      ];
-
-      titikPenyebaran.forEach(({ lat, lng, color, info }) => {
-        const marker = L.circleMarker([lat, lng], {
-          color: color,
-          fillColor: color,
-          fillOpacity: 0.8,
-          radius: 8,
-        }).addTo(map);
-        marker.bindPopup(`<b>${info}</b>`);
-      });
-    }
-  }, [map]);
+  }, [map, selectedWilayah, dataMap]);
 
   return (
     <div className="">
@@ -188,19 +208,14 @@ const PetaPersebaranAnakStunting: React.FC = () => {
         id="map-balita-stunting"
         style={{ height: "100vh", width: "100%", zIndex: 1 }}
       />
-
-      <div className="flex gap-4">
+      <div className="flex gap-4 mt-4 flex-wrap">
         <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-red-500"></div>
-          <p className="text-dark">Anak Stunting</p>
+          <div className="h-4 w-4 rounded-full bg-blue-500"></div>
+          <p className="text-dark">Wilayah Banyuwangi</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-          <p className="text-dark">Anak Wasting</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-          <p className="text-dark">Anak Gizi Baik</p>
+          <div className="h-4 w-4 rounded-full bg-green-500"></div>
+          <p className="text-dark">Wilayah Maluku Tengah</p>
         </div>
       </div>
     </div>
