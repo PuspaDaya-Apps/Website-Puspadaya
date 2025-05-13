@@ -24,7 +24,7 @@ const SKDNSection: React.FC<DashboardSectionProps> = ({ isLoading, datadash, mon
             isMeningkat={true}
             jumlah={datadash?.perhitungan_skdn.D_S.jumlah ?? "0"}
             peningkatan={
-              datadash?.perhitungan_skdn.D_S.rate !== undefined
+              datadash?.perhitungan_skdn.D_S.rate == `null`
                 ? `${datadash.perhitungan_skdn.D_S.rate}%`
                 : "-"
             }
@@ -43,7 +43,7 @@ const SKDNSection: React.FC<DashboardSectionProps> = ({ isLoading, datadash, mon
             isMeningkat={true}
             jumlah={datadash?.perhitungan_skdn.K_S.jumlah ?? "0"}
             peningkatan={
-              datadash?.perhitungan_skdn.K_S.rate !== undefined
+              datadash?.perhitungan_skdn.K_S.rate == `null`
                 ? `${datadash.perhitungan_skdn.K_S.rate}%`
                 : "-"
             }

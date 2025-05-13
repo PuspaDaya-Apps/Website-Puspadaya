@@ -24,7 +24,7 @@ const NutritionProgramSection: React.FC<DashboardSectionProps> = ({ isLoading, d
             isMeningkat={true}
             jumlah={datadash?.jumlah_anak_asi_ekslusif.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak_asi_ekslusif.rate !== undefined
+              datadash?.jumlah_anak_asi_ekslusif.rate == `null`
                 ? `${datadash.jumlah_anak_asi_ekslusif.rate}%`
                 : "-"
             }
@@ -43,7 +43,7 @@ const NutritionProgramSection: React.FC<DashboardSectionProps> = ({ isLoading, d
             isMeningkat={true}
             jumlah={datadash?.jumlah_anak_mpasi.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak_mpasi.rate !== undefined
+              datadash?.jumlah_anak_mpasi.rate == `null`
                 ? `${datadash.jumlah_anak_mpasi.rate}%`
                 : "-"
             }

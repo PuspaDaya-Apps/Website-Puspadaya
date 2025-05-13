@@ -34,7 +34,7 @@ const PregnancyRiskSection: React.FC<DashboardSectionProps> = ({
             isMeningkat={true}
             jumlah={datadash?.jumlah_ibu_hamil?.jumlah || "0"}
             peningkatan={
-              datadash?.jumlah_ibu_hamil?.rate !== undefined
+              datadash?.jumlah_ibu_hamil?.rate == `null`
                 ? `${datadash.jumlah_ibu_hamil.rate}%`
                 : "-"
             }
@@ -54,7 +54,7 @@ const PregnancyRiskSection: React.FC<DashboardSectionProps> = ({
             isMeningkat={true}
             jumlah={datadash?.jumlah_ibu_hamil_hpl?.jumlah || "0"}
             peningkatan={
-              datadash?.jumlah_ibu_hamil_hpl?.rate != null
+              datadash?.jumlah_ibu_hamil_hpl?.rate == `null`
                 ? `${datadash.jumlah_ibu_hamil_hpl.rate}%`
                 : "-"
             }

@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -7,86 +6,74 @@ import { Dropdown } from "primereact/dropdown";
 import { DesaKader, PersebaranKaderResponse } from "@/types/dashborad";
 import { mapPersebaranKader } from "@/app/api/statistik-maps/mapPersebaranKader";
 
-// Tipe data untuk GeoJSON
 interface Wilayah {
   name: string;
   code: string;
 }
 
-interface GeoJSONFeature extends GeoJSON.Feature {
-  properties: {
-    NAMOBJ?: string;
-    WADMKD?: string;
-    name?: string;
-  };
-}
-
 const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691];
-const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228];
+const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228]; 
 
 const MapPersebaranKader: React.FC = () => {
-
   const wilayah: Wilayah[] = [
     { name: "Banyuwangi", code: "Banyuwangi" },
     { name: "Maluku Tengah", code: "MT" },
   ];
 
-  const [dataMap, setDataMap] = useState<DesaKader[] | null>();
+  const [dataMaps, setDataMaps] = useState<DesaKader[] | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+useEffect(() => {
+    const fetchStuntingData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const result = await mapPersebaranKader();
+        // console.log("API Response:", result);
+        
+        if (result.data) {
+          const response = result.data as PersebaranKaderResponse;
+          if (response.data?.data && Array.isArray(response.data.data)) {
+            setDataMaps(response.data.data);
+            // setMessage(response.message);
+          } else {
+            setError("Invalid data structure received from API");
+          }
+        } else {
+          setError(result.error || "Failed to fetch data");
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setError("Error while fetching data");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStuntingData();
+  }, []);
+
+
+  const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
+  const role: string = sessionStorage.getItem("user_role") ?? "";
+
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
   const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null);
 
   useEffect(() => {
-  const fetchStuntingData = async () => {
-    setLoading(true);
-    const result = await mapPersebaranKader();
-
-    if (result.data) {
-      const response = result.data as PersebaranKaderResponse;
-      setDataMap(response.data.data); 
-      setMessage(response.message);
-    } else {
-      // console.warn("Gagal mengambil data, kode:", result.successCode);
-    }
-
-    setLoading(false);
-  };
-
-  fetchStuntingData();
-}, []);
-
-
-
-  
-
-  // Ambil data provinsi dan role dari sessionStorage
-  const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
-  const role: string = sessionStorage.getItem("user_role") ?? "";
-
-
-
-
-  useEffect(() => {
-    const mapInstance = L.map("map-persebaran-desa").setView(
-      banyuwangiView,
-      10,
-    ); 
+    const mapInstance = L.map("map-perseberan-kader").setView(banyuwangiView, 10);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
     }).addTo(mapInstance);
-
     setMap(mapInstance);
-
     return () => {
-      mapInstance.remove(); 
+      mapInstance.remove();
     };
   }, []);
 
-
- useEffect(() => {
-    // Default ke Banyuwangi jika provinsi tidak terdeteksi atau provinsi Jawa Timur
+  useEffect(() => {
     if (!provinsi || provinsi === "Jawa Timur") {
       setSelectedWilayah(wilayah.find((wil) => wil.code === "Banyuwangi") || null);
     } else {
@@ -94,126 +81,155 @@ const MapPersebaranKader: React.FC = () => {
     }
   }, [provinsi]);
 
-  const popupContent = (feature: any) => {
+  const normalizeName = (name: string): string => {
+    return name.toLowerCase().trim().replace(/\s+/g, ' ')
+      .replace(/[^\w\s]/g, '') 
+      .replace(/\bdesa\b/g, '')
+      .trim();
+  };
+
+  const getDesaKader = (feature: any): DesaKader | undefined => {
+    if (!dataMaps || !feature.properties) {
+      // console.log("No dataMaps or feature properties");
+      return undefined;
+    }
+    const featureName1 = feature.properties.NAMOBJ || "";
+    const featureName2 = feature.properties.WADMKD || "";
+    const featureName = featureName1 || featureName2;
+    
+    // console.log(`Looking for: ${featureName}`);
+    
+    const match = dataMaps.find(desa => {
+      const normalizedDesaName = normalizeName(desa.nama_desa);
+      const normalizedFeatureName1 = normalizeName(featureName1);
+      const normalizedFeatureName2 = normalizeName(featureName2);
+      
+      // console.log(`Comparing: ${normalizedDesaName} vs ${normalizedFeatureName1} or ${normalizedFeatureName2}`); // Debug log
+      
+      return normalizedDesaName === normalizedFeatureName1 || 
+             normalizedDesaName === normalizedFeatureName2 ||
+             normalizedDesaName.includes(normalizedFeatureName1) ||
+             normalizedFeatureName1.includes(normalizedDesaName);
+    });
+    
+    // console.log("Match found:", match); // Debug log
+    return match;
+  };
+
+  const popupContentKader = (feature: any, desaKader?: DesaKader) => {
+    const wilayahName = feature.properties.NAMOBJ || feature.properties.WADMKD || feature.properties.name;
+    
+    if (desaKader) {
+      return `
+        <div style="min-width: 150px;">
+          <h4 style="margin-bottom: 8px; font-weight: bold;">${wilayahName}</h4>
+          <p><strong>Total Kader:</strong> ${desaKader.count_aktif + desaKader.count_tidak_aktif}</p>
+          <p><strong>Kader Aktif:</strong> ${desaKader.count_aktif}</p>
+          <p><strong>Kader Tidak Aktif:</strong> ${desaKader.count_tidak_aktif}</p>
+        </div>
+      `;
+    }
+    
     return `
-      <div>
-        <p><strong>Wilayah:</strong> ${feature.properties.name}</p>
-        <p><strong>Jumlah Kader:</strong> 174</p>
-        <p><strong>Kader Aktif:</strong> 124</p>
-        <p><strong>Kader Tidak Aktif:</strong> 50</p>
+      <div style="min-width: 150px;">
+        <h4 style="margin-bottom: 8px; font-weight: bold;">${wilayahName}</h4>
+        <p style="color: #666;">Data kader tidak tersedia</p>
       </div>
     `;
   };
 
   useEffect(() => {
     if (map && selectedWilayah) {
-      // Hapus layer GeoJSON yang sudah ada
       geoJSONLayer?.remove();
 
-      // Sesuaikan setView berdasarkan wilayah yang dipilih
-      const view =
-        selectedWilayah.code === "Banyuwangi" ? banyuwangiView : malukuTengahView;
+      const view = selectedWilayah.code === "Banyuwangi" ? banyuwangiView : malukuTengahView;
       map.setView(view, 10);
 
-
-      // Load dan tambahkan GeoJSON untuk wilayah yang dipilih
       const fetchGeoJSON = async () => {
-        const endpoint =
-          selectedWilayah.code === "Banyuwangi"
-            ? "/api/geojson/banyuwangi"
-            : "/api/geojson/maluku-tengah";
-
+        const endpoint = selectedWilayah.code === "Banyuwangi"
+          ? "/api/geojson/banyuwangi"
+          : "/api/geojson/maluku-tengah";
         try {
           const response = await fetch(endpoint);
           const geoJSONData: any = await response.json();
-
-          // Tambahkan GeoJSON ke peta
+          // console.log("GeoJSON loaded:", geoJSONData); // Debug log
+          
           const newGeoJSONLayer = L.geoJSON(geoJSONData, {
-            style: () => ({
-              color: selectedWilayah.code === "Banyuwangi" ? "blue" : "green",
-              weight: 2,
-              fillColor:
-                selectedWilayah.code === "Banyuwangi" ? "lightblue" : "lightgreen",
-              fillOpacity: 0.5,
-            }),
-            onEachFeature: (feature, layer) => {
-              if (feature.properties && feature.properties.name) {
-                layer.bindPopup(popupContent(feature));
+            style: (feature) => {
+              const desaData = getDesaKader(feature);
+              if (desaData) {
+                const activeRatio = desaData.count_aktif / (desaData.count_aktif + desaData.count_tidak_aktif);
+                return {
+                  color: "#333",
+                  weight: 1,
+                  fillColor: activeRatio > 0.5 ? "#4CAF50" : activeRatio > 0 ? "#FFC107" : "#F44336",
+                  fillOpacity: 0.7
+                };
               }
+              return {
+                color: "#999",
+                weight: 1,
+                fillColor: "#DDD",
+                fillOpacity: 0.5
+              };
+            },
+            onEachFeature: (feature, layer) => {
+              const desaData = getDesaKader(feature);
+              layer.bindPopup(popupContentKader(feature, desaData));
+
+              layer.on({
+                mouseover: (e) => {
+                  const layer = e.target;
+                  layer.setStyle({
+                    weight: 2,
+                    color: "#666",
+                    fillOpacity: 0.9
+                  });
+                  layer.bringToFront();
+                },
+                mouseout: (e) => {
+                  const layer = e.target;
+                  const desaData = getDesaKader(feature);
+                  if (desaData) {
+                    const activeRatio = desaData.count_aktif / (desaData.count_aktif + desaData.count_tidak_aktif);
+                    layer.setStyle({
+                      weight: 1,
+                      color: "#333",
+                      fillColor: activeRatio > 0.5 ? "#4CAF50" : activeRatio > 0 ? "#FFC107" : "#F44336",
+                      fillOpacity: 0.7
+                    });
+                  } else {
+                    layer.setStyle({
+                      color: "#333",
+                      weight: 1,
+                      fillColor: "#DDD",
+                      fillOpacity: 0.5
+                    });
+                  }
+                }
+              });
             },
           }).addTo(map);
 
-          // Menambahkan marker untuk kader aktif dan tidak aktif
-          const kaderData = [
-            { lat: -8.2192, lng: 114.3691, status: "aktif", name: "Kader A" }, // Kader aktif
-            { lat: -8.22, lng: 114.37, status: "tidak aktif", name: "Kader B" }, // Kader tidak aktif
-
-            {
-              lat: -8.2292,
-              lng: 114.3791,
-
-              status: "tidak aktif",
-            },
-            {
-              lat: -8.2392,
-              lng: 114.3891,
-
-              status: "aktif",
-            },
-
-            {
-              lat: -3.2255,
-              lng: 128.9754,
-
-              status: "aktif",
-            },
-            {
-              lat: -3.2997,
-              lng: 128.9565,
-
-              status: "tidak aktif",
-            },
-            {
-              lat: -3.3333,
-              lng: 129.0,
-
-              status: "tidak aktif",
-            },
-          ];
-
-          kaderData.forEach((kader) => {
-            const markerColor = kader.status === "aktif" ? "green" : "red";
-            const marker = L.marker([kader.lat, kader.lng], {
-              icon: L.divIcon({
-                className: "leaflet-div-icon",
-                html: `<div style="background-color: ${markerColor}; border-radius: 50%; width: 20px; height: 20px;"></div>`,
-              }),
-            })
-              .addTo(map)
-              .bindPopup(
-                `<strong>${kader.name}</strong><br>Status: ${kader.status}`,
-              );
-          });
-
-          // Update state untuk menyimpan layer GeoJSON
           setGeoJSONLayer(newGeoJSONLayer);
-
-          // Zoom ke batas GeoJSON
           const bounds = newGeoJSONLayer.getBounds();
-          map.fitBounds(bounds);
+          if (bounds.isValid()) {
+            map.fitBounds(bounds);
+          }
         } catch (error) {
           console.error("Error loading GeoJSON:", error);
+          setError("Gagal memuat data peta");
         }
       };
 
       fetchGeoJSON();
     }
-  }, [map, selectedWilayah]); // Menjalankan setiap kali peta atau wilayah dipilih berubah
+  }, [map, selectedWilayah, dataMaps]);
 
   return (
-    <div className="">
+    <div className="relative">
       <div className="mb-10 flex justify-between">
-        <div className="">
+        <div>
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
             Peta Penyebaran Kader Aktif dan Tidak Aktif
           </h1>
@@ -234,22 +250,50 @@ const MapPersebaranKader: React.FC = () => {
           />
         </div>
       </div>
+
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-10">
+          <div className="text-center">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="mt-2 text-dark">Memuat data...</p>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="p-4 mb-4 text-red-700 bg-red-100 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {message && (
+        <div className="p-4 mb-4 text-green-700 bg-green-100 rounded-lg">
+          {message}
+        </div>
+      )}
+
       <div
-        id="map-persebaran-desa"
-        style={{ height: "100vh", width: "100%", zIndex: 1 }}
+        id="map-perseberan-kader"
+        style={{ height: "70vh", width: "100%", zIndex: 1 }}
       />
 
-      <div className="flex gap-4">
+      <div className="mt-4 flex flex-wrap gap-4">
         <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-red-500"></div>
-          <p className="text-dark">Kader Tidak Aktif</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-green-500"></div>
+          <div className="h-4 w-4 rounded-full bg-green-500"></div>
           <p className="text-dark">Kader Aktif</p>
         </div>
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-4 rounded-full bg-yellow-500"></div>
+          <p className="text-dark">Cukup Aktif</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-4 rounded-full bg-red-500"></div>
+          <p className="text-dark">Kader Tidak Aktif</p>
+        </div>
+        
       </div>
-
     </div>
   );
 };

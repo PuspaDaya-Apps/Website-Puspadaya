@@ -24,7 +24,7 @@ const AttendanceSection: React.FC<DashboardSectionProps> = ({ isLoading, datadas
             isMeningkat={true}
             jumlah={datadash?.jumlah_anak_hadir.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak_hadir.rate !== undefined
+              datadash?.jumlah_anak_hadir.rate == `null`
                 ? `${datadash.jumlah_anak_hadir.rate}%`
                 : "-"
             }
@@ -43,7 +43,7 @@ const AttendanceSection: React.FC<DashboardSectionProps> = ({ isLoading, datadas
             isMeningkat={true}
             jumlah={datadash?.jumlah_anak_lulus.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak_lulus.rate !== undefined
+              datadash?.jumlah_anak_lulus.rate == `null`
                 ? `${datadash.jumlah_anak_lulus.rate}%`
                 : "-"
             }

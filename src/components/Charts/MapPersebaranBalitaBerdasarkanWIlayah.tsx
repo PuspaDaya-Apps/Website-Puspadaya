@@ -11,13 +11,11 @@ interface Wilayah {
   code: string;
 }
 
-interface GeoJSONFeature extends GeoJSON.Feature {
-  properties: {
-    NAMOBJ?: string;
-    WADMKD?: string;
-    name?: string;
-  };
-}
+interface GeoJSONFeature extends GeoJSON.Feature<GeoJSON.Geometry, { 
+  NAMOBJ?: string; 
+  WADMKD?: string; 
+  name?: string;
+}> {}
 
 const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691];
 const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228]; 
@@ -116,7 +114,6 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
     if (!feature.geometry) return null;
     
     try {
-      // Create temporary layer to calculate bounds
       const tempLayer = L.geoJSON(feature);
       const bounds = tempLayer.getBounds();
       return bounds.getCenter();
@@ -155,6 +152,18 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
     }).addTo(map);
   };
 
+  const getStyle = (feature: GeoJSONFeature | undefined): L.PathOptions => {
+    const desaData = feature ? getDesaData(feature) : undefined;
+    const baseColor = selectedWilayah?.code === "Banyuwangi" ? "blue" : "green";
+    
+    return {
+      color: "#333",
+      weight: 1,
+      fillColor: desaData ? (baseColor === "blue" ? "lightblue" : "lightgreen") : "#CCCCCC",
+      fillOpacity: 0.5
+    };
+  };
+
   useEffect(() => {
     if (!map || !selectedWilayah) return;
 
@@ -172,12 +181,7 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
         const geoJSONData = await response.json();
 
         const newGeoJSONLayer = L.geoJSON(geoJSONData, {
-          style: {
-            color: selectedWilayah.code === "Banyuwangi" ? "blue" : "green",
-            weight: 2,
-            fillColor: selectedWilayah.code === "Banyuwangi" ? "lightblue" : "lightgreen",
-            fillOpacity: 0.5,
-          },
+          style: (feature) => getStyle(feature),
           onEachFeature: (feature: GeoJSONFeature, layer: L.Layer) => {
             const desaData = getDesaData(feature);
             layer.bindPopup(popupContent(feature, desaData));
@@ -225,6 +229,16 @@ const MapPersebaranBalitaBerdasarkanWIlayah: React.FC = () => {
         id="map-persebaran-balita-berdasarkan-wilayah" 
         style={{ height: "100vh", width: "100%", zIndex: 1 }} 
       />
+      <div className="flex gap-4 mt-4">
+        {/* <div className="flex items-center gap-2">
+          <div className="h-4 w-4 rounded-full bg-blue-500"></div>
+          <p className="text-dark">Wilayah dengan data</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-4 rounded-full bg-gray-500"></div>
+          <p className="text-dark">Wilayah tanpa data</p>
+        </div> */}
+      </div>
     </div>
   );
 };

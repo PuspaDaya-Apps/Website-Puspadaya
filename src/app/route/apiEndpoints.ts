@@ -30,6 +30,7 @@ export const APIEndpoints = {
     MAPANAKSTUNTING : '/api/v1/dashboard/map-anak-stunting',
     MAPPERSEBARANANAK : '/api/v1/dashboard/map-persebaran-anak',
     MAPPERSEBARANKADERAKTIFNONAKTIF : '/api/v1/dashboard/map-persebaran-kader',
+    MAPPERSEBARANMCK : "/api/v1/dashboard/map-persebaran-mck"
 
     
 };

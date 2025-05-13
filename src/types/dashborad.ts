@@ -192,6 +192,13 @@ export type PersebaranAnakResponse = {
 };
 
 // map persebaran kader aktif dan tidak aktif
+export type PersebaranKaderResponse = {
+    message: string;
+   data: {
+        data: DesaKader[];
+    };
+};
+
 export type DusunKader = {
     nama_dusun: string;
     count_aktif: number;
@@ -205,14 +212,13 @@ export type DesaKader = {
     dusun: DusunKader[];
 };
 
-export type PersebaranKaderResponse = {
-    message: string;
-    data: {
-        data: DesaKader[];
-    };
-};
 
-//
+
+//map persebaran MCK
+export type PersebaranMCK= {
+    message: string;
+    data: Desa[];
+};
 
 
 

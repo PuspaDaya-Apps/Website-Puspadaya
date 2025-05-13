@@ -35,7 +35,7 @@ const NIKStatisticsSection: React.FC<DashboardSectionProps> = ({ isLoading, data
               jumlah={datadash?.jumlah_desa.jumlah ?? "0"}
               jumlah_keluarga={datadash?.keluarga_tanpa_mck.jumlah ?? "0"}
               peningkatan={
-                datadash?.jumlah_desa.rate !== undefined
+                datadash?.jumlah_desa.rate == `null`
                   ? `${datadash.jumlah_desa.rate}%`
                   : "-"
               }
@@ -56,7 +56,7 @@ const NIKStatisticsSection: React.FC<DashboardSectionProps> = ({ isLoading, data
               isMeningkat={true}
               jumlah={datadash?.keluarga_tanpa_mck?.jumlah ?? "0"}
               peningkatan={
-                datadash?.keluarga_tanpa_mck.rate !== undefined
+                datadash?.keluarga_tanpa_mck.rate == `null`
                   ? `${datadash.keluarga_tanpa_mck.rate}%`
                   : "-"
               }
@@ -77,7 +77,7 @@ const NIKStatisticsSection: React.FC<DashboardSectionProps> = ({ isLoading, data
             isMeningkat={true}
             jumlah={datadash?.jumlah_orang_tua_tidak_punya_kk?.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_orang_tua_tidak_punya_kk.rate !== undefined
+              datadash?.jumlah_orang_tua_tidak_punya_kk.rate == `null`
                 ? `${datadash.jumlah_orang_tua_tidak_punya_kk.rate}%`
                 : "-"
             }

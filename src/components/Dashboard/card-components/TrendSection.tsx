@@ -22,9 +22,9 @@ const TrendSection: React.FC<DashboardSectionProps> = ({ isLoading, datadash, mo
           <CountingCard
             icon={SvgIconBayi}
             isMeningkat={true}
-            jumlah={datadash?.jumlah_anak.jumlah ?? "0"}
+            jumlah= {datadash?.jumlah_anak.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak.rate !== undefined
+              datadash?.jumlah_anak.rate == `null`
                 ? `${datadash.jumlah_anak.rate}%`
                 : "-"
             }
@@ -43,7 +43,7 @@ const TrendSection: React.FC<DashboardSectionProps> = ({ isLoading, datadash, mo
             isMeningkat={false}
             jumlah={datadash?.jumlah_anak_stunting.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak_stunting.rate !== undefined
+              datadash?.jumlah_anak_stunting.rate == `null`
                 ? `${datadash.jumlah_anak_stunting.rate}%`
                 : "-"
             }

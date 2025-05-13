@@ -1,45 +1,63 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Dropdown } from "primereact/dropdown";
-import { DesaData } from "@/types/dashborad";
+import { Desa, PersebaranAnakResponse, PersebaranMCK } from "@/types/dashborad";
+import { mapPersebaranAnak } from "@/app/api/statistik-maps/mapPersebaranAnak";
+import { mapPersebaranMCK } from "@/app/api/statistik-maps/mapPersebaranMCK";
 
-// Tipe data untuk Wilayah
 interface Wilayah {
   name: string;
   code: string;
 }
 
+interface GeoJSONFeature extends GeoJSON.Feature<GeoJSON.Geometry, { 
+  NAMOBJ?: string; 
+  WADMKD?: string; 
+  name?: string;
+}> {}
+
 const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691];
-const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228];
+const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228]; 
 
 const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
-
-
   const wilayah: Wilayah[] = [
     { name: "Banyuwangi", code: "Banyuwangi" },
     { name: "Maluku Tengah", code: "MT" },
   ];
 
-  const [dataMap, setDataMap] = useState<DesaData[] | null>(null);
+  const [dataMap, setDataMap] = useState<Desa[] | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
-  // Ambil data provinsi dan role dari sessionStorage
-  const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
-  const role: string = sessionStorage.getItem("user_role") ?? "";
-
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
   const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null);
 
+   useEffect(() => {
+    const fetchStuntingData = async () => {
+      setLoading(true);
+      const result = await mapPersebaranMCK();
+
+      if (result.data) {
+        const response = result.data as PersebaranMCK;
+        setDataMap(response.data);
+        setMessage(response.message);
+      } else {
+        console.warn("Gagal mengambil data, kode:", result.successCode);
+      }
+
+      setLoading(false);
+    };
+
+    fetchStuntingData();
+  }, []);
+
+  const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
+  const role: string = sessionStorage.getItem("user_role") ?? "";
+
   useEffect(() => {
-    const mapInstance = L.map("map-persebaran-keluarga-tanpa-mck").setView(
-      banyuwangiView,
-      10
-    );
+    const mapInstance = L.map("map-persebaran-keluarga-tanpa-mck").setView(banyuwangiView, 10);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
     }).addTo(mapInstance);
@@ -51,9 +69,7 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
     };
   }, []);
 
-  // Otomatis pilih wilayah berdasarkan provinsi
   useEffect(() => {
-    // Default ke Banyuwangi jika provinsi tidak terdeteksi atau provinsi Jawa Timur
     if (!provinsi || provinsi === "Jawa Timur") {
       setSelectedWilayah(wilayah.find((wil) => wil.code === "Banyuwangi") || null);
     } else {
@@ -61,77 +77,141 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
     }
   }, [provinsi]);
 
-  const popupContent = (feature: any) => {
+  const normalizeName = (name: string): string => {
+    return name.toLowerCase().trim().replace(/\s+/g, ' ');
+  };
+
+  const getDesaData = (feature: GeoJSONFeature): Desa | undefined => {
+    if (!dataMap || !feature.properties) return undefined;
+    
+    return dataMap.find(desa => {
+      const normalizedDesaName = normalizeName(desa.nama_desa);
+      const normalizedFeatureName1 = normalizeName(feature.properties.NAMOBJ || "");
+      const normalizedFeatureName2 = normalizeName(feature.properties.WADMKD || "");
+      
+      return normalizedDesaName === normalizedFeatureName1 || 
+             normalizedDesaName === normalizedFeatureName2;
+    });
+  };
+
+  const popupContent = (feature: GeoJSONFeature, desaData?: Desa) => {
+    if (desaData) {
+      return `
+        <div>
+          <p><strong>Wilayah:</strong> ${feature.properties.NAMOBJ || feature.properties.WADMKD || feature.properties.name || 'Unknown'}</p>
+          <p><strong>Jumlah Anak:</strong> ${desaData.count}</p>
+        </div>
+      `;
+    }
     return `
       <div>
-        <p><strong>Wilayah:</strong> ${feature.properties.name}</p>
-        <p><strong>Keluarga Tanpa MCK:</strong> ${feature.properties.keluargaTanpaMCK || 0}</p>
+        <p><strong>Wilayah:</strong> ${feature.properties.NAMOBJ || feature.properties.WADMKD || feature.properties.name || 'Unknown'}</p>
+        <p>Data tidak tersedia</p>
       </div>
     `;
   };
 
-  useEffect(() => {
-    if (map && selectedWilayah) {
-      geoJSONLayer?.remove();
-
-      const view =
-        selectedWilayah.code === "Banyuwangi" ? banyuwangiView : malukuTengahView;
-      map.setView(view, 10);
-
-      const fetchGeoJSON = async () => {
-        const endpoint =
-          selectedWilayah.code === "Banyuwangi"
-            ? "/api/geojson/banyuwangi"
-            : "/api/geojson/maluku-tengah";
-        try {
-          const response = await fetch(endpoint);
-          const geoJSONData: any = await response.json();
-
-          const newGeoJSONLayer = L.geoJSON(geoJSONData, {
-            style: () => ({
-              color: selectedWilayah.code === "Banyuwangi" ? "blue" : "green",
-              weight: 2,
-              fillColor:
-                selectedWilayah.code === "Banyuwangi" ? "lightblue" : "lightgreen",
-              fillOpacity: 0.5,
-            }),
-            onEachFeature: (feature, layer) => {
-              if (feature.properties && feature.properties.name) {
-                layer.bindPopup(popupContent(feature));
-                
-                layer.on("mouseover", () => {
-                  const info = `Keluarga tidak memiliki MCK: ${feature.properties.keluargaTanpaMCK || 0}`;
-                  layer.bindTooltip(info).openTooltip();
-                });
-
-                layer.on("mouseout", () => {
-                  layer.closeTooltip();
-                });
-              }
-            },
-          }).addTo(map);
-
-          setGeoJSONLayer(newGeoJSONLayer);
-          const bounds = newGeoJSONLayer.getBounds();
-          map.fitBounds(bounds);
-        } catch (error) {
-          console.error("Error loading GeoJSON:", error);
-        }
-      };
-
-      fetchGeoJSON();
+  const getFeatureCenter = (feature: GeoJSONFeature): L.LatLng | null => {
+    if (!feature.geometry) return null;
+    
+    try {
+      const tempLayer = L.geoJSON(feature);
+      const bounds = tempLayer.getBounds();
+      return bounds.getCenter();
+    } catch (error) {
+      console.error("Error calculating feature center:", error);
+      return null;
     }
-  }, [map, selectedWilayah]);
+  };
+
+  const addCountLabel = (feature: GeoJSONFeature, desaData: Desa) => {
+    if (!map) return;
+    
+    const center = getFeatureCenter(feature);
+    if (!center) return;
+
+    const color = selectedWilayah?.code === "Banyuwangi" ? 'blue' : 'green';
+    
+    L.marker(center, {
+      icon: L.divIcon({
+        className: 'map-label',
+        html: `<div style="
+          background: white;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid ${color};
+          font-weight: bold;
+          color: ${color};
+        ">${desaData.count}</div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+      })
+    }).addTo(map);
+  };
+
+  const getStyle = (feature: GeoJSONFeature | undefined): L.PathOptions => {
+    const desaData = feature ? getDesaData(feature) : undefined;
+    const baseColor = selectedWilayah?.code === "Banyuwangi" ? "blue" : "green";
+    
+    return {
+      color: "#333",
+      weight: 1,
+      fillColor: desaData ? (baseColor === "blue" ? "lightblue" : "lightgreen") : "#CCCCCC",
+      fillOpacity: 0.5
+    };
+  };
+
+  useEffect(() => {
+    if (!map || !selectedWilayah) return;
+
+    geoJSONLayer?.remove();
+
+    const view = selectedWilayah.code === "Banyuwangi" ? banyuwangiView : malukuTengahView;
+    map.setView(view, 10);
+
+    const fetchGeoJSON = async () => {
+      const endpoint = selectedWilayah.code === "Banyuwangi"
+        ? "/api/geojson/banyuwangi"
+        : "/api/geojson/maluku-tengah";
+      try {
+        const response = await fetch(endpoint);
+        const geoJSONData = await response.json();
+
+        const newGeoJSONLayer = L.geoJSON(geoJSONData, {
+          style: (feature) => getStyle(feature),
+          onEachFeature: (feature: GeoJSONFeature, layer: L.Layer) => {
+            const desaData = getDesaData(feature);
+            layer.bindPopup(popupContent(feature, desaData));
+            
+            if (desaData) {
+              addCountLabel(feature, desaData);
+            }
+          },
+        }).addTo(map);
+
+        setGeoJSONLayer(newGeoJSONLayer);
+        map.fitBounds(newGeoJSONLayer.getBounds());
+      } catch (error) {
+        console.error("Error loading GeoJSON:", error);
+      }
+    };
+
+    fetchGeoJSON();
+  }, [map, selectedWilayah, dataMap]);
 
   return (
     <div className="">
       <div className="mb-10 flex justify-between">
         <div className="">
           <h1 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Peta Persebaran Keluarga Tanpa Fasilitas MCK
+            Peta Penyebaran Anak Berdasarkan Wilayah
           </h1>
           <p className="text-dark">
-            Menampilkan peta persebaran keluarga yang tidak memiliki fasilitas MCK
+            Menampilkan status penyebaran di setiap wilayah
           </p>
         </div>
         <div className="w-fit">
@@ -146,20 +226,19 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
           />
         </div>
       </div>
-      <div
-        id="map-persebaran-keluarga-tanpa-mck"
-        style={{ height: "100vh", width: "100%", zIndex: 1 }}
+      <div 
+        id="map-persebaran-keluarga-tanpa-mck" 
+        style={{ height: "100vh", width: "100%", zIndex: 1 }} 
       />
-
-      <div className="flex gap-4">
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-          <p className="text-dark">Wilayah Banyuwangi</p>
+      <div className="flex gap-4 mt-4">
+        {/* <div className="flex items-center gap-2">
+          <div className="h-4 w-4 rounded-full bg-blue-500"></div>
+          <p className="text-dark">Wilayah dengan data</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-          <p className="text-dark">Wilayah Maluku Tengah</p>
-        </div>
+          <div className="h-4 w-4 rounded-full bg-gray-500"></div>
+          <p className="text-dark">Wilayah tanpa data</p>
+        </div> */}
       </div>
     </div>
   );

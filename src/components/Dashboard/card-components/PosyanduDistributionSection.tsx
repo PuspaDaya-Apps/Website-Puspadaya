@@ -41,7 +41,7 @@ const PosyanduDistributionSection: React.FC<DashboardSectionProps> = ({
             isMeningkat={true}
             jumlah={datadash?.jumlah_posyandu?.jumlah || "0"}
             peningkatan={
-              datadash?.jumlah_posyandu?.rate != null
+              datadash?.jumlah_posyandu?.rate == `null`
                 ? `${datadash.jumlah_posyandu.rate}%`
                 : "-"
             }

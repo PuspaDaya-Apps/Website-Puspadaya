@@ -12,7 +12,7 @@ interface Wilayah {
 }
 
 const banyuwangiView: L.LatLngTuple = [-8.2192, 114.3691];
-const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228]; 
+const malukuTengahView: L.LatLngTuple = [-3.3746, 128.1228];
 
 const PetaPersebaranAnakStunting: React.FC = () => {
   const wilayah: Wilayah[] = [
@@ -28,7 +28,6 @@ const PetaPersebaranAnakStunting: React.FC = () => {
     const fetchStuntingData = async () => {
       setLoading(true);
       const result = await mapStunting();
-
       if (result.data) {
         const response = result.data as MapPersebaranResponse;
         setDataMap(response.data);
@@ -36,10 +35,8 @@ const PetaPersebaranAnakStunting: React.FC = () => {
       } else {
         console.warn("Gagal mengambil data, kode:", result.successCode);
       }
-
       setLoading(false);
     };
-
     fetchStuntingData();
   }, []);
 
@@ -55,9 +52,7 @@ const PetaPersebaranAnakStunting: React.FC = () => {
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
     }).addTo(mapInstance);
-
     setMap(mapInstance);
-
     return () => {
       mapInstance.remove();
     };
@@ -77,19 +72,19 @@ const PetaPersebaranAnakStunting: React.FC = () => {
 
   const getDesaData = (feature: any): DesaData | undefined => {
     if (!dataMap || !feature.properties) return undefined;
-    
+
     return dataMap.find(desa => {
       const normalizedDesaName = normalizeName(desa.nama_desa);
       const normalizedFeatureName1 = normalizeName(feature.properties.NAMOBJ || "");
       const normalizedFeatureName2 = normalizeName(feature.properties.WADMKD || "");
-      
-      return normalizedDesaName === normalizedFeatureName1 || 
-             normalizedDesaName === normalizedFeatureName2;
+
+      return normalizedDesaName === normalizedFeatureName1 ||
+        normalizedDesaName === normalizedFeatureName2;
     });
   };
 
   const getColorForPercentage = (percentage: number): string => {
-    if (percentage <= 25) return '#00FF00'; // Green
+    if (percentage <= 25) return '#00FF00';//  Green
     if (percentage <= 50) return '#FFFF00'; // Yellow
     if (percentage <= 75) return '#FFA500'; // Orange
     return '#FF0000'; // Red
@@ -101,7 +96,7 @@ const PetaPersebaranAnakStunting: React.FC = () => {
       const stuntingPercentage = totalChildren > 0 ? Math.round((desaData.count_stunting / totalChildren) * 100) : 0;
       const wastingPercentage = totalChildren > 0 ? Math.round((desaData.count_wasting / totalChildren) * 100) : 0;
       const giziBaikPercentage = totalChildren > 0 ? Math.round((desaData.count_gizi_baik / totalChildren) * 100) : 0;
-      
+
       return `
         <div>
           <p><strong>Wilayah:</strong> ${feature.properties.NAMOBJ || feature.properties.WADMKD || feature.properties.name}</p>
@@ -138,34 +133,65 @@ const PetaPersebaranAnakStunting: React.FC = () => {
           const newGeoJSONLayer = L.geoJSON(geoJSONData, {
             style: (feature) => {
               const desaData = getDesaData(feature);
-              const baseColor = selectedWilayah.code === "Banyuwangi" ? "blue" : "green";
               
               if (desaData) {
                 const totalChildren = desaData.count_stunting + desaData.count_wasting + desaData.count_gizi_baik;
-                const stuntingWastingPercentage = totalChildren > 0 
+                const stuntingWastingPercentage = totalChildren > 0
                   ? Math.round(((desaData.count_stunting + desaData.count_wasting) / totalChildren) * 100)
                   : 0;
-                
+
                 const fillColor = getColorForPercentage(stuntingWastingPercentage);
-                
+
                 return {
-                  color: "black",
+                  color: "#333",
                   weight: 1,
                   fillColor: fillColor,
                   fillOpacity: 0.7
                 };
               }
-              // Default color
+              
               return {
-                color: baseColor,
+                color: "#999", 
                 weight: 1,
-                fillColor: baseColor === "blue" ? "lightblue" : "lightgreen",
+                fillColor: "#CCCCCC",
                 fillOpacity: 0.5
               };
             },
             onEachFeature: (feature, layer) => {
               const desaData = getDesaData(feature);
               layer.bindPopup(popupContent(feature, desaData));
+              
+              layer.on({
+                mouseover: (e) => {
+                  const layer = e.target;
+                  layer.setStyle({
+                    weight: 2,
+                    fillOpacity: 0.9
+                  });
+                },
+                mouseout: (e) => {
+                  const layer = e.target;
+                  const desaData = getDesaData(feature);
+                  if (desaData) {
+                    const totalChildren = desaData.count_stunting + desaData.count_wasting + desaData.count_gizi_baik;
+                    const stuntingWastingPercentage = totalChildren > 0
+                      ? Math.round(((desaData.count_stunting + desaData.count_wasting) / totalChildren) * 100)
+                      : 0;
+                    const fillColor = getColorForPercentage(stuntingWastingPercentage);
+                    layer.setStyle({
+                      weight: 1,
+                      fillColor: fillColor,
+                      fillOpacity: 0.7
+                    });
+                  } else {
+                    layer.setStyle({
+                      weight: 1,
+                      fillColor: "#CCCCCC",
+                      fillOpacity: 0.5
+                    });
+                  }
+                }
+              });
             },
           }).addTo(map);
 
@@ -200,7 +226,7 @@ const PetaPersebaranAnakStunting: React.FC = () => {
             optionLabel="name"
             placeholder="Pilih Wilayah"
             className="md:w-14rem h-11 w-full"
-            disabled={role !== "Admin"} 
+            disabled={role !== "Admin"}
           />
         </div>
       </div>
@@ -208,14 +234,31 @@ const PetaPersebaranAnakStunting: React.FC = () => {
         id="map-balita-stunting"
         style={{ height: "100vh", width: "100%", zIndex: 1 }}
       />
+
       <div className="flex gap-4 mt-4 flex-wrap">
         <div className="flex items-center gap-2">
-          <div className="h-4 w-4 rounded-full bg-blue-500"></div>
-          <p className="text-dark">Wilayah Banyuwangi</p>
-        </div>
-        <div className="flex items-center gap-2">
           <div className="h-4 w-4 rounded-full bg-green-500"></div>
-          <p className="text-dark">Wilayah Maluku Tengah</p>
+          <p className="text-dark">Rendah / Aman</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-4 rounded-full bg-yellow-500"></div>
+          <p className="text-dark">Waspada</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-4 rounded-full bg-orange-500"></div>
+          <p className="text-dark">Tinggi</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-4 rounded-full bg-red-500"></div>
+          <p className="text-dark">Sangat Tinggi / Darurat</p>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-4 rounded-full bg-gray-300"></div>
+          <p className="text-dark">Data Tidak Tersedia</p>
         </div>
       </div>
     </div>

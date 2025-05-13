@@ -1,44 +1,44 @@
 import { APIEndpoints } from '@/app/route/apiEndpoints';
 import { Messages } from '@/components/Handleerror/message/messages';
 import { handleError } from '@/components/Handleerror/server/errorHandler';
-import { PersebaranKaderResponse } from '@/types/dashborad';
+import { DesaKader, PersebaranKaderResponse } from '@/types/dashborad';
 import axios from 'axios';
 
 interface FetchResult {
     successCode: number;
     data: PersebaranKaderResponse | null;
+    error?: string;
 }
 
 export const mapPersebaranKader = async (): Promise<FetchResult> => {
     if (typeof window === 'undefined') {
-        return { successCode: 500, data: null };
+        return { successCode: 500, data: null, error: 'Server-side execution not allowed' };
     }
 
     try {
         const accessToken = sessionStorage.getItem("access_token");
         if (!accessToken) {
-            console.warn("Token tidak tersedia di sessionStorage");
-            return { successCode: 401, data: null };
+            return { successCode: 401, data: null, error: 'Unauthorized' };
         }
 
-        const endpoint = APIEndpoints.MAPPERSEBARANKADERAKTIFNONAKTIF;
-        const config = {
+        const response = await axios.get<PersebaranKaderResponse>(APIEndpoints.MAPPERSEBARANKADERAKTIFNONAKTIF, {
             headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        // console.log("Raw API Response:", response.data);
+
+        // Return the exact structure from the API
+        return {
+            successCode: response.status,
+            data: response.data
         };
-
-        const response = await axios.get(endpoint, config);
-
-        // Debug output
-        // console.log("Raw API response:", response.data);
-
-        const responseData: PersebaranKaderResponse = response.data;
-
-        sessionStorage.removeItem(Messages.ERROR);
-        return { successCode: response.status, data: responseData };
 
     } catch (err: any) {
         const { status, message } = handleError(err);
-        console.error("Error fetching data:", message);
-        return { successCode: status, data: null };
+        return { 
+            successCode: status, 
+            data: null,
+            error: message 
+        };
     }
 };
