@@ -1,6 +1,4 @@
 "use client";
-
-
 import DashboardAdmin from "./component/DashboardAdmin";
 import DashboardDinasKesehatan from "./component/DashboardDinasKesehatan";
 import DashboardDinasSosial from "./component/DashboardDinasSosial";

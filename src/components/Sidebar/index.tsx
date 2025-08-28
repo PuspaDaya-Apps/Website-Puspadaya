@@ -35,334 +35,334 @@ const menuGroups = [
 
       // data
 
-      {
-        icon: (
-          <Image
-            src="/images/menus/keluarga.svg"
-            alt=""
-            width={16}
-            height={16}
-            className="fill-current"
-          />
-        ),
-        label: "Data",
-        route: "#",
-        // children: [
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/orgtua.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Data Orang Tua",
-        //     route: "/data-keluarga/data-orang-tua",
-        //   },
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/balita.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Data Balita",
-        //     route: "/data-keluarga/data-balita",
-        //   },
+      // {
+      //   icon: (
+      //     <Image
+      //       src="/images/menus/keluarga.svg"
+      //       alt=""
+      //       width={16}
+      //       height={16}
+      //       className="fill-current"
+      //     />
+      //   ),
+      //   label: "Data",
+      //   route: "#",
+      //   // children: [
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/orgtua.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Data Orang Tua",
+      //   //     route: "/data-keluarga/data-orang-tua",
+      //   //   },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/balita.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Data Balita",
+      //   //     route: "/data-keluarga/data-balita",
+      //   //   },
 
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/ibu-hamil.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Data Ibu Hamil",
-        //     route: "/data-keluarga/data-bumil",
-        //   },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/ibu-hamil.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Data Ibu Hamil",
+      //   //     route: "/data-keluarga/data-bumil",
+      //   //   },
 
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/puskesmas.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Data Puskesmas",
-        //     route: "/data/data-puskesmas",
-        //   },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/puskesmas.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Data Puskesmas",
+      //   //     route: "/data/data-puskesmas",
+      //   //   },
 
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/daftar-hadir.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Data Posyandu",
-        //     route: "/data/data-posyandu",
-        //   },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/daftar-hadir.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Data Posyandu",
+      //   //     route: "/data/data-posyandu",
+      //   //   },
 
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/data-anggota.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Data Anggota",
-        //     route: "/data/data-anggota",
-        //   },
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/artikel.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Data Artikel",
-        //     route: "/data/data-artikel",
-        //   },
-        // ],
-      },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/data-anggota.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Data Anggota",
+      //   //     route: "/data/data-anggota",
+      //   //   },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/artikel.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Data Artikel",
+      //   //     route: "/data/data-artikel",
+      //   //   },
+      //   // ],
+      // },
 
       // posyandu
-      {
-        icon: (
-          <Image
-            src="/images/menus/posyandu.svg"
-            alt=""
-            width={16}
-            height={16}
-            className="fill-current"
-          />
-        ),
-        label: "Posyandu",
-        route: "#",
-        // children: [
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/daftar-hadir.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Jadwal Posyandu",
-        //     route: "/posyandu/jadwal-posyandu",
-        //   },
+      // {
+      //   icon: (
+      //     <Image
+      //       src="/images/menus/posyandu.svg"
+      //       alt=""
+      //       width={16}
+      //       height={16}
+      //       className="fill-current"
+      //     />
+      //   ),
+      //   label: "Posyandu",
+      //   route: "#",
+      //   // children: [
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/daftar-hadir.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Jadwal Posyandu",
+      //   //     route: "/posyandu/jadwal-posyandu",
+      //   //   },
 
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/balita1.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Daftar Hadir Balita",
-        //     route: "/posyandu/daftar-hadir-balita",
-        //   },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/balita1.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Daftar Hadir Balita",
+      //   //     route: "/posyandu/daftar-hadir-balita",
+      //   //   },
 
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/ibu-hamil1.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Daftar Hadir Ibu Hamil",
-        //     route: "/posyandu/daftar-hadir-ibu-hamil",
-        //   },
-        // ],
-      },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/ibu-hamil1.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Daftar Hadir Ibu Hamil",
+      //   //     route: "/posyandu/daftar-hadir-ibu-hamil",
+      //   //   },
+      //   // ],
+      // },
 
       // pengukuran
-      {
-        icon: (
-          <Image
-            src="/images/menus/pengukuran.svg"
-            alt=""
-            width={16}
-            height={16}
-            className="fill-current"
-          />
-        ),
+      // {
+      //   icon: (
+      //     <Image
+      //       src="/images/menus/pengukuran.svg"
+      //       alt=""
+      //       width={16}
+      //       height={16}
+      //       className="fill-current"
+      //     />
+      //   ),
 
-        label: "Pengukuran",
-        route: "#",
-        // children: [
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/pemeriksaan.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Pengukuran Balita & Bumil",
-        //     route: "/pengukuran/pengukuran-balita-bumil",
-        //   },
+      //   label: "Pengukuran",
+      //   route: "#",
+      //   // children: [
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/pemeriksaan.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Pengukuran Balita & Bumil",
+      //   //     route: "/pengukuran/pengukuran-balita-bumil",
+      //   //   },
 
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/rekap.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Rekap Pengukuran Balita",
-        //     route: "/rekap/pengukuran-balita",
-        //   },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/rekap.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Rekap Pengukuran Balita",
+      //   //     route: "/rekap/pengukuran-balita",
+      //   //   },
 
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/rekap.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Rekap Pengukuran Ibu Hamil",
-        //     route: "/rekap/pengukuran-ibu-hamil",
-        //   },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/rekap.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Rekap Pengukuran Ibu Hamil",
+      //   //     route: "/rekap/pengukuran-ibu-hamil",
+      //   //   },
 
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/riwayat.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Riwayat Pengukuran Balita",
-        //     route: "/riwayat/riwayat-pengukuran-balita",
-        //   },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/riwayat.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Riwayat Pengukuran Balita",
+      //   //     route: "/riwayat/riwayat-pengukuran-balita",
+      //   //   },
 
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/riwayat.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Riwayat Pengukuran Ibu Hamil",
-        //     route: "/riwayat/riwayat-pengukuran-bumil",
-        //   },
-        // ],
-      },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/riwayat.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Riwayat Pengukuran Ibu Hamil",
+      //   //     route: "/riwayat/riwayat-pengukuran-bumil",
+      //   //   },
+      //   // ],
+      // },
 
       // monitoring
-      {
-        icon: (
-          <Image
-            src="/images/menus/monitoring.svg"
-            alt=""
-            width={16}
-            height={16}
-            className="fill-current"
-          />
-        ),
-        label: "Monitoring",
-        route: "#",
-        // children: [
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/parameter.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
+      // {
+      //   icon: (
+      //     <Image
+      //       src="/images/menus/monitoring.svg"
+      //       alt=""
+      //       width={16}
+      //       height={16}
+      //       className="fill-current"
+      //     />
+      //   ),
+      //   label: "Monitoring",
+      //   route: "#",
+      //   // children: [
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/parameter.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
 
-        //     label: "Parameter Stunting",
-        //     route: "/monitoring/parameter-stunting",
-        //   },
+      //   //     label: "Parameter Stunting",
+      //   //     route: "/monitoring/parameter-stunting",
+      //   //   },
 
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/status-monitoring.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Monitoring Stunting",
-        //     route: "/monitoring/monitoring-stunting",
-        //   },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/status-monitoring.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Monitoring Stunting",
+      //   //     route: "/monitoring/monitoring-stunting",
+      //   //   },
 
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/status-monitoring.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Monitoring Gizi",
-        //     route: "/monitoring/monitoring-gizi",
-        //   },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/status-monitoring.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Monitoring Gizi",
+      //   //     route: "/monitoring/monitoring-gizi",
+      //   //   },
 
-        //   {
-        //     icon: (
-        //       <Image
-        //         src="/images/menus/status-monitoring.svg"
-        //         alt=""
-        //         width={14}
-        //         height={14}
-        //         className="fill-current"
-        //       />
-        //     ),
-        //     label: "Monitoring Ibu Hamil",
-        //     route: "/monitoring/monitoring-ibu-hamil",
-        //   },
-        // ],
-      },
+      //   //   {
+      //   //     icon: (
+      //   //       <Image
+      //   //         src="/images/menus/status-monitoring.svg"
+      //   //         alt=""
+      //   //         width={14}
+      //   //         height={14}
+      //   //         className="fill-current"
+      //   //       />
+      //   //     ),
+      //   //     label: "Monitoring Ibu Hamil",
+      //   //     route: "/monitoring/monitoring-ibu-hamil",
+      //   //   },
+      //   // ],
+      // },
 
       // pengaturan
       {

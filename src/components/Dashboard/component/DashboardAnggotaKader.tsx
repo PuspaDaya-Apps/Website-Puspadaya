@@ -104,11 +104,19 @@ useEffect(() => {
 
   return (
     <div>
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-black">Dashboard</h1>
-        <p className="mt-1 text-black">
-          Pantau perkembangan keluarga dan kader disini!
-        </p>
+       <div className="mb-10 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-black">Dashboard</h1>
+          <p className="mt-1 text-black">
+            Pantau perkembangan keluarga dan kader disini!
+          </p>
+        </div>
+        <button
+          // onClick={handleDownload}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-white shadow hover:bg-blue-700"
+        >
+          Download Rapor
+        </button>
       </div>
 
       <InfiniteScroll

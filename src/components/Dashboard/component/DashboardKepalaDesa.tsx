@@ -63,53 +63,61 @@ const DashboardKepalaDesa = () => {
     fetchData();
   }, []);
 
-const fetchMoreData = () => {
-  if (items.length >= 1000) { 
-    setHasMore(false);
-    return;
-  }
+  const fetchMoreData = () => {
+    if (items.length >= 1000) {
+      setHasMore(false);
+      return;
+    }
 
-  setTimeout(() => {
-    setItems(items.concat(Array.from({ length: 20 })));
-  }, 500);
-};
-
-useEffect(() => {
-  // Mengatur waktu loading yang lebih singkat dan bervariasi
-  const loadingTimeouts = [
-    { key: 'countingCard', delay: 800 },
-    { key: 'countingCardRow', delay: 1000 },
-    { key: 'grafikTrendStuntingBalita', delay: 1200 },
-    { key: 'grafikTrendStuntingBanyuwangi', delay: 1500 },
-    { key: 'mapPersebaranBalitaStunting', delay: 1800 },
-    { key: 'mapPersebaranBalitaBerdasarkanWilayah', delay: 2000 },
-    { key: 'grafikPersebaranPosyandu', delay: 2200 },
-    { key: 'grafikPersebaranKaderDanTingkatAktivitas', delay: 2500 },
-    { key: 'mapPersebaranKader', delay: 2800 },
-    { key: 'mapPersebaranKeluargaTanpaMCK', delay: 3000 }
-  ];
-
-  loadingTimeouts.forEach(({ key, delay }) => {
     setTimeout(() => {
-      setIsLoading(prev => ({ ...prev, [key]: false }));
-    }, delay);
-  });
-
-  // Membersihkan timeout saat komponen unmount
-  return () => {
-    loadingTimeouts.forEach(({ key, delay }) => {
-      clearTimeout(setTimeout(() => {}, delay));
-    });
+      setItems(items.concat(Array.from({ length: 20 })));
+    }, 500);
   };
-}, []);
+
+  useEffect(() => {
+    // Mengatur waktu loading yang lebih singkat dan bervariasi
+    const loadingTimeouts = [
+      { key: "countingCard", delay: 800 },
+      { key: "countingCardRow", delay: 1000 },
+      { key: "grafikTrendStuntingBalita", delay: 1200 },
+      { key: "grafikTrendStuntingBanyuwangi", delay: 1500 },
+      { key: "mapPersebaranBalitaStunting", delay: 1800 },
+      { key: "mapPersebaranBalitaBerdasarkanWilayah", delay: 2000 },
+      { key: "grafikPersebaranPosyandu", delay: 2200 },
+      { key: "grafikPersebaranKaderDanTingkatAktivitas", delay: 2500 },
+      { key: "mapPersebaranKader", delay: 2800 },
+      { key: "mapPersebaranKeluargaTanpaMCK", delay: 3000 },
+    ];
+
+    loadingTimeouts.forEach(({ key, delay }) => {
+      setTimeout(() => {
+        setIsLoading((prev) => ({ ...prev, [key]: false }));
+      }, delay);
+    });
+
+    // Membersihkan timeout saat komponen unmount
+    return () => {
+      loadingTimeouts.forEach(({ key, delay }) => {
+        clearTimeout(setTimeout(() => {}, delay));
+      });
+    };
+  }, []);
 
   return (
     <div>
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-black">Dashboard</h1>
-        <p className="mt-1 text-black">
-          Pantau perkembangan keluarga dan kader disini!
-        </p>
+      <div className="mb-10 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-black">Dashboard</h1>
+          <p className="mt-1 text-black">
+            Pantau perkembangan keluarga dan kader disini!
+          </p>
+        </div>
+        <button
+          // onClick={handleDownload}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-white shadow hover:bg-blue-700"
+        >
+          Download Rapor
+        </button>
       </div>
 
       <InfiniteScroll
@@ -204,7 +212,6 @@ useEffect(() => {
               <MapPersebaranKeluargaTanpaMCK />
             )}
           </div>
-          
         </div>
       </InfiniteScroll>
     </div>
