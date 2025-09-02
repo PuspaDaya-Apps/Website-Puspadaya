@@ -1,5 +1,6 @@
 "use client";
 import DashboardAdmin from "./component/DashboardAdmin";
+import DashboardAnggotaKader from "./component/DashboardAnggotaKader";
 import DashboardDinasKesehatan from "./component/DashboardDinasKesehatan";
 import DashboardDinasSosial from "./component/DashboardDinasSosial";
 import DashboardKepalaDesa from "./component/DashboardKepalaDesa";
@@ -28,7 +29,7 @@ const Dashboard = () => {
      return <DashboardKetuaKader/>;
   }
     else if (namaRole === "Kader") {
-     return <DashboardKetuaKader/>;
+     return <DashboardAnggotaKader/>;
   }
   else {
     return <p>Anda tidak memiliki akses ke dashboard ini.</p>;

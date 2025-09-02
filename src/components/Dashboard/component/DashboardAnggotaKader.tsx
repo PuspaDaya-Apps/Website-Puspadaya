@@ -1,211 +1,302 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { statistikDashboard } from "@/app/api/statistik/statistik";
-import MapPersebaranBalitaStunting from "@/components/Charts/PetaPersebaranAnakStunting";
-import MapPersebaranBalitaBerdasarkanWIlayah from "@/components/Charts/MapPersebaranBalitaBerdasarkanWIlayah";
-import MapPersebaranKader from "@/components/Charts/MapPersebaranKader";
-import TrendSection from "../card-components/TrendSection";
-import NutritionStatusSection from "../card-components/NutritionStatusSection";
-import AttendanceSection from "../card-components/AttendanceSection";
-import NutritionProgramSection from "../card-components/NutritionProgramSection";
-import SKDNSection from "../card-components/SKDNSection";
-import NIKStatisticsSection from "../card-components/NIKStatisticsSection";
-import PregnancyRiskSection from "../card-components/PregnancyRiskSection";
-import PosyanduDistributionSection from "../card-components/PosyanduDistributionSection";
-import KaderDistributionSection from "../card-components/KaderDistributionSection";
+import React from "react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
-const DashboardAnggotaKader = () => {
-  const [datadash, setData] = useState<any | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [items, setItems] = useState([]);
-  const [hasMore, setHasMore] = useState(true);
-
-  const [isLoading, setIsLoading] = useState({
-    grafikTrendStuntingBalita: true,
-    grafikTrendStuntingBanyuwangi: true,
-    mapPersebaranBalitaStunting: true,
-    mapPersebaranBalitaBerdasarkanWilayah: true,
-    grafikPersebaranPosyandu: true,
-    grafikPersebaranKaderDanTingkatAktivitas: true,
-    mapPersebaranKader: true,
-    mapPersebaranKeluargaTanpaMCK: true,
-    countingCard: true,
-    countingCardRow: true,
-  });
-
-  const currentDate = new Date();
-  const monthYear = currentDate.toLocaleString("id-ID", {
-    month: "long",
-    year: "numeric",
-  });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      const result = await statistikDashboard();
-
-      // console.log("Fetched Data:", result);
-
-      if (result.successCode === 200 && result.data) {
-        setData(result.data);
-        setError(null);
-      } else {
-        setData(null);
-        setError("Error fetching data. Please try again.");
-      }
-
-      setLoading(false);
-    };
-
-    fetchData();
-  }, []);
-
-const fetchMoreData = () => {
-  if (items.length >= 1000) { 
-    setHasMore(false);
-    return;
-  }
-
-  setTimeout(() => {
-    setItems(items.concat(Array.from({ length: 20 })));
-  }, 500);
+// Data dummy yang diperkaya
+const data = {
+  title: "Raport Kader Posyandu",
+  periode: "September 2025",
+  posyandu: {
+    nama: "Posyandu Melati",
+    alamat: "Dusun Krajan, Rogojampi, Banyuwangi",
+  },
+  kader: [
+    {
+      nama: "Siti Aminah",
+      jabatan: "Kader Utama",
+      jenis_pekerjaan: [
+        "Pemantauan pertumbuhan balita",
+        "Pemantauan kesehatan ibu hamil",
+        "Kunjungan rumah",
+        "Penyuluhan gizi",
+        "Pemeriksaan kesehatan dasar"
+      ],
+      laporan: {
+        jumlah_balita_hadir_per_kompetensi: {
+          total_hadir_balita: 42,
+          detail: [
+            {
+              kompetensi: "Pertumbuhan Balita",
+              jumlah: 15
+            },
+            {
+              kompetensi: "Imunisasi",
+              jumlah: 12
+            },
+            {
+              kompetensi: "Gizi Balita",
+              jumlah: 15
+            }
+          ],
+        },
+        jumlah_ibu_hamil_hadir_per_kompetensi: {
+          total_ibu_hamil: 18,
+          detail: [
+            {
+              kompetensi: "Pemeriksaan Kehamilan",
+              aktivitas_kader: [
+                "Pemeriksaan tekanan darah",
+                "Penyuluhan gizi ibu hamil",
+                "Pemeriksaan berat badan",
+                "Konseling persalinan"
+              ],
+            },
+            {
+              kompetensi: "Suplemen Gizi",
+              aktivitas_kader: [
+                "Pembagian tablet tambah darah",
+                "Edukasi pentingnya suplemen"
+              ]
+            }
+          ],
+        },
+        durasi_kerja_posyandu: "4 jam",
+        durasi_kerja_kunjungan_rumah: "1 jam 30 menit",
+        jarak_ke_posyandu: "0",
+        jarak_total_kunjungan_rumah: "12 km",
+        skor_beban_kerja: 85,
+      },
+    },
+  ],
 };
 
-useEffect(() => {
-  // Mengatur waktu loading yang lebih singkat dan bervariasi
-  const loadingTimeouts = [
-    { key: 'countingCard', delay: 800 },
-    { key: 'countingCardRow', delay: 1000 },
-    { key: 'grafikTrendStuntingBalita', delay: 1200 },
-    { key: 'grafikTrendStuntingBanyuwangi', delay: 1500 },
-    { key: 'mapPersebaranBalitaStunting', delay: 1800 },
-    { key: 'mapPersebaranBalitaBerdasarkanWilayah', delay: 2000 },
-    { key: 'grafikPersebaranPosyandu', delay: 2200 },
-    { key: 'grafikPersebaranKaderDanTingkatAktivitas', delay: 2500 },
-    { key: 'mapPersebaranKader', delay: 2800 },
-    { key: 'mapPersebaranKeluargaTanpaMCK', delay: 3000 }
-  ];
+// Data untuk grafik
+const chartData = [
+  { name: "Balita", value: 42, color: "#4f46e5" },
+  { name: "Ibu Hamil", value: 18, color: "#10b981" },
+];
 
-  loadingTimeouts.forEach(({ key, delay }) => {
-    setTimeout(() => {
-      setIsLoading(prev => ({ ...prev, [key]: false }));
-    }, delay);
-  });
+// Data aktivitas mingguan
+const weeklyActivityData = [
+  { hari: "Senin", balita: 8, ibuHamil: 3 },
+  { hari: "Selasa", balita: 7, ibuHamil: 4 },
+  { hari: "Rabu", balita: 9, ibuHamil: 2 },
+  { hari: "Kamis", balita: 6, ibuHamil: 5 },
+  { hari: "Jumat", balita: 12, ibuHamil: 4 },
+];
 
-  // Membersihkan timeout saat komponen unmount
-  return () => {
-    loadingTimeouts.forEach(({ key, delay }) => {
-      clearTimeout(setTimeout(() => {}, delay));
-    });
-  };
-}, []);
+const DashboardAnggotaKader: React.FC = () => {
+  const kader = data.kader[0];
 
   return (
-    <div>
-       <div className="mb-10 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-black">Dashboard</h1>
-          <p className="mt-1 text-black">
-            Pantau perkembangan keluarga dan kader disini!
-          </p>
-        </div>
-        <button
-          // onClick={handleDownload}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-white shadow hover:bg-blue-700"
-        >
-          Download Rapor
-        </button>
+    <div className="space-y-6 p-4 md:p-6">
+      {/* Header Card */}
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+        <h1 className="text-xl font-bold text-dark dark:text-white md:text-2xl">
+          {data.title}
+        </h1>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+          Periode: {data.periode} | {data.posyandu.nama} - {data.posyandu.alamat}
+        </p>
       </div>
 
-      <InfiniteScroll
-        dataLength={items.length}
-        next={fetchMoreData}
-        hasMore={hasMore}
-        loader={<h4></h4>}
-      >
-        <div className="grid grid-cols-12 gap-10">
-          <TrendSection
-            isLoading={isLoading}
-            datadash={datadash}
-            monthYear={monthYear}
-          />
-
-          <NutritionStatusSection
-            isLoading={isLoading}
-            datadash={datadash}
-            monthYear={monthYear}
-          />
-
-          <AttendanceSection
-            isLoading={isLoading}
-            datadash={datadash}
-            monthYear={monthYear}
-          />
-
-          <NutritionProgramSection
-            isLoading={isLoading}
-            datadash={datadash}
-            monthYear={monthYear}
-          />
-
-          <SKDNSection
-            isLoading={isLoading}
-            datadash={datadash}
-            monthYear={monthYear}
-          />
-
-          <NIKStatisticsSection
-            isLoading={isLoading}
-            datadash={datadash}
-            monthYear={monthYear}
-          />
-
-          <PregnancyRiskSection
-            isLoading={isLoading}
-            datadash={datadash}
-            monthYear={monthYear}
-          />
-
-          <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
-            {isLoading.mapPersebaranBalitaStunting ? (
-              <h4>Loading...</h4>
-            ) : (
-              <MapPersebaranBalitaStunting />
-            )}
+      {/* Profil Kader Card */}
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+        <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
+          Profil Kader
+        </h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <p className="mb-2">
+              <span className="font-medium text-dark dark:text-white">Nama:</span>{" "}
+              <span className="text-gray-700 dark:text-gray-300">{kader.nama}</span>
+            </p>
+            <p>
+              <span className="font-medium text-dark dark:text-white">Jabatan:</span>{" "}
+              <span className="text-gray-700 dark:text-gray-300">{kader.jabatan}</span>
+            </p>
           </div>
-
-          <PosyanduDistributionSection
-            isLoading={isLoading}
-            datadash={datadash}
-            monthYear={monthYear}
-          />
-
-          <KaderDistributionSection
-            isLoading={isLoading}
-            datadash={datadash}
-            monthYear={monthYear}
-          />
-
-          <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
-            {isLoading.mapPersebaranBalitaBerdasarkanWilayah ? (
-              <h4>Loading...</h4>
-            ) : (
-              <MapPersebaranBalitaBerdasarkanWIlayah />
-            )}
+          <div>
+            <p className="mb-2 font-medium text-dark dark:text-white">Jenis Pekerjaan:</p>
+            <ul className="space-y-1">
+              {kader.jenis_pekerjaan.map((pekerjaan, i) => (
+                <li key={i} className="flex items-start">
+                  <span className="mr-2 text-primary">•</span>
+                  <span className="text-gray-700 dark:text-gray-300">{pekerjaan}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-
-          <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
-            {isLoading.mapPersebaranKader ? (
-              <h4>Loading...</h4>
-            ) : (
-              <MapPersebaranKader />
-            )}
-          </div>
-
         </div>
-      </InfiniteScroll>
+      </div>
+
+      {/* Statistik Kehadiran */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Kartu Statistik Utama */}
+        <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+          <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
+            Statistik Kehadiran
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-lg bg-indigo-50 p-4 text-center dark:bg-indigo-900/20">
+              <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-300">
+                {kader.laporan.jumlah_balita_hadir_per_kompetensi.total_hadir_balita}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Balita</p>
+            </div>
+            <div className="rounded-lg bg-emerald-50 p-4 text-center dark:bg-emerald-900/20">
+              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-300">
+                {kader.laporan.jumlah_ibu_hamil_hadir_per_kompetensi.total_ibu_hamil}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Ibu Hamil</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Skor Beban Kerja */}
+        <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+          <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
+            Skor Beban Kerja
+          </h2>
+          <div className="flex items-center justify-between">
+            <span className="text-3xl font-bold text-dark dark:text-white">
+              {kader.laporan.skor_beban_kerja}
+            </span>
+            <span className="text-gray-500 dark:text-gray-400">/ 100</span>
+          </div>
+          <div className="mt-4 h-3 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+            <div
+              className="h-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600"
+              style={{ width: `${kader.laporan.skor_beban_kerja}%` }}
+            ></div>
+          </div>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            {kader.laporan.skor_beban_kerja >= 80
+              ? "Beban kerja tinggi"
+              : kader.laporan.skor_beban_kerja >= 60
+              ? "Beban kerja sedang"
+              : "Beban kerja rendah"}
+          </p>
+        </div>
+      </div>
+
+      {/* Grafik dan List Kegiatan */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Grafik Kehadiran */}
+        <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+          <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
+            Grafik Kehadiran Bulanan
+          </h2>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="#6b7280" 
+                  tick={{ fill: '#6b7280' }}
+                />
+                <YAxis 
+                  stroke="#6b7280" 
+                  tick={{ fill: '#6b7280' }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#fff',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #e5e7eb',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Bar dataKey="value" name="Jumlah">
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* List Kegiatan Mingguan */}
+        <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+          <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
+            Aktivitas Minggu Ini
+          </h2>
+          <div className="h-72 overflow-y-auto pr-2">
+            <div className="space-y-4">
+              <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                <h3 className="font-medium text-dark dark:text-white">Balita</h3>
+                <ul className="mt-2 space-y-2">
+                  {kader.laporan.jumlah_balita_hadir_per_kompetensi.detail.map((item, index) => (
+                    <li key={index} className="flex justify-between">
+                      <span className="text-gray-700 dark:text-gray-300">{item.kompetensi}</span>
+                      <span className="font-medium text-dark dark:text-white">{item.jumlah}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                <h3 className="font-medium text-dark dark:text-white">Ibu Hamil</h3>
+                <ul className="mt-2 space-y-3">
+                  {kader.laporan.jumlah_ibu_hamil_hadir_per_kompetensi.detail.map((item, index) => (
+                    <li key={index}>
+                      <p className="font-medium text-gray-700 dark:text-gray-300">{item.kompetensi}</p>
+                      <ul className="mt-1 space-y-1 pl-4">
+                        {item.aktivitas_kader.map((aktivitas, i) => (
+                          <li key={i} className="flex items-start">
+                            <span className="mr-2 text-primary">•</span>
+                            <span className="text-gray-600 dark:text-gray-400">{aktivitas}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Grafik Aktivitas Mingguan */}
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+        <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
+          Aktivitas Mingguan
+        </h2>
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={weeklyActivityData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis 
+                dataKey="hari" 
+                stroke="#6b7280" 
+                tick={{ fill: '#6b7280' }}
+              />
+              <YAxis 
+                stroke="#6b7280" 
+                tick={{ fill: '#6b7280' }}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#fff',
+                  borderRadius: '0.5rem',
+                  border: '1px solid #e5e7eb',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
+              />
+              <Bar dataKey="balita" name="Balita" fill="#4f46e5" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="ibuHamil" name="Ibu Hamil" fill="#10b981" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
     </div>
   );
 };
