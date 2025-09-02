@@ -22,10 +22,10 @@ export default function SigninWithPassword() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center  dark:bg-gray-900">
+    <div className="flex min-h-screen items-center justify-center dark:bg-gray-900">
       <form
         onSubmit={handleLogin}
-        className="mx-auto w-full max-w-4xl space-y-6 rounded-lg bg-white p-8 shadow-xl"
+        className="w-full max-w-md space-y-6 rounded-lg bg-white p-6 shadow-xl sm:p-8"
       >
         <h1 className="mb-2 text-2xl font-bold text-dark dark:text-white sm:text-heading-3">
           Login
@@ -35,30 +35,30 @@ export default function SigninWithPassword() {
         {error && <p className="text-sm text-red-500">{error}</p>}
 
         {/* Username Input */}
-        <div className="mb-6">
+        <div>
           <label
             htmlFor="username"
-            className="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-200"
+            className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-200"
           >
             Username
           </label>
           <input
             id="username"
-            type="number"
+            type="text"
             placeholder="Enter your username"
             name="username"
             required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full rounded-lg border p-4  transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white"
+            className="w-full rounded-lg border p-3 transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white sm:p-4"
           />
         </div>
 
         {/* Password Input */}
-        <div className="mb-6">
+        <div>
           <label
             htmlFor="password"
-            className="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-200"
+            className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-200"
           >
             Password
           </label>
@@ -70,7 +70,7 @@ export default function SigninWithPassword() {
               required
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
-              className="w-full rounded-lg border p-4  transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white"
+              className="w-full rounded-lg border p-3 transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white sm:p-4"
             />
             <button
               type="button"
@@ -114,7 +114,7 @@ export default function SigninWithPassword() {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full transform rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-blue-600 hover:to-blue-700"
+          className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:from-blue-600 hover:to-blue-700 sm:py-4 sm:text-lg"
         >
           Login
         </button>
