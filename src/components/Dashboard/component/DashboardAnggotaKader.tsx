@@ -75,17 +75,33 @@ const chartData = [
   { name: "Ibu Hamil", value: 18, color: "#10b981" },
 ];
 
-// Data aktivitas mingguan
-const weeklyActivityData = [
-  { hari: "Senin", balita: 8, ibuHamil: 3 },
-  { hari: "Selasa", balita: 7, ibuHamil: 4 },
-  { hari: "Rabu", balita: 9, ibuHamil: 2 },
-  { hari: "Kamis", balita: 6, ibuHamil: 5 },
-  { hari: "Jumat", balita: 12, ibuHamil: 4 },
+// Data untuk visualisasi durasi dan jarak
+const durationDistanceData = [
+  { name: "Durasi Posyandu", value: 4, unit: "jam", color: "#6366f1" },
+  { name: "Durasi Kunjungan", value: 1.5, unit: "jam", color: "#8b5cf6" },
+  { name: "Jarak Kunjungan", value: 12, unit: "km", color: "#ec4899" }
 ];
 
 const DashboardAnggotaKader: React.FC = () => {
   const kader = data.kader[0];
+
+  // Fungsi untuk mengubah durasi menjadi angka desimal
+  const parseDuration = (duration: string): number => {
+    if (duration.includes("jam")) {
+      const hours = parseFloat(duration.replace(" jam", ""));
+      return hours;
+    }
+    return 0;
+  };
+
+  // Fungsi untuk mengubah jarak menjadi angka
+  const parseDistance = (distance: string): number => {
+    if (distance.includes("km")) {
+      const km = parseFloat(distance.replace(" km", ""));
+      return km;
+    }
+    return 0;
+  };
 
   return (
     <div className="space-y-6 p-4 md:p-6">
@@ -262,39 +278,71 @@ const DashboardAnggotaKader: React.FC = () => {
         </div>
       </div>
 
-      {/* Grafik Aktivitas Mingguan */}
+      {/* Visualisasi Durasi dan Jarak */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-          Aktivitas Mingguan
+          Durasi Kerja dan Jarak Tempuh
         </h2>
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={weeklyActivityData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis 
-                dataKey="hari" 
-                stroke="#6b7280" 
-                tick={{ fill: '#6b7280' }}
-              />
-              <YAxis 
-                stroke="#6b7280" 
-                tick={{ fill: '#6b7280' }}
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#fff',
-                  borderRadius: '0.5rem',
-                  border: '1px solid #e5e7eb',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                }}
-              />
-              <Bar dataKey="balita" name="Balita" fill="#4f46e5" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="ibuHamil" name="Ibu Hamil" fill="#10b981" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {/* Informasi Text */}
+          <div className="space-y-4">
+            <div className="rounded-lg bg-indigo-50 p-4 dark:bg-indigo-900/20">
+              <h3 className="font-medium text-indigo-700 dark:text-indigo-300">Durasi Kerja di Posyandu</h3>
+              <p className="mt-1 text-2xl font-bold text-indigo-900 dark:text-indigo-100">
+                {kader.laporan.durasi_kerja_posyandu}
+              </p>
+            </div>
+            
+            <div className="rounded-lg bg-violet-50 p-4 dark:bg-violet-900/20">
+              <h3 className="font-medium text-violet-700 dark:text-violet-300">Durasi Kunjungan Rumah</h3>
+              <p className="mt-1 text-2xl font-bold text-violet-900 dark:text-violet-100">
+                {kader.laporan.durasi_kerja_kunjungan_rumah}
+              </p>
+            </div>
+            
+            <div className="rounded-lg bg-pink-50 p-4 dark:bg-pink-900/20">
+              <h3 className="font-medium text-pink-700 dark:text-pink-300">Jarak Total Kunjungan Rumah</h3>
+              <p className="mt-1 text-2xl font-bold text-pink-900 dark:text-pink-100">
+                {kader.laporan.jarak_total_kunjungan_rumah}
+              </p>
+            </div>
+          </div>
+          
+          {/* Grafik Visualisasi */}
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={durationDistanceData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="#6b7280" 
+                  tick={{ fill: '#6b7280' }}
+                  tickFormatter={(value) => value.split(" ")[0]}
+                />
+                <YAxis 
+                  stroke="#6b7280" 
+                  tick={{ fill: '#6b7280' }}
+                />
+                <Tooltip 
+                  formatter={(value, name, props) => [`${value} ${props.payload.unit}`, ""]}
+                  contentStyle={{ 
+                    backgroundColor: '#fff',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #e5e7eb',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Bar dataKey="value" name="Nilai">
+                  {durationDistanceData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>
