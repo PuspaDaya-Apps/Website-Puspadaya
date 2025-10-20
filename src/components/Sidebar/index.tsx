@@ -15,7 +15,7 @@ const menuGroups = [
   {
     menuItems: [
 
-      
+
       {
         icon: (
           <Image
@@ -27,11 +27,22 @@ const menuGroups = [
           />
         ),
         label: "Dashboard",
-        route: "/", 
+        route: "/",
       },
-      
 
-      
+      {
+        icon: (
+          <Image
+            src="/images/menus/daftar-hadir.svg"
+            alt=""
+            width={16}
+            height={16}
+            className="fill-current"
+          />
+        ),
+        label: "Kuisioner",
+        route: "/kuisioner-ibuhamil",
+      },
 
       // data
 
@@ -436,11 +447,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   return (
     <ClickOutside onClick={() => setSidebarOpen(false)}>
       <aside
-        className={`sticky left-0 top-0 z-9999 border-r border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark lg:static lg:translate-x-0 ${
-          sidebarOpen
-            ? "translate-x-0 duration-300 ease-linear"
-            : "-translate-x-full md:px-14"
-        }`}
+        className={`sticky left-0 top-0 z-9999 border-r border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark lg:static lg:translate-x-0 ${sidebarOpen
+          ? "translate-x-0 duration-300 ease-linear"
+          : "-translate-x-full md:px-14"
+          }`}
       >
         {/* <!-- SIDEBAR HEADER --> */}
 

@@ -1,15 +1,15 @@
 import React from "react";
-import DurationDistanceChart from "../component-new/DurationDistanceChart";
-import RaportBalita from "../component-new/ChartRaporBaby";
+import DurationDistanceChart from "../component-raport-25/DurationDistanceChart";
+import RaportBalita from "../component-raport-25/ChartRaporBaby";
 
 const DashboardAnggotaKader: React.FC = () => {
   return (
     <div style={{ marginTop: "30px" }}>
-      <DurationDistanceChart/>
-        <RaportBalita/>
+      <DurationDistanceChart />
+      <RaportBalita />
     </div>
 
-  
+
   );
 };
 

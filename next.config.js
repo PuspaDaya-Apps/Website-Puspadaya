@@ -4,9 +4,9 @@ const nextConfig = {
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://gsg4k8os8gwsc4ksk4kkgg48.103.109.210.102.sslip.io/api/:path*',
+                destination: 'http://ssc80wssow48gsgwwg8888s4.103.109.210.102.sslip.io/api/:path*',
             },
-           
+
         ];
     }
 };

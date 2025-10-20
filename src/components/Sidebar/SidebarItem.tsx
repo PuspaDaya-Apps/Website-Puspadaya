@@ -74,11 +74,10 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       <Link
         href={item.route}
         onClick={handleClick}
-        className={`group flex items-center gap-2 rounded-md px-3 py-2 font-medium transition duration-300 ease-in-out ${
-          isActiveMenu
-            ? "bg-primary/[.07] text-primary"
-            : "text-black hover:bg-gray-200 hover:text-dark dark:text-gray-500 dark:hover:bg-white/10 dark:hover:text-white"
-        }`}
+        className={`group flex items-center gap-2 rounded-md px-3 py-2 font-medium transition duration-300 ease-in-out ${isActiveMenu
+          ? "bg-primary/[.07] text-primary"
+          : "text-black hover:bg-gray-200 hover:text-dark dark:text-gray-500 dark:hover:bg-white/10 dark:hover:text-white"
+          }`}
         aria-current={
           pageName === item.label.toLowerCase() ? "page" : undefined
         }
@@ -98,9 +97,8 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
         )}
         {item.children && (
           <svg
-            className={`ml-auto fill-current transition-transform duration-300 ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={`ml-auto fill-current transition-transform duration-300 ${isOpen ? "rotate-180" : ""
+              }`}
             width="22"
             height="22"
             viewBox="0 0 22 22"
@@ -117,13 +115,18 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       </Link>
 
       {item.children && isOpen && (
+
         <div
           ref={dropdownRef}
-          className={`absolute left-0 z-10 mt-10 w-46 rounded-md bg-white shadow-lg`}
+          className={`absolute top-0 left-full ml-2 z-20 w-48 rounded-md bg-white shadow-lg dark:bg-gray-dark
+      transition-all duration-300 ease-in-out
+      md:static md:mt-2 md:w-full md:shadow-none
+    `}
         >
           <SidebarDropdown item={item.children} />
         </div>
       )}
+
     </li>
   );
 };
