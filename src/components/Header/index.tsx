@@ -41,9 +41,9 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
             />
             <div className="hidden sm:block">
               <h1 className="mb-0.5 text-lg font-bold text-dark dark:text-white md:text-heading-5">
-                Dashboard
+                Puspadaya
               </h1>
-              <p className="hidden text-sm font-medium md:block">Puspadaya</p>
+              <p className="hidden text-sm font-medium md:block">Dashboard</p>
             </div>
           </div>
         </div>

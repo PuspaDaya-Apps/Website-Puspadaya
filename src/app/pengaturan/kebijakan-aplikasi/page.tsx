@@ -3,8 +3,8 @@ import Policy from "@/components/Policy";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Settings Page | NextAdmin - Next.js Dashboard c",
-  description: "This is Next.js Settings page for NextAdmin Dashboard Kit",
+  title: "Kebijakan Aplikasi - Pengaturan",
+  description: "Halaman pengaturan kebijakan aplikasi pada dashboard Puspadaya",
 };
 
 const Settings = () => {

@@ -41,47 +41,78 @@ const menuGroups = [
         label: "Kuisioner",
         route: "/kuisioner-ibuhamil",
       },
+
       {
         icon: (
           <Image
-            src="/images/menus/pengaturan.svg"
+            src="/images/menus/user.svg"
             alt=""
-            width={16}
-            height={16}
+            width={14}
+            height={14}
             className="fill-current"
           />
         ),
-        label: "Pengaturan",
-        route: "#",
-        children: [
-          {
-            icon: (
-              <Image
-                src="/images/menus/user.svg"
-                alt=""
-                width={14}
-                height={14}
-                className="fill-current"
-              />
-            ),
-            label: "Akun Saya",
-            route: "/pengaturan/akun-saya",
-          },
-          {
-            icon: (
-              <Image
-                src="/images/menus/kebijakan-aplikasi.svg"
-                alt=""
-                width={14}
-                height={14}
-                className="fill-current"
-              />
-            ),
-            label: "Kebijakan Aplikasi",
-            route: "/pengaturan/kebijakan-aplikasi",
-          },
-        ],
+        label: "Akun Saya",
+        route: "/pengaturan/akun-saya",
       },
+
+      {
+        icon: (
+          <Image
+            src="/images/menus/kebijakan-aplikasi.svg"
+            alt=""
+            width={14}
+            height={14}
+            className="fill-current"
+          />
+        ),
+        label: "Kebijakan Aplikasi",
+        route: "/pengaturan/kebijakan-aplikasi",
+      },
+      // {
+      //   icon: (
+      //     <Image
+      //       src="/images/menus/pengaturan.svg"
+      //       alt=""
+      //       width={16}
+      //       height={16}
+      //       className="fill-current"
+      //     />
+      //   ),
+
+
+
+      //   label: "Pengaturan",
+      //   route: "#",
+      //   children: [
+      //     {
+      //       icon: (
+      //         <Image
+      //           src="/images/menus/user.svg"
+      //           alt=""
+      //           width={14}
+      //           height={14}
+      //           className="fill-current"
+      //         />
+      //       ),
+      //       label: "Akun Saya",
+      //       route: "/pengaturan/akun-saya",
+      //     },
+      //     {
+      //       icon: (
+      //         <Image
+      //           src="/images/menus/kebijakan-aplikasi.svg"
+      //           alt=""
+      //           width={14}
+      //           height={14}
+      //           className="fill-current"
+      //         />
+      //       ),
+      //       label: "Kebijakan Aplikasi",
+      //       route: "/pengaturan/kebijakan-aplikasi",
+      //     },
+      //   ],
+      // },
     ],
   },
 ];
