@@ -205,7 +205,8 @@ const AkunSaya = () => {
 
   return (
     <div className="container mx-auto">
-      <div className="mb-4">
+
+      <div className="mb-4 mt-10">
         <div className="rounded-lg bg-white p-6 shadow-lg">
           <h2 className="pb-1 text-2xl font-bold text-black">Profile</h2>
           <p className="text-sm font-medium text-gray-500">
@@ -213,6 +214,7 @@ const AkunSaya = () => {
           </p>
         </div>
       </div>
+
 
       <div className="overflow-hidden rounded-[10px] bg-white px-18 py-9 pt-6 shadow-1">
         <ProfilePicture

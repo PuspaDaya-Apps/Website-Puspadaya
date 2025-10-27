@@ -115,17 +115,14 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       </Link>
 
       {item.children && isOpen && (
-
         <div
           ref={dropdownRef}
-          className={`absolute top-0 left-full ml-2 z-20 w-48 rounded-md bg-white shadow-lg dark:bg-gray-dark
-      transition-all duration-300 ease-in-out
-      md:static md:mt-2 md:w-full md:shadow-none
-    `}
+          className="absolute left-0 top-full mt-2 z-50 w-56 rounded-xl bg-white shadow-lg dark:bg-gray-dark transition-all duration-300 ease-in-out"
         >
           <SidebarDropdown item={item.children} />
         </div>
       )}
+
 
     </li>
   );

@@ -9,20 +9,20 @@ export const metadata: Metadata = {
 
 const Settings = () => {
   return (
-      <div className="container mx-auto">
-        <div className="mb-4">
-          <div className="rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="pb-1 text-2xl font-bold text-black">
+    <div className="container mx-auto">
+      <div className="mb-4 mt-10">
+        <div className="rounded-lg bg-white p-6 shadow-lg">
+          <h2 className="pb-1 text-2xl font-bold text-black">
             Kebijakan Aplikasi
-            </h2>
-            <p className="text-sm font-medium text-gray-500">
+          </h2>
+          <p className="text-sm font-medium text-gray-500">
             Melindungi data anda, meningkatkan pengalaman anda
-            </p>
-          </div>
+          </p>
         </div>
-        <Policy />
       </div>
-  
+      <Policy />
+    </div>
+
   );
 };
 

@@ -14,22 +14,22 @@ const Dashboard = () => {
   if (namaRole === "Admin") {
     return <DashboardAdmin />;
   } else if (namaRole === "Dinas Kesehatan") {
-     return <DashboardDinasKesehatan />;
+    return <DashboardDinasKesehatan />;
   }
-   else if (namaRole === "Dinas Sosial") {
-     return <DashboardDinasSosial/>;
+  else if (namaRole === "Dinas Sosial") {
+    return <DashboardDinasSosial />;
   }
-   else if (namaRole === "Kepala Desa") {
-     return <DashboardKepalaDesa/>;
+  else if (namaRole === "Kepala Desa") {
+    return <DashboardKepalaDesa />;
   }
   else if (namaRole === "TPG") {
-     return <DashboardTenagaPelaksanaGizi/>;
+    return <DashboardTenagaPelaksanaGizi />;
   }
-   else if (namaRole === "Ketua Kader") {
-     return <DashboardKetuaKader/>;
+  else if (namaRole === "Ketua Kader") {
+    return <DashboardAnggotaKader />;
   }
-    else if (namaRole === "Kader") {
-     return <DashboardAnggotaKader/>;
+  else if (namaRole === "Kader") {
+    return <DashboardAnggotaKader />;
   }
   else {
     return <p>Anda tidak memiliki akses ke dashboard ini.</p>;
