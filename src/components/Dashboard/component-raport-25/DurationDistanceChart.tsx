@@ -10,7 +10,7 @@ const DurationDistanceChart: React.FC = () => {
   const kader = data.kader[0];
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <div className="mt-2 sm:mt-10 space-y-6">
       {/* Header Card */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <h1 className="text-xl font-bold text-dark dark:text-white md:text-2xl">

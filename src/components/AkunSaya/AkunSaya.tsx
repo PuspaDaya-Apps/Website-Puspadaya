@@ -206,7 +206,7 @@ const AkunSaya = () => {
   return (
     <div className="container mx-auto px-4">
 
-      <div className="mb-4 mt-6 sm:mt-10">
+      <div className="mb-4 mt-2 sm:mt-10">
         <div className="rounded-lg bg-white p-4 sm:p-6 shadow-lg">
           <h2 className="pb-1 text-xl sm:text-2xl font-bold text-black">Profile</h2>
           <p className="text-xs sm:text-sm font-medium text-gray-500">
