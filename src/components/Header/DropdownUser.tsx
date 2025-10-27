@@ -76,17 +76,35 @@ const DropdownUser = () => {
           />
         </span>
 
-        {/* Nama pengguna dan role tetap ditampilkan di semua ukuran layar */}
+        {/* Nama pengguna dan role ditampilkan di desktop */}
         <span className="hidden items-center gap-1 font-medium text-dark dark:text-dark-6 md:flex">
           <div>
             <span className="block">{namaLengkap}</span>
             <span className="block text-sm text-left">{roleUser}</span>
-
           </div>
           <svg
             className={`fill-current duration-200 ease-in ${dropdownOpen ? "rotate-180" : ""}`}
             width="20"
             height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M3.6921 7.09327C3.91674 6.83119 4.3113 6.80084 4.57338 7.02548L9.99997 11.6768L15.4266 7.02548C15.6886 6.80084 16.0832 6.83119 16.3078 7.09327C16.5325 7.35535 16.5021 7.74991 16.24 7.97455L10.4067 12.9745C10.1727 13.1752 9.82728 13.1752 9.59322 12.9745L3.75989 7.97455C3.49781 7.74991 3.46746 7.35535 3.6921 7.09327Z"
+              fill=""
+            />
+          </svg>
+        </span>
+
+        {/* Dropdown indicator hanya ditampilkan di mobile */}
+        <span className="flex md:hidden">
+          <svg
+            className={`fill-current text-gray-500 ${dropdownOpen ? "rotate-180" : ""}`}
+            width="16"
+            height="16"
             viewBox="0 0 18 18"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"

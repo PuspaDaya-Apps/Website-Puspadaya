@@ -1,4 +1,5 @@
 "use client";
+
 import ClickOutside from "@/components/ClickOutside";
 import SidebarItem from "@/components/Sidebar/SidebarItem";
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -14,8 +15,6 @@ interface SidebarProps {
 const menuGroups = [
   {
     menuItems: [
-
-
       {
         icon: (
           <Image
@@ -29,7 +28,6 @@ const menuGroups = [
         label: "Dashboard",
         route: "/",
       },
-
       {
         icon: (
           <Image
@@ -43,7 +41,6 @@ const menuGroups = [
         label: "Kuisioner",
         route: "/kuisioner-ibuhamil",
       },
-
       {
         icon: (
           <Image
@@ -67,7 +64,6 @@ const menuGroups = [
                 className="fill-current"
               />
             ),
-
             label: "Akun Saya",
             route: "/pengaturan/akun-saya",
           },
@@ -84,7 +80,6 @@ const menuGroups = [
             label: "Kebijakan Aplikasi",
             route: "/pengaturan/kebijakan-aplikasi",
           },
-
         ],
       },
     ],
@@ -94,53 +89,91 @@ const menuGroups = [
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState("");
-
   const [pageName, setPageName] = useLocalStorage("selectedMenu", "dashboard");
-  const resetActiveMenu = () => {
-    setPageName("defaultPageName");
-  };
+
+  const resetActiveMenu = () => setPageName("defaultPageName");
 
   return (
-    <ClickOutside onClick={() => setSidebarOpen(false)}>
-      {/* Overlay (background blur) */}
-      <div
-        className={`fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${sidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
-          }`}
-        onClick={() => setSidebarOpen(false)}
-      />
+    <>
+      {/* === MOBILE SIDEBAR === */}
+      <ClickOutside onClick={() => setSidebarOpen(false)}>
+        {/* Overlay (background blur) */}
+        <div
+          className={`fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${sidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
+            }`}
+          onClick={() => setSidebarOpen(false)}
+        />
 
-      {/* Sidebar */}
-      <aside
-        className={`fixed left-0 top-12 z-50 h-full w-64 border-r border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark transform transition-transform duration-300 ease-in-out
-      ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-      lg:static lg:translate-x-0`}
-      >
-        <div className="no-scrollbar h-full overflow-y-auto duration-300 ease-linear">
-          <nav className="flex flex-col items-start justify-start gap-2 p-4">
-            {menuGroups.map((group, groupIndex) => (
-              <div key={groupIndex} className="w-full">
-                <ul>
-                  {group.menuItems.map((menuItem, menuIndex) => (
-                    <li key={menuIndex} className="w-full">
-                      <SidebarItem
-                        key={menuIndex}
-                        item={menuItem}
-                        pageName={pageName}
-                        setPageName={setPageName}
-                        isOpen={openDropdown === menuItem.label.toLowerCase()}
-                        setIsOpen={setOpenDropdown}
-                        resetActiveMenu={resetActiveMenu}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </nav>
-        </div>
-      </aside>
-    </ClickOutside>
+        {/* Sidebar mobile (slide from left) */}
+        <aside
+          className={`fixed left-0 top-12 z-50 h-full w-64 border-r border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+          lg:hidden`}
+        >
+          <div className="no-scrollbar h-full overflow-y-auto duration-300 ease-linear">
+            <nav className="flex flex-col items-start justify-start gap-2 p-4">
+              {menuGroups.map((group, groupIndex) => (
+                <div key={groupIndex} className="w-full">
+                  <ul>
+                    {group.menuItems.map((menuItem, menuIndex) => (
+                      <li key={menuIndex} className="w-full">
+                        <SidebarItem
+                          key={menuIndex}
+                          item={menuItem}
+                          pageName={pageName}
+                          setPageName={setPageName}
+                          isOpen={
+                            openDropdown === menuItem.label.toLowerCase()
+                          }
+                          setIsOpen={setOpenDropdown}
+                          resetActiveMenu={resetActiveMenu}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </nav>
+          </div>
+        </aside>
+      </ClickOutside>
 
+      {/* === DESKTOP SIDEBAR === */}
+      <ClickOutside onClick={() => setSidebarOpen(false)}>
+        <aside
+          className={`
+          hidden lg:sticky lg:block left-0 top-0 z-[9999]
+          border-r border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark
+        `}
+        >
+          {/* === SIDEBAR CONTENT === */}
+          <div className="no-scrollbar duration-300 ease-linear">
+            <nav className="items-center justify-normal gap-2 lg:w-full xl:w-auto xl:justify-normal">
+              {menuGroups.map((group, groupIndex) => (
+                <div key={groupIndex}>
+                  <ul className="flex items-center">
+                    {group.menuItems.map((menuItem, menuIndex) => (
+                      <li key={menuIndex} className="flex-1 p-2">
+                        <SidebarItem
+                          item={menuItem}
+                          pageName={pageName}
+                          setPageName={setPageName}
+                          isOpen={openDropdown === menuItem.label.toLowerCase()}
+                          setIsOpen={setOpenDropdown}
+                          resetActiveMenu={resetActiveMenu}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </nav>
+          </div>
+        </aside>
+      </ClickOutside>
+
+    </>
   );
 };
+
 export default Sidebar;
