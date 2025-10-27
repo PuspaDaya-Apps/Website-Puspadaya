@@ -1,28 +1,36 @@
 import Image from "next/image";
 import DropdownUser from "./DropdownUser";
-import { IconMenu2 } from "@tabler/icons-react";
+import { IconMenu2, IconMenuDeep } from "@tabler/icons-react";
 
-const Header = (props: {
-  sidebarOpen: string | boolean | undefined;
-  setSidebarOpen: (arg0: boolean) => void;
-}) => {
+interface HeaderProps {
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
+  const handleToggleSidebar = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSidebarOpen(!sidebarOpen); // toggle buka/tutup
+  };
+
   return (
-    <header className="sticky top-0 z-999 flex w-full border-b-[1px] border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark">
+    <header className="sticky top-0 z-50 flex w-full border-b border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark">
       <div className="flex flex-grow items-center justify-between px-4 py-2 md:px-5 2xl:px-10">
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Hamburger Toggle BTN for mobile */}
+          {/* === Burger Button (mobile only) === */}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              props.setSidebarOpen(!props.sidebarOpen);
-            }}
-            className="block lg:hidden"
+            onClick={handleToggleSidebar}
+            className="block lg:hidden transition-transform duration-300"
             aria-label="Toggle sidebar"
           >
-            <IconMenu2 className="h-6 w-6 text-dark dark:text-white" />
+            {sidebarOpen ? (
+              <IconMenuDeep className="h-6 w-6 text-dark dark:text-white transition-all duration-300" />
+            ) : (
+              <IconMenu2 className="h-6 w-6 text-dark dark:text-white transition-all duration-300" />
+            )}
           </button>
 
-          {/* Logo and Title - Visible on all screens but adjusted for mobile */}
+          {/* === Logo & Title === */}
           <div className="flex items-center space-x-2">
             <Image
               src="/images/logo/logo-puspa.png"
@@ -40,13 +48,11 @@ const Header = (props: {
           </div>
         </div>
 
+        {/* === User Dropdown === */}
         <div className="flex items-center">
-          {/* User Area */}
-          <div className="flex items-center">
-            <ul className="flex items-center">
-              <DropdownUser />
-            </ul>
-          </div>
+          <ul className="flex items-center">
+            <DropdownUser />
+          </ul>
         </div>
       </div>
     </header>

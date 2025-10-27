@@ -102,22 +102,26 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
   return (
     <ClickOutside onClick={() => setSidebarOpen(false)}>
-      <aside
-        className={`sticky left-0 top-0 z-9999 border-r border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark lg:static lg:translate-x-0 ${sidebarOpen
-          ? "translate-x-0 duration-300 ease-linear"
-          : "-translate-x-full md:px-14"
+      {/* Overlay (background blur) */}
+      <div
+        className={`fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${sidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
           }`}
-      >
-        {/* <!-- SIDEBAR HEADER --> */}
+        onClick={() => setSidebarOpen(false)}
+      />
 
-        <div className="no-scrollbar duration-300 ease-linear">
-          {/* <!-- Sidebar Menu --> */}
-          <nav className=" items-center justify-normal gap-2 lg:w-full xl:w-auto xl:justify-normal">
+      {/* Sidebar */}
+      <aside
+        className={`fixed left-0 top-12 z-50 h-full w-64 border-r border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark transform transition-transform duration-300 ease-in-out
+      ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+      lg:static lg:translate-x-0`}
+      >
+        <div className="no-scrollbar h-full overflow-y-auto duration-300 ease-linear">
+          <nav className="flex flex-col items-start justify-start gap-2 p-4">
             {menuGroups.map((group, groupIndex) => (
-              <div key={groupIndex}>
-                <ul className="flex items-center ">
+              <div key={groupIndex} className="w-full">
+                <ul>
                   {group.menuItems.map((menuItem, menuIndex) => (
-                    <li key={menuIndex} className="flex-1 p-2">
+                    <li key={menuIndex} className="w-full">
                       <SidebarItem
                         key={menuIndex}
                         item={menuItem}
@@ -133,10 +137,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </div>
             ))}
           </nav>
-          {/* <!-- Sidebar Menu --> */}
         </div>
       </aside>
     </ClickOutside>
+
   );
 };
 export default Sidebar;

@@ -186,7 +186,7 @@ const AkunSaya = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-4 px-4">
         <div className="text-center text-gray-500">Memuat data pengguna...</div>
       </div>
     );
@@ -194,7 +194,7 @@ const AkunSaya = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-4 px-4">
         <div className="text-center text-red-500">{error}</div>
       </div>
     );
@@ -204,19 +204,19 @@ const AkunSaya = () => {
   const imageSrc = profilePhoto || roleImageMap[roleName] || "/images/user/user-03.png";
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto px-4">
 
-      <div className="mb-4 mt-10">
-        <div className="rounded-lg bg-white p-6 shadow-lg">
-          <h2 className="pb-1 text-2xl font-bold text-black">Profile</h2>
-          <p className="text-sm font-medium text-gray-500">
+      <div className="mb-4 mt-6 sm:mt-10">
+        <div className="rounded-lg bg-white p-4 sm:p-6 shadow-lg">
+          <h2 className="pb-1 text-xl sm:text-2xl font-bold text-black">Profile</h2>
+          <p className="text-xs sm:text-sm font-medium text-gray-500">
             Untuk melihat informasi detail profile
           </p>
         </div>
       </div>
 
 
-      <div className="overflow-hidden rounded-[10px] bg-white px-18 py-9 pt-6 shadow-1">
+      <div className="overflow-hidden rounded-[10px] bg-white px-4 py-6 shadow-1 sm:px-6 md:px-18 md:py-9 md:pt-6">
         <ProfilePicture
           profilePhoto={profilePhoto}
           onPhotoChange={handlePhotoChange}
@@ -239,14 +239,14 @@ const AkunSaya = () => {
           />
         )}
 
-        <div className="mt-14 flex items-center justify-center px-4">
+        {/* <div className="mt-6 sm:mt-8 flex items-center justify-center px-4 sm:px-0 sm:mt-14">
           {roleName !== "Admin" && (
             <Button
               label="Simpan"
-              className="w-full max-w-[370px] bg-[#486284]"
+              className="w-full max-w-[370px] bg-[#486284] py-3"
             />
           )}
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -275,12 +275,12 @@ const ProfilePicture = ({
   return (
     <div className="flex items-center justify-center">
       <div className="relative">
-        <div className="relative flex h-30 w-30 justify-items-center rounded-full drop-shadow-2">
+        <div className="relative flex h-24 w-24 sm:h-30 sm:w-30 justify-items-center rounded-full drop-shadow-2">
           <Image
             src={imageSrc}
-            width={160}
-            height={160}
-            className="h-30 w-30 rounded-full object-cover"
+            width={120}
+            height={120}
+            className="h-24 w-24 sm:h-30 sm:w-30 rounded-full object-cover"
             alt="profile"
           />
         </div>
@@ -324,8 +324,8 @@ const FormProfile = ({
     selectedDesa ? dusunOptions[selectedDesa.code] || [] : [];
 
   return (
-    <div className="mt-10 grid grid-cols-2 gap-10">
-      <div className="left">
+    <div className="mt-6 sm:mt-10 grid grid-cols-1 gap-6 sm:gap-10 sm:grid-cols-2">
+      <div className="left w-full">
         <div className="mb-3 w-full">
           <label htmlFor="namaLengkap">Nama Lengkap</label>
           <InputText
@@ -334,6 +334,7 @@ const FormProfile = ({
             className="mt-2 w-full"
             value={akun.namaLengkap}
             onChange={handleInputChange}
+            readOnly
           />
         </div>
 
@@ -355,6 +356,7 @@ const FormProfile = ({
               onChange={handleInputChange}
               inputMode="tel"
               className="mt-2 w-full"
+              readOnly
             />
           )}
         </div>
@@ -369,12 +371,13 @@ const FormProfile = ({
             onChange={handleInputChange}
             disabled={roleName === "Admin"}
             className="mt-2 w-full rounded border px-2 py-3"
+            readOnly
           />
         </div>
 
-        {roleName !== "Admin" && (
-          <div className="grid grid-cols-2 gap-5">
-            <div className="relative mb-3 w-full">
+        {/* {roleName !== "Admin" && (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div className="relative mb-3 w-full sm:mb-0">
               <label htmlFor="password">Password</label>
               <InputText
                 id="password"
@@ -385,7 +388,7 @@ const FormProfile = ({
                 className="mt-2 w-full"
               />
             </div>
-            <div className="relative mb-3 w-full">
+            <div className="relative mb-3 w-full sm:mb-0">
               <label htmlFor="konfirmasiPassword">Konfirmasi Password</label>
               <InputText
                 id="konfirmasiPassword"
@@ -397,10 +400,10 @@ const FormProfile = ({
               />
             </div>
           </div>
-        )}
+        )} */}
       </div>
 
-      <div className="right">
+      <div className="right w-full">
         <div className="mb-3 w-full">
           <label htmlFor="posisi">Posisi/Peran</label>
           <InputText
@@ -413,43 +416,55 @@ const FormProfile = ({
           />
         </div>
 
-        <label>Alamat</label>
-        <div className="grid grid-cols-2 gap-5">
-          <InputText
-            id="kabupaten"
-            name="alamat.kabupaten"
-            value={akun.alamat.kabupaten}
-            readOnly
-            disabled
-            className="mb-4 mt-2 w-full"
-          />
+        <label className="block mb-3">Alamat</label>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="w-full sm:mb-0">
+            <label htmlFor="kabupaten" className="block text-sm mb-1">Kabupaten</label>
+            <InputText
+              id="kabupaten"
+              name="alamat.kabupaten"
+              value={akun.alamat.kabupaten}
+              readOnly
+              disabled
+              className="w-full"
+            />
+          </div>
 
-          <InputText
-            id="kecamatan"
-            name="alamat.kecamatan"
-            value={akun.alamat.kecamatan}
-            readOnly
-            disabled
-            className="mb-4 mt-2 w-full"
-          />
+          <div className="w-full sm:mb-0">
+            <label htmlFor="kecamatan" className="block text-sm mb-1">Kecamatan</label>
+            <InputText
+              id="kecamatan"
+              name="alamat.kecamatan"
+              value={akun.alamat.kecamatan}
+              readOnly
+              disabled
+              className="w-full"
+            />
+          </div>
 
-          <InputText
-            id="desa"
-            name="alamat.desa"
-            value={akun.alamat.desa}
-            readOnly
-            disabled
-            className="mb-4 mt-2 w-full"
-          />
+          <div className="w-full sm:mb-0">
+            <label htmlFor="desa" className="block text-sm mb-1">Desa</label>
+            <InputText
+              id="desa"
+              name="alamat.desa"
+              value={akun.alamat.desa}
+              readOnly
+              disabled
+              className="w-full"
+            />
+          </div>
 
-          <InputText
-            id="dusun"
-            name="alamat.dusun"
-            value={akun.alamat.dusun}
-            readOnly
-            disabled
-            className="mb-4 mt-2 w-full"
-          />
+          <div className="w-full sm:mb-0">
+            <label htmlFor="dusun" className="block text-sm mb-1">Dusun</label>
+            <InputText
+              id="dusun"
+              name="alamat.dusun"
+              value={akun.alamat.dusun}
+              readOnly
+              disabled
+              className="w-full"
+            />
+          </div>
         </div>
       </div>
     </div>
