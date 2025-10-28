@@ -1,5 +1,8 @@
 "use client";
 import "jsvectormap/dist/css/jsvectormap.css";
+import 'primereact/resources/themes/saga-blue/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
 import "flatpickr/dist/flatpickr.min.css";
 import "@/css/satoshi.css";
 import "@/css/style.css";
@@ -26,18 +29,18 @@ export default function RootLayout({
   return (
     <QueryClientProvider client={queryClient}>
       <html lang="en">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+        <head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
               const style = document.createElement('style')
               style.innerHTML = '@layer tailwind-base, primereact, tailwind-utilities;'
               style.setAttribute('type', 'text/css')
               document.querySelector('head').prepend(style)
             `,
-          }}
-        />
-      </head>
+            }}
+          />
+        </head>
         <body suppressHydrationWarning={true}>
           {loading ? <Loader /> : children}
         </body>

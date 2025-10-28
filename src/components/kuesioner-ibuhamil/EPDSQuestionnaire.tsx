@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
@@ -11,6 +11,7 @@ import { Listkuesioner } from "@/app/api/kuesioner/listkuesioner";
 import { KuisionerList } from "@/types/data-25/KuisionerList";
 import { Submitkuesioner } from "@/app/api/kuesioner/submit";
 import dayjs from "dayjs";
+import { Toast } from "primereact/toast";
 
 const EPDSQuestionnaire: React.FC = () => {
   const [selectedPregnantWoman, setSelectedPregnantWoman] = useState<PregnantWoman | null>(null);
@@ -18,7 +19,9 @@ const EPDSQuestionnaire: React.FC = () => {
   const [dataIbu, setDataIbu] = useState<PregnantWoman[]>([]);
   const [loading, setLoading] = useState(true);
   const [kuisionerData, setKuisionerData] = useState<KuisionerList | null>(null);
-  const today = dayjs().format("YYYY-MM-DD");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const toast = useRef<Toast>(null);
 
   // Ambil data Ibu Hamil
   useEffect(() => {
@@ -60,16 +63,16 @@ const EPDSQuestionnaire: React.FC = () => {
   const handleSubmit = async () => {
     if (!selectedPregnantWoman || !kuisionerData) return;
 
+    setIsSubmitting(true);
+
     const currentUser = localStorage.getItem("current_user");
     const kaderData = currentUser ? JSON.parse(currentUser) : null;
     const kader_id = kaderData?.id || null;
     const ibu_hamil_id = selectedPregnantWoman?.id || null;
     const kuisioner_id = kuisionerData?.id || null;
 
-    // Format tanggal sekarang
     const tanggal_pengisian = dayjs().format("YYYY-MM-DD");
 
-    // Buat array jawaban sesuai format API
     const jawaban = kuisionerData.pertanyaan.map((q) => {
       const selectedOptionScore = answers[q.id];
       const selectedOption = q.pilihan_opsional.find(
@@ -82,7 +85,6 @@ const EPDSQuestionnaire: React.FC = () => {
       };
     });
 
-    // Susun payload akhir
     const payload = {
       kuisioner_id,
       target_type: "ibu_hamil",
@@ -92,18 +94,34 @@ const EPDSQuestionnaire: React.FC = () => {
       jawaban,
     };
 
-    console.log("🚀 Payload dikirim ke API:", payload);
+    // console.log("🚀 Payload dikirim ke API:", payload);
 
-    // Kirim ke API
-    const response = await Submitkuesioner(payload);
+    setTimeout(async () => {
+      const response = await Submitkuesioner(payload);
 
-    if (response.successCode === 200 || response.successCode === 201) {
-      alert("✅ Kuisioner berhasil dikirim!");
-    } else {
-      alert("❌ Gagal mengirim kuisioner, periksa console untuk detailnya.");
-    }
+      setIsSubmitting(false);
+
+      if (response.successCode === 200 || response.successCode === 201) {
+        sessionStorage.removeItem("epds_progress");
+        setSelectedPregnantWoman(null);
+        setAnswers({});
+
+        toast.current?.show({
+          severity: "success",
+          summary: "Kuisioner Terkirim",
+          detail: `Ibu ${selectedPregnantWoman.name} berhasil dikirim!\nTanggal: ${tanggal_pengisian}`,
+          life: 2000,
+        });
+      } else {
+        toast.current?.show({
+          severity: "error",
+          summary: "Gagal Mengirim",
+          detail: "Terjadi kesalahan, silakan coba lagi.",
+          life: 2000,
+        });
+      }
+    }, 2000);
   };
-
 
 
   // Simpan otomatis ke sessionStorage setiap kali data berubah
@@ -174,6 +192,7 @@ const EPDSQuestionnaire: React.FC = () => {
 
   return (
     <div className="container mx-auto px-1 py-2">
+      <Toast ref={toast} />
       <Card title={kuisionerData.nama_kuisioner}>
         <div className="mb-6">
           <p className="text-gray-600">{kuisionerData.deskripsi}</p>
@@ -257,12 +276,13 @@ const EPDSQuestionnaire: React.FC = () => {
                 </p>
               </div>
               <Button
-                label="Simpan Jawaban"
-                icon="pi pi-check"
-                disabled={!isFormComplete}
+                label={isSubmitting ? "Mengirim..." : "Simpan Jawaban"}
+                icon={isSubmitting ? "pi pi-spin pi-spinner" : "pi pi-check"}
+                disabled={!isFormComplete || isSubmitting}
                 onClick={handleSubmit}
                 className={isFormComplete ? "p-button-success" : "p-button-secondary p-button-outlined"}
               />
+
             </div>
           </>
         )}
