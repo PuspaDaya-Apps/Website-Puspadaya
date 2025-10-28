@@ -1,4 +1,4 @@
-import { APIEndpoints } from '@/app/route/apiEndpoints';
+import { APIEndpoints } from '@/app/config/route/apiEndpoints';
 import { Messages } from '@/components/Handleerror/message/messages';
 import { handleError } from '@/components/Handleerror/server/errorHandler';
 import { KabupatenClass } from '@/types/dashborad';
@@ -9,7 +9,7 @@ interface FetchResult {
     data: KabupatenClass[] | null; // Menggunakan array sesuai dengan API response
 }
 
-export const Kabupatenwilayah = async (): Promise<FetchResult> => {
+export const Kabupatenwilayahaktivitas = async (): Promise<FetchResult> => {
     try {
         const accessToken = sessionStorage.getItem("access_token");
 

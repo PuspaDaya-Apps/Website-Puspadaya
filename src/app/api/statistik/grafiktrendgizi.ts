@@ -1,4 +1,4 @@
-import { APIEndpoints } from '@/app/route/apiEndpoints';
+import { APIEndpoints } from '@/app/config/route/apiEndpoints';
 import { Messages } from '@/components/Handleerror/message/messages';
 import { handleError } from '@/components/Handleerror/server/errorHandler';
 import { GiziDusunClass } from '@/types/dashborad';
@@ -6,7 +6,7 @@ import axios from 'axios';
 
 interface FetchResult {
     successCode: number;
-    data: GiziDusunClass | null; 
+    data: GiziDusunClass | null;
 }
 
 // Tambahkan parameter desa_kelurahan pada fungsi Grafikgizi
@@ -28,7 +28,7 @@ export const Grafikgizi = async (desaKelurahan: string): Promise<FetchResult> =>
 
         // Menggunakan parameter desa_kelurahan untuk menambahkannya ke URL query
         const response = await axios.get(`${APIEndpoints.GRAFIKGIZI}?desa_kelurahan=${desaKelurahan}`, config);
-        
+
         const { data } = response.data;
         // console.log("ini jeh datanyo", data)
         sessionStorage.removeItem(Messages.ERROR);

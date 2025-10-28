@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import { Dropdown } from "primereact/dropdown";
 import { DesakelurahanClass, KabupatenClass, KecamatanClass } from "@/types/dashborad";
-import { Kabupatenwilayah } from "@/app/api/lokasi/kabupaten";
-import { Kecamatanwilayah } from "@/app/api/lokasi/kecamatan";
-import { Desakelurahanwilayah } from "@/app/api/lokasi/desa";
+import { Kabupatenwilayah } from "@/app/api/lokasi-kabupaten/kabupaten";
+import { Kecamatanwilayah } from "@/app/api/lokasi-kabupaten/kecamatan";
+import { Desakelurahanwilayah } from "@/app/api/lokasi-kabupaten/desa";
 import { trendPersebaranPosyandu } from "@/app/api/statistik/persebaranposyandu";
 import { currentUser } from "@/app/api/user/currentUser";
 
@@ -74,16 +74,16 @@ const GrafikPersebaranPosyandu: React.FC = () => {
     };
   };
 
-   useEffect(() => {
-      const fetchUser = async () => {
-        if (!sessionStorage.getItem("nama_provinsi")) {
-          const result = await currentUser();
-          if (result.successCode === 200) {
-          }
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!sessionStorage.getItem("nama_provinsi")) {
+        const result = await currentUser();
+        if (result.successCode === 200) {
         }
-      };
-      fetchUser();
-    }, []);
+      }
+    };
+    fetchUser();
+  }, []);
 
   // Fetch data kabupaten
   useEffect(() => {
@@ -388,7 +388,7 @@ const GrafikPersebaranPosyandu: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Desa"
                 className="md:w-14rem h-11 w-full"
-                  disabled={!(
+                disabled={!(
                   ["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "")
                 ) || !selectedWilayah}
               />

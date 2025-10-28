@@ -1,4 +1,4 @@
-import { APIEndpoints } from '@/app/route/apiEndpoints';
+import { APIEndpoints } from '@/app/config/route/apiEndpoints';
 import { Messages } from '@/components/Handleerror/message/messages';
 import { handleError } from '@/components/Handleerror/server/errorHandler';
 import { StatistikClass } from '@/types/dashborad';
@@ -35,8 +35,8 @@ export const statistikDashboard = async (): Promise<FetchResult> => {
                 endpoint = APIEndpoints.DASHBOARDPOSYANDU;
                 break;
             case 'Kader':
-                    endpoint = APIEndpoints.DASHBOARDPOSYANDU;
-                    break;
+                endpoint = APIEndpoints.DASHBOARDPOSYANDU;
+                break;
             case 'Dinas Kesehatan': //done
                 endpoint = APIEndpoints.DASHBOARDDINASKESEHATAN; // done
                 break;

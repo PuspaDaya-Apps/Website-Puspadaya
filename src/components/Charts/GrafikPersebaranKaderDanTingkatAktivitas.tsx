@@ -5,11 +5,11 @@ import ReactApexChart from "react-apexcharts";
 import { Dropdown } from "primereact/dropdown";
 import { trendPersebaranKader } from "@/app/api/statistik/trendpersebarankader";
 import { DesakelurahanClass, KabupatenClass, KecamatanClass } from "@/types/dashborad";
-import { Desakelurahanwilayahaktivitas } from "@/app/api/lokasi/desaaktivitas";
-import { Kabupatenwilayahaktivitas } from "@/app/api/lokasi/kabupatenaktivitas";
-import { Kecamatanwilayahaktivitas } from "@/app/api/lokasi/kecamatanaktivitas";
-import { Kecamatanwilayah } from "@/app/api/lokasi/kecamatan";
-import { Desakelurahanwilayah } from "@/app/api/lokasi/desa";
+import { Desakelurahanwilayahaktivitas } from "@/app/api/lokasi-kabupaten/desaaktivitas";
+import { Kabupatenwilayahaktivitas } from "@/app/api/lokasi-kabupaten/kabupatenaktivitas";
+import { Kecamatanwilayahaktivitas } from "@/app/api/lokasi-kabupaten/kecamatanaktivitas";
+import { Kecamatanwilayah } from "@/app/api/lokasi-kabupaten/kecamatan";
+import { Desakelurahanwilayah } from "@/app/api/lokasi-kabupaten/desa";
 import { currentUser } from "@/app/api/user/currentUser";
 const color = ["#3b82f6", "#ef4444"];
 
@@ -59,7 +59,7 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
     tidakAktif: [],
   });
 
- const namaProvinsi = sessionStorage.getItem("nama_provinsi");
+  const namaProvinsi = sessionStorage.getItem("nama_provinsi");
   const namaKecamatan = sessionStorage.getItem("nama_kecamatan");
   const namaDesa = sessionStorage.getItem("nama_desa_kelurahan");
   const namaRole = sessionStorage.getItem("user_role");
@@ -73,16 +73,16 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
     };
   };
 
-    useEffect(() => {
-      const fetchUser = async () => {
-        if (!sessionStorage.getItem("nama_provinsi")) {
-          const result = await currentUser();
-          if (result.successCode === 200) {
-          }
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!sessionStorage.getItem("nama_provinsi")) {
+        const result = await currentUser();
+        if (result.successCode === 200) {
         }
-      };
-      fetchUser();
-    }, []);
+      }
+    };
+    fetchUser();
+  }, []);
 
   //kabupaten
   useEffect(() => {
@@ -124,49 +124,49 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
   }, [namaProvinsi, namaRole]);
 
   const fetchKecamatanData = async () => {
-      setLoading(true);
-      try {
-        const response = await Kecamatanwilayah();
-        if (response.successCode === 200 && response.data) {
-          setkecData(response.data);
-  
-          // Filter kecamatan berdasarkan kabupaten yang dipilih
-          let filteredKecamatan = response.data;
-          if (selectedWilayah) {
-            filteredKecamatan = response.data.filter(
-              (kec) => kec.kabupaten_kota.id === selectedWilayah.id
-            );
-          }
-  
-          const kecamatanData = filteredKecamatan.map((kec) => ({
-            id: kec.id,
-            name: kec.nama_kecamatan,
-            kabupaten_kota: {
-              id: kec.kabupaten_kota.id,
-            },
-          }));
-  
-          setKecamatan(kecamatanData);
-  
-          if (
-            !["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "") &&
-            namaKecamatan
-          ) {
-            const defaultKecamatan = kecamatanData.find(
-              (kec) => kec.name === namaKecamatan
-            );
-            if (defaultKecamatan) {
-              setSelectedKecamatan(defaultKecamatan);
-            }
-          }
-        } else {
-          setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
+    setLoading(true);
+    try {
+      const response = await Kecamatanwilayah();
+      if (response.successCode === 200 && response.data) {
+        setkecData(response.data);
+
+        // Filter kecamatan berdasarkan kabupaten yang dipilih
+        let filteredKecamatan = response.data;
+        if (selectedWilayah) {
+          filteredKecamatan = response.data.filter(
+            (kec) => kec.kabupaten_kota.id === selectedWilayah.id
+          );
         }
-      } catch (err) {
-        setError("Terjadi kesalahan saat mengambil data kecamatan.");
-      } finally {
-        setLoading(false);
+
+        const kecamatanData = filteredKecamatan.map((kec) => ({
+          id: kec.id,
+          name: kec.nama_kecamatan,
+          kabupaten_kota: {
+            id: kec.kabupaten_kota.id,
+          },
+        }));
+
+        setKecamatan(kecamatanData);
+
+        if (
+          !["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "") &&
+          namaKecamatan
+        ) {
+          const defaultKecamatan = kecamatanData.find(
+            (kec) => kec.name === namaKecamatan
+          );
+          if (defaultKecamatan) {
+            setSelectedKecamatan(defaultKecamatan);
+          }
+        }
+      } else {
+        setError(`Error ${response.successCode}: Gagal mengambil data kecamatan`);
       }
+    } catch (err) {
+      setError("Terjadi kesalahan saat mengambil data kecamatan.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchDesakelurahanData = async () => {
@@ -358,7 +358,7 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Wilayah"
                 className="md:w-14rem h-11 w-full"
-                disabled={namaRole !== "Admin"} 
+                disabled={namaRole !== "Admin"}
               />
               <Dropdown
                 value={selectedKecamatan}
@@ -367,7 +367,7 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Kecamatan"
                 className="md:w-14rem h-11 w-full"
-                  disabled={!(
+                disabled={!(
                   ["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "")
                 ) || !selectedWilayah}
               />
@@ -378,7 +378,7 @@ const GrafikPersebaranKaderDanTingkatAktivitas: React.FC = () => {
                 optionLabel="name"
                 placeholder="Pilih Desa"
                 className="md:w-14rem h-11 w-full"
-                  disabled={!(
+                disabled={!(
                   ["Admin", "Dinas Kesehatan", "Dinas Sosial"].includes(namaRole || "")
                 ) || !selectedWilayah}
               />

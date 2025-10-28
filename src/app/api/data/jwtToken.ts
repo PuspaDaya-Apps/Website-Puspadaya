@@ -1,4 +1,4 @@
-import { APIEndpoints } from '@/app/route/apiEndpoints';
+import { APIEndpoints } from '@/app/config/route/apiEndpoints';
 import { Messages } from '@/components/Handleerror/message/messages';
 import { handleError } from '@/components/Handleerror/server/errorHandler';
 import axios from 'axios';

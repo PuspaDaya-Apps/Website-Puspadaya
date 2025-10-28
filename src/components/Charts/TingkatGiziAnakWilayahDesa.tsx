@@ -3,10 +3,10 @@ import { ApexOptions } from "apexcharts";
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import { Dropdown } from "primereact/dropdown";
-import { Kabupatenwilayah } from "@/app/api/lokasi/kabupaten";
+import { Kabupatenwilayah } from "@/app/api/lokasi-kabupaten/kabupaten";
 import { DesakelurahanClass, KabupatenClass, KecamatanClass } from "@/types/dashborad";
-import { Kecamatanwilayah } from "@/app/api/lokasi/kecamatan";
-import { Desakelurahanwilayah } from "@/app/api/lokasi/desa";
+import { Kecamatanwilayah } from "@/app/api/lokasi-kabupaten/kecamatan";
+import { Desakelurahanwilayah } from "@/app/api/lokasi-kabupaten/desa";
 import { Grafikgizi } from "@/app/api/statistik/grafiktrendgizi";
 import { currentUser } from "@/app/api/user/currentUser";
 

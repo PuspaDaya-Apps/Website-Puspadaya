@@ -1,15 +1,15 @@
-import { APIEndpoints } from '@/app/route/apiEndpoints';
+import { APIEndpoints } from '@/app/config/route/apiEndpoints';
 import { Messages } from '@/components/Handleerror/message/messages';
 import { handleError } from '@/components/Handleerror/server/errorHandler';
-import { KabupatenClass } from '@/types/dashborad';
+import { DesakelurahanClass } from '@/types/dashborad';
 import axios from 'axios';
 
 interface FetchResult {
     successCode: number;
-    data: KabupatenClass[] | null; // Menggunakan array sesuai dengan API response
+    data: DesakelurahanClass[] | null;
 }
 
-export const Kabupatenwilayahaktivitas = async (): Promise<FetchResult> => {
+export const Desakelurahanwilayah = async (): Promise<FetchResult> => {
     try {
         const accessToken = sessionStorage.getItem("access_token");
 
@@ -21,7 +21,7 @@ export const Kabupatenwilayahaktivitas = async (): Promise<FetchResult> => {
             headers: { Authorization: `Bearer ${accessToken}` },
         };
 
-        const response = await axios.get(APIEndpoints.KABUPATEN, config);
+        const response = await axios.get(APIEndpoints.DESAKELURAHAN, config);
 
         const { data } = response.data;
         // console.log ("Ini adalah datanya", data);

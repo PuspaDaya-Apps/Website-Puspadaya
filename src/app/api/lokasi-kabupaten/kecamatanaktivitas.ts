@@ -1,5 +1,5 @@
 import { KecamatanClass } from '@/types/dashborad';
-import { APIEndpoints } from '@/app/route/apiEndpoints';
+import { APIEndpoints } from '@/app/config/route/apiEndpoints';
 import { Messages } from '@/components/Handleerror/message/messages';
 import { handleError } from '@/components/Handleerror/server/errorHandler';
 
@@ -38,7 +38,7 @@ export const Kecamatanwilayahaktivitas = async (): Promise<FetchResult> => {
         sessionStorage.removeItem(Messages.ERROR);
 
         return { successCode: 200, data: allData };
-        
+
 
     } catch (err: any) {
         const { status, message } = handleError(err);

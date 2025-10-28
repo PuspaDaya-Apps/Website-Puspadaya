@@ -38,8 +38,8 @@ const menuGroups = [
             className="fill-current"
           />
         ),
-        label: "Kuisioner",
-        route: "/kuisioner-ibuhamil",
+        label: "Kuesioner",
+        route: "/kuesioner-ibuhamil",
       },
 
       {

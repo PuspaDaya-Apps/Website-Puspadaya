@@ -1,4 +1,4 @@
-import { APIEndpoints } from '@/app/route/apiEndpoints';
+import { APIEndpoints } from '@/app/config/route/apiEndpoints';
 import { Messages } from '@/components/Handleerror/message/messages';
 import { handleError } from '@/components/Handleerror/server/errorHandler';
 import { DesaKader, PersebaranKaderResponse } from '@/types/dashborad';
@@ -35,10 +35,10 @@ export const mapPersebaranKader = async (): Promise<FetchResult> => {
 
     } catch (err: any) {
         const { status, message } = handleError(err);
-        return { 
-            successCode: status, 
+        return {
+            successCode: status,
             data: null,
-            error: message 
+            error: message
         };
     }
 };

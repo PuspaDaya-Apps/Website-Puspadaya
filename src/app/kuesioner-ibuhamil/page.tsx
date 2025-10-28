@@ -1,7 +1,7 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
-import EPDSQuestionnaire from "@/components/kuisioner-ibuhamil/EPDSQuestionnaire";
+import EPDSQuestionnaire from "@/components/kuesioner-ibuhamil/EPDSQuestionnaire";
 
 export const metadata: Metadata = {
     title: "Puspadaya - Kuisioner Ibu Hamil",
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const Kuisioner = () => {
     return (
         <DefaultLayout>
-            <div className="mx-auto w-full max-w-[970px]">
+            <div className="mx-auto w-full ">
                 <Breadcrumb pageName="Kuisioner" />
                 {/* Kuisioner EPDS Component */}
                 <EPDSQuestionnaire />
