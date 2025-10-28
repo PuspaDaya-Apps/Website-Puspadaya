@@ -35,6 +35,7 @@ const menuGroups = [
             alt=""
             width={16}
             height={16}
+            style={{ width: "16px", height: "auto" }}
             className="fill-current"
           />
         ),
@@ -174,7 +175,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         <aside
           className={`
           hidden lg:sticky lg:block left-0 top-0 z-[9999]
-          border-r border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark
+          border-r border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark  px-[100px]
         `}
         >
           {/* === SIDEBAR CONTENT === */}

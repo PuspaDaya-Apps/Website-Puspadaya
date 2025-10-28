@@ -188,7 +188,7 @@ const EPDSQuestionnaire: React.FC = () => {
     selectedPregnantWoman !== null && questions.every((q) => answers[q.id] !== null && answers[q.id] !== undefined);
 
   if (loading) return <p>⏳ Sedang memuat data Ibu Hamil...</p>;
-  if (!kuisionerData) return <p>📭 Tidak ada data kuisioner ditemukan.</p>;
+  if (!kuisionerData) return <p>📭 Tidak ada data kuisioner ditemukan! Loading...</p>;
 
   return (
     <div className="container mx-auto px-1 py-2">
