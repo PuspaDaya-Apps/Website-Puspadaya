@@ -9,6 +9,8 @@ import { PregnantWoman } from "./types";
 import { Ibuhamil } from "@/app/api/kuesioner/ibuhamil";
 import { Listkuesioner } from "@/app/api/kuesioner/listkuesioner";
 import { KuisionerList } from "@/types/data-25/KuisionerList";
+import { Submitkuesioner } from "@/app/api/kuesioner/submit";
+import dayjs from "dayjs";
 
 const EPDSQuestionnaire: React.FC = () => {
   const [selectedPregnantWoman, setSelectedPregnantWoman] = useState<PregnantWoman | null>(null);
@@ -16,6 +18,7 @@ const EPDSQuestionnaire: React.FC = () => {
   const [dataIbu, setDataIbu] = useState<PregnantWoman[]>([]);
   const [loading, setLoading] = useState(true);
   const [kuisionerData, setKuisionerData] = useState<KuisionerList | null>(null);
+  const today = dayjs().format("YYYY-MM-DD");
 
   // Ambil data Ibu Hamil
   useEffect(() => {
@@ -54,51 +57,53 @@ const EPDSQuestionnaire: React.FC = () => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 
-  const handleSubmit = () => {
-    // pastikan hasil reduce selalu number
-    const totalScore = Object.values(answers).reduce<number>(
-      (sum, value) => sum + (value ?? 0),
-      0
-    );
+  const handleSubmit = async () => {
+    if (!selectedPregnantWoman || !kuisionerData) return;
 
-    // Ambil kader_id dari localStorage
-    const currentUser = localStorage.getItem('current_user');
+    const currentUser = localStorage.getItem("current_user");
     const kaderData = currentUser ? JSON.parse(currentUser) : null;
     const kader_id = kaderData?.id || null;
-
-    // Ambil ID Ibu Hamil yang dipilih
     const ibu_hamil_id = selectedPregnantWoman?.id || null;
-
-    // Ambil ID Kuisioner aktif
     const kuisioner_id = kuisionerData?.id || null;
 
-    // Buat array jawaban
-    const jawaban = questions.map((q) => {
-      const selectedOptionId = answers[q.id]; // ambil pilihan user, misalnya 1
-      const selectedOption = q.pilihan_opsional.find(opt => opt.id === selectedOptionId);
+    // Format tanggal sekarang
+    const tanggal_pengisian = dayjs().format("YYYY-MM-DD");
+
+    // Buat array jawaban sesuai format API
+    const jawaban = kuisionerData.pertanyaan.map((q) => {
+      const selectedOptionScore = answers[q.id];
+      const selectedOption = q.pilihan_opsional.find(
+        (opt) => opt.score === selectedOptionScore
+      );
 
       return {
         pertanyaan_id: q.id,
-        jawaban_text: selectedOption ? selectedOption.text : "", // ambil teks, bukan skor
+        jawaban_value: selectedOption ? selectedOption.text : "",
       };
     });
 
-
-    // Susun payload untuk log
+    // Susun payload akhir
     const payload = {
-      kader_id,
-      ibu_hamil_id,
       kuisioner_id,
+      target_type: "ibu_hamil",
+      target_id: ibu_hamil_id,
+      kader_id,
+      tanggal_pengisian,
       jawaban,
     };
 
-    // Tampilkan log data final (untuk debugging)
-    console.log("📦 Data Log Siap Dikirim:", payload);
+    console.log("🚀 Payload dikirim ke API:", payload);
 
-    alert(
-      `EPDS Questionnaire submitted!\nTotal Score: ${totalScore}\n\n Data Berhasil Disimpan`
-    );
+    // Kirim ke API
+    const response = await Submitkuesioner(payload);
+
+    if (response.successCode === 200 || response.successCode === 201) {
+      alert("✅ Kuisioner berhasil dikirim!");
+    } else {
+      alert("❌ Gagal mengirim kuisioner, periksa console untuk detailnya.");
+    }
   };
+
 
 
   // Simpan otomatis ke sessionStorage setiap kali data berubah

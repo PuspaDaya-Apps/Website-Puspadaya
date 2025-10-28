@@ -20,6 +20,7 @@
     "chart.js": "^4.4.6",
     "d3": "^7.9.0",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.18",
     "dompurify": "^3.1.7",
     "eslint-plugin-risxss": "^2.1.0",
     "flatpickr": "^4.6.13",
