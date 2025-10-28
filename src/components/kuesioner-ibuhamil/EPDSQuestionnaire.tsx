@@ -5,25 +5,25 @@ import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import { RadioButton } from "primereact/radiobutton";
-import { PregnantWoman, Question, ResponseOption } from "./types";
-import { IbuHamilResponse } from "@/types/data-25/IbuHamilResponse";
+import { PregnantWoman } from "./types";
 import { Ibuhamil } from "@/app/api/kuesioner/ibuhamil";
-import { KuisionerList } from "@/types/data-25/KuisionerList";
 import { Listkuesioner } from "@/app/api/kuesioner/listkuesioner";
+import { KuisionerList } from "@/types/data-25/KuisionerList";
 
 const EPDSQuestionnaire: React.FC = () => {
   const [selectedPregnantWoman, setSelectedPregnantWoman] = useState<PregnantWoman | null>(null);
-  const [answers, setAnswers] = useState<Record<number, number | null>>({});
+  const [answers, setAnswers] = useState<Record<string, number | null>>({});
   const [dataIbu, setDataIbu] = useState<PregnantWoman[]>([]);
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<KuisionerList[] | null>(null);
+  const [kuisionerData, setKuisionerData] = useState<KuisionerList | null>(null);
 
+  // Ambil data Ibu Hamil
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchIbuHamil = async () => {
       const result = await Ibuhamil();
 
       if (result.successCode === 200 && result.data) {
-        const formattedData = result.data.data.map((item) => ({
+        const formattedData = result.data.data.map((item: any) => ({
           id: item.id,
           name: item.nama_ibu,
           age: parseInt(item.usia_ibu),
@@ -36,56 +36,42 @@ const EPDSQuestionnaire: React.FC = () => {
       setLoading(false);
     };
 
-    fetchData();
+    fetchIbuHamil();
   }, []);
 
-
+  // Ambil daftar pertanyaan kuisioner
   useEffect(() => {
-    Listkuesioner().then((res) => {
-      if (res.successCode === 200 && res.data) {
-        setData(res.data);
+    const fetchKuisioner = async () => {
+      const res = await Listkuesioner();
+      if (res.successCode === 200 && res.data && res.data.length > 0) {
+        setKuisionerData(res.data[0]);
       }
-    });
+    };
+    fetchKuisioner();
   }, []);
 
-
-  // Pertanyaan EPDS
-  const questions: Question[] = [
-    { id: 1, text: "Saya telah merasa cemas, gelisah, atau kesulitan untuk rileks" },
-    { id: 2, text: "Saya telah merasa depresi atau murung" },
-    { id: 3, text: "Saya telah merasa takut atau panik tanpa alasan yang jelas" },
-    { id: 4, text: "Saya telah merasa tidak mampu menikmati apapun, bahkan hal-hal yang biasanya menyenangkan" },
-    { id: 5, text: "Saya telah merasa tidak mampu menjalani hubungan dengan suami/pasangan, anak-anak, orang tua, atau keluarga" },
-    { id: 6, text: "Saya telah merasa gelisah atau tidak mampu tetap tenang" },
-    { id: 7, text: "Saya telah merasa sangat marah atau jengkel" },
-    { id: 8, text: "Saya telah merasa tidak berguna sebagai ibu" },
-    { id: 9, text: "Saya telah merasa takut bahwa sesuatu yang buruk akan terjadi pada bayi saya" },
-    { id: 10, text: "Saya telah merasa sangat sedih atau ingin menangis" },
-  ];
-
-  // Opsi jawaban
-  const responseOptions: ResponseOption[] = [
-    { value: 0, label: "0 - Tidak pernah sama sekali", description: "Tidak pernah" },
-    { value: 1, label: "1 - Jarang", description: "Kadang-kadang" },
-    { value: 2, label: "2 - Kadang-kadang", description: "Sering" },
-    { value: 3, label: "3 - Cukup sering", description: "Sangat sering" },
-  ];
-
-  const handleAnswerChange = (questionId: number, value: number) => {
+  const handleAnswerChange = (questionId: string, value: number) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 
   const handleSubmit = () => {
-    const totalScore = Object.values(answers).reduce((sum: number, value) => sum + (value ?? 0), 0);
-    console.log("🧍‍♀️ Selected Ibu Hamil:", selectedPregnantWoman);
-    console.log("📋 Answers:", answers);
-    console.log("🧮 Total EPDS Score:", totalScore);
+    // pastikan hasil reduce selalu number
+    const totalScore = Object.values(answers).reduce<number>(
+      (sum, value) => sum + (value ?? 0),
+      0
+    );
+
+    // console.log(" Selected Ibu Hamil:", selectedPregnantWoman);
+    // console.log("Answers:", answers);
+    // console.log("Total EPDS Score:", totalScore);
+
+    const interpretation = getScoreInterpretation(totalScore);
+
     alert(
-      `EPDS Questionnaire submitted!\nTotal Score: ${totalScore}\n\nInterpretation: ${getScoreInterpretation(
-        totalScore
-      )}`
+      `EPDS Questionnaire submitted!\nTotal Score: ${totalScore}\n\nInterpretation: ${interpretation}`
     );
   };
+
 
   const getScoreInterpretation = (score: number): string => {
     if (score >= 13) return "Skor tinggi - Risiko depresi postnatal tinggi, disarankan konsultasi dokter";
@@ -93,17 +79,21 @@ const EPDSQuestionnaire: React.FC = () => {
     return "Skor rendah - Tidak ada indikasi depresi";
   };
 
-  const isFormComplete = selectedPregnantWoman !== null && questions.every((q) => answers[q.id] !== null);
+  const questions = kuisionerData?.pertanyaan || [];
+  const isFormComplete =
+    selectedPregnantWoman !== null && questions.every((q) => answers[q.id] !== null && answers[q.id] !== undefined);
 
   if (loading) return <p>⏳ Sedang memuat data Ibu Hamil...</p>;
+  if (!kuisionerData) return <p>📭 Tidak ada data kuisioner ditemukan.</p>;
 
   return (
     <div className="container mx-auto px-1 py-2">
-      <Card title="Kuisioner EPDS (Edinburgh Postnatal Depression Scale)">
+      <Card title={kuisionerData.nama_kuisioner}>
         <div className="mb-6">
-          <p className="text-gray-600">Silakan pilih ibu hamil dan jawab pertanyaan-pertanyaan berikut</p>
+          <p className="text-gray-600">{kuisionerData.deskripsi}</p>
         </div>
 
+        {/* Dropdown Ibu Hamil */}
         <div className="mb-6">
           <label htmlFor="pregnant-woman" className="block text-sm font-medium text-gray-700 mb-2">
             Pilih Ibu Hamil
@@ -132,49 +122,52 @@ const EPDSQuestionnaire: React.FC = () => {
           )}
         </div>
 
-        {/* Pertanyaan muncul setelah ibu dipilih */}
+        {/* Pertanyaan */}
         {selectedPregnantWoman && (
           <>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">Pertanyaan EPDS</h2>
+              <h2 className="text-xl font-semibold text-gray-800">Pertanyaan Kuisioner</h2>
               <span className="text-sm text-gray-500">{questions.length} pertanyaan</span>
             </div>
 
             <div className="space-y-6">
-              {questions.map((question) => (
-                <div key={question.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="mb-3">
-                    <span className="font-medium text-gray-700 bg-blue-100 rounded-full px-3 py-1 inline-block">
-                      Pertanyaan {question.id}
-                    </span>
-                    <p className="mt-2 text-gray-700">{question.text}</p>
-                  </div>
+              {questions
+                .sort((a, b) => a.urutan - b.urutan)
+                .map((question, index) => (
+                  <div key={question.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="mb-3">
+                      <span className="font-medium text-gray-700 bg-blue-100 rounded-full px-3 py-1 inline-block">
+                        Pertanyaan {index + 1}
+                      </span>
+                      <p className="mt-2 text-gray-700">{question.pertanyaan_text}</p>
+                    </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                    {responseOptions.map((option) => (
-                      <div key={option.value} className="flex align-items-center">
-                        <RadioButton
-                          inputId={`q${question.id}-option${option.value}`}
-                          name={`question-${question.id}`}
-                          value={option.value}
-                          onChange={(e) => handleAnswerChange(question.id, e.value)}
-                          checked={answers[question.id] === option.value}
-                        />
-                        <label htmlFor={`q${question.id}-option${option.value}`} className="ml-2 text-sm text-gray-700">
-                          <div className="font-medium">{option.label.split(" - ")[0]}</div>
-                          <div className="text-xs text-gray-500">{option.description}</div>
-                        </label>
-                      </div>
-                    ))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                      {question.pilihan_opsional.map((option) => (
+                        <div key={option.id} className="flex align-items-center">
+                          <RadioButton
+                            inputId={`q${question.id}-option${option.id}`}
+                            name={`question-${question.id}`}
+                            value={option.score}
+                            onChange={(e) => handleAnswerChange(question.id, e.value)}
+                            checked={answers[question.id] === option.score}
+                          />
+                          <label htmlFor={`q${question.id}-option${option.id}`} className="ml-2 text-sm text-gray-700">
+                            <div className="font-medium">{option.text}</div>
+                            <div className="text-xs text-gray-500">Skor: {option.score}</div>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
 
             <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-gray-200">
               <div className="text-sm text-gray-600">
                 <p>
-                  Jumlah jawaban terisi: {Object.values(answers).filter((v) => v !== null).length} dari {questions.length} pertanyaan
+                  Jumlah jawaban terisi: {Object.values(answers).filter((v) => v !== null).length} dari{" "}
+                  {questions.length} pertanyaan
                 </p>
               </div>
               <Button

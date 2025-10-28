@@ -13,7 +13,7 @@ export const Listkuesioner = async (): Promise<FetchResult> => {
     try {
         const accessToken = sessionStorage.getItem('access_token');
         if (!accessToken) {
-            console.warn('⚠️ Token tidak ditemukan di sessionStorage');
+            console.warn('Token tidak ditemukan di sessionStorage');
             return { successCode: 401, data: null };
         }
 
@@ -21,14 +21,14 @@ export const Listkuesioner = async (): Promise<FetchResult> => {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
 
-        console.log('✅ Data Kuisioner berhasil diambil:', response.data); // <--- log hasil API
-        console.log(' Status response:', response.status); // <--- log status response
+        // console.log(' Data Kuisioner berhasil diambil:', response.data); 
+        // console.log(' Status response:', response.status); 
 
         return { successCode: response.status, data: response.data };
     } catch (err: any) {
         const { status, message } = handleError(err);
-        console.error('❌ Error fetching data Kuisioner:', message);
-        console.error('📄 Detail error:', err); // <--- log detail error (opsional)
+        console.error('Error fetching data Kuisioner:', message);
+        console.error('Detail error:', err);
         return { successCode: status, data: null };
     }
 };
