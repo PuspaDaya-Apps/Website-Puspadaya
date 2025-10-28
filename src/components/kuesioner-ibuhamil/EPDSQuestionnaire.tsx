@@ -61,16 +61,48 @@ const EPDSQuestionnaire: React.FC = () => {
       0
     );
 
-    // console.log(" Selected Ibu Hamil:", selectedPregnantWoman);
-    // console.log("Answers:", answers);
-    // console.log("Total EPDS Score:", totalScore);
+    // Ambil kader_id dari localStorage
+    const currentUser = localStorage.getItem('current_user');
+    const kaderData = currentUser ? JSON.parse(currentUser) : null;
+    const kader_id = kaderData?.id || null;
 
+    // Ambil ID Ibu Hamil yang dipilih
+    const ibu_hamil_id = selectedPregnantWoman?.id || null;
+
+    // Ambil ID Kuisioner aktif
+    const kuisioner_id = kuisionerData?.id || null;
+
+    // Buat array jawaban
+    const jawaban = questions.map((q) => {
+      const selectedOptionId = answers[q.id]; // ambil pilihan user, misalnya 1
+      const selectedOption = q.pilihan_opsional.find(opt => opt.id === selectedOptionId);
+
+      return {
+        pertanyaan_id: q.id,
+        jawaban_text: selectedOption ? selectedOption.text : "", // ambil teks, bukan skor
+      };
+    });
+
+
+    // Susun payload untuk log
+    const payload = {
+      kader_id,
+      ibu_hamil_id,
+      kuisioner_id,
+      jawaban,
+    };
+
+    // Tampilkan log data final (untuk debugging)
+    console.log("📦 Data Log Siap Dikirim:", payload);
+
+    // Interpretasi skor total
     const interpretation = getScoreInterpretation(totalScore);
 
     alert(
       `EPDS Questionnaire submitted!\nTotal Score: ${totalScore}\n\nInterpretation: ${interpretation}`
     );
   };
+
 
 
   const getScoreInterpretation = (score: number): string => {
