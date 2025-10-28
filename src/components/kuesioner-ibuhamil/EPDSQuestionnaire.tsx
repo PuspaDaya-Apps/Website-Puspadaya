@@ -95,21 +95,70 @@ const EPDSQuestionnaire: React.FC = () => {
     // Tampilkan log data final (untuk debugging)
     console.log("📦 Data Log Siap Dikirim:", payload);
 
-    // Interpretasi skor total
-    const interpretation = getScoreInterpretation(totalScore);
-
     alert(
-      `EPDS Questionnaire submitted!\nTotal Score: ${totalScore}\n\nInterpretation: ${interpretation}`
+      `EPDS Questionnaire submitted!\nTotal Score: ${totalScore}\n\n Data Berhasil Disimpan`
     );
   };
 
 
+  // Simpan otomatis ke sessionStorage setiap kali data berubah
+  useEffect(() => {
+    if (!selectedPregnantWoman || !kuisionerData) return;
 
-  const getScoreInterpretation = (score: number): string => {
-    if (score >= 13) return "Skor tinggi - Risiko depresi postnatal tinggi, disarankan konsultasi dokter";
-    if (score >= 10) return "Skor sedang - Ada kemungkinan depresi, disarankan konsultasi";
-    return "Skor rendah - Tidak ada indikasi depresi";
-  };
+    const currentUser = localStorage.getItem("current_user");
+    const kaderData = currentUser ? JSON.parse(currentUser) : null;
+    const kader_id = kaderData?.id || null;
+    const ibu_hamil_id = selectedPregnantWoman.id;
+    const kuisioner_id = kuisionerData.id;
+
+    const jawaban = kuisionerData.pertanyaan.map((q) => {
+      const selectedOptionScore = answers[q.id]; // nilai dari radio
+      const selectedOption = q.pilihan_opsional.find(
+        (opt) => opt.score === selectedOptionScore
+      );
+
+      return {
+        pertanyaan_id: q.id,
+        jawaban_text: selectedOption ? selectedOption.text : "",
+      };
+    });
+
+    const payload = {
+      kader_id,
+      ibu_hamil_id,
+      kuisioner_id,
+      jawaban,
+    };
+
+    // simpan di session storage
+    sessionStorage.setItem("epds_progress", JSON.stringify(payload));
+
+  }, [selectedPregnantWoman, answers, kuisionerData]);
+
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem("epds_progress");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setSelectedPregnantWoman(
+        dataIbu.find((ibu) => ibu.id === parsed.ibu_hamil_id) || null
+      );
+      setAnswers(() => {
+        const restored: Record<string, number | null> = {};
+        parsed.jawaban.forEach((j: any) => {
+          const question = kuisionerData?.pertanyaan.find(
+            (q) => q.id === j.pertanyaan_id
+          );
+          const selectedOption = question?.pilihan_opsional.find(
+            (opt) => opt.text === j.jawaban_text
+          );
+          restored[j.pertanyaan_id] = selectedOption?.score ?? null;
+        });
+        return restored;
+      });
+    }
+  }, [dataIbu, kuisionerData]);
+
 
   const questions = kuisionerData?.pertanyaan || [];
   const isFormComplete =
