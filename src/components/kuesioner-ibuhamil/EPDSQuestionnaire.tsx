@@ -8,31 +8,29 @@ import { RadioButton } from "primereact/radiobutton";
 import { PregnantWoman, Question, ResponseOption } from "./types";
 import { IbuHamilResponse } from "@/types/data-25/IbuHamilResponse";
 import { Ibuhamil } from "@/app/api/kuesioner/ibuhamil";
+import { KuisionerList } from "@/types/data-25/KuisionerList";
+import { Listkuesioner } from "@/app/api/kuesioner/listkuesioner";
 
 const EPDSQuestionnaire: React.FC = () => {
   const [selectedPregnantWoman, setSelectedPregnantWoman] = useState<PregnantWoman | null>(null);
   const [answers, setAnswers] = useState<Record<number, number | null>>({});
   const [dataIbu, setDataIbu] = useState<PregnantWoman[]>([]);
   const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<KuisionerList[] | null>(null);
 
-  // Fetch data dari API
   useEffect(() => {
     const fetchData = async () => {
       const result = await Ibuhamil();
 
       if (result.successCode === 200 && result.data) {
-        // Konversi format API ke format PregnantWoman
         const formattedData = result.data.data.map((item) => ({
           id: item.id,
           name: item.nama_ibu,
-          age: parseInt(item.usia_ibu), // misalnya "31 tahun 5 bulan" → 31
-          trimester: item.usia_kehamilan, // gunakan usia_kehamilan untuk tampilkan info
+          age: parseInt(item.usia_ibu),
+          trimester: item.usia_kehamilan,
         }));
 
         setDataIbu(formattedData);
-        console.log("✅ Data Ibu Hamil dari API:", formattedData);
-      } else {
-        console.error("❌ Gagal memuat data Ibu Hamil");
       }
 
       setLoading(false);
@@ -40,6 +38,16 @@ const EPDSQuestionnaire: React.FC = () => {
 
     fetchData();
   }, []);
+
+
+  useEffect(() => {
+    Listkuesioner().then((res) => {
+      if (res.successCode === 200 && res.data) {
+        setData(res.data);
+      }
+    });
+  }, []);
+
 
   // Pertanyaan EPDS
   const questions: Question[] = [
