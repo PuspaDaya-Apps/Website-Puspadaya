@@ -203,7 +203,7 @@ const EPDSQuestionnaire: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <p className="text-gray-600">{kuisionerData.deskripsi}</p>
           <Button
-            label="Lihat Detail Jawaban"
+            label="Jawaban"
             icon="pi pi-eye"
             onClick={handleRedirect}
             className="p-button-outlined p-button-secondary"

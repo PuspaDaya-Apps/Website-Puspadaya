@@ -1,8 +1,8 @@
-import { APIEndpoints } from '@/app/config/route/apiEndpoints';
-import { handleError } from '@/components/Handleerror/server/errorHandler';
-import axios from 'axios';
+import axios from "axios";
+import { APIEndpoints } from "@/app/config/route/apiEndpoints";
+import { handleError } from "@/components/Handleerror/server/errorHandler";
 
-// Tipe response sesuai dengan contoh kamu
+// 📦 Tipe data untuk response API
 export interface JawabanKuesionerResponse {
     id: string;
     created_at: string;
@@ -41,37 +41,28 @@ export interface JawabanKuesionerResponse {
     }[];
 }
 
-interface FetchBySessionResult {
+export interface FetchBySessionResult {
     successCode: number;
     data: JawabanKuesionerResponse[] | null;
 }
 
-// ✅ Fungsi utama
-export const JawabanKuesionerBySession = async (): Promise<FetchBySessionResult> => {
+export const JawabanKuesionerBySession = async (ibuHamilId: string): Promise<FetchBySessionResult> => {
     if (typeof window === 'undefined') {
         return { successCode: 500, data: null };
     }
 
     try {
         const accessToken = sessionStorage.getItem('access_token');
-        const ibuHamilId = sessionStorage.getItem('ibu_hamil_id_jawaban');
-
         if (!accessToken || !ibuHamilId) {
-            console.warn('⚠️ Token atau ID ibu hamil tidak ditemukan di sessionStorage');
+            console.warn('⚠️ Token atau ID ibu hamil tidak ditemukan');
             return { successCode: 401, data: null };
         }
 
-        const config = {
-            headers: { Authorization: `Bearer ${accessToken}` },
-        };
-
-        // Endpoint kamu kemungkinan seperti ini:
+        const config = { headers: { Authorization: `Bearer ${accessToken}` } };
         const url = `${APIEndpoints.DETAILKUESIONER}/${ibuHamilId}`;
-        console.log('📡 Fetch Jawaban Kuesioner by session:', url);
+        // console.log('📡 Fetch Jawaban Kuesioner:', url);
 
         const response = await axios.get<JawabanKuesionerResponse[]>(url, config);
-        console.log('✅ Response API:', response.data);
-
         return { successCode: response.status, data: response.data };
     } catch (err: any) {
         const { status, message } = handleError(err);
