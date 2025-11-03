@@ -67,8 +67,8 @@ const DropdownUser = () => {
       >
         <span className="h-10 w-10 rounded-full">
           <Image
-            width={190}
-            height={190}
+            width={100}
+            height={100}
             src={imageSrc}
             alt="User"
             style={{ width: "auto", height: "auto" }}
@@ -122,13 +122,14 @@ const DropdownUser = () => {
       {/* Dropdown Menu */}
       {dropdownOpen && (
         <div
-          className={`absolute right-0 mt-2 w-[280px] rounded-lg border-[0.5px] border-stroke bg-white shadow-default dark:border-dark-3 dark:bg-gray-dark sm:mt-7.5`}
+          className={`absolute right-0 mt-2 w-[280px] rounded-lg border-[0.5px] border-stroke bg-white shadow-default dark:border-dark-3 dark:bg-gray-dark sm:mt-7.5 z-[9999]`}
         >
-          <div className="flex items-center gap-2.5 px-5 pb-5.5 pt-3.5">
+
+          <div className="flex items-center gap-2.5 px-5 pb-5.5 pt-14">
             <span className="relative block h-10 w-10 rounded-full">
               <Image
-                width={112}
-                height={112}
+                width={100}
+                height={100}
                 src={imageSrc}
                 alt="User"
                 style={{ width: "auto", height: "auto" }}
@@ -169,6 +170,7 @@ const DropdownUser = () => {
           </div>
         </div>
       )}
+
     </ClickOutside>
   );
 };

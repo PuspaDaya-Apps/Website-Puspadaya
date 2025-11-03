@@ -49,11 +49,13 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
         </div>
 
         {/* === User Dropdown === */}
-        <div className="flex items-center">
-          <ul className="flex items-center">
+        <div className="flex items-center relative z-[1000]">
+          <ul className="flex items-center relative">
             <DropdownUser />
           </ul>
         </div>
+
+
       </div>
     </header>
   );
