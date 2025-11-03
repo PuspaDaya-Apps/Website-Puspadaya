@@ -5,13 +5,14 @@ import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import { RadioButton } from "primereact/radiobutton";
-import { PregnantWoman } from "./types";
+import { PregnantWoman } from "../jawaban-kuesioner/types";
 import { Ibuhamil } from "@/app/api/kuesioner/ibuhamil";
 import { Listkuesioner } from "@/app/api/kuesioner/listkuesioner";
 import { KuisionerList } from "@/types/data-25/KuisionerList";
 import { Submitkuesioner } from "@/app/api/kuesioner/submit";
 import dayjs from "dayjs";
 import { Toast } from "primereact/toast";
+import { useRouter } from "next/navigation";
 
 const EPDSQuestionnaire: React.FC = () => {
   const [selectedPregnantWoman, setSelectedPregnantWoman] = useState<PregnantWoman | null>(null);
@@ -20,7 +21,7 @@ const EPDSQuestionnaire: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [kuisionerData, setKuisionerData] = useState<KuisionerList | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const router = useRouter();
   const toast = useRef<Toast>(null);
 
   // Ambil data Ibu Hamil
@@ -94,7 +95,6 @@ const EPDSQuestionnaire: React.FC = () => {
       jawaban,
     };
 
-    // console.log("🚀 Payload dikirim ke API:", payload);
 
     setTimeout(async () => {
       const response = await Submitkuesioner(payload);
@@ -187,6 +187,11 @@ const EPDSQuestionnaire: React.FC = () => {
   const isFormComplete =
     selectedPregnantWoman !== null && questions.every((q) => answers[q.id] !== null && answers[q.id] !== undefined);
 
+  const handleRedirect = () => {
+    // arahkan ke halaman detail
+    router.push('/jawaban-kuesioner');
+  };
+
   if (loading) return <p>⏳ Sedang memuat data Ibu Hamil...</p>;
   if (!kuisionerData) return <p>📭 Tidak ada data kuisioner ditemukan! Loading...</p>;
 
@@ -194,8 +199,15 @@ const EPDSQuestionnaire: React.FC = () => {
     <div className="container mx-auto px-1 py-2">
       <Toast ref={toast} />
       <Card title={kuisionerData.nama_kuisioner}>
-        <div className="mb-6">
+
+        <div className="flex items-center justify-between mb-4">
           <p className="text-gray-600">{kuisionerData.deskripsi}</p>
+          <Button
+            label="Lihat Detail Jawaban"
+            icon="pi pi-eye"
+            onClick={handleRedirect}
+            className="p-button-outlined p-button-secondary"
+          />
         </div>
 
         {/* Dropdown Ibu Hamil */}

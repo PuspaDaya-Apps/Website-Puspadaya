@@ -13,9 +13,10 @@ const Kuisioner = () => {
     return (
         <DefaultLayout>
             <div className="mx-auto w-full ">
-                <Breadcrumb pageName="Kuisioner" />
-                {/* Kuisioner EPDS Component */}
-                <EPDSQuestionnaire />
+                <Breadcrumb pageName="Jawaban Kuisioner" />
+
+                {/* Detail Jawaban Kuesioner */}
+                <DetailJawaban />
             </div>
         </DefaultLayout>
     );

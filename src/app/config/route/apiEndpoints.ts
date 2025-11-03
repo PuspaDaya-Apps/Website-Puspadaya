@@ -37,6 +37,7 @@ export const APIEndpoints = {
     IBUHAMIL: '/api/v1/ibu-hamil',
     KUESIONER: '/api/v1/kuisioner?kategori=ibu_hamil',
     SUBMITEKUESIONER: '/api/v1/kuisioner/respon',
+    DETAILKUESIONER: '/api/v1/kuisioner/respon/target/ibu_hamil',
 
 
 
