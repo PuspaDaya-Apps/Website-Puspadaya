@@ -80,11 +80,12 @@ export default function DetailJawaban() {
     fetchJawaban();
   }, [selectedIbu]);
 
-
   const formatTanggal = (tanggal: string) => {
-    return dayjs.utc(tanggal).tz("Asia/Jakarta").format("DD-MM-YYYY HH:mm") + " WIB";
-
+    const t = dayjs(tanggal);
+    if (!t.isValid()) return "-";
+    return dayjs.utc(tanggal).tz("Asia/Jakarta").format("DD-MM-YYYY");
   };
+
 
 
   return (
@@ -122,8 +123,8 @@ export default function DetailJawaban() {
                     <p className="font-semibold text-lg">
                       Kuesioner EPDS
                     </p>
-                    <p className="text-gray-600 text-sm">
-                      {formatTanggal(riwayat.tanggal_pengisian)}
+                    <p className="text-gray-800 text-sm">
+                      Tanggal : {formatTanggal(riwayat.tanggal_pengisian)}
                     </p>
                   </div>
                   <Button
