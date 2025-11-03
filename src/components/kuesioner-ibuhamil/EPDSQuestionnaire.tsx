@@ -5,7 +5,7 @@ import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import { RadioButton } from "primereact/radiobutton";
-import { PregnantWoman } from "../jawaban-kuesioner/types";
+
 import { Ibuhamil } from "@/app/api/kuesioner/ibuhamil";
 import { Listkuesioner } from "@/app/api/kuesioner/listkuesioner";
 import { KuisionerList } from "@/types/data-25/KuisionerList";
@@ -13,6 +13,7 @@ import { Submitkuesioner } from "@/app/api/kuesioner/submit";
 import dayjs from "dayjs";
 import { Toast } from "primereact/toast";
 import { useRouter } from "next/navigation";
+import { PregnantWoman } from "../jawaban-kuesioner/types";
 
 const EPDSQuestionnaire: React.FC = () => {
   const [selectedPregnantWoman, setSelectedPregnantWoman] = useState<PregnantWoman | null>(null);
@@ -188,7 +189,6 @@ const EPDSQuestionnaire: React.FC = () => {
     selectedPregnantWoman !== null && questions.every((q) => answers[q.id] !== null && answers[q.id] !== undefined);
 
   const handleRedirect = () => {
-    // arahkan ke halaman detail
     router.push('/jawaban-kuesioner');
   };
 
@@ -200,13 +200,13 @@ const EPDSQuestionnaire: React.FC = () => {
       <Toast ref={toast} />
       <Card title={kuisionerData.nama_kuisioner}>
 
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-gray-600">{kuisionerData.deskripsi}</p>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2 sm:gap-0">
+          <p className="text-gray-600 mb-2 sm:mb-0">{kuisionerData.deskripsi}</p>
           <Button
-            label="Jawaban"
-            icon="pi pi-eye"
+            label="Lihat Jawaban"
+            icon=""
             onClick={handleRedirect}
-            className="p-button-outlined p-button-secondary"
+            className="p-button-outlined p-button-secondary w-full sm:w-auto"
           />
         </div>
 
@@ -292,7 +292,7 @@ const EPDSQuestionnaire: React.FC = () => {
                 icon={isSubmitting ? "pi pi-spin pi-spinner" : "pi pi-check"}
                 disabled={!isFormComplete || isSubmitting}
                 onClick={handleSubmit}
-                className={isFormComplete ? "p-button-success" : "p-button-secondary p-button-outlined"}
+                className={isFormComplete ? "p-button-success w-full sm:w-auto" : "p-button-secondary p-button-outlined w-full sm:w-auto"}
               />
 
             </div>

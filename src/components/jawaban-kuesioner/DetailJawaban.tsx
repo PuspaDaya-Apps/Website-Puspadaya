@@ -11,7 +11,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 
-// ✅ Aktifkan plugin timezone Day.js
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -39,7 +39,6 @@ export default function DetailJawaban() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Ambil daftar ibu hamil
   useEffect(() => {
     const fetchIbuHamil = async () => {
       try {
@@ -58,7 +57,6 @@ export default function DetailJawaban() {
     fetchIbuHamil();
   }, []);
 
-  // 🔹 Ambil jawaban kuisioner berdasarkan ibu yang dipilih
   useEffect(() => {
     const fetchJawaban = async () => {
       if (!selectedIbu) return;
@@ -91,21 +89,23 @@ export default function DetailJawaban() {
   return (
     <div className="p-4">
       <Card title="Detail Jawaban Kuisioner" className="shadow-md rounded-2xl p-4">
-        <div className="flex gap-3 items-center mb-4">
-          <span className="font-medium w-32">Pilih Ibu Hamil</span>
-          <Dropdown
-            value={selectedIbu}
-            onChange={(e) => setSelectedIbu(e.value)}
-            options={daftarIbu}
-            optionLabel="nama_lengkap"
-            placeholder="Pilih ibu hamil"
-            className="w-full md:w-30rem"
-          />
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center mb-4">
+          <span className="font-medium w-auto sm:w-32">Pilih Ibu Hamil</span>
+          <div className="w-full sm:w-auto">
+            <Dropdown
+              value={selectedIbu}
+              onChange={(e) => setSelectedIbu(e.value)}
+              options={daftarIbu}
+              optionLabel="nama_lengkap"
+              placeholder="Pilih ibu hamil"
+              className="w-full"
+            />
+          </div>
         </div>
 
         {loading && (
           <div className="flex justify-center py-4">
-            <ProgressSpinner style={{ width: "40px", height: "40px" }} />
+            <ProgressSpinner style={{ width: "40px", height: "40px" }} className="w-10 h-10" />
           </div>
         )}
 
@@ -114,12 +114,12 @@ export default function DetailJawaban() {
             {riwayatJawaban.map((riwayat, index) => (
               <Card key={riwayat.id} className="shadow-sm border border-gray-200 rounded-xl">
                 <div
-                  className="flex justify-between items-center cursor-pointer"
+                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center cursor-pointer gap-2"
                   onClick={() =>
                     setExpandedIndex(expandedIndex === index ? null : index)
                   }
                 >
-                  <div>
+                  <div className="w-full sm:w-auto">
                     <p className="font-semibold text-lg">
                       Kuesioner EPDS
                     </p>
@@ -133,7 +133,7 @@ export default function DetailJawaban() {
                         ? "pi pi-chevron-up"
                         : "pi pi-chevron-down"
                     }
-                    className="p-button-text"
+                    className="p-button-text w-full sm:w-auto"
                   />
                 </div>
 
@@ -142,7 +142,7 @@ export default function DetailJawaban() {
                     {riwayat.jawaban.map((item, i) => (
                       <div
                         key={item.id}
-                        className="p-3 bg-gray-50 rounded-md border border-gray-100"
+                        className="p-3 bg-gray-50 rounded-md border border-gray-100 break-words"
                       >
                         <p className="font-medium text-gray-800">
                           {i + 1}. {item.pertanyaan.pertanyaan_text}
