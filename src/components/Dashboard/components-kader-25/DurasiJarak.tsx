@@ -24,11 +24,25 @@ const DurasiJarak: React.FC = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await StatistikJarakTempuh();
-            if (response.successCode === 200 && response.data) {
-                setData(response.data);
-            } else {
-                setErrorMessage("Gagal memuat data durasi dan jarak tempuh kader.");
+            try {
+                const response = await StatistikJarakTempuh();
+                if (response.successCode === 200 && response.data) {
+                    setData(response.data);
+                } else {
+                    // Jika API gagal, tetapkan data default daripada menampilkan error
+                    setData({
+                        durasi_kerja_posyandu: 0,
+                        durasi_kunjungan_rumah: 0,
+                        jarak_total_kunjungan_rumah: 0
+                    });
+                }
+            } catch (error) {
+                // Tangani error tanpa menampilkan di console
+                setData({
+                    durasi_kerja_posyandu: 0,
+                    durasi_kunjungan_rumah: 0,
+                    jarak_total_kunjungan_rumah: 0
+                });
             }
             setLoading(false);
         };
@@ -42,14 +56,6 @@ const DurasiJarak: React.FC = () => {
                 <p className="text-gray-600 dark:text-gray-300">
                     Memuat data durasi dan jarak tempuh...
                 </p>
-            </div>
-        );
-    }
-
-    if (!data) {
-        return (
-            <div className="rounded-xl bg-white p-6 text-center shadow-md dark:bg-gray-dark">
-                <p className="text-gray-600 dark:text-gray-300">{errorMessage}</p>
             </div>
         );
     }

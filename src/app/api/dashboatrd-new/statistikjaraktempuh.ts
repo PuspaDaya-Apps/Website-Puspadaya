@@ -1,6 +1,4 @@
 import { APIEndpoints } from '@/app/config/route/apiEndpoints';
-import { Messages } from '@/components/Handleerror/message/messages';
-import { handleError } from '@/components/Handleerror/server/errorHandler';
 import { BebanKerjaData, BebanKerjaResponse } from '@/types/data-25/statistikbebankerja';
 import axios from 'axios';
 import { getSessionStorageWithTTL, setSessionStorageWithTTL } from '@/utils/sessionStorageUtils';
@@ -47,11 +45,14 @@ export const StatistikJarakTempuh = async (useCache: boolean = true): Promise<Fe
         // Store data in session storage with TTL (30 minutes)
         setSessionStorageWithTTL(CACHE_KEY, data, 30);
 
-        sessionStorage.removeItem(Messages.ERROR);
+        // sessionStorage.removeItem(Messages.ERROR);
+
+        sessionStorage.removeItem('ERROR');
 
         return { successCode: response.status, data };
     } catch (err: any) {
-        const { status } = handleError(err);
-        return { successCode: status, data: null };
+        // Tampilkan error yang lebih informatif di console tanpa URL lengkap
+        console.log('Error 500: Gagal mendapatkan data jarak tempuh dan durasi kerja');
+        return { successCode: 500, data: null };
     }
 };

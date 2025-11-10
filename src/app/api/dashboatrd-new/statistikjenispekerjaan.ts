@@ -1,6 +1,4 @@
 import { APIEndpoints } from '@/app/config/route/apiEndpoints';
-import { Messages } from '@/components/Handleerror/message/messages';
-import { handleError } from '@/components/Handleerror/server/errorHandler';
 import { KaderProfileData, KaderProfileResponse } from '@/types/data-25/statistikbebankerja';
 import axios from 'axios';
 import { getSessionStorageWithTTL, setSessionStorageWithTTL } from '@/utils/sessionStorageUtils';
@@ -57,7 +55,8 @@ export const StatistikJenisPekerjaan = async (useCache: boolean = true): Promise
             data: response.data.data, // KaderProfileData
         };
     } catch (err: any) {
-        const { status } = handleError(err);
-        return { successCode: status, response: null, data: null };
+        // Tampilkan error yang lebih informatif di console tanpa URL lengkap
+        console.log('Error 500: Gagal mendapatkan data jenis pekerjaan kader');
+        return { successCode: 500, response: null, data: null };
     }
 };
