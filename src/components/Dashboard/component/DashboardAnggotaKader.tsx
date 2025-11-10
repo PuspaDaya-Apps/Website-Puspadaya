@@ -5,7 +5,10 @@ import RaportBalita from "../component-raport-25/ChartRaporBaby";
 const DashboardAnggotaKader: React.FC = () => {
   return (
     <div style={{ marginTop: "30px" }}>
-      <DurationDistanceChart />
+
+      <div className="mb-6">
+        <DurationDistanceChart />
+      </div>
       <RaportBalita />
     </div>
 

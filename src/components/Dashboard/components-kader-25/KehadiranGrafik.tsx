@@ -1,5 +1,5 @@
-// /components/KehadiranGrafik/KehadiranGrafik.tsx
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import {
     ResponsiveContainer,
     BarChart,
@@ -9,14 +9,60 @@ import {
     Tooltip,
     Bar,
     Cell,
+    LabelList,
 } from "recharts";
+import { MonthlyActivityData } from "@/types/data-25/statistikbebankerja";
+import { StatistikBulanan } from "@/app/api/dashboatrd-new/statistikbulanan";
 
-interface KehadiranGrafikProps {
-    kader: any;
-    chartData: { name: string; value: number; color: string }[];
-}
+const KehadiranGrafik: React.FC = () => {
+    const [data, setData] = useState<MonthlyActivityData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [errorMessage, setErrorMessage] = useState("");
 
-const KehadiranGrafik: React.FC<KehadiranGrafikProps> = ({ kader, chartData }) => {
+    useEffect(() => {
+        const fetchData = async () => {
+            const response = await StatistikBulanan();
+            if (response.successCode === 200 && response.data) {
+                setData(response.data);
+            } else {
+                setErrorMessage("Gagal memuat data aktivitas bulan ini.");
+            }
+            setLoading(false);
+        };
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="rounded-xl bg-white p-6 text-center shadow-md dark:bg-gray-dark">
+                <p className="text-gray-600 dark:text-gray-300">Memuat data aktivitas...</p>
+            </div>
+        );
+    }
+
+    if (!data) {
+        return (
+            <div className="rounded-xl bg-white p-6 text-center shadow-md dark:bg-gray-dark">
+                <p className="text-gray-600 dark:text-gray-300">{errorMessage}</p>
+            </div>
+        );
+    }
+
+    // ✅ Data untuk grafik tetap ditampilkan
+    const chartData = [
+        { name: "Balita", value: data.jumlah_kehadiran_balita || 0, color: "#3b82f6" },
+        { name: "Ibu Hamil", value: data.jumlah_kehadiran_ibu_hamil || 0, color: "#10b981" },
+    ];
+
+    // ✅ Group jenis_pekerjaan jika ada
+    const groupedData = data.jenis_pekerjaan?.reduce((acc: Record<string, string[]>, item) => {
+        if (!acc[item.jenis]) acc[item.jenis] = [];
+        acc[item.jenis].push(item.kategori);
+        return acc;
+    }, {}) || {};
+
+    const hasJenisPekerjaan = data.jenis_pekerjaan && data.jenis_pekerjaan.length > 0;
+
     return (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Grafik Kehadiran */}
@@ -42,66 +88,72 @@ const KehadiranGrafik: React.FC<KehadiranGrafikProps> = ({ kader, chartData }) =
                                 {chartData.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={entry.color} />
                                 ))}
+                                {/* ✅ Tambahkan label angka di atas batang */}
+                                <LabelList
+                                    dataKey="value"
+                                    position="top"
+                                    style={{
+                                        fill: "#111827",
+                                        fontSize: 13,
+                                        fontWeight: 600,
+                                    }}
+                                />
                             </Bar>
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
 
-                {/* Legenda Kustom */}
-                <div className="mt-4 flex justify-center">
-                    <div className="flex flex-wrap items-center justify-center gap-4">
-                        {chartData.map((item, index) => (
-                            <div key={index} className="flex items-center">
-                                <div className={`h-4 w-4 rounded`} style={{ backgroundColor: item.color }}></div>
-                                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">{item.name}</span>
-                            </div>
-                        ))}
-                    </div>
+                {/* Legenda */}
+                <div className="mt-4 flex justify-center flex-wrap gap-4">
+                    {chartData.map((item, index) => (
+                        <div key={index} className="flex items-center">
+                            <div
+                                className="h-4 w-4 rounded"
+                                style={{ backgroundColor: item.color }}
+                            ></div>
+                            <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                {item.name}: <strong>{item.value}</strong>
+                            </span>
+                        </div>
+                    ))}
                 </div>
             </div>
 
-            {/* List Kegiatan Bulanan */}
+            {/* Aktivitas Bulanan */}
             <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
                 <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
                     Aktivitas Bulan Ini
                 </h2>
-                <div className="h-72 overflow-y-auto pr-2">
-                    <div className="space-y-4">
-                        <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-                            <h3 className="font-medium text-dark dark:text-white">Balita</h3>
-                            <ul className="mt-2 space-y-2">
-                                {kader.laporan.jumlah_balita_hadir_per_kompetensi.detail.map(
-                                    (item: any, index: number) => (
-                                        <li key={index} className="flex justify-between">
-                                            <span className="text-gray-700 dark:text-gray-300">{item.kompetensi}</span>
-                                            <span className="font-medium text-dark dark:text-white">{item.jumlah}</span>
+                <div className="h-72 overflow-y-auto pr-2 space-y-4">
+                    {hasJenisPekerjaan ? (
+                        Object.entries(groupedData).map(([jenis, kategoriList], idx) => (
+                            <div
+                                key={idx}
+                                className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                            >
+                                <h3 className="font-medium text-dark dark:text-white mb-2">
+                                    {jenis}
+                                </h3>
+                                <ul className="space-y-2">
+                                    {kategoriList.map((kategori, i) => (
+                                        <li
+                                            key={i}
+                                            className="flex justify-between text-gray-700 dark:text-gray-300"
+                                        >
+                                            <span>{kategori}</span>
                                         </li>
-                                    )
-                                )}
-                            </ul>
+                                    ))}
+                                </ul>
+                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                    Total kompetensi: {kategoriList.length}
+                                </p>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="text-center text-gray-600 dark:text-gray-300">
+                            Data aktivitas bulan ini masih belum diisi.
                         </div>
-
-                        <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-                            <h3 className="font-medium text-dark dark:text-white">Ibu Hamil</h3>
-                            <ul className="mt-2 space-y-3">
-                                {kader.laporan.jumlah_ibu_hamil_hadir_per_kompetensi.detail.map(
-                                    (item: any, index: number) => (
-                                        <li key={index}>
-                                            <p className="font-medium text-gray-700 dark:text-gray-300">{item.kompetensi}</p>
-                                            <ul className="mt-1 space-y-1 pl-4">
-                                                {item.aktivitas_kader.map((aktivitas: string, i: number) => (
-                                                    <li key={i} className="flex items-start">
-                                                        <span className="mr-2 text-primary">•</span>
-                                                        <span className="text-gray-600 dark:text-gray-400">{aktivitas}</span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </li>
-                                    )
-                                )}
-                            </ul>
-                        </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>
