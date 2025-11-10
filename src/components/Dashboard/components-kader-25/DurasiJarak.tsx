@@ -61,9 +61,9 @@ const DurasiJarak: React.FC = () => {
     }
 
     // 🧮 Handle null → 0
-    const durasiPosyandu = data.durasi_kerja_posyandu ?? 0;
-    const durasiKunjungan = data.durasi_kunjungan_rumah ?? 0;
-    const jarakKunjungan = data.jarak_total_kunjungan_rumah ?? 0;
+    const durasiPosyandu = data?.durasi_kerja_posyandu ?? 0;
+    const durasiKunjungan = data?.durasi_kunjungan_rumah ?? 0;
+    const jarakKunjungan = data?.jarak_total_kunjungan_rumah ?? 0;
 
     // 🎨 Data untuk Chart
     const chartData = [

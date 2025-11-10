@@ -56,18 +56,18 @@ const KehadiranGrafik: React.FC = () => {
 
     // ✅ Data untuk grafik tetap ditampilkan
     const chartData = [
-        { name: "Balita", value: data.jumlah_kehadiran_balita || 0, color: "#3b82f6" },
-        { name: "Ibu Hamil", value: data.jumlah_kehadiran_ibu_hamil || 0, color: "#10b981" },
+        { name: "Balita", value: data?.jumlah_kehadiran_balita || 0, color: "#3b82f6" },
+        { name: "Ibu Hamil", value: data?.jumlah_kehadiran_ibu_hamil || 0, color: "#10b981" },
     ];
 
     // ✅ Group jenis_pekerjaan jika ada
-    const groupedData = data.jenis_pekerjaan?.reduce((acc: Record<string, string[]>, item) => {
+    const groupedData = data?.jenis_pekerjaan?.reduce((acc: Record<string, string[]>, item) => {
         if (!acc[item.jenis]) acc[item.jenis] = [];
         acc[item.jenis].push(item.kategori);
         return acc;
     }, {}) || {};
 
-    const hasJenisPekerjaan = data.jenis_pekerjaan && data.jenis_pekerjaan.length > 0;
+    const hasJenisPekerjaan = data?.jenis_pekerjaan && data.jenis_pekerjaan.length > 0;
 
     return (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

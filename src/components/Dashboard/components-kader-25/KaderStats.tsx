@@ -65,7 +65,7 @@ const KaderStats: React.FC = () => {
                 <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">Skor Beban Kerja</h2>
                 <div className="flex items-center justify-between">
                     <span className="text-3xl font-bold text-dark dark:text-white">{skor}</span>
-                    <span className="text-gray-500 dark:text-gray-400">/ 240</span>
+                    <span className="text-gray-500 dark:text-gray-400">/ ♾️</span>
                 </div>
                 <div className="mt-4 h-3 w-full rounded-full bg-gray-200 dark:bg-gray-700">
                     <div
