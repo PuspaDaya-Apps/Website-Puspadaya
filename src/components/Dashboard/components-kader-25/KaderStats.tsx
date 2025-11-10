@@ -15,7 +15,7 @@ const KaderStats: React.FC = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const result = await Statistikbebankerja();
+            const result = await Statistikbebankerja(); // useCache is true by default
             if (result.data) {
                 setData(result.data);
             } else {

@@ -11,7 +11,7 @@ const KaderCard: React.FC = () => {
     useEffect(() => {
         const fetchKader = async () => {
             setLoading(true);
-            const response = await StatistikJenisPekerjaan();
+            const response = await StatistikJenisPekerjaan(); // useCache is true by default
             if (response.successCode === 200 && response.data) {
                 setKader(response.data);
             } else {

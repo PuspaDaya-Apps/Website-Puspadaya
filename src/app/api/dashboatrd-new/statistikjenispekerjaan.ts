@@ -3,6 +3,7 @@ import { Messages } from '@/components/Handleerror/message/messages';
 import { handleError } from '@/components/Handleerror/server/errorHandler';
 import { KaderProfileData, KaderProfileResponse } from '@/types/data-25/statistikbebankerja';
 import axios from 'axios';
+import { getSessionStorageWithTTL, setSessionStorageWithTTL } from '@/utils/sessionStorageUtils';
 
 interface FetchResult {
     successCode: number;
@@ -10,9 +11,23 @@ interface FetchResult {
     data: KaderProfileData | null;          // langsung data
 }
 
-export const StatistikJenisPekerjaan = async (): Promise<FetchResult> => {
+const CACHE_KEY = 'statistik_jenis_pekerjaan';
+
+export const StatistikJenisPekerjaan = async (useCache: boolean = true): Promise<FetchResult> => {
     if (typeof window === 'undefined') {
         return { successCode: 500, response: null, data: null };
+    }
+
+    // Check if data exists in cache and is not expired
+    if (useCache) {
+        const cachedData = getSessionStorageWithTTL(CACHE_KEY);
+        if (cachedData) {
+            return {
+                successCode: 200,
+                response: cachedData,  // KaderProfileResponse
+                data: cachedData.data, // KaderProfileData
+            };
+        }
     }
 
     try {
@@ -32,6 +47,8 @@ export const StatistikJenisPekerjaan = async (): Promise<FetchResult> => {
             config
         );
 
+        // Store data in session storage with TTL (30 minutes)
+        setSessionStorageWithTTL(CACHE_KEY, response.data, 30);
 
         // Simpan message + data sekaligus
         return {
