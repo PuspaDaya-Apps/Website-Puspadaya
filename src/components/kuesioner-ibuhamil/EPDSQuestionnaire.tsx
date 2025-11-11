@@ -263,12 +263,12 @@ const EPDSQuestionnaire: React.FC = () => {
                 .map((question, index) => (
                   <div key={question.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="mb-3">
-                      <span className="font-medium text-gray-700 bg-blue-100 rounded-full px-3 py-1 inline-block">
-                        Pertanyaan {index + 1}
+                      <span className="font-medium text-gray-700 bg-blue-100 rounded-full px-3 py-1 inline-flex items-center">
+                        <span>Pertanyaan {index + 1}</span>
                         <span
-                          className={`ml-1 ${answers[question.id] !== null ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}`}
+                          className={`ml-2 ${answers[question.id] !== null ? 'text-green-700 bg-green-100 rounded-full w-5 h-5 flex items-center justify-center text-xs' : 'text-red-700 bg-red-100 rounded-full w-5 h-5 flex items-center justify-center text-xs'}`}
                         >
-                          {answers[question.id] !== null ? '●' : '*'}
+                          {answers[question.id] !== null ? '✓' : '!'}
                         </span>
                       </span>
                       <p className="mt-2 text-gray-700">{question.pertanyaan_text}</p>
