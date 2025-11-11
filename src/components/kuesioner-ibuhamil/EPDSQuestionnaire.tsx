@@ -5,6 +5,7 @@ import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import { RadioButton } from "primereact/radiobutton";
+import { Dialog } from "primereact/dialog";
 
 import { Ibuhamil } from "@/app/api/kuesioner/ibuhamil";
 import { Listkuesioner } from "@/app/api/kuesioner/listkuesioner";
@@ -22,6 +23,7 @@ const EPDSQuestionnaire: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [kuisionerData, setKuisionerData] = useState<KuisionerList | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const router = useRouter();
   const toast = useRef<Toast>(null);
 
@@ -65,6 +67,12 @@ const EPDSQuestionnaire: React.FC = () => {
   const handleSubmit = async () => {
     if (!selectedPregnantWoman || !kuisionerData) return;
 
+    // Show confirmation modal with total answers count
+    setShowConfirmationModal(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    setShowConfirmationModal(false);
     setIsSubmitting(true);
 
     const currentUser = localStorage.getItem("current_user");
@@ -75,17 +83,19 @@ const EPDSQuestionnaire: React.FC = () => {
 
     const tanggal_pengisian = dayjs().format("YYYY-MM-DD");
 
-    const jawaban = kuisionerData.pertanyaan.map((q) => {
-      const selectedOptionScore = answers[q.id];
-      const selectedOption = q.pilihan_opsional.find(
-        (opt) => opt.score === selectedOptionScore
-      );
+    const jawaban = kuisionerData && kuisionerData.pertanyaan
+      ? kuisionerData.pertanyaan.map((q) => {
+        const selectedOptionScore = answers[q.id];
+        const selectedOption = q.pilihan_opsional.find(
+          (opt) => opt.score === selectedOptionScore
+        );
 
-      return {
-        pertanyaan_id: q.id,
-        jawaban_value: selectedOption ? selectedOption.text : "",
-      };
-    });
+        return {
+          pertanyaan_id: q.id,
+          jawaban_value: selectedOption ? selectedOption.text : "",
+        };
+      })
+      : [];
 
     const payload = {
       kuisioner_id,
@@ -110,7 +120,7 @@ const EPDSQuestionnaire: React.FC = () => {
         toast.current?.show({
           severity: "success",
           summary: "Kuisioner Terkirim",
-          detail: `Ibu ${selectedPregnantWoman.name} berhasil dikirim!\nTanggal: ${tanggal_pengisian}`,
+          detail: `Ibu ${selectedPregnantWoman?.name} berhasil dikirim!\nTanggal: ${tanggal_pengisian}`,
           life: 2000,
         });
       } else {
@@ -298,6 +308,43 @@ const EPDSQuestionnaire: React.FC = () => {
             </div>
           </>
         )}
+
+        {/* Confirmation Modal */}
+        <Dialog
+          header="Konfirmasi Pengiriman"
+          visible={showConfirmationModal}
+          onHide={() => setShowConfirmationModal(false)}
+          style={{ width: '450px' }}
+          modal
+          footer={
+            <div className="flex justify-end gap-2">
+              <Button
+                label="Batal"
+                icon="pi pi-times"
+                onClick={() => setShowConfirmationModal(false)}
+                className="p-button-secondary"
+              />
+              <Button
+                label="Oke!"
+                icon="pi pi-check"
+                onClick={handleConfirmSubmit}
+                autoFocus
+              />
+            </div>
+          }
+        >
+          <div className="m-0">
+            <p>
+              Anda telah mengisi <strong>{Object.values(answers).filter((v) => v !== null).length}</strong> dari <strong>{questions.length}</strong> pertanyaan.
+            </p>
+            <p className="mt-2">
+              Jumlah skor: <strong>{Object.values(answers).reduce((total, value) => (total ?? 0) + (value ?? 0), 0)}</strong>
+            </p>
+            <p className="mt-2">
+              Apakah Anda yakin ingin mengirimkan jawaban ini?
+            </p>
+          </div>
+        </Dialog>
       </Card>
     </div>
   );
