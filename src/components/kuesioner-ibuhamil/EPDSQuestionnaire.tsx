@@ -265,6 +265,11 @@ const EPDSQuestionnaire: React.FC = () => {
                     <div className="mb-3">
                       <span className="font-medium text-gray-700 bg-blue-100 rounded-full px-3 py-1 inline-block">
                         Pertanyaan {index + 1}
+                        <span
+                          className={`ml-1 ${answers[question.id] !== null ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}`}
+                        >
+                          {answers[question.id] !== null ? '●' : '*'}
+                        </span>
                       </span>
                       <p className="mt-2 text-gray-700">{question.pertanyaan_text}</p>
                     </div>
@@ -338,7 +343,7 @@ const EPDSQuestionnaire: React.FC = () => {
               Anda telah mengisi <strong>{Object.values(answers).filter((v) => v !== null).length}</strong> dari <strong>{questions.length}</strong> pertanyaan.
             </p>
             <p className="mt-2">
-              Jumlah skor: <strong>{Object.values(answers).reduce((total, value) => (total ?? 0) + (value ?? 0), 0)}</strong>
+              Jumlah skor: <strong>{Object.values(answers).reduce((total: number, value) => value !== null ? total + value : total, 0)}</strong>
             </p>
             <p className="mt-2">
               Apakah Anda yakin ingin mengirimkan jawaban ini?
