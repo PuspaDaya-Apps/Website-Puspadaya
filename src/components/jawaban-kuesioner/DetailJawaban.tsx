@@ -65,7 +65,7 @@ export default function DetailJawaban() {
           setDaftarIbu(mapped);
         }
       } catch (error) {
-        console.error("Gagal memuat data ibu hamil:", error);
+        // Silently handle error to prevent UI disruption
       }
     };
     fetchIbuHamil();
@@ -76,8 +76,6 @@ export default function DetailJawaban() {
 
     if (result.successCode === 200 && result.data) {
       setTotalScore(result.data.total_score);
-    } else {
-      console.log('Failed to fetch score');
     }
   }
 
@@ -94,7 +92,7 @@ export default function DetailJawaban() {
         }));
       }
     } catch (error) {
-      console.error(`Failed to fetch score for session ${sessionId}:`, error);
+      // Silently handle error to prevent UI disruption
     }
   }
 
@@ -106,7 +104,6 @@ export default function DetailJawaban() {
         const result = await JawabanKuesionerBySession(selectedIbu.id);
         if (result.successCode === 200 && result.data) {
           setRiwayatJawaban(result.data);
-          console.log("Riwayat Jawaban:", result.data);
 
           // Fetch the total score for the selected user
           await fetchScore(selectedIbu.id);
@@ -122,7 +119,7 @@ export default function DetailJawaban() {
           setIndividualScores({});
         }
       } catch (error) {
-        console.error("Gagal memuat jawaban:", error);
+        // Silently handle error to prevent UI disruption
         setRiwayatJawaban([]);
         setTotalScore(null);
         setIndividualScores({});
@@ -160,17 +157,25 @@ export default function DetailJawaban() {
 
         {/* Total Score Display */}
         {totalScore !== null && selectedIbu && (
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <h3 className="font-semibold text-lg text-blue-800">Total Skor Kuesioner</h3>
-              <div className="flex items-center gap-3">
-                <span className="text-2xl font-bold text-blue-700">{totalScore}</span>
-                <span className="text-sm text-gray-600">poin</span>
+          <div className="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 shadow-sm">
+            <div className="flex flex-col sm:flex-row justify-between items-center">
+              <div>
+                <h3 className="font-semibold text-lg text-blue-800 flex items-center gap-2">
+                  <i className="pi pi-chart-line mr-2"></i>Total Skor Kuesioner
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  untuk <span className="font-medium">{selectedIbu?.nama_lengkap}</span>
+                </p>
+              </div>
+              <div className="mt-3 sm:mt-0 flex items-center">
+                <div className="bg-white rounded-full shadow-sm p-3 border border-blue-200">
+                  <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    {totalScore}
+                  </span>
+                  <span className="text-xs text-gray-500 ml-1">poin</span>
+                </div>
               </div>
             </div>
-            <p className="text-sm text-gray-600 mt-1">
-              Skor total untuk {selectedIbu?.nama_lengkap}
-            </p>
           </div>
         )}
 
@@ -185,32 +190,44 @@ export default function DetailJawaban() {
             {riwayatJawaban.map((riwayat, index) => (
               <Card key={riwayat.id} className="shadow-sm border border-gray-200 rounded-xl">
                 <div
-                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center cursor-pointer gap-2"
+                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center cursor-pointer gap-3 p-3"
                   onClick={() =>
                     setExpandedIndex(expandedIndex === index ? null : index)
                   }
                 >
-                  <div className="w-full sm:w-auto">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <p className="font-semibold text-lg">
-                        {riwayat.kuisioner?.nama_kuisioner || 'Kuesioner EPDS'}
-                      </p>
-                      {/* Display score for this specific questionnaire if available */}
-                      {individualScores[riwayat.id] !== undefined && (
-                        <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                          Skor: {individualScores[riwayat.id]}
-                        </div>
-                      )}
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-lg text-gray-800">
+                          {riwayat.kuisioner?.nama_kuisioner || 'Kuesioner EPDS'}
+                        </p>
+                        <p className="text-gray-600 text-sm mt-1 flex items-center gap-2">
+                          <i className="pi pi-calendar text-gray-400"></i>
+                          {formatTanggal(riwayat.tanggal_pengisian)}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {individualScores[riwayat.id] !== undefined && (
+                          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-lg shadow-sm flex items-center">
+                            <i className="pi pi-star mr-2 text-xs"></i>
+                            <span className="font-bold">{individualScores[riwayat.id]}</span>
+                            <span className="text-xs ml-1">poin</span>
+                          </div>
+                        )}
+
+                        {/* {riwayat.status && (
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium 
+                            ${riwayat.status.toLowerCase() === 'selesai' || riwayat.status.toLowerCase() === 'completed' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'}`}>
+                            {riwayat.status}
+                          </span>
+                        )} */}
+                      </div>
                     </div>
-                    <p className="text-gray-800 text-sm">
-                      Tanggal : {formatTanggal(riwayat.tanggal_pengisian)}
-                    </p>
-                    {riwayat.status && (
-                      <p className="text-sm font-medium mt-1">
-                        Status: <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">{riwayat.status}</span>
-                      </p>
-                    )}
                   </div>
+
                   <div className="flex flex-col items-end gap-2">
                     <Button
                       icon={
@@ -218,7 +235,7 @@ export default function DetailJawaban() {
                           ? "pi pi-chevron-up"
                           : "pi pi-chevron-down"
                       }
-                      className="p-button-text w-full sm:w-auto"
+                      className="p-button-text w-full sm:w-auto text-gray-500 hover:text-blue-600"
                     />
                   </div>
                 </div>
