@@ -38,6 +38,8 @@ export const APIEndpoints = {
     KEHADIRANAKTIVITASBULANAN: '/api/v1/grafik-kehadiran-aktivitas-bulanan',
     DURASIBEBANKERJAPOSYANDU: '/api/v1/durasi-kerja-jaraktempuh',
     PROFILEJENISPEKERJAAN: "/api/v1/profilekader-jenispekerjaan",
+    ANAKPOSYANDU: "/api/v1/anak-posyandu",
+    RAPOIRTANAK: "/api/v1/report/balita",
 
 
 
