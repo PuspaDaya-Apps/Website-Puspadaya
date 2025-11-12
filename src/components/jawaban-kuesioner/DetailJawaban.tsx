@@ -26,12 +26,18 @@ interface JawabanKuesioner {
   id: string;
   tanggal_pengisian: string;
   status: string;
-  score?: number; // Optional score field
-  kuisioner: { nama_kuisioner: string; deskripsi: string };
+  kuisioner: {
+    id: string;
+    nama_kuisioner: string;
+    deskripsi: string
+  };
   jawaban: {
     id: string;
     jawaban_value: string;
-    pertanyaan: { pertanyaan_text: string };
+    pertanyaan: {
+      id: string;
+      pertanyaan_text: string
+    };
   }[];
 }
 
@@ -42,6 +48,7 @@ export default function DetailJawaban() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [totalScore, setTotalScore] = useState<number | null>(null);
+  const [individualScores, setIndividualScores] = useState<Record<string, number>>({});
 
 
 
@@ -74,6 +81,23 @@ export default function DetailJawaban() {
     }
   }
 
+  // Function to fetch individual score for a specific questionnaire session
+  async function fetchIndividualScore(sessionId: string) {
+    try {
+      // The skorkuesioner API likely uses the session ID to get the score for that specific session
+      const result = await Skorkuesioner(sessionId);
+
+      if (result.successCode === 200 && result.data) {
+        setIndividualScores(prev => ({
+          ...prev,
+          [sessionId]: result.data?.total_score ?? 0
+        }));
+      }
+    } catch (error) {
+      console.error(`Failed to fetch score for session ${sessionId}:`, error);
+    }
+  }
+
   useEffect(() => {
     const fetchJawaban = async () => {
       if (!selectedIbu) return; // Skip if no ibu is selected
@@ -81,16 +105,27 @@ export default function DetailJawaban() {
       try {
         const result = await JawabanKuesionerBySession(selectedIbu.id);
         if (result.successCode === 200 && result.data) {
-          // Extract only the ids from the array of answers
-          const ids = result.data.map((jawaban: any) => jawaban.id);
-          console.log("Jawaban IDs:", ids); // Log array of ids
-          setRiwayatJawaban(result.data); // Optional, if you want to store the full data
+          setRiwayatJawaban(result.data);
+          console.log("Riwayat Jawaban:", result.data);
+
+          // Fetch the total score for the selected user
+          await fetchScore(selectedIbu.id);
+
+          // Fetch individual scores for each questionnaire session
+          setIndividualScores({}); // Reset previous scores
+          for (const jawaban of result.data) {
+            await fetchIndividualScore(jawaban.id);
+          }
         } else {
           setRiwayatJawaban([]);
+          setTotalScore(null);
+          setIndividualScores({});
         }
       } catch (error) {
-        console.error("Failed to load jawaban:", error);
+        console.error("Gagal memuat jawaban:", error);
         setRiwayatJawaban([]);
+        setTotalScore(null);
+        setIndividualScores({});
       } finally {
         setLoading(false);
       }
@@ -161,9 +196,9 @@ export default function DetailJawaban() {
                         {riwayat.kuisioner?.nama_kuisioner || 'Kuesioner EPDS'}
                       </p>
                       {/* Display score for this specific questionnaire if available */}
-                      {riwayat.score !== undefined && (
+                      {individualScores[riwayat.id] !== undefined && (
                         <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                          Skor: {riwayat.score}
+                          Skor: {individualScores[riwayat.id]}
                         </div>
                       )}
                     </div>
