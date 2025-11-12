@@ -10,6 +10,8 @@ import { JawabanKuesionerBySession } from "@/app/api/kuesioner/detail-kuesioner"
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { Skorkuesioner } from "@/app/api/kuesioner/skorkuesioner";
+import { data } from "@/types/data-25/kaderData";
 
 
 dayjs.extend(utc);
@@ -39,6 +41,19 @@ export default function DetailJawaban() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // async function fetchScore() {
+  //   const id = '{id}'; // Ganti dengan ID ibu hamil yang sesuai
+  //   const result = await Skorkuesioner(id);
+
+  //   if (result.successCode === 200 && result.data) {
+  //     console.log('Total Score:', result.data.total_score);
+  //   } else {
+  //     console.log('Failed to fetch score');
+  //   }
+  // }
+
+  // fetchScore();
+
   useEffect(() => {
     const fetchIbuHamil = async () => {
       try {
@@ -65,6 +80,7 @@ export default function DetailJawaban() {
         const result = await JawabanKuesionerBySession(selectedIbu.id);
         if (result.successCode === 200 && result.data) {
           setRiwayatJawaban(result.data);
+          console.log("Riwayat Jawaban:", result.data);
         } else {
           setRiwayatJawaban([]);
         }

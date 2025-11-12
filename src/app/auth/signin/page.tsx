@@ -5,7 +5,7 @@ import { Metadata } from "next";
 import Signin from "@/components/Auth/Signin";
 
 export const metadata: Metadata = {
-  title: "Pusapdaya",
+  title: "Puspadaya",
   description: "Puspadaya",
 };
 

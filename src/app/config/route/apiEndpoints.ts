@@ -31,12 +31,14 @@ export const APIEndpoints = {
     KUESIONER: '/api/v1/kuisioner?kategori=ibu_hamil',
     SUBMITEKUESIONER: '/api/v1/kuisioner/respon',
     DETAILKUESIONER: '/api/v1/kuisioner/respon/target/ibu_hamil',
+    POINTSKUESIONER: '/api/v1/kuisioner/respon',
 
     // API DASHBPOARD BARU
     STATISTIKKEHADIRANBEBANKERJA: '/api/v1/statistik-kehadiran-bebanKerja',
     KEHADIRANAKTIVITASBULANAN: '/api/v1/grafik-kehadiran-aktivitas-bulanan',
     DURASIBEBANKERJAPOSYANDU: '/api/v1/durasi-kerja-jaraktempuh',
     PROFILEJENISPEKERJAAN: "/api/v1/profilekader-jenispekerjaan",
+
 
 
 
