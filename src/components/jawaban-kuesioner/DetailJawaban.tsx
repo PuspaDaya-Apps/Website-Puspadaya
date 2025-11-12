@@ -26,6 +26,7 @@ interface JawabanKuesioner {
   id: string;
   tanggal_pengisian: string;
   status: string;
+  score?: number; // Optional score field
   kuisioner: { nama_kuisioner: string; deskripsi: string };
   jawaban: {
     id: string;
@@ -40,19 +41,10 @@ export default function DetailJawaban() {
   const [riwayatJawaban, setRiwayatJawaban] = useState<JawabanKuesioner[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [totalScore, setTotalScore] = useState<number | null>(null);
 
-  // async function fetchScore() {
-  //   const id = '{id}'; // Ganti dengan ID ibu hamil yang sesuai
-  //   const result = await Skorkuesioner(id);
 
-  //   if (result.successCode === 200 && result.data) {
-  //     console.log('Total Score:', result.data.total_score);
-  //   } else {
-  //     console.log('Failed to fetch score');
-  //   }
-  // }
 
-  // fetchScore();
 
   useEffect(() => {
     const fetchIbuHamil = async () => {
@@ -72,20 +64,32 @@ export default function DetailJawaban() {
     fetchIbuHamil();
   }, []);
 
+  async function fetchScore(ibuId: string) {
+    const result = await Skorkuesioner(ibuId);
+
+    if (result.successCode === 200 && result.data) {
+      setTotalScore(result.data.total_score);
+    } else {
+      console.log('Failed to fetch score');
+    }
+  }
+
   useEffect(() => {
     const fetchJawaban = async () => {
-      if (!selectedIbu) return;
+      if (!selectedIbu) return; // Skip if no ibu is selected
       setLoading(true);
       try {
         const result = await JawabanKuesionerBySession(selectedIbu.id);
         if (result.successCode === 200 && result.data) {
-          setRiwayatJawaban(result.data);
-          console.log("Riwayat Jawaban:", result.data);
+          // Extract only the ids from the array of answers
+          const ids = result.data.map((jawaban: any) => jawaban.id);
+          console.log("Jawaban IDs:", ids); // Log array of ids
+          setRiwayatJawaban(result.data); // Optional, if you want to store the full data
         } else {
           setRiwayatJawaban([]);
         }
       } catch (error) {
-        console.error("Gagal memuat jawaban:", error);
+        console.error("Failed to load jawaban:", error);
         setRiwayatJawaban([]);
       } finally {
         setLoading(false);
@@ -119,6 +123,22 @@ export default function DetailJawaban() {
           </div>
         </div>
 
+        {/* Total Score Display */}
+        {totalScore !== null && selectedIbu && (
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+              <h3 className="font-semibold text-lg text-blue-800">Total Skor Kuesioner</h3>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl font-bold text-blue-700">{totalScore}</span>
+                <span className="text-sm text-gray-600">poin</span>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mt-1">
+              Skor total untuk {selectedIbu?.nama_lengkap}
+            </p>
+          </div>
+        )}
+
         {loading && (
           <div className="flex justify-center py-4">
             <ProgressSpinner style={{ width: "40px", height: "40px" }} className="w-10 h-10" />
@@ -136,21 +156,36 @@ export default function DetailJawaban() {
                   }
                 >
                   <div className="w-full sm:w-auto">
-                    <p className="font-semibold text-lg">
-                      Kuesioner EPDS
-                    </p>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="font-semibold text-lg">
+                        {riwayat.kuisioner?.nama_kuisioner || 'Kuesioner EPDS'}
+                      </p>
+                      {/* Display score for this specific questionnaire if available */}
+                      {riwayat.score !== undefined && (
+                        <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                          Skor: {riwayat.score}
+                        </div>
+                      )}
+                    </div>
                     <p className="text-gray-800 text-sm">
                       Tanggal : {formatTanggal(riwayat.tanggal_pengisian)}
                     </p>
+                    {riwayat.status && (
+                      <p className="text-sm font-medium mt-1">
+                        Status: <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">{riwayat.status}</span>
+                      </p>
+                    )}
                   </div>
-                  <Button
-                    icon={
-                      expandedIndex === index
-                        ? "pi pi-chevron-up"
-                        : "pi pi-chevron-down"
-                    }
-                    className="p-button-text w-full sm:w-auto"
-                  />
+                  <div className="flex flex-col items-end gap-2">
+                    <Button
+                      icon={
+                        expandedIndex === index
+                          ? "pi pi-chevron-up"
+                          : "pi pi-chevron-down"
+                      }
+                      className="p-button-text w-full sm:w-auto"
+                    />
+                  </div>
                 </div>
 
                 {expandedIndex === index && (
