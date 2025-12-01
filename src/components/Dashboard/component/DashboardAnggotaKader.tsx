@@ -1,6 +1,6 @@
 import React from "react";
-import DurationDistanceChart from "../component-raport-25/DurationDistanceChart";
-import RaportBalita from "../component-raport-25/ChartRaporBaby";
+import DurationDistanceChart from "../dashboard/DurationDistanceChart";
+import RaportBalita from "../dashboard/ChartRaporBaby";
 
 const DashboardAnggotaKader: React.FC = () => {
   return (

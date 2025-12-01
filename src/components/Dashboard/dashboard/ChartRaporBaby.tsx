@@ -1,231 +1,27 @@
 import React, { useState, useEffect } from "react";
 
-// Dummy data untuk beberapa balita
-const dummyBalitaData = [
-  {
-    id: 1,
-    identitasBalita: {
-      noKK: "3510123456789001",
-      nik: "3510123456789002",
-      nama: "Aisyah Putri",
-      tanggalLahir: "2021-06-15",
-      tempatLahir: "Banyuwangi",
-      jenisKelamin: "Perempuan",
-      anakKe: 2,
-      caraLahir: "Normal",
-    },
-    dataAyah: {
-      nik: "3510123456789003",
-      nama: "Budi Santoso",
-      tanggalLahir: "1990-04-12",
-      tempatLahir: "Banyuwangi",
-      jenisKelamin: "Laki-laki",
-      alamat: "Dusun Krajan, Rogojampi, Banyuwangi",
-    },
-    dataIbu: {
-      nik: "3510123456789004",
-      nama: "Siti Aminah",
-      tanggalLahir: "1993-08-22",
-      tempatLahir: "Banyuwangi",
-      jenisKelamin: "Perempuan",
-      alamat: "Dusun Krajan, Rogojampi, Banyuwangi",
-    },
-    pengukuranBalita: [
-      {
-        tanggal: "2025-08-10",
-        tempat: "Posyandu Melati",
-        posisi: "Berdiri",
-        tinggi: 95,
-        berat: 14,
-        lila: 15,
-        lingkarKepala: 47,
-        asiEksklusif: "Ya",
-        mpasi: "Ya",
-        stunting: "Tidak",
-        underweight: "Tidak",
-        wasting: "Tidak",
-      },
-    ],
-    pengukuranIbuHamil: [
-      {
-        tanggal: "2025-08-10",
-        tempat: "Posyandu Melati",
-        usiaKehamilan: 32,
-        tinggi: 155,
-        berat: 55,
-        lila: 23,
-        tinggiFundus: 28,
-        hemoglobin: 12.5,
-        tglHaid: "2025-01-05",
-        asapRokok: "Tidak",
-        tabletFe: "Ya",
-      },
-    ],
-  },
-  {
-    id: 2,
-    identitasBalita: {
-      noKK: "3510123456789011",
-      nik: "3510123456789012",
-      nama: "Muhammad Rizky",
-      tanggalLahir: "2020-03-22",
-      tempatLahir: "Banyuwangi",
-      jenisKelamin: "Laki-laki",
-      anakKe: 1,
-      caraLahir: "Normal",
-    },
-    dataAyah: {
-      nik: "3510123456789013",
-      nama: "Ahmad Fauzi",
-      tanggalLahir: "1988-07-15",
-      tempatLahir: "Banyuwangi",
-      jenisKelamin: "Laki-laki",
-      alamat: "Dusun Krajan, Rogojampi, Banyuwangi",
-    },
-    dataIbu: {
-      nik: "3510123456789014",
-      nama: "Dewi Lestari",
-      tanggalLahir: "1991-11-30",
-      tempatLahir: "Banyuwangi",
-      jenisKelamin: "Perempuan",
-      alamat: "Dusun Krajan, Rogojampi, Banyuwangi",
-    },
-    pengukuranBalita: [
-      {
-        tanggal: "2025-08-15",
-        tempat: "Posyandu Mawar",
-        posisi: "Berbaring",
-        tinggi: 92,
-        berat: 13.5,
-        lila: 14.5,
-        lingkarKepala: 46,
-        asiEksklusif: "Ya",
-        mpasi: "Ya",
-        stunting: "Tidak",
-        underweight: "Tidak",
-        wasting: "Tidak",
-      },
-    ],
-    pengukuranIbuHamil: [],
-  },
-  {
-    id: 3,
-    identitasBalita: {
-      noKK: "3510123456789021",
-      nik: "3510123456789022",
-      nama: "Salsabila Nur",
-      tanggalLahir: "2022-01-10",
-      tempatLahir: "Banyuwangi",
-      jenisKelamin: "Perempuan",
-      anakKe: 3,
-      caraLahir: "Caesar",
-    },
-    dataAyah: {
-      nik: "3510123456789023",
-      nama: "Joko Susilo",
-      tanggalLahir: "1985-02-18",
-      tempatLahir: "Banyuwangi",
-      jenisKelamin: "Laki-laki",
-      alamat: "Dusun Krajan, Rogojampi, Banyuwangi",
-    },
-    dataIbu: {
-      nik: "3510123456789024",
-      nama: "Rina Wati",
-      tanggalLahir: "1989-05-25",
-      tempatLahir: "Banyuwangi",
-      jenisKelamin: "Perempuan",
-      alamat: "Dusun Krajan, Rogojampi, Banyuwangi",
-    },
-    pengukuranBalita: [
-      {
-        tanggal: "2025-08-20",
-        tempat: "Posyandu Kenanga",
-        posisi: "Berdiri",
-        tinggi: 85,
-        berat: 11.5,
-        lila: 13.5,
-        lingkarKepala: 44,
-        asiEksklusif: "Ya",
-        mpasi: "Ya",
-        stunting: "Tidak",
-        underweight: "Tidak",
-        wasting: "Tidak",
-      },
-    ],
-    pengukuranIbuHamil: [],
-  },
-];
+import { balitaList } from "../../../types/data-25/dummyDataBaby";
+import { dummyBalitaData } from "../../../types/data-25/dummyDataBaby";
 
-interface IdentitasBalita {
-  noKK: string;
-  nik: string;
-  nama: string;
-  tanggalLahir: string;
-  tempatLahir: string;
-  jenisKelamin: string;
-  anakKe: number;
-  caraLahir: string;
-}
+import type {
+  BalitaData,
+} from "../../../types/data-25/dummyDataBaby";
 
-interface DataOrangTua {
-  nik: string;
-  nama: string;
-  tanggalLahir: string;
-  tempatLahir: string;
-  jenisKelamin: string;
-  alamat: string;
-}
-
-interface PengukuranBalita {
-  tanggal: string;
-  tempat: string;
-  posisi: string;
-  tinggi: number;
-  berat: number;
-  lila: number;
-  lingkarKepala: number;
-  asiEksklusif: string;
-  mpasi: string;
-  stunting: string;
-  underweight: string;
-  wasting: string;
-}
-
-interface PengukuranIbuHamil {
-  tanggal: string;
-  tempat: string;
-  usiaKehamilan: number;
-  tinggi: number;
-  berat: number;
-  lila: number;
-  tinggiFundus: number;
-  hemoglobin: number;
-  tglHaid: string;
-  asapRokok: string;
-  tabletFe: string;
-}
-
-interface BalitaData {
-  id: number;
-  identitasBalita: IdentitasBalita;
-  dataAyah: DataOrangTua;
-  dataIbu: DataOrangTua;
-  pengukuranBalita: PengukuranBalita[];
-  pengukuranIbuHamil: PengukuranIbuHamil[];
-}
 
 const ChartRaporBaby: React.FC = () => {
   const [selectedBalita, setSelectedBalita] = useState<BalitaData>(dummyBalitaData[0]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [filteredBalita, setFilteredBalita] = useState<BalitaData[]>(dummyBalitaData);
+  const data = balitaList;
+
 
   // Filter data balita berdasarkan pencarian
   useEffect(() => {
     if (searchTerm === "") {
       setFilteredBalita(dummyBalitaData);
     } else {
-      const filtered = dummyBalitaData.filter(balita => 
+      const filtered = dummyBalitaData.filter(balita =>
         balita.identitasBalita.nama.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredBalita(filtered);
@@ -244,24 +40,24 @@ const ChartRaporBaby: React.FC = () => {
     <div className="space-y-6 p-6 bg-white rounded-xl shadow-md">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <h1 className="text-2xl font-bold text-gray-800">Raport Balita</h1>
-        
+
         {/* Dropdown dengan Pencarian */}
         <div className="relative w-full md:w-64">
-          <div 
+          <div
             className="flex items-center justify-between p-2 border border-gray-300 rounded-lg cursor-pointer bg-white"
             onClick={() => setIsOpen(!isOpen)}
           >
             <span className="truncate">{selectedBalita.identitasBalita.nama}</span>
-            <svg 
+            <svg
               className={`w-5 h-5 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-              fill="none" 
-              stroke="currentColor" 
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </div>
-          
+
           {isOpen && (
             <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg">
               {/* Input Pencarian */}
@@ -275,7 +71,7 @@ const ChartRaporBaby: React.FC = () => {
                   onClick={(e) => e.stopPropagation()}
                 />
               </div>
-              
+
               {/* Daftar Balita */}
               <div className="max-h-60 overflow-y-auto">
                 {filteredBalita.length > 0 ? (
