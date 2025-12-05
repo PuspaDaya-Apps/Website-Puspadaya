@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { balitaList } from "../../../types/data-25/dummyDataBaby";
-import { dummyBalitaData } from "../../../types/data-25/dummyDataBaby";
-
-import type {
-  BalitaData,
-} from "../../../types/data-25/dummyDataBaby";
-
+import { Databalita } from "@/app/api/dashboatrd-new/databalita";  // pastikan path benar
 import BalitaDropdown from "../components-rapor-25/BalitaDropdown";
 import IdentitasBalitaSection from "../components-rapor-25/IdentitasBalitaSection";
 import DataAyahSection from "../components-rapor-25/DataAyahSection";
@@ -13,34 +7,69 @@ import PengukuranBalitaSection from "../components-rapor-25/PengukuranBalitaSect
 import DataIbuSection from "../components-rapor-25/DataIbuSection";
 import PengukuranIbuHamilTable from "../components-rapor-25/PengukuranIbuHamilTable";
 
-
 const ChartRaporBaby: React.FC = () => {
-  const [selectedBalita, setSelectedBalita] = useState<BalitaData>(dummyBalitaData[0]);
+  const [balitaListAPI, setBalitaListAPI] = useState<any[]>([]);
+  const [filteredBalita, setFilteredBalita] = useState<any[]>([]);
+  const [selectedBalita, setSelectedBalita] = useState<any | null>(null);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [filteredBalita, setFilteredBalita] = useState<BalitaData[]>(dummyBalitaData);
-  const data = balitaList;
 
+  // ⬇️ Fetch data dari API
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data, successCode } = await Databalita();
 
-  // Filter data balita berdasarkan pencarian
+      if (successCode === 200 && data) {
+        console.log("HASIL DATA API:", data);
+
+        // Mapping data API → struktur komponen
+        const mapped = data.map((item) => ({
+          id: item.id,
+          identitasBalita: {
+            nama: item.nama_anak,
+            tanggalLahir: item.tanggal_lahir,
+            jenisKelamin: item.jenis_kelamin,
+          },
+          // bagian lain seperti dataIbu, dataAyah, pengukuran dsb masih kosong
+          dataAyah: {},
+          dataIbu: {},
+          pengukuranBalita: [],
+          pengukuranIbuHamil: []
+        }));
+
+        setBalitaListAPI(mapped);
+        setFilteredBalita(mapped);
+
+        // pilih pertama sebagai default
+        if (mapped.length > 0) setSelectedBalita(mapped[0]);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // ⬇️ Filter pencarian
   useEffect(() => {
     if (searchTerm === "") {
-      setFilteredBalita(dummyBalitaData);
+      setFilteredBalita(balitaListAPI);
     } else {
-      const filtered = dummyBalitaData.filter(balita =>
+      const filtered = balitaListAPI.filter((balita) =>
         balita.identitasBalita.nama.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredBalita(filtered);
     }
-  }, [searchTerm]);
+  }, [searchTerm, balitaListAPI]);
 
-  const handleSelectBalita = (balita: BalitaData) => {
+
+
+  const handleSelectBalita = (balita: any) => {
     setSelectedBalita(balita);
     setIsOpen(false);
     setSearchTerm("");
   };
 
-  const { identitasBalita, dataAyah, dataIbu, pengukuranBalita, pengukuranIbuHamil } = selectedBalita;
+  if (!selectedBalita) return <div>Loading...</div>;
 
   return (
     <div className="space-y-6 p-6 bg-white rounded-xl shadow-md">
@@ -58,24 +87,13 @@ const ChartRaporBaby: React.FC = () => {
         />
       </div>
 
-      {/* A. Identitas Balita */}
       <IdentitasBalitaSection identitasBalita={selectedBalita.identitasBalita} />
 
 
-      {/* B. Data Ayah */}
       <DataAyahSection dataAyah={selectedBalita.dataAyah} />
-
-
-      {/* C. Data Ibu */}
-      <DataIbuSection dataIbu={dataIbu} />
-
-
-      {/* D. Pengukuran Balita */}
+      <DataIbuSection dataIbu={selectedBalita.dataIbu} />
       <PengukuranBalitaSection pengukuranBalita={selectedBalita.pengukuranBalita} />
-
-
-      {/* E. Pengukuran Ibu Hamil */}
-      <PengukuranIbuHamilTable pengukuranIbuHamil={pengukuranIbuHamil} />
+      <PengukuranIbuHamilTable pengukuranIbuHamil={selectedBalita.pengukuranIbuHamil} />
     </div>
   );
 };

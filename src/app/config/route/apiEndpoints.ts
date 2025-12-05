@@ -41,7 +41,4 @@ export const APIEndpoints = {
     ANAKPOSYANDU: "/api/v1/anak-posyandu",
     RAPOIRTANAK: "/api/v1/report/balita",
 
-
-
-
 };
