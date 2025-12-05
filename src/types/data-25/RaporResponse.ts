@@ -1,13 +1,13 @@
 export interface RaporResponse {
-    anak: Anak;
-    pengukuran_anak: PengukuranAnak | null;
-    orang_tua: OrangTua;
+    anak: AnakResponseRapor;
+    pengukuran_anak: PengukuranAnakResponseRapor | null;
+    orang_tua: OrangTuaResponseRapor;
     pengukuran_ibu_hamil: PengukuranIbuHamil | null;
 }
 
 
 
-export interface Anak {
+export interface AnakResponseRapor {
     id: string;
     nik: string;
     nama_anak: string;
@@ -24,7 +24,7 @@ export interface Anak {
     status_wasting: string;
 }
 
-export interface PengukuranAnak {
+export interface PengukuranAnakResponseRapor {
     id: string;
     tanggal_pengukuran: string; // ISO date
     berat_badan: string;
@@ -38,12 +38,12 @@ export interface PengukuranAnak {
     status_wasting: string;
 }
 
-export interface OrangTua {
-    ibu: Ibu;
-    ayah: Ayah;
+export interface OrangTuaResponseRapor {
+    ibu: IbuResponseRapor;
+    ayah: AyahResponseRapor;
 }
 
-export interface Ibu {
+export interface IbuResponseRapor {
     id: string;
     nik: string;
     nama_ibu: string;
@@ -54,7 +54,7 @@ export interface Ibu {
     jenis_kb: string;
 }
 
-export interface Ayah {
+export interface AyahResponseRapor {
     id: string;
     nik: string;
     nama_ayah: string;
@@ -64,5 +64,15 @@ export interface Ayah {
 }
 
 export interface PengukuranIbuHamil {
-    // Isi jika nanti ada datanya
+    tanggal: string;
+    tempat: string;
+    usiaKehamilan: string | number;
+    tinggi: string | number;
+    berat: string | number;
+    lila: string | number;
+    tinggiFundus: string | number;
+    hemoglobin: string | number;
+    tglHaid: string;
+    asapRokok: string;
+    tabletFe: string;
 }

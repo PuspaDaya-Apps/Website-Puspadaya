@@ -1,5 +1,3 @@
-
-
 import axios from "axios";
 import { APIEndpoints } from "@/app/config/route/apiEndpoints";
 import { handleError } from "@/components/Handleerror/server/errorHandler";
@@ -11,20 +9,30 @@ interface FetchResult {
     data: RaporResponse | null;
 }
 
+// Debug helper
+const DEBUG_MODE = false;
+const debugLog = (...args: any[]) => {
+    if (DEBUG_MODE) console.log(...args);
+};
+
 export const Statistikraportbalita = async (id: string): Promise<FetchResult> => {
-    // ⛔ SSR guard – axios tidak boleh jalan di server
+
+    // SSR guard
     if (typeof window === "undefined") {
+        debugLog("SSR mode – request diblokir.");
         return { successCode: 500, data: null };
     }
 
     try {
         const accessToken = sessionStorage.getItem("access_token");
 
-        // ⛔ Validasi awal
         if (!accessToken) {
+            debugLog("Tidak ada access token.");
             return { successCode: 401, data: null };
         }
+
         if (!id || id.trim() === "") {
+            debugLog("ID anak kosong.");
             return { successCode: 400, data: null };
         }
 
@@ -35,23 +43,27 @@ export const Statistikraportbalita = async (id: string): Promise<FetchResult> =>
         };
 
         const url = `${APIEndpoints.RAPOIRTANAK}/${id}`;
+        debugLog("Request URL:", url);
 
-        // ✅ axios dengan tipe generic
         const response = await axios.get<RaporResponse>(url, config);
 
-        // ⛔ Jika API tidak mengirim `anak`, anggap 404
+        // Cek apakah response valid
         if (!response.data || !response.data.anak) {
+            debugLog("Data anak tidak ditemukan pada response.");
             return { successCode: 404, data: null };
         }
 
-        // 🎉 SUCCESS
+        debugLog("Berhasil mengambil data rapor:", response.data);
+
         return {
             successCode: response.status,
             data: response.data,
         };
 
     } catch (err: any) {
-        const { status } = handleError(err);
+        const { status, message } = handleError(err);
+        debugLog("Error API:", message);
+
         return { successCode: status, data: null };
     }
 };

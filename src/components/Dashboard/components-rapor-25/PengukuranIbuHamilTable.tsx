@@ -1,21 +1,9 @@
+import { PengukuranIbuHamil } from "@/types/data-25/RaporResponse";
 import React from "react";
 
-interface PengukuranIbu {
-    tanggal: string;
-    tempat: string;
-    usiaKehamilan: string | number;
-    tinggi: string | number;
-    berat: string | number;
-    lila: string | number;
-    tinggiFundus: string | number;
-    hemoglobin: string | number;
-    tglHaid: string;
-    asapRokok: string;
-    tabletFe: string;
-}
 
 interface Props {
-    pengukuranIbuHamil: PengukuranIbu[];
+    pengukuranIbuHamil: PengukuranIbuHamil[];
 }
 
 const PengukuranIbuHamilTable: React.FC<Props> = ({ pengukuranIbuHamil }) => {

@@ -1,14 +1,14 @@
 import React from "react";
-import { BalitaData } from "../../../types/data-25/dummyDataBaby";
+import { AnakItem } from "@/types/data-25/AnakResponse";
 
 interface BalitaDropdownProps {
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
-    selectedBalita: BalitaData;
+    selectedBalita: AnakItem | null;
     searchTerm: string;
     setSearchTerm: (value: string) => void;
-    filteredBalita: BalitaData[];
-    handleSelectBalita: (balita: BalitaData) => void;
+    filteredBalita: AnakItem[];
+    handleSelectBalita: (balita: AnakItem) => void;
 }
 
 const BalitaDropdown: React.FC<BalitaDropdownProps> = ({
@@ -27,7 +27,10 @@ const BalitaDropdown: React.FC<BalitaDropdownProps> = ({
                 className="flex items-center justify-between p-2 border border-gray-300 rounded-lg cursor-pointer bg-white"
                 onClick={() => setIsOpen(!isOpen)}
             >
-                <span className="truncate">{selectedBalita.identitasBalita.nama}</span>
+                <span className="truncate">
+                    {selectedBalita?.nama_anak ?? "Pilih Balita"}
+                </span>
+
                 <svg
                     className={`w-5 h-5 text-gray-500 transition-transform ${isOpen ? "rotate-180" : ""}`}
                     fill="none"
@@ -52,7 +55,7 @@ const BalitaDropdown: React.FC<BalitaDropdownProps> = ({
                         />
                     </div>
 
-                    {/* List Data Balita */}
+                    {/* List Data */}
                     <div className="max-h-60 overflow-y-auto">
                         {filteredBalita.length > 0 ? (
                             filteredBalita.map((balita) => (
@@ -61,10 +64,12 @@ const BalitaDropdown: React.FC<BalitaDropdownProps> = ({
                                     className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
                                     onClick={() => handleSelectBalita(balita)}
                                 >
-                                    <div className="font-medium">{balita.identitasBalita.nama}</div>
+                                    <div className="font-medium">
+                                        {balita.nama_anak}
+                                    </div>
+
                                     <div className="text-sm text-gray-500">
-                                        {balita.identitasBalita.tanggalLahir} •{" "}
-                                        {balita.identitasBalita.jenisKelamin}
+                                        {balita.tanggal_lahir} • {balita.jenis_kelamin}
                                     </div>
                                 </div>
                             ))
