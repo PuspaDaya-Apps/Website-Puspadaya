@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useMemo } from "react";
 import { CriticalChild } from "@/types/dashboard-kepala-desa";
+import WhatsAppButton from "./WhatsAppButton";
+import { WHATSAPP_TEMPLATES } from "@/types/whatsapp";
 
 interface CriticalChildrenListProps {
   children: CriticalChild[];
@@ -309,25 +311,50 @@ const CriticalChildrenList: React.FC<CriticalChildrenListProps> = ({
                       </div>
                     </div>
 
-                    {/* Status Badges */}
-                    <div className="flex flex-wrap gap-1 sm:col-span-4">
-                      <span
-                        className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(
-                          child.status_gizi
-                        )}`}
-                      >
-                        {child.status_gizi}
-                      </span>
-                      {child.status_stunting === "Stunting" && (
-                        <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                          Stunting
+                    {/* Status Badges + WhatsApp Action */}
+                    <div className="flex flex-col items-end gap-2 sm:col-span-4">
+                      <div className="flex flex-wrap gap-1">
+                        <span
+                          className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(
+                            child.status_gizi
+                          )}`}
+                        >
+                          {child.status_gizi}
                         </span>
-                      )}
-                      {child.status_wasting === "Wasting" && (
-                        <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
-                          Wasting
-                        </span>
-                      )}
+                        {child.status_stunting === "Stunting" && (
+                          <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                            Stunting
+                          </span>
+                        )}
+                        {child.status_wasting === "Wasting" && (
+                          <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                            Wasting
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* WhatsApp Action Button */}
+                      <WhatsAppButton
+                        phoneNumber="081234567890" // TODO: Get from parent data
+                        recipientName={child.nama_ibu}
+                        template={WHATSAPP_TEMPLATES.find(t => t.id === "critical_alert")}
+                        templateData={{
+                          jenis_alert: "Kasus Gizi Buruk",
+                          nama_penerima: child.nama_ibu,
+                          jenis_kasus: child.status_gizi,
+                          nama_anak: child.nama_anak,
+                          usia: child.usia_bulan.toString(),
+                          nama_posyandu: child.posyandu_nama,
+                          detail_kasus: `BB: ${child.berat_badan}kg, TB: ${child.tinggi_badan}cm`,
+                          prioritas: child.prioritas,
+                          tindakan: child.prioritas === "Sangat Tinggi" 
+                            ? "1. Kunjungan rumah hari ini\n2. Rujuk ke puskesmas\n3. Berikan makanan tambahan"
+                            : "1. Kunjungan rumah minggu ini\n2. Monitoring gizi\n3. Berikan makanan tambahan",
+                        }}
+                        buttonVariant="secondary"
+                        buttonText="Kirim Alert"
+                        iconOnly={false}
+                      />
                     </div>
                   </div>
                 ))}
