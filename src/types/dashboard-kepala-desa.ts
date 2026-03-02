@@ -17,6 +17,55 @@ export interface PosyanduItem {
   last_updated: string;
 }
 
+// Kader Workload Types
+export interface KaderWorkload {
+  id: string;
+  nama_kader: string;
+  posyandu_id: string;
+  posyandu_nama: string;
+  role: string;
+  durasi_kerja_posyandu: number; // hours
+  durasi_kunjungan_rumah: number; // hours
+  jarak_kunjungan: number; // km
+  total_balita_dibina: number;
+  total_ibu_hamil_dibina: number;
+  skor_beban_kerja: number;
+  kategori_beban: "Tinggi" | "Sedang" | "Rendah";
+  status: "aktif" | "non_aktif";
+}
+
+export interface KaderWorkloadSummary {
+  total_kader: number;
+  rata_rata_beban_kerja: number;
+  beban_tinggi_count: number;
+  beban_sedang_count: number;
+  beban_rendah_count: number;
+  total_jam_kerja_posyandu: number;
+  total_jam_kunjungan: number;
+  total_jarak_tempuh: number;
+}
+
+// Critical Children (Gizi Buruk & Stunting) Types
+export interface CriticalChild {
+  id: string;
+  nik_anak: string;
+  nama_anak: string;
+  tanggal_lahir: string;
+  usia_bulan: number;
+  jenis_kelamin: "Laki-laki" | "Perempuan";
+  nama_ibu: string;
+  posyandu_id: string;
+  posyandu_nama: string;
+  dusun: string;
+  berat_badan: number; // kg
+  tinggi_badan: number; // cm
+  status_gizi: "Gizi Buruk" | "Gizi Kurang" | "Gizi Baik" | "Gizi Lebih";
+  status_stunting: "Stunting" | "Tidak Stunting";
+  status_wasting: "Wasting" | "Tidak Wasting";
+  tanggal_pengukuran: string;
+  prioritas: "Sangat Tinggi" | "Tinggi" | "Sedang";
+}
+
 export interface DashboardSummary {
   total_posyandu: number;
   total_balita: number;

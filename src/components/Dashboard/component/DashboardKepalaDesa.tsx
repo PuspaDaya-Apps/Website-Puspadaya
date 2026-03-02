@@ -7,12 +7,17 @@ import {
   monthlyTrendData,
   posyanduPerformanceData,
   recentActivityData,
+  kaderWorkloadData,
+  criticalChildrenData,
 } from "@/data/dummy-dashboard-kepala-desa";
 import PosyanduSelector from "../component-desa/PosyanduSelector";
 import DashboardSummary from "../component-desa/DashboardSummary";
 import PosyanduPerformanceChart from "../component-desa/PosyanduPerformanceChart";
 import MonthlyTrendChart from "../component-desa/MonthlyTrendChart";
 import RecentActivityTable from "../component-desa/RecentActivityTable";
+import KaderWorkloadChart from "../component-desa/KaderWorkloadChart";
+import KaderDistributionChart from "../component-desa/KaderDistributionChart";
+import CriticalChildrenList from "../component-desa/CriticalChildrenList";
 
 const DashboardKepalaDesa: React.FC = () => {
   const [selectedPosyandu, setSelectedPosyandu] = useState<PosyanduItem | null>(
@@ -123,7 +128,28 @@ const DashboardKepalaDesa: React.FC = () => {
         </div>
       )}
 
-      {/* Charts Row 1 */}
+      {/* ⚠️ CRITICAL: Daftar Anak dengan Gizi Buruk & Stunting (PRIORITAS TERTINGGI) */}
+      <div className="space-y-2">
+        <h2 className="text-xl font-bold text-dark dark:text-white">
+          ⚠️ Prioritas Utama: Anak dengan Gizi Buruk & Stunting
+        </h2>
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Daftar anak yang memerlukan intervensi segera - diprioritaskan untuk penanganan khusus
+        </p>
+      </div>
+      
+      <CriticalChildrenList children={criticalChildrenData} />
+
+      {/* 📊 Performance & Trends - Monitoring Kinerja */}
+      <div className="space-y-2 pt-4">
+        <h2 className="text-xl font-bold text-dark dark:text-white">
+          📈 Kinerja & Tren Posyandu
+        </h2>
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Monitoring kinerja antar posyandu dan tren kehadiran 6 bulan terakhir
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Monthly Trend Chart */}
         <MonthlyTrendChart trendData={monthlyTrendData} />
@@ -134,15 +160,26 @@ const DashboardKepalaDesa: React.FC = () => {
         />
       </div>
 
-      {/* Recent Activity */}
-      <RecentActivityTable activities={recentActivityData} />
+      {/* 👥 Kader Management - Beban Kerja & Distribusi */}
+      <div className="space-y-2 pt-4">
+        <h2 className="text-xl font-bold text-dark dark:text-white">
+          👥 Manajemen Kader
+        </h2>
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Analisis beban kerja dan distribusi kader untuk memastikan kesejahteraan dan produktivitas
+        </p>
+      </div>
+      
+      <KaderWorkloadChart workloadData={kaderWorkloadData} />
+      
+      <KaderDistributionChart workloadData={kaderWorkloadData} />
 
-      {/* Additional Info Section */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {/* 📋 Additional Info - Statistik Tambahan */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 pt-4">
         {/* Stunting & Gizi Stats */}
         <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark lg:col-span-2">
           <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-            Statistik Stunting & Gizi Buruk
+            Statistik Stunting & Gizi Buruk per Posyandu
           </h2>
           <div className="overflow-x-auto">
             <table className="min-w-full">
@@ -303,6 +340,18 @@ const DashboardKepalaDesa: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* 📋 Aktivitas Terbaru - Historical/Operational (PALING BAWAH) */}
+      <div className="space-y-2 pt-4">
+        <h2 className="text-xl font-bold text-dark dark:text-white">
+          📋 Aktivitas Terbaru
+        </h2>
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Riwayat kegiatan dari semua posyandu untuk monitoring operasional harian
+        </p>
+      </div>
+      
+      <RecentActivityTable activities={recentActivityData} />
     </div>
   );
 };
