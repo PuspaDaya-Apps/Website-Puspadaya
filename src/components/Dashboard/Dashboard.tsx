@@ -4,7 +4,6 @@ import DashboardAnggotaKader from "./component/DashboardAnggotaKader";
 import DashboardDinasKesehatan from "./component/DashboardDinasKesehatan";
 import DashboardDinasSosial from "./component/DashboardDinasSosial";
 import DashboardKepalaDesa from "./component/DashboardKepalaDesa";
-import DashboardKetuaKader from "./component/DashboardKetuaKader";
 import DashboardTenagaPelaksanaGizi from "./component/DashboardTenagaPelaksanaGizi";
 
 
