@@ -76,6 +76,49 @@ export interface DashboardSummary {
   kasus_gizi_buruk: number;
   posyandu_aktif: number;
   posyandu_non_aktif: number;
+  // Data kependudukan tambahan
+  skdn: number; // Sistem Klasifikasi Desa Nusantara
+  // Kunjungan berdasarkan usia
+  infant_0_12_months: number; // Bayi 0-12 bulan berkunjung ke posyandu
+  children_0_23_months: number; // Anak 0-23 bulan berkunjung ke posyandu
+  children_0_59_months: number; // Anak 0-59 bulan berkunjung ke posyandu
+  // Data wanita
+  women_post_fertile: number; // Wanita usia setelah subur (>49 tahun)
+  pregnant_women_under_energized: number; // Ibu hamil dengan KEK (Kurang Energi Kronis)
+  high_risk_pregnant_women: number; // Ibu hamil dengan risiko tinggi
+  breastfeeding_mothers: number; // Ibu menyusui
+  // Data bayi
+  newborn_count: number; // Jumlah bayi baru lahir
+  // Imunisasi
+  infant_immunization_coverage: InfantImmunizationCoverage; // Cakupan imunisasi bayi
+  // KB dan asuransi
+  pregnant_women_with_insurance: number; // Ibu hamil dengan jaminan kesehatan
+  kb_acceptors: number; // Jumlah akseptor KB
+  // Prevalensi balita
+  stunting_prevalence: PrevalensiData; // Jumlah dan prevalensi stunting
+  wasting_prevalence: PrevalensiData; // Jumlah dan prevalensi wasting
+  underweight_prevalence: PrevalensiData; // Jumlah dan prevalensi underweight
+}
+
+export interface InfantImmunizationCoverage {
+  bcg: number;
+  dpt_1: number;
+  dpt_2: number;
+  dpt_3: number;
+  polio_1: number;
+  polio_2: number;
+  polio_3: number;
+  polio_4: number;
+  hepatitis: number;
+  campak: number;
+  total_imunisasi: number;
+  cakupan_persentase: number;
+}
+
+export interface PrevalensiData {
+  jumlah: number;
+  prevalensi_persentase: number;
+  total_balita: number;
 }
 
 export interface MonthlyTrendData {

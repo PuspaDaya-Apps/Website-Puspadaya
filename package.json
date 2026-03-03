@@ -24,6 +24,8 @@
     "dompurify": "^3.1.7",
     "eslint-plugin-risxss": "^2.1.0",
     "flatpickr": "^4.6.13",
+    "jspdf": "^4.2.0",
+    "jspdf-autotable": "^5.0.7",
     "jsvectormap": "^1.5.3",
     "leaflet": "^1.9.4",
     "next": "^14.2.14",

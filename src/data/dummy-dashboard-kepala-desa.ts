@@ -154,6 +154,53 @@ export const dashboardSummaryData: DashboardSummary = {
   kasus_gizi_buruk: 11,
   posyandu_aktif: 6,
   posyandu_non_aktif: 2,
+  // Data kependudukan tambahan
+  skdn: 4, // Sistem Klasifikasi Desa Nusantara (tingkat 4 = Maju)
+  // Kunjungan berdasarkan usia
+  infant_0_12_months: 125, // Bayi 0-12 bulan berkunjung ke posyandu
+  children_0_23_months: 198, // Anak 0-23 bulan berkunjung ke posyandu
+  children_0_59_months: 352, // Anak 0-59 bulan berkunjung ke posyandu
+  // Data wanita
+  women_post_fertile: 245, // Wanita usia setelah subur (>49 tahun)
+  pregnant_women_under_energized: 15, // Ibu hamil dengan KEK (Kurang Energi Kronis)
+  high_risk_pregnant_women: 8, // Ibu hamil dengan risiko tinggi
+  breastfeeding_mothers: 87, // Ibu menyusui
+  // Data bayi
+  newborn_count: 42, // Jumlah bayi baru lahir
+  // Imunisasi
+  infant_immunization_coverage: {
+    bcg: 38,
+    dpt_1: 36,
+    dpt_2: 35,
+    dpt_3: 34,
+    polio_1: 37,
+    polio_2: 36,
+    polio_3: 35,
+    polio_4: 33,
+    hepatitis: 36,
+    campak: 32,
+    total_imunisasi: 352,
+    cakupan_persentase: 87.5,
+  },
+  // KB dan asuransi
+  pregnant_women_with_insurance: 89, // Ibu hamil dengan jaminan kesehatan
+  kb_acceptors: 156, // Jumlah akseptor KB
+  // Prevalensi balita
+  stunting_prevalence: {
+    jumlah: 32,
+    prevalensi_persentase: 8.5,
+    total_balita: 375,
+  },
+  wasting_prevalence: {
+    jumlah: 28,
+    prevalensi_persentase: 7.5,
+    total_balita: 375,
+  },
+  underweight_prevalence: {
+    jumlah: 35,
+    prevalensi_persentase: 9.3,
+    total_balita: 375,
+  },
 };
 
 // Dummy data untuk Monthly Trend
