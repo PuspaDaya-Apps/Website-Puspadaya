@@ -1,0 +1,223 @@
+"use client";
+import React from "react";
+import Link from "next/link";
+import { DashboardSummary as DashboardSummaryType } from "@/types/dashboard-kepala-desa";
+
+interface KeyMetricsProps {
+  summary: DashboardSummaryType;
+}
+
+interface MetricCardProps {
+  title: string;
+  value: string | number;
+  subtitle?: string;
+  icon: React.ReactNode;
+  color: "blue" | "emerald" | "pink" | "violet" | "amber" | "red" | "orange";
+  trend?: {
+    value: number;
+    direction: "up" | "down";
+  };
+}
+
+const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
+  const MetricCard: React.FC<MetricCardProps> = ({
+    title,
+    value,
+    subtitle,
+    icon,
+    color,
+    trend,
+  }) => {
+    const colorClasses = {
+      blue: {
+        bg: "bg-blue-50 dark:bg-blue-900/20",
+        text: "text-blue-600 dark:text-blue-400",
+        iconBg: "bg-blue-100 dark:bg-blue-800",
+      },
+      emerald: {
+        bg: "bg-emerald-50 dark:bg-emerald-900/20",
+        text: "text-emerald-600 dark:text-emerald-400",
+        iconBg: "bg-emerald-100 dark:bg-emerald-800",
+      },
+      pink: {
+        bg: "bg-pink-50 dark:bg-pink-900/20",
+        text: "text-pink-600 dark:text-pink-400",
+        iconBg: "bg-pink-100 dark:bg-pink-800",
+      },
+      violet: {
+        bg: "bg-violet-50 dark:bg-violet-900/20",
+        text: "text-violet-600 dark:text-violet-400",
+        iconBg: "bg-violet-100 dark:bg-violet-800",
+      },
+      amber: {
+        bg: "bg-amber-50 dark:bg-amber-900/20",
+        text: "text-amber-600 dark:text-amber-400",
+        iconBg: "bg-amber-100 dark:bg-amber-800",
+      },
+      red: {
+        bg: "bg-red-50 dark:bg-red-900/20",
+        text: "text-red-600 dark:text-red-400",
+        iconBg: "bg-red-100 dark:bg-red-800",
+      },
+      orange: {
+        bg: "bg-orange-50 dark:bg-orange-900/20",
+        text: "text-orange-600 dark:text-orange-400",
+        iconBg: "bg-orange-100 dark:bg-orange-800",
+      },
+    };
+
+    const trendIcon = trend?.direction === "up" ? "↑" : trend?.direction === "down" ? "↓" : "";
+    const trendColor = trend?.direction === "up" ? "text-red-500" : trend?.direction === "down" ? "text-emerald-500" : "text-gray-500";
+
+    return (
+      <div className={`relative overflow-hidden rounded-xl ${colorClasses[color].bg} p-5 transition-all hover:shadow-lg`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+              {title}
+            </p>
+            <div className="mt-1 flex items-baseline gap-2">
+              <p className={`text-3xl font-bold ${colorClasses[color].text}`}>
+                {value}
+              </p>
+              {subtitle && (
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {subtitle}
+                </span>
+              )}
+              {trend && (
+                <span className={`text-sm font-medium ${trendColor}`}>
+                  {trendIcon} {trend.value}%
+                </span>
+              )}
+            </div>
+          </div>
+          <div
+            className={`flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full ${colorClasses[color].iconBg} ${colorClasses[color].text}`}
+          >
+            {icon}
+          </div>
+        </div>
+
+        {/* Decorative background pattern */}
+        <div
+          className={`absolute -right-4 -top-4 h-24 w-24 opacity-10 ${colorClasses[color].text.replace("text-", "bg-")}`}
+          style={{
+            borderRadius: "50%",
+          }}
+        />
+      </div>
+    );
+  };
+
+  // Calculate prevalence percentages
+  const stuntingPrevalence = summary.stunting_prevalence.prevalensi_persentase;
+  const giziBurukPrevalence = (summary.kasus_gizi_buruk / summary.total_balita) * 100;
+
+  const cards: MetricCardProps[] = [
+    {
+      title: "Total Posyandu",
+      value: summary.total_posyandu,
+      subtitle: `dari ${summary.posyandu_aktif} aktif`,
+      icon: (
+        <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      ),
+      color: "blue",
+    },
+    {
+      title: "Total Balita",
+      value: summary.total_balita,
+      subtitle: `${summary.children_0_59_months} berkunjung`,
+      icon: (
+        <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      color: "emerald",
+    },
+    {
+      title: "Rata-rata Kehadiran",
+      value: `${summary.rata_rata_kehadiran}%`,
+      trend: {
+        value: 5,
+        direction: "up",
+      },
+      icon: (
+        <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
+      color: "amber",
+    },
+    {
+      title: "Kasus Stunting",
+      value: summary.kasus_stunting,
+      subtitle: `${stuntingPrevalence.toFixed(1)}% dari total`,
+      trend: {
+        value: 3,
+        direction: "down",
+      },
+      icon: (
+        <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        </svg>
+      ),
+      color: "red",
+    },
+    {
+      title: "Gizi Buruk",
+      value: summary.kasus_gizi_buruk,
+      subtitle: `${giziBurukPrevalence.toFixed(1)}% dari total`,
+      trend: {
+        value: 2,
+        direction: "down",
+      },
+      icon: (
+        <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      ),
+      color: "orange",
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+            <svg className="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-dark dark:text-white">
+              📊 Indikator Kunci
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Metric utama untuk monitoring wilayah
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/monitoring/kinerja-posyandu"
+          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700"
+        >
+          Lihat Detail Kinerja →
+        </Link>
+      </div>
+
+      {/* Metric Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        {cards.map((card, index) => (
+          <MetricCard key={index} {...card} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default KeyMetrics;

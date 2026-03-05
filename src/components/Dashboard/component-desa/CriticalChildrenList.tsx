@@ -61,12 +61,12 @@ const CriticalChildrenList: React.FC<CriticalChildrenListProps> = ({
 
   // Sort by priority
   const sortedChildren = [...filteredChildren].sort((a, b) => {
-    const priorityOrder = {
+    const priorityOrder: Record<string, number> = {
       "Sangat Tinggi": 0,
       "Tinggi": 1,
       "Sedang": 2,
     };
-    return priorityOrder[a.prioritas] - priorityOrder[b.prioritas];
+    return (priorityOrder[a.prioritas] || 3) - (priorityOrder[b.prioritas] || 3);
   });
 
   // Get priority color
