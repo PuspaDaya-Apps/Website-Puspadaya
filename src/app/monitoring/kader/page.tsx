@@ -80,9 +80,9 @@ const KaderManagementPage: React.FC = () => {
         </div>
         <Link
           href="/"
-          className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-md transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
         >
-          ← Kembali ke Dashboard
+          ← Dashboard
         </Link>
       </div>
 
@@ -408,14 +408,14 @@ const KaderManagementPage: React.FC = () => {
             {/* Action Buttons */}
             <div className="mt-6 flex flex-wrap gap-3">
               <button className="flex-1 rounded-lg bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700">
-                📊 Lihat Kinerja Detail
+                📊 Kinerja
               </button>
               <button className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700">
-                ✏️ Edit Data Kader
+                ✏️ Edit
               </button>
               {selectedKader.kategori_beban === "Tinggi" && (
                 <button className="flex-1 rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition hover:bg-red-700">
-                  🔄 Redistribusi Tugas
+                  🔄 Redistribusi
                 </button>
               )}
             </div>

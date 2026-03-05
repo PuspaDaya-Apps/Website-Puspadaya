@@ -19,7 +19,6 @@ interface AlertCardProps {
   trendDirection?: "up" | "down" | "neutral";
   color: "red" | "orange" | "yellow" | "blue";
   onClick?: () => void;
-  actionLabel?: string;
 }
 
 const CriticalAlerts: React.FC<CriticalAlertsProps> = ({
@@ -63,7 +62,6 @@ const CriticalAlerts: React.FC<CriticalAlertsProps> = ({
     trendDirection = "neutral",
     color,
     onClick,
-    actionLabel,
   }) => {
     const colorClasses = {
       red: "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800",
@@ -129,15 +127,6 @@ const CriticalAlerts: React.FC<CriticalAlertsProps> = ({
             <span className="text-gray-600 dark:text-gray-400">{trendLabel}</span>
           </div>
         )}
-
-        {actionLabel && (
-          <div className="mt-3 flex items-center gap-2 text-sm font-medium text-primary hover:text-blue-700">
-            <span>{actionLabel}</span>
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-        )}
       </div>
     );
   };
@@ -185,7 +174,6 @@ const CriticalAlerts: React.FC<CriticalAlertsProps> = ({
           trendLabel="kasus baru bulan ini"
           trendDirection="up"
           color="red"
-          actionLabel="Lihat detail →"
         />
 
         {/* Stunting Alert */}
@@ -200,7 +188,6 @@ const CriticalAlerts: React.FC<CriticalAlertsProps> = ({
           mainLabel="kasus aktif"
           trendDirection="down"
           color="orange"
-          actionLabel="Lihat detail →"
         />
 
         {/* Posyandu Bermasalah Alert */}
@@ -214,7 +201,6 @@ const CriticalAlerts: React.FC<CriticalAlertsProps> = ({
           mainValue={stats.underperformingPosyandu}
           mainLabel="posyandu perlu pembinaan"
           color="yellow"
-          actionLabel="Lihat detail →"
         />
 
         {/* Kader Burnout Alert */}
@@ -228,7 +214,6 @@ const CriticalAlerts: React.FC<CriticalAlertsProps> = ({
           mainValue={stats.highWorkloadKader}
           mainLabel="kader beban tinggi"
           color="blue"
-          actionLabel="Lihat detail →"
         />
       </div>
     </div>

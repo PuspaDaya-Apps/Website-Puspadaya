@@ -110,9 +110,9 @@ const KasusKritisPage: React.FC = () => {
         </div>
         <Link
           href="/"
-          className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-md transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
         >
-          ← Kembali ke Dashboard
+          ← Dashboard
         </Link>
       </div>
 
@@ -468,14 +468,14 @@ const KasusKritisPage: React.FC = () => {
                     : "1. Kunjungan rumah minggu ini\n2. Monitoring gizi\n3. Berikan makanan tambahan",
                 }}
                 buttonVariant="primary"
-                buttonText="📱 Kirim WhatsApp ke Ibu"
+                buttonText="💬 WhatsApp Ibu"
                 className="flex-1"
               />
               <button className="flex-1 rounded-lg bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700">
-                📋 Buat Rujukan Puskesmas
+                📋 Rujukan
               </button>
               <button className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700">
-                🏠 Jadwalkan Kunjungan Rumah
+                🏠 Kunjungan
               </button>
             </div>
           </div>

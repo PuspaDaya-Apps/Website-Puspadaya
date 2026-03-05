@@ -7,6 +7,62 @@ interface KaderManagementProps {
   workloadData: KaderWorkload[];
 }
 
+// Helper function untuk generate rekomendasi berdasarkan data
+const generateRecommendations = (highWorkloadKader: KaderWorkload[]) => {
+  const recommendations: string[] = [];
+  
+  if (highWorkloadKader.length === 0) return recommendations;
+
+  // Hitung rata-rata beban kader tinggi
+  const avgBebanTinggi = highWorkloadKader.reduce((sum, k) => sum + k.skor_beban_kerja, 0) / highWorkloadKader.length;
+  
+  // Hitung total balita yang bisa diredistribusi
+  const totalBalitaOverload = highWorkloadKader.reduce((sum, k) => sum + k.total_balita_dibina, 0);
+  const avgBalitaPerKader = Math.round(totalBalitaOverload / highWorkloadKader.length);
+  
+  // Rekomendasi 1: Redistribusi (jika ada kader dengan beban > 80)
+  const kaderSangatOverload = highWorkloadKader.filter(k => k.skor_beban_kerja >= 80);
+  if (kaderSangatOverload.length > 0) {
+    const balitaToRedistribute = Math.round(avgBalitaPerKader * 0.25); // 25% dari rata-rata
+    recommendations.push(`Redistribusi ${balitaToRedistribute}-${Math.round(avgBalitaPerKader * 0.3)} balita dari ${kaderSangatOverload.length} kader overload`);
+  }
+
+  // Rekomendasi 2: Rekrutmen (jika rasio kader:balita > 1:6)
+  const totalBalita = highWorkloadKader.reduce((sum, k) => sum + k.total_balita_dibina, 0);
+  const totalKader = highWorkloadKader.length;
+  const ratio = totalBalita / totalKader;
+  if (ratio > 5) {
+    const kaderDibutuhkan = Math.ceil((totalBalita / 5) - totalKader);
+    recommendations.push(`Rekrut ${kaderDibutuhkan} kader pendamping baru (rasio saat ini 1:${Math.round(ratio)})`);
+  }
+
+  // Rekomendasi 3: Kunjungan bergantian (jika ada kader dengan jarak > 30km)
+  const kaderJarakJauh = highWorkloadKader.filter(k => k.jarak_kunjungan > 30);
+  if (kaderJarakJauh.length > 0) {
+    recommendations.push(`Optimalkan rute kunjungan untuk ${kaderJarakJauh.length} kader dengan jarak >30km`);
+  }
+
+  // Rekomendasi 4: Cuti/istirahat (jika jam kerja > 50 jam/minggu)
+  const kaderLembur = highWorkloadKader.filter(k => (k.durasi_kerja_posyandu + k.durasi_kunjungan_rumah) > 50);
+  if (kaderLembur.length > 0) {
+    recommendations.push(`Wajibkan istirahat untuk ${kaderLembur.length} kader dengan jam kerja >50 jam/minggu`);
+  }
+
+  // Rekomendasi 5: Training (jika ada kader dengan produktivitas rendah)
+  const kaderProduktivitasRendah = highWorkloadKader.filter(k => k.skor_beban_kerja < 60 && k.total_balita_dibina > 40);
+  if (kaderProduktivitasRendah.length > 0) {
+    recommendations.push(`Berikan training manajemen waktu untuk ${kaderProduktivitasRendah.length} kader`);
+  }
+
+  // Fallback jika tidak ada rekomendasi spesifik
+  if (recommendations.length === 0) {
+    recommendations.push("Monitor beban kerja kader secara berkala");
+    recommendations.push("Pertahankan distribusi beban yang sudah baik");
+  }
+
+  return recommendations.slice(0, 4); // Max 4 rekomendasi
+};
+
 const KaderManagement: React.FC<KaderManagementProps> = ({ workloadData }) => {
   // Filter and sort kader by workload
   const highWorkloadKader = useMemo(() => {
@@ -166,19 +222,18 @@ const KaderManagement: React.FC<KaderManagementProps> = ({ workloadData }) => {
             ))}
           </div>
 
-          {/* Recommendations */}
+          {/* Dynamic Recommendations */}
           <div className="mt-4 rounded-lg bg-amber-50 p-4 dark:bg-amber-900/20">
             <h4 className="mb-2 flex items-center gap-2 font-semibold text-amber-800 dark:text-amber-300">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
-              Rekomendasi Tindakan:
+              💡 Rekomendasi Berdasarkan Data:
             </h4>
             <ul className="list-inside list-disc space-y-1 text-sm text-amber-700 dark:text-amber-300">
-              <li>Pertimbangkan redistribusi {highWorkloadKader[0]?.total_balita_dibina || 0} balita dari kader overload</li>
-              <li>Rekrut 1-2 kader pendamping untuk posyandu dengan beban tinggi</li>
-              <li>Jadwalkan kunjungan rumah bergantian antar kader</li>
-              <li>Optimalkan rute kunjungan untuk mengurangi jarak tempuh</li>
+              {generateRecommendations(highWorkloadKader).map((rec, index) => (
+                <li key={index}>{rec}</li>
+              ))}
             </ul>
           </div>
         </div>
