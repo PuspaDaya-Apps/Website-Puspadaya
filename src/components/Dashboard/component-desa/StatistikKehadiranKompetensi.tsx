@@ -12,19 +12,21 @@ const StatistikKehadiranKompetensi: React.FC<StatistikKehadiranKompetensiProps> 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/30">
-          <svg className="h-6 w-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-dark dark:text-white">
-            📊 Kehadiran per Kompetensi
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
-            Breakdown kehadiran balita dan ibu hamil berdasarkan kompetensi
-          </p>
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/30">
+            <svg className="h-6 w-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-dark dark:text-white">
+              Kehadiran per Kompetensi
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Breakdown kehadiran balita dan ibu hamil berdasarkan kompetensi
+            </p>
+          </div>
         </div>
       </div>
 
@@ -33,7 +35,7 @@ const StatistikKehadiranKompetensi: React.FC<StatistikKehadiranKompetensiProps> 
         <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-dark dark:text-white">
-              👶 Balita per Kompetensi
+              Balita per Kompetensi
             </h3>
             <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
               Total: {kehadiranKompetensi.balita.total_hadir}
@@ -80,7 +82,7 @@ const StatistikKehadiranKompetensi: React.FC<StatistikKehadiranKompetensiProps> 
         <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-dark dark:text-white">
-              🤰 Ibu Hamil per Kompetensi
+              Ibu Hamil per Kompetensi
             </h3>
             <span className="rounded-full bg-pink-100 px-3 py-1 text-sm font-medium text-pink-700 dark:bg-pink-900/30 dark:text-pink-400">
               Total: {kehadiranKompetensi.ibu_hamil.total_hadir}

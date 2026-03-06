@@ -77,7 +77,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
             </div>
             <div>
               <h2 className={`${getFontSize("large")} font-bold text-red-800`}>
-                ⚠️ PERHATIAN: {criticalChildren.length} Anak Perlu Bantuan Segera
+                PERHATIAN: {criticalChildren.length} Anak Perlu Bantuan Segera
               </h2>
               <p className={`${getFontSize("small")} text-red-700 mt-1`}>
                 Anak dengan gizi buruk dan stunting yang memerlukan tindakan
@@ -94,7 +94,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
                       {child.nama_anak}
                     </p>
                     <p className={`${getFontSize("small")} text-gray-700`}>
-                      📍 {child.posyandu_nama} • Usia: {child.usia_bulan} bulan
+                      {child.posyandu_nama} • Usia: {child.usia_bulan} bulan
                     </p>
                     <p className={`${getFontSize("small")} text-gray-700`}>
                       👤 Ibu: {child.nama_ibu}
@@ -118,7 +118,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
       {/* 5 METRIC UTAMA */}
       <div className={`${highContrast ? "bg-white border-4 border-black" : "bg-white"} rounded-xl p-6 shadow-md`}>
         <h2 className={`${getFontSize("large")} font-bold text-black mb-4`}>
-          📊 Data Penting Bulan Ini
+          Data Penting Bulan Ini
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {/* Total Posyandu */}
@@ -192,7 +192,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
       {highWorkloadKader.length > 0 && (
         <div className={`${highContrast ? "bg-white border-4 border-orange-600" : "bg-white"} rounded-xl p-6 shadow-md`}>
           <h2 className={`${getFontSize("large")} font-bold text-black mb-4`}>
-            👥 {highWorkloadKader.length} Kader Dengan Beban Kerja Tinggi
+            {highWorkloadKader.length} Kader Dengan Beban Kerja Tinggi
           </h2>
           <div className="space-y-3">
             {highWorkloadKader.slice(0, 3).map((kader) => (
@@ -203,7 +203,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
                       {kader.nama_kader}
                     </p>
                     <p className={`${getFontSize("small")} text-gray-700`}>
-                      📍 {kader.posyandu_nama}
+                      {kader.posyandu_nama}
                     </p>
                     <p className={`${getFontSize("small")} text-gray-700`}>
                       {kader.total_balita_dibina} balita • {kader.total_ibu_hamil_dibina} ibu hamil
@@ -227,7 +227,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
       {/* SKDN CHART - Simplified */}
       <div className={`${highContrast ? "bg-white border-4 border-black" : "bg-white"} rounded-xl p-6 shadow-md`}>
         <h2 className={`${getFontSize("large")} font-bold text-black mb-4`}>
-          📊 Statistik Gizi Balita (SKDN)
+          Statistik Gizi Balita (SKDN)
         </h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="rounded-lg bg-blue-50 p-4 text-center border-2 border-blue-300">
@@ -257,7 +257,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
       {/* TOMBOL AKSI CEPAT */}
       <div className={`${highContrast ? "bg-white border-4 border-black" : "bg-white"} rounded-xl p-6 shadow-md`}>
         <h2 className={`${getFontSize("large")} font-bold text-black mb-4`}>
-          ⚡ Aksi Cepat
+          Aksi Cepat
         </h2>
         <button
           onClick={onPrintReport}
@@ -266,7 +266,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
           </svg>
-          <span className={`${getFontSize("small")} font-medium`}>📄 Download Laporan PDF</span>
+          <span className={`${getFontSize("small")} font-medium`}>Download Laporan PDF</span>
         </button>
       </div>
     </div>

@@ -108,9 +108,9 @@ const KaderManagement: React.FC<KaderManagementProps> = ({ workloadData }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-900/30">
             <svg className="h-6 w-6 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,7 +119,7 @@ const KaderManagement: React.FC<KaderManagementProps> = ({ workloadData }) => {
           </div>
           <div>
             <h2 className="text-xl font-bold text-dark dark:text-white">
-              👥 Manajemen Kader
+              Manajemen Kader
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Analisis beban kerja dan distribusi
@@ -164,14 +164,19 @@ const KaderManagement: React.FC<KaderManagementProps> = ({ workloadData }) => {
 
       {/* High Workload Alert */}
       {highWorkloadKader.length > 0 && (
-        <div className="rounded-xl bg-red-50 p-5 dark:bg-red-900/20">
-          <div className="mb-4 flex items-center gap-2">
-            <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="mt-6 rounded-xl bg-red-50 p-5 dark:bg-red-900/20">
+          <div className="mb-4 flex items-center gap-3">
+            <svg className="h-8 w-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
-            <h3 className="text-lg font-semibold text-red-800 dark:text-red-300">
-              ⚠️ Kader dengan Beban Kerja Tinggi
-            </h3>
+            <div>
+              <h3 className="text-lg font-semibold text-red-800 dark:text-red-300">
+                Kader dengan Beban Kerja Tinggi
+              </h3>
+              <p className="text-sm text-red-600 dark:text-red-400">
+                Perlu perhatian untuk mencegah burnout
+              </p>
+            </div>
           </div>
           <div className="space-y-3">
             {highWorkloadKader.map((kader) => (
@@ -193,7 +198,7 @@ const KaderManagement: React.FC<KaderManagementProps> = ({ workloadData }) => {
                       {kader.posyandu_nama} • {kader.role}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-500">
-                      📍 {kader.total_balita_dibina} balita • {kader.total_ibu_hamil_dibina} ibu hamil
+                      {kader.total_balita_dibina} balita • {kader.total_ibu_hamil_dibina} ibu hamil
                     </p>
                   </div>
                 </div>
@@ -228,7 +233,7 @@ const KaderManagement: React.FC<KaderManagementProps> = ({ workloadData }) => {
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
-              💡 Rekomendasi Berdasarkan Data:
+              Rekomendasi Berdasarkan Data:
             </h4>
             <ul className="list-inside list-disc space-y-1 text-sm text-amber-700 dark:text-amber-300">
               {generateRecommendations(highWorkloadKader).map((rec, index) => (
@@ -239,89 +244,123 @@ const KaderManagement: React.FC<KaderManagementProps> = ({ workloadData }) => {
         </div>
       )}
 
-      {/* Workload Distribution Chart */}
-      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
-        <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-          📊 Distribusi Beban Kerja
+      {/* Workload Distribution Chart - Enhanced */}
+      <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">
+        <h3 className="mb-6 text-lg font-semibold text-dark dark:text-white">
+          Distribusi Beban Kerja Kader
         </h3>
-        <div className="flex items-center justify-center gap-8">
-          {/* Donut Chart Visualization */}
-          <div className="relative h-40 w-40">
-            <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
-              {/* Background circle */}
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                fill="none"
-                stroke="#e5e7eb"
-                strokeWidth="12"
-                className="dark:stroke-gray-700"
-              />
-              {/* High workload segment */}
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                fill="none"
-                stroke="#ef4444"
-                strokeWidth="12"
-                strokeDasharray={`${(stats.highCount / stats.total) * 251.2} 251.2`}
-              />
-              {/* Medium workload segment */}
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                fill="none"
-                stroke="#eab308"
-                strokeWidth="12"
-                strokeDasharray={`${(stats.mediumCount / stats.total) * 251.2} 251.2`}
-                strokeDashoffset={-((stats.highCount / stats.total) * 251.2)}
-              />
-              {/* Low workload segment */}
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                fill="none"
-                stroke="#10b981"
-                strokeWidth="12"
-                strokeDasharray={`${(stats.lowCount / stats.total) * 251.2} 251.2`}
-                strokeDashoffset={-(((stats.highCount + stats.mediumCount) / stats.total) * 251.2)}
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-dark dark:text-white">{stats.total}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">kader</p>
+        
+        {/* Progress Bars dengan Detail */}
+        <div className="mb-6 space-y-4">
+          {/* Beban Tinggi */}
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-gradient-to-r from-red-500 to-red-600"></div>
+                <span className="text-sm font-medium text-dark dark:text-white">Beban Tinggi</span>
+              </div>
+              <div className="text-right">
+                <span className="text-lg font-bold text-red-600 dark:text-red-400">{stats.highCount}</span>
+                <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                  ({((stats.highCount / stats.total) * 100).toFixed(1)}%)
+                </span>
+              </div>
+            </div>
+            <div className="relative h-4 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+              <div
+                className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-500"
+                style={{ width: `${(stats.highCount / stats.total) * 100}%` }}
+              >
+                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
               </div>
             </div>
           </div>
 
-          {/* Legend */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="h-4 w-4 rounded-full bg-red-500"></div>
-              <div>
-                <p className="text-sm font-medium text-dark dark:text-white">Tinggi</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{stats.highCount} kader ({Math.round((stats.highCount / stats.total) * 100)}%)</p>
+          {/* Beban Sedang */}
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600"></div>
+                <span className="text-sm font-medium text-dark dark:text-white">Beban Sedang</span>
+              </div>
+              <div className="text-right">
+                <span className="text-lg font-bold text-yellow-600 dark:text-yellow-400">{stats.mediumCount}</span>
+                <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                  ({((stats.mediumCount / stats.total) * 100).toFixed(1)}%)
+                </span>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="h-4 w-4 rounded-full bg-yellow-500"></div>
-              <div>
-                <p className="text-sm font-medium text-dark dark:text-white">Sedang</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{stats.mediumCount} kader ({Math.round((stats.mediumCount / stats.total) * 100)}%)</p>
+            <div className="relative h-4 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+              <div
+                className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 transition-all duration-500"
+                style={{ width: `${(stats.mediumCount / stats.total) * 100}%` }}
+              >
+                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="h-4 w-4 rounded-full bg-emerald-500"></div>
-              <div>
-                <p className="text-sm font-medium text-dark dark:text-white">Rendah</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{stats.lowCount} kader ({Math.round((stats.lowCount / stats.total) * 100)}%)</p>
+          </div>
+
+          {/* Beban Rendah */}
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600"></div>
+                <span className="text-sm font-medium text-dark dark:text-white">Beban Rendah</span>
+              </div>
+              <div className="text-right">
+                <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{stats.lowCount}</span>
+                <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                  ({((stats.lowCount / stats.total) * 100).toFixed(1)}%)
+                </span>
               </div>
             </div>
+            <div className="relative h-4 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+              <div
+                className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-500"
+                style={{ width: `${(stats.lowCount / stats.total) * 100}%` }}
+              >
+                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Summary Cards dengan Icon */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-xl bg-gradient-to-br from-red-50 to-red-100 p-4 text-center dark:from-red-900/20 dark:to-red-900/10">
+            <div className="mb-2 flex justify-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white shadow-lg">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.highCount}</p>
+            <p className="text-xs text-red-700 dark:text-red-300">Tinggi</p>
+          </div>
+
+          <div className="rounded-xl bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 text-center dark:from-yellow-900/20 dark:to-yellow-900/10">
+            <div className="mb-2 flex justify-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-500 text-white shadow-lg">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.mediumCount}</p>
+            <p className="text-xs text-yellow-700 dark:text-yellow-300">Sedang</p>
+          </div>
+
+          <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 text-center dark:from-emerald-900/20 dark:to-emerald-900/10">
+            <div className="mb-2 flex justify-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.lowCount}</p>
+            <p className="text-xs text-emerald-700 dark:text-emerald-300">Rendah</p>
           </div>
         </div>
       </div>

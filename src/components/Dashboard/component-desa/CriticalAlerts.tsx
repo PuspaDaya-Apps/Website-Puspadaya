@@ -132,9 +132,9 @@ const CriticalAlerts: React.FC<CriticalAlertsProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
             <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,7 +143,7 @@ const CriticalAlerts: React.FC<CriticalAlertsProps> = ({
           </div>
           <div>
             <h2 className="text-xl font-bold text-dark dark:text-white">
-              ⚠️ Prioritas Utama
+              Prioritas Utama
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Memerlukan tindakan segera hari ini

@@ -50,7 +50,7 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({ durasiJarak }) 
         </div>
         <div>
           <h2 className="text-xl font-bold text-dark dark:text-white">
-            ⏱️ Durasi Kerja dan Jarak Tempuh (Agregat Tim)
+            Durasi Kerja dan Jarak Tempuh (Agregat Tim)
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-300">
             Total waktu dan jarak yang ditempuh semua kader

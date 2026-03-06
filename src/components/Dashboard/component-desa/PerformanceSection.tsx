@@ -27,9 +27,9 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
     : 0;
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
             <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
           </div>
           <div>
             <h2 className="text-xl font-bold text-dark dark:text-white">
-              📈 Tren & Kinerja
+              Tren & Kinerja
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Monitoring 6 bulan terakhir
@@ -135,7 +135,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
         {/* Ranking Posyandu */}
         <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
           <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-            🏆 Ranking Posyandu
+            Ranking Posyandu
           </h3>
 
           {/* Top 3 */}
@@ -178,7 +178,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
           {/* Bottom 3 */}
           <div>
             <h4 className="mb-3 text-sm font-medium text-red-600 dark:text-red-400">
-              ⚠️ Perlu Perhatian
+              Perlu Perhatian
             </h4>
             <div className="space-y-2">
               {bottom3.map((posyandu, index) => (

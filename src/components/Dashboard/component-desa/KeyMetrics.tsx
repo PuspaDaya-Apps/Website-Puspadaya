@@ -184,9 +184,9 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
             <svg className="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,7 +195,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
           </div>
           <div>
             <h2 className="text-xl font-bold text-dark dark:text-white">
-              📊 Indikator Kunci
+              Indikator Kunci
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Metric utama untuk monitoring wilayah

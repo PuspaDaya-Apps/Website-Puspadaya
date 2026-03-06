@@ -3,8 +3,6 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { CriticalChild } from "@/types/dashboard-kepala-desa";
 import { criticalChildrenData } from "@/data/dummy-dashboard-kepala-desa";
-import WhatsAppButton from "@/components/Dashboard/component-desa/WhatsAppButton";
-import { WHATSAPP_TEMPLATES } from "@/types/whatsapp";
 
 const KasusKritisPage: React.FC = () => {
   const [filterPosyandu, setFilterPosyandu] = useState<string>("all");
@@ -99,25 +97,28 @@ const KasusKritisPage: React.FC = () => {
   return (
     <div className="space-y-6 p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-dark dark:text-white md:text-3xl">
-            ⚠️ Daftar Kasus Kritis
-          </h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-            Monitoring anak dengan gizi buruk dan stunting
-          </p>
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-dark dark:text-white md:text-3xl">
+              Daftar Kasus Kritis
+            </h1>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+              Monitoring anak dengan gizi buruk dan stunting
+            </p>
+          </div>
+          <Link
+            href="/"
+            className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-md transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
+            ← Dashboard
+          </Link>
         </div>
-        <Link
-          href="/"
-          className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-md transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-        >
-          ← Dashboard
-        </Link>
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-7">
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-7">
         <div className="rounded-xl bg-blue-50 p-4 text-center dark:bg-blue-900/20">
           <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.total}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Total Kasus</p>
@@ -222,7 +223,7 @@ const KasusKritisPage: React.FC = () => {
       </div>
 
       {/* Children List */}
-      <div className="rounded-xl bg-white shadow-md dark:bg-gray-dark">
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>
@@ -286,7 +287,7 @@ const KasusKritisPage: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
+                    <div className="flex items-center justify-center">
                       <button
                         onClick={() => {
                           setSelectedChild(child);
@@ -296,27 +297,6 @@ const KasusKritisPage: React.FC = () => {
                       >
                         Detail
                       </button>
-                      <WhatsAppButton
-                        phoneNumber="081234567890"
-                        recipientName={child.nama_ibu}
-                        template={WHATSAPP_TEMPLATES.find(t => t.id === "critical_alert")}
-                        templateData={{
-                          jenis_alert: "Kasus Gizi Buruk",
-                          nama_penerima: child.nama_ibu,
-                          jenis_kasus: child.status_gizi,
-                          nama_anak: child.nama_anak,
-                          usia: calculateAge(child.tanggal_lahir).toString(),
-                          nama_posyandu: child.posyandu_nama,
-                          detail_kasus: `BB: ${child.berat_badan}kg, TB: ${child.tinggi_badan}cm`,
-                          prioritas: child.prioritas,
-                          tindakan: child.prioritas === "Sangat Tinggi"
-                            ? "1. Kunjungan rumah hari ini\n2. Rujuk ke puskesmas\n3. Berikan makanan tambahan"
-                            : "1. Kunjungan rumah minggu ini\n2. Monitoring gizi\n3. Berikan makanan tambahan",
-                        }}
-                        buttonVariant="secondary"
-                        iconOnly
-                        buttonText=""
-                      />
                     </div>
                   </td>
                 </tr>
@@ -333,6 +313,7 @@ const KasusKritisPage: React.FC = () => {
             <p className="mt-2 text-gray-600 dark:text-gray-400">Tidak ada data yang sesuai dengan filter</p>
           </div>
         )}
+        </div>
       </div>
 
       {/* Detail Modal */}
@@ -446,37 +427,6 @@ const KasusKritisPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="mt-6 flex flex-wrap gap-3">
-              <WhatsAppButton
-                phoneNumber="081234567890"
-                recipientName={selectedChild.nama_ibu}
-                template={WHATSAPP_TEMPLATES.find(t => t.id === "critical_alert")}
-                templateData={{
-                  jenis_alert: "Kasus Gizi Buruk",
-                  nama_penerima: selectedChild.nama_ibu,
-                  jenis_kasus: selectedChild.status_gizi,
-                  nama_anak: selectedChild.nama_anak,
-                  usia: calculateAge(selectedChild.tanggal_lahir).toString(),
-                  nama_posyandu: selectedChild.posyandu_nama,
-                  detail_kasus: `BB: ${selectedChild.berat_badan}kg, TB: ${selectedChild.tinggi_badan}cm`,
-                  prioritas: selectedChild.prioritas,
-                  tindakan: selectedChild.prioritas === "Sangat Tinggi"
-                    ? "1. Kunjungan rumah hari ini\n2. Rujuk ke puskesmas\n3. Berikan makanan tambahan"
-                    : "1. Kunjungan rumah minggu ini\n2. Monitoring gizi\n3. Berikan makanan tambahan",
-                }}
-                buttonVariant="primary"
-                buttonText="💬 WhatsApp Ibu"
-                className="flex-1"
-              />
-              <button className="flex-1 rounded-lg bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700">
-                📋 Rujukan
-              </button>
-              <button className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700">
-                🏠 Kunjungan
-              </button>
             </div>
           </div>
         </div>

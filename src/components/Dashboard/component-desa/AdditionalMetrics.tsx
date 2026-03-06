@@ -12,7 +12,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
       {/* Data Kependudukan */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-          📊 Data Kependudukan
+          Data Kependudukan
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="rounded-lg bg-purple-50 p-4 dark:bg-purple-900/20">
@@ -60,7 +60,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
       {/* Kunjungan Posyandu Berdasarkan Usia */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-          👶 Kunjungan Posyandu Berdasarkan Usia
+          Kunjungan Posyandu Berdasarkan Usia
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900/20">
@@ -126,7 +126,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
       {/* Kesehatan Ibu & Bayi */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-          🤰 Kesehatan Ibu & Bayi
+          Kesehatan Ibu & Bayi
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-lg bg-pink-50 p-4 dark:bg-pink-900/20">
@@ -187,7 +187,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
       {/* Imunisasi Bayi */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-          💉 Cakupan Imunisasi Bayi
+          Cakupan Imunisasi Bayi
         </h2>
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -214,7 +214,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
       {/* Prevalensi Balita */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-          📊 Prevalensi Balita
+          Prevalensi Balita
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <PrevalensiCard 

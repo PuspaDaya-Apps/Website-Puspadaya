@@ -86,7 +86,7 @@ const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({ trendData }) => {
             <Area
               type="monotone"
               dataKey="ibu_hamil"
-              name="🤰 Ibu Hamil"
+              name="Ibu Hamil"
               stroke="#F23030"
               strokeWidth={3}
               fillOpacity={1}
@@ -95,7 +95,7 @@ const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({ trendData }) => {
             <Area
               type="monotone"
               dataKey="kader"
-              name="👥 Kader"
+              name="Kader"
               stroke="#22AD5C"
               strokeWidth={3}
               fillOpacity={1}

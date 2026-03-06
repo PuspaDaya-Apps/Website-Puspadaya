@@ -55,9 +55,9 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
   const [activeTab, setActiveTab] = useState<"stunting" | "imunisasi" | "kependudukan">("stunting");
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="mb-6 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
           <svg className="h-6 w-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -65,7 +65,7 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
         </div>
         <div>
           <h2 className="text-xl font-bold text-dark dark:text-white">
-            📋 Data Lengkap
+            Data Lengkap
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-300">
             Informasi detail untuk analisis mendalam
@@ -74,15 +74,16 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
       </div>
 
       {/* Stunting & Gizi Buruk per Posyandu */}
-      <ExpandableSection
-        title="Statistik Stunting & Gizi Buruk per Posyandu"
-        icon={
-          <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-        }
-        defaultOpen={false}
-      >
+      <div className="mb-6">
+        <ExpandableSection
+          title="Statistik Stunting & Gizi Buruk per Posyandu"
+          icon={
+            <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          }
+          defaultOpen={false}
+        >
         <div className="mb-4 flex gap-2">
           <button
             onClick={() => setActiveTab("stunting")}
@@ -235,12 +236,12 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
               { label: "Balita 0-59 Bulan", value: summary.children_0_59_months, icon: "👦", color: "violet" },
               { label: "Wanita Pasca Subur", value: summary.women_post_fertile, icon: "👩", color: "purple" },
               { label: "Ibu Hamil KEK", value: summary.pregnant_women_under_energized, icon: "🤰", color: "pink" },
-              { label: "Ibu Hamil Risiko Tinggi", value: summary.high_risk_pregnant_women, icon: "⚠️", color: "red" },
-              { label: "Ibu Menyusui (ASI Eksklusif)", value: summary.breastfeeding_mothers, icon: "💝", color: "amber" },
+              { label: "Ibu Hamil Risiko Tinggi", value: summary.high_risk_pregnant_women, icon: "🔴", color: "red" },
+              { label: "Ibu Menyusui", value: summary.breastfeeding_mothers, icon: "💝", color: "amber" },
               { label: "Bayi Baru Lahir", value: summary.newborn_count, icon: "🍼", color: "teal" },
               { label: "Ibu Hamil dengan Asuransi", value: summary.pregnant_women_with_insurance, icon: "🛡️", color: "cyan" },
-              { label: "Bayi 0-12 Bulan dengan Asuransi", value: summary.infant_with_insurance, icon: "👶🛡️", color: "cyan" },
-              { label: "Balita 0-59 Bulan dengan Asuransi", value: summary.children_under_5_with_insurance, icon: "🧒🛡️", color: "cyan" },
+              { label: "Bayi 0-12 Bulan dengan Asuransi", value: summary.infant_with_insurance, icon: "👶", color: "cyan" },
+              { label: "Balita 0-59 Bulan dengan Asuransi", value: summary.children_under_5_with_insurance, icon: "🧒", color: "cyan" },
               { label: "Akseptor KB", value: summary.kb_acceptors, icon: "💊", color: "indigo" },
             ].map((item, index) => (
               <div
@@ -277,17 +278,19 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
           </div>
         )}
       </ExpandableSection>
+      </div>
 
       {/* Prevalensi Balita */}
-      <ExpandableSection
-        title="Prevalensi Balita"
-        icon={
-          <svg className="h-6 w-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-        }
-        defaultOpen={false}
-      >
+      <div className="mb-6">
+        <ExpandableSection
+          title="Prevalensi Balita"
+          icon={
+            <svg className="h-6 w-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          }
+          defaultOpen={false}
+        >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {[
             {
@@ -373,17 +376,19 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
           ))}
         </div>
       </ExpandableSection>
+      </div>
 
       {/* Aktivitas Terbaru */}
-      <ExpandableSection
-        title="📋 Aktivitas Terbaru"
-        icon={
-          <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-        }
-        defaultOpen={false}
-      >
+      <div className="mb-6">
+        <ExpandableSection
+          title="Aktivitas Terbaru"
+          icon={
+            <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          }
+          defaultOpen={false}
+        >
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>
@@ -433,6 +438,7 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
           </table>
         </div>
       </ExpandableSection>
+      </div>
     </div>
   );
 };

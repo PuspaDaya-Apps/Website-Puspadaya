@@ -69,7 +69,7 @@ const ReportPreviewModal: React.FC<ReportPreviewModalProps> = ({
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-dark dark:text-white">
-              📊 Buat Laporan Komprehensif
+              Buat Laporan Komprehensif
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Generate PDF report lengkap untuk semua posyandu
@@ -116,7 +116,7 @@ const ReportPreviewModal: React.FC<ReportPreviewModalProps> = ({
               />
               <div className="flex-1">
                 <p className="font-medium text-dark dark:text-white">
-                  📈 Ringkasan & Statistik Utama
+                  Ringkasan & Statistik Utama
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Ringkasan eksekutif, 8 metrik utama, dan daftar isi
@@ -138,7 +138,7 @@ const ReportPreviewModal: React.FC<ReportPreviewModalProps> = ({
               />
               <div className="flex-1">
                 <p className="font-medium text-dark dark:text-white">
-                  📍 Data Detail Per Posyandu
+                  Data Detail Per Posyandu
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Tabel lengkap semua posyandu dengan statistik masing-masing
@@ -182,7 +182,7 @@ const ReportPreviewModal: React.FC<ReportPreviewModalProps> = ({
               />
               <div className="flex-1">
                 <p className="font-medium text-dark dark:text-white">
-                  ⚠️ Daftar Anak Gizi Buruk & Stunting
+                  Daftar Anak Gizi Buruk & Stunting
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Daftar lengkap anak dengan prioritas penanganan
@@ -204,7 +204,7 @@ const ReportPreviewModal: React.FC<ReportPreviewModalProps> = ({
               />
               <div className="flex-1">
                 <p className="font-medium text-dark dark:text-white">
-                  💡 Rekomendasi Program & Tindak Lanjut
+                  Rekomendasi Program & Tindak Lanjut
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Rekomendasi detail dengan timeline dan action plan
@@ -217,7 +217,7 @@ const ReportPreviewModal: React.FC<ReportPreviewModalProps> = ({
         {/* Report Info */}
         <div className="mb-6 rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
           <h4 className="mb-2 font-semibold text-blue-800 dark:text-blue-300">
-            📄 Informasi Laporan
+            Informasi Laporan
           </h4>
           <div className="space-y-1 text-sm text-blue-700 dark:text-blue-400">
             <p>✅ Format: PDF (Portable Document Format)</p>
@@ -231,7 +231,7 @@ const ReportPreviewModal: React.FC<ReportPreviewModalProps> = ({
         {/* What's Included */}
         <div className="mb-6 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
           <h4 className="mb-2 font-semibold text-dark dark:text-white">
-            📋 Yang Termasuk dalam Laporan:
+            Yang Termasuk dalam Laporan:
           </h4>
           <div className="grid grid-cols-2 gap-2 text-sm text-gray-700 dark:text-gray-300">
             <div className="flex items-center gap-2">
@@ -333,7 +333,7 @@ const ReportPreviewModal: React.FC<ReportPreviewModalProps> = ({
 
         {/* Info */}
         <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
-          📊 Laporan ini dibuat otomatis berdasarkan data real-time dari dashboard
+          Laporan ini dibuat otomatis berdasarkan data real-time dari dashboard
         </p>
       </div>
     </div>

@@ -1,8 +1,6 @@
 "use client";
 import React, { useState, useMemo } from "react";
 import { CriticalChild } from "@/types/dashboard-kepala-desa";
-import WhatsAppButton from "./WhatsAppButton";
-import { WHATSAPP_TEMPLATES } from "@/types/whatsapp";
 
 interface CriticalChildrenListProps {
   children: CriticalChild[];
@@ -296,7 +294,7 @@ const CriticalChildrenList: React.FC<CriticalChildrenListProps> = ({
                     {/* Location */}
                     <div className="sm:col-span-2">
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        📍 {child.dusun}
+                        {child.dusun}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-500">
                         {formatDate(child.tanggal_pengukuran)}
@@ -332,29 +330,6 @@ const CriticalChildrenList: React.FC<CriticalChildrenListProps> = ({
                           </span>
                         )}
                       </div>
-                      
-                      {/* WhatsApp Action Button */}
-                      <WhatsAppButton
-                        phoneNumber="081234567890" // TODO: Get from parent data
-                        recipientName={child.nama_ibu}
-                        template={WHATSAPP_TEMPLATES.find(t => t.id === "critical_alert")}
-                        templateData={{
-                          jenis_alert: "Kasus Gizi Buruk",
-                          nama_penerima: child.nama_ibu,
-                          jenis_kasus: child.status_gizi,
-                          nama_anak: child.nama_anak,
-                          usia: child.usia_bulan.toString(),
-                          nama_posyandu: child.posyandu_nama,
-                          detail_kasus: `BB: ${child.berat_badan}kg, TB: ${child.tinggi_badan}cm`,
-                          prioritas: child.prioritas,
-                          tindakan: child.prioritas === "Sangat Tinggi" 
-                            ? "1. Kunjungan rumah hari ini\n2. Rujuk ke puskesmas\n3. Berikan makanan tambahan"
-                            : "1. Kunjungan rumah minggu ini\n2. Monitoring gizi\n3. Berikan makanan tambahan",
-                        }}
-                        buttonVariant="secondary"
-                        buttonText="Kirim Alert"
-                        iconOnly={false}
-                      />
                     </div>
                   </div>
                 ))}

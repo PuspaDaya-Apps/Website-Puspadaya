@@ -69,25 +69,28 @@ const KaderManagementPage: React.FC = () => {
   return (
     <div className="space-y-6 p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-dark dark:text-white md:text-3xl">
-            👥 Manajemen Kader
-          </h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-            Analisis beban kerja dan distribusi kader posyandu
-          </p>
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-dark dark:text-white md:text-3xl">
+              Manajemen Kader
+            </h1>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+              Analisis beban kerja dan distribusi kader posyandu
+            </p>
+          </div>
+          <Link
+            href="/"
+            className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-md transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
+            ← Dashboard
+          </Link>
         </div>
-        <Link
-          href="/"
-          className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-md transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-        >
-          ← Dashboard
-        </Link>
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
         <div className="rounded-xl bg-violet-50 p-4 text-center dark:bg-violet-900/20">
           <p className="text-3xl font-bold text-violet-600 dark:text-violet-400">{stats.total}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Total Kader</p>
@@ -120,6 +123,7 @@ const KaderManagementPage: React.FC = () => {
           <p className="text-3xl font-bold text-teal-600 dark:text-teal-400">{stats.totalBalitaDibina}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Total Balita Dibina</p>
         </div>
+        </div>
       </div>
 
       {/* Filters */}
@@ -127,7 +131,7 @@ const KaderManagementPage: React.FC = () => {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="relative">
             <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              🔍 Cari Kader
+              Cari Kader
             </label>
             <input
               type="text"
@@ -147,7 +151,7 @@ const KaderManagementPage: React.FC = () => {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              📊 Kategori Beban
+              Kategori Beban
             </label>
             <select
               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-dark outline-none focus:border-primary dark:border-gray-600 dark:bg-gray-dark dark:text-white dark:focus:border-primary"
@@ -162,7 +166,7 @@ const KaderManagementPage: React.FC = () => {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              🏠 Posyandu
+              Posyandu
             </label>
             <select
               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-dark outline-none focus:border-primary dark:border-gray-600 dark:bg-gray-dark dark:text-white dark:focus:border-primary"
@@ -182,44 +186,46 @@ const KaderManagementPage: React.FC = () => {
 
       {/* High Workload Alert */}
       {stats.highCount > 0 && (
-        <div className="rounded-xl border-2 border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-900/20">
-          <div className="mb-4 flex items-center gap-3">
-            <svg className="h-8 w-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <div>
-              <h3 className="text-xl font-bold text-red-800 dark:text-red-300">
-                ⚠️ {stats.highCount} Kader dengan Beban Kerja Tinggi
-              </h3>
-              <p className="text-sm text-red-700 dark:text-red-400">Perlu perhatian dan tindakan segera</p>
+        <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+          <div className="mb-4 rounded-xl border-2 border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-900/20">
+            <div className="mb-4 flex items-center gap-3">
+              <svg className="h-8 w-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div>
+                <h3 className="text-xl font-bold text-red-800 dark:text-red-300">
+                  {stats.highCount} Kader dengan Beban Kerja Tinggi
+                </h3>
+                <p className="text-sm text-red-700 dark:text-red-400">Perlu perhatian dan tindakan segera</p>
+              </div>
             </div>
-          </div>
-          <div className="rounded-lg bg-white p-4 dark:bg-gray-800">
-            <h4 className="mb-3 font-semibold text-amber-800 dark:text-amber-300">💡 Rekomendasi Tindakan:</h4>
-            <ul className="grid grid-cols-1 gap-2 text-sm text-amber-700 dark:text-amber-300 sm:grid-cols-2">
-              <li className="flex items-start gap-2">
-                <span className="font-bold">1.</span>
-                <span>Pertimbangkan redistribusi balita dari kader overload ke kader dengan beban rendah</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-bold">2.</span>
-                <span>Rekrut 1-2 kader pendamping untuk posyandu dengan beban tinggi</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-bold">3.</span>
-                <span>Jadwalkan kunjungan rumah bergantian antar kader</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-bold">4.</span>
-                <span>Optimalkan rute kunjungan untuk mengurangi jarak tempuh</span>
-              </li>
-            </ul>
+            <div className="rounded-lg bg-white p-4 dark:bg-gray-800">
+              <h4 className="mb-3 font-semibold text-amber-800 dark:text-amber-300">Rekomendasi Tindakan:</h4>
+              <ul className="grid grid-cols-1 gap-2 text-sm text-amber-700 dark:text-amber-300 sm:grid-cols-2">
+                <li className="flex items-start gap-2">
+                  <span className="font-bold">1.</span>
+                  <span>Pertimbangkan redistribusi balita dari kader overload ke kader dengan beban rendah</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-bold">2.</span>
+                  <span>Rekrut 1-2 kader pendamping untuk posyandu dengan beban tinggi</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-bold">3.</span>
+                  <span>Jadwalkan kunjungan rumah bergantian antar kader</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-bold">4.</span>
+                  <span>Optimalkan rute kunjungan untuk mengurangi jarak tempuh</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       )}
 
       {/* Kader List */}
-      <div className="rounded-xl bg-white shadow-md dark:bg-gray-dark">
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>
@@ -329,7 +335,7 @@ const KaderManagementPage: React.FC = () => {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* Workload Info */}
               <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-                <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">⏱️ Beban Kerja</h3>
+                <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Beban Kerja</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Kategori Beban</span>
@@ -358,7 +364,7 @@ const KaderManagementPage: React.FC = () => {
 
               {/* Assignment Info */}
               <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-                <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">👥 Tugas Pembinaan</h3>
+                <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Tugas Pembinaan</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Total Balita</span>
@@ -373,7 +379,7 @@ const KaderManagementPage: React.FC = () => {
 
               {/* Time Info */}
               <div className="rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900/20">
-                <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">⏰ Distribusi Waktu</h3>
+                <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Distribusi Waktu</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Kerja Posyandu</span>
@@ -394,7 +400,7 @@ const KaderManagementPage: React.FC = () => {
 
               {/* Distance Info */}
               <div className="rounded-lg bg-amber-50 p-4 dark:bg-amber-900/20">
-                <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">📍 Jarak Tempuh</h3>
+                <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Jarak Tempuh</h3>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Total Kunjungan</span>
                   <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">{selectedKader.jarak_kunjungan} km</span>
@@ -403,21 +409,6 @@ const KaderManagementPage: React.FC = () => {
                   Rata-rata {(selectedKader.jarak_kunjungan / (selectedKader.total_balita_dibina + selectedKader.total_ibu_hamil_dibina)).toFixed(1)} km per kunjungan
                 </p>
               </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button className="flex-1 rounded-lg bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700">
-                📊 Kinerja
-              </button>
-              <button className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700">
-                ✏️ Edit
-              </button>
-              {selectedKader.kategori_beban === "Tinggi" && (
-                <button className="flex-1 rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition hover:bg-red-700">
-                  🔄 Redistribusi
-                </button>
-              )}
             </div>
           </div>
         </div>

@@ -177,7 +177,7 @@ const AccessibilityControls: React.FC<AccessibilityControlsProps> = ({
           {/* Info Footer */}
           <div className="mt-3 rounded-lg bg-blue-50 p-2 text-center">
             <p className="text-xs text-gray-600">
-              💡 Tips: Klik tombol burger untuk tutup panel
+              Tips: Klik tombol burger untuk tutup panel
             </p>
           </div>
         </div>

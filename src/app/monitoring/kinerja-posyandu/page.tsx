@@ -43,25 +43,28 @@ const KinerjaPosyanduPage: React.FC = () => {
   return (
     <div className="space-y-6 p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-dark dark:text-white md:text-3xl">
-            📈 Kinerja & Tren Posyandu
-          </h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-            Monitoring dan perbandingan kinerja antar posyandu
-          </p>
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-dark dark:text-white md:text-3xl">
+              Kinerja & Tren Posyandu
+            </h1>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+              Monitoring dan perbandingan kinerja antar posyandu
+            </p>
+          </div>
+          <Link
+            href="/"
+            className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-md transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
+            ← Dashboard
+          </Link>
         </div>
-        <Link
-          href="/"
-          className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-md transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-        >
-          ← Dashboard
-        </Link>
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
         <div className="rounded-xl bg-gradient-to-br from-primary to-blue-600 p-5 text-white">
           <p className="text-sm text-white/80">Rata-rata Skor</p>
           <p className="text-4xl font-bold">{avgScore}</p>
@@ -83,32 +86,33 @@ const KinerjaPosyanduPage: React.FC = () => {
           <p className="text-3xl font-bold text-red-600 dark:text-red-400">{categoryCounts.kurang}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Kurang</p>
         </div>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 overflow-x-auto border-b border-gray-200 dark:border-gray-700">
-        {[
-          { id: "ranking", label: "🏆 Ranking" },
-          { id: "tren", label: "📊 Tren 6 Bulan" },
-          { id: "detail", label: "📋 Detail Per Posyandu" },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as typeof activeTab)}
-            className={`whitespace-nowrap rounded-t-lg px-4 py-3 font-medium transition ${
-              activeTab === tab.id
-                ? "bg-white text-primary dark:bg-gray-dark dark:text-primary"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab Content */}
+      {/* Tabs & Content */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
-        {/* Ranking Tab */}
+        {/* Tabs */}
+        <div className="mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 dark:border-gray-700 pb-4">
+          {[
+            { id: "ranking", label: "🏆 Ranking" },
+            { id: "tren", label: "📊 Tren 6 Bulan" },
+            { id: "detail", label: "📋 Detail Per Posyandu" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as typeof activeTab)}
+              className={`whitespace-nowrap rounded-lg px-4 py-2 font-medium transition ${
+                activeTab === tab.id
+                  ? "bg-primary text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
         {activeTab === "ranking" && (
           <div className="space-y-6">
             {/* Top 3 */}

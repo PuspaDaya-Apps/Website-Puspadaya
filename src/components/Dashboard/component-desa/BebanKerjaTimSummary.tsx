@@ -23,7 +23,7 @@ const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({ bebanKerjaT
         </div>
         <div>
           <h2 className="text-xl font-bold text-dark dark:text-white">
-            👥 Skor Beban Kerja Tim Kader
+            Skor Beban Kerja Tim Kader
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-300">
             Ringkasan beban kerja semua kader di wilayah Anda
@@ -110,7 +110,7 @@ const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({ bebanKerjaT
       {/* Distribution Chart */}
       <div className="mt-6">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-          📊 Distribusi Beban Kerja Kader
+          Distribusi Beban Kerja Kader
         </h3>
         <div className="flex items-center gap-8">
           {/* Donut Chart */}

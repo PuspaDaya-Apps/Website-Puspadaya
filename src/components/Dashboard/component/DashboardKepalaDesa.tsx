@@ -142,7 +142,7 @@ const DashboardKepalaDesa: React.FC = () => {
                 {selectedPosyandu.nama_posyandu}
               </h2>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                📍 {selectedPosyandu.nama_dusun}, {selectedPosyandu.nama_kecamatan}, {selectedPosyandu.nama_kabupaten_kota}
+                {selectedPosyandu.nama_dusun}, {selectedPosyandu.nama_kecamatan}, {selectedPosyandu.nama_kabupaten_kota}
               </p>
             </div>
             <div className="flex gap-3">
@@ -197,7 +197,7 @@ const DashboardKepalaDesa: React.FC = () => {
           </div>
           <div>
             <h2 className="text-xl font-bold text-dark dark:text-white">
-              ⚠️ Daftar Anak dengan Gizi Buruk & Stunting
+              Daftar Anak dengan Gizi Buruk & Stunting
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Detail lengkap anak yang memerlukan intervensi segera
@@ -217,7 +217,7 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* Quick Actions - Download PDF Only */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
-        <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">⚡ Aksi Cepat</h2>
+        <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">Aksi Cepat</h2>
         <button
           onClick={() => window.print()}
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-white transition hover:bg-blue-700 sm:w-auto"
