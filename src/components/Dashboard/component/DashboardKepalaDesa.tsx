@@ -214,20 +214,6 @@ const DashboardKepalaDesa: React.FC = () => {
         summary={dashboardSummaryData}
         activities={recentActivityData}
       />
-
-      {/* Quick Actions - Download PDF Only */}
-      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
-        <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">Aksi Cepat</h2>
-        <button
-          onClick={() => window.print()}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-white transition hover:bg-blue-700 sm:w-auto"
-        >
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-          </svg>
-          <span className="text-sm font-medium">📄 Download Laporan PDF</span>
-        </button>
-      </div>
     </div>
   );
 };
