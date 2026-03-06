@@ -9,6 +9,7 @@ import "@/css/style.css";
 import React, { useEffect, useState } from "react";
 import Loader from "@/components/common/Loader";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SeniorModeProvider } from "@/contexts/SeniorModeContext";
 
 const queryClient = new QueryClient();
 
@@ -28,23 +29,25 @@ export default function RootLayout({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <html lang="en">
-        <head>
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
+      <SeniorModeProvider>
+        <html lang="en">
+          <head>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
               const style = document.createElement('style')
               style.innerHTML = '@layer tailwind-base, primereact, tailwind-utilities;'
               style.setAttribute('type', 'text/css')
               document.querySelector('head').prepend(style)
             `,
-            }}
-          />
-        </head>
-        <body suppressHydrationWarning={true}>
-          {loading ? <Loader /> : children}
-        </body>
-      </html>
+              }}
+            />
+          </head>
+          <body suppressHydrationWarning={true}>
+            {loading ? <Loader /> : children}
+          </body>
+        </html>
+      </SeniorModeProvider>
     </QueryClientProvider>
   );
 }

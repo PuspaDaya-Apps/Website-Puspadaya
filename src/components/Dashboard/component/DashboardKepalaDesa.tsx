@@ -11,6 +11,7 @@ import {
   kaderWorkloadData,
   criticalChildrenData,
 } from "@/data/dummy-dashboard-kepala-desa";
+import { useSeniorMode } from "@/contexts/SeniorModeContext";
 
 // New hierarchical components
 import CriticalAlerts from "../component-desa/CriticalAlerts";
@@ -31,10 +32,17 @@ import WhatsAppButton from "../component-desa/WhatsAppButton";
 import ReportPreviewModal from "../component-desa/ReportPreviewModal";
 import { WHATSAPP_TEMPLATES } from "@/types/whatsapp";
 
+// Senior-friendly components
+import DashboardSederhana from "./DashboardSederhana";
+import AccessibilityControls from "./AccessibilityControls";
+
 const DashboardKepalaDesa: React.FC = () => {
   const [selectedPosyandu, setSelectedPosyandu] = useState<PosyanduItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  
+  const { isSeniorMode } = useSeniorMode();
 
   // Filter underperforming posyandu (kategori "Kurang" or "Cukup")
   const underperformingPosyandu = posyanduPerformanceData
@@ -80,6 +88,84 @@ const DashboardKepalaDesa: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Print report function
+  const handlePrintReport = () => {
+    window.print();
+  };
+
+  // Text-to-Speech function
+  const handleSpeakDashboard = () => {
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    const text = `
+      Dashboard Kepala Desa. 
+      Total ${dashboardSummaryData.total_posyandu} posyandu. 
+      Total ${dashboardSummaryData.total_balita} balita. 
+      Kehadiran ${dashboardSummaryData.rata_rata_kehadiran} persen. 
+      Kasus stunting ${dashboardSummaryData.kasus_stunting}. 
+      Kasus gizi buruk ${dashboardSummaryData.kasus_gizi_buruk}.
+      ${criticalChildrenData.length} anak memerlukan perhatian segera.
+    `;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "id-ID";
+    utterance.rate = 0.9;
+    
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // WhatsApp report handler
+  const handleWhatsAppReport = () => {
+    const reportText = `
+*LAPORAN BULANAN POSYANDU*
+Periode: ${new Date().toLocaleDateString("id-ID", { month: "long", year: "numeric" })}
+
+📊 *Data Utama:*
+• Total Posyandu: ${dashboardSummaryData.total_posyandu}
+• Total Balita: ${dashboardSummaryData.total_balita}
+• Kehadiran: ${dashboardSummaryData.rata_rata_kehadiran}%
+• Stunting: ${dashboardSummaryData.kasus_stunting} kasus
+• Gizi Buruk: ${dashboardSummaryData.kasus_gizi_buruk} kasus
+
+⚠️ *Perlu Perhatian:*
+${criticalChildrenData.length} anak memerlukan bantuan segera
+
+Mohon tindak lanjut. Terima kasih.
+    `.trim();
+
+    const encodedText = encodeURIComponent(reportText);
+    window.open(`https://wa.me/6281234567890?text=${encodedText}`, "_blank");
+  };
+
+  // If senior mode is enabled, show simplified dashboard
+  if (isSeniorMode) {
+    return (
+      <>
+        <AccessibilityControls
+          onPrint={handlePrintReport}
+          onSpeak={handleSpeakDashboard}
+          isSpeaking={isSpeaking}
+        />
+        <DashboardSederhana
+          summary={dashboardSummaryData}
+          criticalChildren={criticalChildrenData}
+          posyanduList={posyanduListData}
+          highWorkloadKader={highWorkloadKader}
+          onPrintReport={handlePrintReport}
+          onWhatsAppReport={handleWhatsAppReport}
+        />
+      </>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -95,6 +181,13 @@ const DashboardKepalaDesa: React.FC = () => {
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
+      {/* Accessibility Controls - Always visible */}
+      <AccessibilityControls
+        onPrint={handlePrintReport}
+        onSpeak={handleSpeakDashboard}
+        isSpeaking={isSpeaking}
+      />
+
       {/* Page Header */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
