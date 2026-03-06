@@ -170,14 +170,14 @@ export const dashboardSummaryData: DashboardSummary = {
   posyandu_aktif: 6,
   posyandu_non_aktif: 2,
   // Data kependudukan tambahan
-  skdn: 4, // Sistem Klasifikasi Desa Nusantara (tingkat 4 = Maju)
+  skdn: 4, // Tingkat SKDN: 4 = Posyandu Mandiri (K/D ≥ 50%, D/S ≥ 50%, ada Dana Sehat)
   skdn_data: {
-    S: 45, // Balita Tidak Datang / Tidak Hadir
-    K: 28, // Balita Tidak Naik BB
-    D: 265, // Balita Naik BB
-    N: 37, // Balita Baru
+    S: 45, // Semua Balita di wilayah (umur 0-59 bulan)
+    K: 330, // Kunjung (balita yang datang)
+    D: 290, // Ditimbang (balita yang ditimbang)
+    N: 265, // Naik BB (balita yang naik berat badan)
     total: 375,
-    persentase_kenaikan_bb: 70.7, // (D / (D + K)) * 100
+    persentase_kenaikan_bb: 70.7, // (N / D) * 100
   },
   // Kunjungan berdasarkan usia
   infant_0_12_months: 125, // Bayi 0-12 bulan berkunjung ke posyandu

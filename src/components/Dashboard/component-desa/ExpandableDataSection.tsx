@@ -230,7 +230,6 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
         {activeTab === "kependudukan" && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { label: "SKDN", value: `Tingkat ${summary.skdn}`, icon: "📊", color: "blue" },
               { label: "Bayi 0-12 Bulan", value: summary.infant_0_12_months, icon: "👶", color: "emerald" },
               { label: "Balita 0-23 Bulan", value: summary.children_0_23_months, icon: "🧒", color: "blue" },
               { label: "Balita 0-59 Bulan", value: summary.children_0_59_months, icon: "👦", color: "violet" },

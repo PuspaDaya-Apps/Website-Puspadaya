@@ -13,10 +13,10 @@ import {
 } from "recharts";
 
 export interface SKDNData {
-  S: number; // Balita Tidak Datang / Tidak Hadir
-  K: number; // Balita Tidak Naik BB (Kadang-kadang)
-  D: number; // Balita Naik BB (Datang & Naik)
-  N: number; // Balita Baru
+  S: number; // Semua Balita (total balita di wilayah)
+  K: number; // Kunjung (balita yang datang)
+  D: number; // Ditimbang (balita yang ditimbang)
+  N: number; // Naik BB (balita yang naik berat badan)
   total: number;
   persentase_kenaikan_bb: number;
 }
@@ -29,28 +29,28 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({ skdnData }) => {
   // Data untuk Bar Chart
   const chartData = [
     {
-      nama: "Balita Baru (N)",
-      nilai: skdnData.N,
-      warna: "#2563EB", // blue-600
-      deskripsi: "Balita pertama kali datang",
-    },
-    {
-      nama: "Naik BB (D)",
-      nilai: skdnData.D,
-      warna: "#16A34A", // green-600
-      deskripsi: "Balita naik berat badan",
-    },
-    {
-      nama: "Tidak Naik BB (K)",
-      nilai: skdnData.K,
-      warna: "#EAB308", // yellow-500
-      deskripsi: "Balita tidak naik berat badan",
-    },
-    {
-      nama: "Tidak Hadir (S)",
+      nama: "Semua Balita (S)",
       nilai: skdnData.S,
-      warna: "#DC2626", // red-600
-      deskripsi: "Balita tidak datang",
+      warna: "#3B82F6", // blue-500
+      deskripsi: "Total balita di wilayah (0-59 bulan)",
+    },
+    {
+      nama: "Kunjung (K)",
+      nilai: skdnData.K,
+      warna: "#10B981", // green-500
+      deskripsi: "Balita yang datang ke posyandu",
+    },
+    {
+      nama: "Ditimbang (D)",
+      nilai: skdnData.D,
+      warna: "#F59E0B", // yellow-500
+      deskripsi: "Balita yang ditimbang berat badan",
+    },
+    {
+      nama: "Naik BB (N)",
+      nilai: skdnData.N,
+      warna: "#EF4444", // red-500
+      deskripsi: "Balita yang naik berat badan",
     },
   ];
 
@@ -73,7 +73,7 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({ skdnData }) => {
               📊 Statistik SKDN
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              Sistem Klasifikasi Desa Nusantara - Pemantauan Gizi Balita
+              Indikator Kinerja Posyandu (S-K-D-N)
             </p>
           </div>
         </div>
@@ -110,20 +110,20 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({ skdnData }) => {
       {/* Summary Cards */}
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded-lg bg-blue-50 p-4 text-center dark:bg-blue-900/20">
-          <p className="text-xs text-gray-600 dark:text-gray-400">Balita Baru (N)</p>
-          <p className="mt-1 text-2xl font-bold text-blue-600 dark:text-blue-400">{skdnData.N}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">Semua (S)</p>
+          <p className="mt-1 text-2xl font-bold text-blue-600 dark:text-blue-400">{skdnData.S}</p>
         </div>
         <div className="rounded-lg bg-green-50 p-4 text-center dark:bg-green-900/20">
-          <p className="text-xs text-gray-600 dark:text-gray-400">Naik BB (D)</p>
-          <p className="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">{skdnData.D}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">Kunjung (K)</p>
+          <p className="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">{skdnData.K}</p>
         </div>
         <div className="rounded-lg bg-yellow-50 p-4 text-center dark:bg-yellow-900/20">
-          <p className="text-xs text-gray-600 dark:text-gray-400">Tidak Naik BB (K)</p>
-          <p className="mt-1 text-2xl font-bold text-yellow-600 dark:text-yellow-400">{skdnData.K}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">Ditimbang (D)</p>
+          <p className="mt-1 text-2xl font-bold text-yellow-600 dark:text-yellow-400">{skdnData.D}</p>
         </div>
         <div className="rounded-lg bg-red-50 p-4 text-center dark:bg-red-900/20">
-          <p className="text-xs text-gray-600 dark:text-gray-400">Tidak Hadir (S)</p>
-          <p className="mt-1 text-2xl font-bold text-red-600 dark:text-red-400">{skdnData.S}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">Naik BB (N)</p>
+          <p className="mt-1 text-2xl font-bold text-red-600 dark:text-red-400">{skdnData.N}</p>
         </div>
       </div>
 
@@ -212,22 +212,39 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({ skdnData }) => {
       </div>
 
       {/* Footer Info */}
-      <div className="mt-4 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 p-4 dark:from-blue-900/10 dark:to-indigo-900/10">
-        <div className="flex items-center justify-between">
+      <div className="mt-6 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 p-4 dark:from-blue-900/10 dark:to-indigo-900/10">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Total Balita Terdaftar
+              Cakupan Penimbangan (D/S)
             </p>
             <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {total} balita
+              {skdnData.S > 0 ? ((skdnData.D / skdnData.S) * 100).toFixed(1) : 0}%
+            </p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              Target: ≥50% untuk Posyandu Purnama/Mandiri
             </p>
           </div>
-          <div className="text-right">
+          <div>
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Cakupan Pelayanan
+              Cakupan Kunjungan (K/S)
             </p>
             <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {total > 0 ? (((skdnData.D + skdnData.K) / total) * 100).toFixed(1) : 0}%
+              {skdnData.S > 0 ? ((skdnData.K / skdnData.S) * 100).toFixed(1) : 0}%
+            </p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              Target: ≥50% untuk kinerja baik
+            </p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Persentase Kenaikan BB (N/D)
+            </p>
+            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+              {skdnData.D > 0 ? ((skdnData.N / skdnData.D) * 100).toFixed(1) : 0}%
+            </p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              Balita yang naik BB dari yang ditimbang
             </p>
           </div>
         </div>
