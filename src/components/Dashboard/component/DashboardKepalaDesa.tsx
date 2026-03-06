@@ -18,6 +18,10 @@ import KeyMetrics from "../component-desa/KeyMetrics";
 import PosyanduOverview from "../component-desa/PosyanduOverview";
 import PerformanceSection from "../component-desa/PerformanceSection";
 import KaderManagement from "../component-desa/KaderManagement";
+import AdditionalMetrics from "../component-desa/AdditionalMetrics";
+import StatistikKehadiranKompetensi from "../component-desa/StatistikKehadiranKompetensi";
+import DurasiJarakAgregat from "../component-desa/DurasiJarakAgregat";
+import BebanKerjaTimSummary from "../component-desa/BebanKerjaTimSummary";
 import ExpandableDataSection from "../component-desa/ExpandableDataSection";
 
 // Existing components to keep
@@ -170,6 +174,18 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 3: KADER MANAGEMENT */}
       <KaderManagement workloadData={kaderWorkloadData} />
+
+      {/* LEVEL 3: STATISTIK KEHADIRAN PER KOMPETENSI */}
+      <StatistikKehadiranKompetensi kehadiranKompetensi={dashboardSummaryData.kehadiran_kompetensi} />
+
+      {/* LEVEL 3: DURASI DAN JARAK AGREGAT */}
+      <DurasiJarakAgregat durasiJarak={dashboardSummaryData.durasi_jarak_agregat} />
+
+      {/* LEVEL 3: BEBAN KERJA TIM SUMMARY */}
+      <BebanKerjaTimSummary bebanKerjaTim={dashboardSummaryData.beban_kerja_tim} />
+
+      {/* LEVEL 3: ADDITIONAL METRICS - Data Kependudukan & SKDN */}
+      <AdditionalMetrics summary={dashboardSummaryData} />
 
       {/* LEVEL 4: CRITICAL CHILDREN LIST (Detailed View) */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">

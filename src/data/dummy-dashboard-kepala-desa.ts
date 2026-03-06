@@ -9,7 +9,21 @@ import {
   KaderWorkload,
   KaderWorkloadSummary,
   CriticalChild,
+  KehadiranKompetensi,
+  DurasiJarakAgregat,
+  BebanKerjaTimSummary,
 } from "@/types/dashboard-kepala-desa";
+import { PengukuranAnakResponseRapor, OrangTuaResponseRapor } from "@/types/data-25/RaporResponse";
+
+// Interface untuk data anak lengkap dengan pengukuran
+interface AnakDenganPengukuran {
+  id: string;
+  nama_anak: string;
+  tanggal_lahir: string;
+  nama_ibu: string;
+  orang_tua: OrangTuaResponseRapor;
+  pengukuran_anak: PengukuranAnakResponseRapor | null;
+}
 
 // Dummy data untuk Posyandu
 export const posyanduListData: PosyanduItem[] = [
@@ -164,7 +178,7 @@ export const dashboardSummaryData: DashboardSummary = {
   women_post_fertile: 245, // Wanita usia setelah subur (>49 tahun)
   pregnant_women_under_energized: 15, // Ibu hamil dengan KEK (Kurang Energi Kronis)
   high_risk_pregnant_women: 8, // Ibu hamil dengan risiko tinggi
-  breastfeeding_mothers: 87, // Ibu menyusui
+  breastfeeding_mothers: 0, // Ibu menyusui dengan ASI Eksklusif (akan dihitung dari data anak)
   // Data bayi
   newborn_count: 42, // Jumlah bayi baru lahir
   // Imunisasi
@@ -185,6 +199,9 @@ export const dashboardSummaryData: DashboardSummary = {
   // KB dan asuransi
   pregnant_women_with_insurance: 89, // Ibu hamil dengan jaminan kesehatan
   kb_acceptors: 156, // Jumlah akseptor KB
+  // Asuransi kesehatan anak
+  infant_with_insurance: 118, // Bayi 0-12 bulan dengan jaminan kesehatan
+  children_under_5_with_insurance: 340, // Balita 0-59 bulan dengan jaminan kesehatan
   // Prevalensi balita
   stunting_prevalence: {
     jumlah: 32,
@@ -201,7 +218,392 @@ export const dashboardSummaryData: DashboardSummary = {
     prevalensi_persentase: 9.3,
     total_balita: 375,
   },
+  // Data agregat kader (seperti DashboardAnggotaKader)
+  kehadiran_kompetensi: {
+    balita: {
+      total_hadir: 296,
+      detail: [
+        { kompetensi: "Pertumbuhan Balita", jumlah: 85 },
+        { kompetensi: "Imunisasi", jumlah: 72 },
+        { kompetensi: "Gizi Balita", jumlah: 68 },
+        { kompetensi: "Deteksi Dini Tumbuh Kembang", jumlah: 45 },
+        { kompetensi: "Konseling Gizi", jumlah: 26 },
+      ],
+    },
+    ibu_hamil: {
+      total_hadir: 103,
+      detail: [
+        {
+          kompetensi: "Pemeriksaan Kehamilan",
+          jumlah: 35,
+          aktivitas_kader: [
+            "Pemeriksaan tekanan darah",
+            "Penyuluhan gizi ibu hamil",
+            "Pemeriksaan berat badan",
+            "Konseling persalinan",
+          ],
+        },
+        {
+          kompetensi: "Suplemen Gizi",
+          jumlah: 28,
+          aktivitas_kader: [
+            "Pembagian tablet tambah darah",
+            "Edukasi pentingnya suplemen",
+          ],
+        },
+        {
+          kompetensi: "Pemantauan Faktor Risiko",
+          jumlah: 22,
+          aktivitas_kader: [
+            "Deteksi dini risiko kehamilan",
+            "Rujuk ke puskesmas",
+          ],
+        },
+        {
+          kompetensi: "Konseling KB Pasca Salin",
+          jumlah: 18,
+          aktivitas_kader: [
+            "Edukasi metode KB",
+            "Perencanaan kehamilan berikutnya",
+          ],
+        },
+      ],
+    },
+  },
+  durasi_jarak_agregat: {
+    total_durasi_kerja_posyandu: 176, // jam (sum dari semua kader)
+    total_durasi_kunjungan_rumah: 107, // jam
+    total_jarak_kunjungan_rumah: 322, // km
+    rata_rata_durasi_posyandu: 14.7, // jam per kader
+    rata_rata_durasi_kunjungan: 8.9, // jam per kader
+    rata_rata_jarak: 26.8, // km per kader
+  },
+  beban_kerja_tim: {
+    total_kader: 68,
+    skor_beban_rata_rata: 68,
+    skor_beban_tertinggi: 92,
+    skor_beban_terendah: 45,
+    kader_beban_tinggi: 18,
+    kader_beban_sedang: 32,
+    kader_beban_rendah: 18,
+  },
 };
+
+// ============================================================================
+// DATA ANAK UNTUK PERHITUNGAN ASI EKSKLUSIF
+// ============================================================================
+
+// Sample data anak dengan pengukuran ASI Eksklusif
+const anakData: AnakDenganPengukuran[] = [
+  // Anak dengan ASI Eksklusif (Ibu berbeda)
+  {
+    id: "1",
+    nama_anak: "Ahmad Rizki",
+    tanggal_lahir: "2025-06-15",
+    nama_ibu: "Fatimah",
+    orang_tua: {
+      ibu: { id: "ibu1", nik: "3205010001", nama_ibu: "Fatimah", tempat_lahir: "Garut", tanggal_lahir: "1995-05-10", nomor_telepon: "081234567890", gol_darah: "A", jenis_kb: "Pil" },
+      ayah: { id: "ayah1", nik: "3205010002", nama_ayah: "Ahmad", tempat_lahir: "Garut", tanggal_lahir: "1993-03-15", nomor_telepon: "081234567891" },
+    },
+    pengukuran_anak: {
+      id: "peng1",
+      tanggal_pengukuran: "2026-02-25",
+      berat_badan: "7.5",
+      tinggi_badan: "75",
+      lingkar_lengan_atas: "12",
+      lingkar_kepala: "42",
+      asi_eksklusif: "Ya",
+      mpasi: "Tidak",
+      status_stunting: "Stunting",
+      status_gizi: "Gizi Buruk",
+      status_wasting: "Wasting",
+    },
+  },
+  {
+    id: "2",
+    nama_anak: "Siti Aisyah",
+    tanggal_lahir: "2025-03-10",
+    nama_ibu: "Aminah",
+    orang_tua: {
+      ibu: { id: "ibu2", nik: "3205010003", nama_ibu: "Aminah", tempat_lahir: "Garut", tanggal_lahir: "1996-07-20", nomor_telepon: "081234567892", gol_darah: "B", jenis_kb: "IUD" },
+      ayah: { id: "ayah2", nik: "3205010004", nama_ayah: "Budi", tempat_lahir: "Garut", tanggal_lahir: "1994-01-25", nomor_telepon: "081234567893" },
+    },
+    pengukuran_anak: {
+      id: "peng2",
+      tanggal_pengukuran: "2026-02-26",
+      berat_badan: "8.0",
+      tinggi_badan: "78",
+      lingkar_lengan_atas: "13",
+      lingkar_kepala: "43",
+      asi_eksklusif: "Ya",
+      mpasi: "Tidak",
+      status_stunting: "Stunting",
+      status_gizi: "Gizi Buruk",
+      status_wasting: "Wasting",
+    },
+  },
+  {
+    id: "3",
+    nama_anak: "Muhammad Fikri",
+    tanggal_lahir: "2024-08-20",
+    nama_ibu: "Khadijah",
+    orang_tua: {
+      ibu: { id: "ibu3", nik: "3205010005", nama_ibu: "Khadijah", tempat_lahir: "Garut", tanggal_lahir: "1997-02-14", nomor_telepon: "081234567894", gol_darah: "O", jenis_kb: "Suntik" },
+      ayah: { id: "ayah3", nik: "3205010006", nama_ayah: "Fikri", tempat_lahir: "Garut", tanggal_lahir: "1995-06-30", nomor_telepon: "081234567895" },
+    },
+    pengukuran_anak: {
+      id: "peng3",
+      tanggal_pengukuran: "2026-02-27",
+      berat_badan: "7.8",
+      tinggi_badan: "72",
+      lingkar_lengan_atas: "11",
+      lingkar_kepala: "41",
+      asi_eksklusif: "Ya",
+      mpasi: "Ya",
+      status_stunting: "Stunting",
+      status_gizi: "Gizi Buruk",
+      status_wasting: "Tidak Wasting",
+    },
+  },
+  {
+    id: "4",
+    nama_anak: "Nurul Hidayah",
+    tanggal_lahir: "2024-05-05",
+    nama_ibu: "Maryam",
+    orang_tua: {
+      ibu: { id: "ibu4", nik: "3205010007", nama_ibu: "Maryam", tempat_lahir: "Garut", tanggal_lahir: "1998-09-05", nomor_telepon: "081234567896", gol_darah: "AB", jenis_kb: "Implan" },
+      ayah: { id: "ayah4", nik: "3205010008", nama_ayah: "Hidayat", tempat_lahir: "Garut", tanggal_lahir: "1996-04-12", nomor_telepon: "081234567897" },
+    },
+    pengukuran_anak: {
+      id: "peng4",
+      tanggal_pengukuran: "2026-02-28",
+      berat_badan: "8.2",
+      tinggi_badan: "80",
+      lingkar_lengan_atas: "12",
+      lingkar_kepala: "44",
+      asi_eksklusif: "Tidak",
+      mpasi: "Ya",
+      status_stunting: "Tidak Stunting",
+      status_gizi: "Gizi Buruk",
+      status_wasting: "Wasting",
+    },
+  },
+  {
+    id: "5",
+    nama_anak: "Budi Santoso",
+    tanggal_lahir: "2024-07-12",
+    nama_ibu: "Siti Nurhaliza",
+    orang_tua: {
+      ibu: { id: "ibu5", nik: "3205010009", nama_ibu: "Siti Nurhaliza", tempat_lahir: "Garut", tanggal_lahir: "1999-01-18", nomor_telepon: "081234567898", gol_darah: "A", jenis_kb: "MOW" },
+      ayah: { id: "ayah5", nik: "3205010010", nama_ayah: "Santoso", tempat_lahir: "Garut", tanggal_lahir: "1997-08-22", nomor_telepon: "081234567899" },
+    },
+    pengukuran_anak: {
+      id: "peng5",
+      tanggal_pengukuran: "2026-02-25",
+      berat_badan: "8.5",
+      tinggi_badan: "76",
+      lingkar_lengan_atas: "13",
+      lingkar_kepala: "43",
+      asi_eksklusif: "Ya",
+      mpasi: "Ya",
+      status_stunting: "Stunting",
+      status_gizi: "Gizi Kurang",
+      status_wasting: "Tidak Wasting",
+    },
+  },
+  // Anak kedua dari ibu yang sama (Fatimah) - ASI Eksklusif
+  {
+    id: "6",
+    nama_anak: "Aisha Putri",
+    tanggal_lahir: "2025-01-18",
+    nama_ibu: "Fatimah",
+    orang_tua: {
+      ibu: { id: "ibu1", nik: "3205010001", nama_ibu: "Fatimah", tempat_lahir: "Garut", tanggal_lahir: "1995-05-10", nomor_telepon: "081234567890", gol_darah: "A", jenis_kb: "Pil" },
+      ayah: { id: "ayah1", nik: "3205010002", nama_ayah: "Ahmad", tempat_lahir: "Garut", tanggal_lahir: "1993-03-15", nomor_telepon: "081234567891" },
+    },
+    pengukuran_anak: {
+      id: "peng6",
+      tanggal_pengukuran: "2026-02-26",
+      berat_badan: "8.8",
+      tinggi_badan: "79",
+      lingkar_lengan_atas: "14",
+      lingkar_kepala: "44",
+      asi_eksklusif: "Ya",
+      mpasi: "Tidak",
+      status_stunting: "Stunting",
+      status_gizi: "Gizi Kurang",
+      status_wasting: "Wasting",
+    },
+  },
+  // Anak dengan ASI Eksklusif - Ibu baru
+  {
+    id: "7",
+    nama_anak: "Omar Abdullah",
+    tanggal_lahir: "2024-09-01",
+    nama_ibu: "Zainab",
+    orang_tua: {
+      ibu: { id: "ibu6", nik: "3205010011", nama_ibu: "Zainab", tempat_lahir: "Garut", tanggal_lahir: "2000-03-25", nomor_telepon: "081234567900", gol_darah: "B", jenis_kb: "Pil" },
+      ayah: { id: "ayah6", nik: "3205010012", nama_ayah: "Abdullah", tempat_lahir: "Garut", tanggal_lahir: "1998-11-08", nomor_telepon: "081234567901" },
+    },
+    pengukuran_anak: {
+      id: "peng7",
+      tanggal_pengukuran: "2026-03-01",
+      berat_badan: "7.2",
+      tinggi_badan: "70",
+      lingkar_lengan_atas: "11",
+      lingkar_kepala: "40",
+      asi_eksklusif: "Ya",
+      mpasi: "Tidak",
+      status_stunting: "Stunting",
+      status_gizi: "Gizi Buruk",
+      status_wasting: "Wasting",
+    },
+  },
+  {
+    id: "8",
+    nama_anak: "Zahra Kamila",
+    tanggal_lahir: "2024-06-25",
+    nama_ibu: "Ummu Kultsum",
+    orang_tua: {
+      ibu: { id: "ibu7", nik: "3205010013", nama_ibu: "Ummu Kultsum", tempat_lahir: "Garut", tanggal_lahir: "2001-07-30", nomor_telepon: "081234567902", gol_darah: "O", jenis_kb: "Suntik" },
+      ayah: { id: "ayah7", nik: "3205010014", nama_ayah: "Kamil", tempat_lahir: "Garut", tanggal_lahir: "1999-02-17", nomor_telepon: "081234567903" },
+    },
+    pengukuran_anak: {
+      id: "peng8",
+      tanggal_pengukuran: "2026-02-27",
+      berat_badan: "8.0",
+      tinggi_badan: "74",
+      lingkar_lengan_atas: "12",
+      lingkar_kepala: "42",
+      asi_eksklusif: "Ya",
+      mpasi: "Ya",
+      status_stunting: "Stunting",
+      status_gizi: "Gizi Kurang",
+      status_wasting: "Tidak Wasting",
+    },
+  },
+  {
+    id: "9",
+    nama_anak: "Yusuf Ibrahim",
+    tanggal_lahir: "2024-08-08",
+    nama_ibu: "Nurul Hidayah",
+    orang_tua: {
+      ibu: { id: "ibu8", nik: "3205010015", nama_ibu: "Nurul Hidayah", tempat_lahir: "Garut", tanggal_lahir: "2002-04-05", nomor_telepon: "081234567904", gol_darah: "AB", jenis_kb: "IUD" },
+      ayah: { id: "ayah8", nik: "3205010016", nama_ayah: "Ibrahim", tempat_lahir: "Garut", tanggal_lahir: "2000-09-12", nomor_telepon: "081234567905" },
+    },
+    pengukuran_anak: {
+      id: "peng9",
+      tanggal_pengukuran: "2026-02-28",
+      berat_badan: "8.3",
+      tinggi_badan: "75",
+      lingkar_lengan_atas: "13",
+      lingkar_kepala: "43",
+      asi_eksklusif: "Tidak",
+      mpasi: "Ya",
+      status_stunting: "Tidak Stunting",
+      status_gizi: "Gizi Kurang",
+      status_wasting: "Wasting",
+    },
+  },
+  {
+    id: "10",
+    nama_anak: "Maryam Jamila",
+    tanggal_lahir: "2024-05-20",
+    nama_ibu: "Aisyah Rahma",
+    orang_tua: {
+      ibu: { id: "ibu9", nik: "3205010017", nama_ibu: "Aisyah Rahma", tempat_lahir: "Garut", tanggal_lahir: "2003-06-15", nomor_telepon: "081234567906", gol_darah: "A", jenis_kb: "Implan" },
+      ayah: { id: "ayah9", nik: "3205010018", nama_ayah: "Jamal", tempat_lahir: "Garut", tanggal_lahir: "2001-01-28", nomor_telepon: "081234567907" },
+    },
+    pengukuran_anak: {
+      id: "peng10",
+      tanggal_pengukuran: "2026-03-01",
+      berat_badan: "8.6",
+      tinggi_badan: "77",
+      lingkar_lengan_atas: "13",
+      lingkar_kepala: "44",
+      asi_eksklusif: "Ya",
+      mpasi: "Ya",
+      status_stunting: "Stunting",
+      status_gizi: "Gizi Kurang",
+      status_wasting: "Tidak Wasting",
+    },
+  },
+  // Anak tanpa pengukuran (null)
+  {
+    id: "11",
+    nama_anak: "Ali Hassan",
+    tanggal_lahir: "2024-07-30",
+    nama_ibu: "Fatimah Zahra",
+    orang_tua: {
+      ibu: { id: "ibu10", nik: "3205010019", nama_ibu: "Fatimah Zahra", tempat_lahir: "Garut", tanggal_lahir: "2004-08-20", nomor_telepon: "081234567908", gol_darah: "B", jenis_kb: "Pil" },
+      ayah: { id: "ayah10", nik: "3205010020", nama_ayah: "Hassan", tempat_lahir: "Garut", tanggal_lahir: "2002-03-05", nomor_telepon: "081234567909" },
+    },
+    pengukuran_anak: null,
+  },
+  {
+    id: "12",
+    nama_anak: "Hafizah Rahman",
+    tanggal_lahir: "2024-04-10",
+    nama_ibu: "Siti Maimunah",
+    orang_tua: {
+      ibu: { id: "ibu11", nik: "3205010021", nama_ibu: "Siti Maimunah", tempat_lahir: "Garut", tanggal_lahir: "2005-02-28", nomor_telepon: "081234567910", gol_darah: "O", jenis_kb: "Suntik" },
+      ayah: { id: "ayah11", nik: "3205010022", nama_ayah: "Rahman", tempat_lahir: "Garut", tanggal_lahir: "2003-07-14", nomor_telepon: "081234567911" },
+    },
+    pengukuran_anak: {
+      id: "peng12",
+      tanggal_pengukuran: "2026-02-28",
+      berat_badan: "8.4",
+      tinggi_badan: "76",
+      lingkar_lengan_atas: "12",
+      lingkar_kepala: "43",
+      asi_eksklusif: "Ya",
+      mpasi: "Ya",
+      status_stunting: "Stunting",
+      status_gizi: "Gizi Kurang",
+      status_wasting: "Tidak Wasting",
+    },
+  },
+];
+
+/**
+ * Helper function untuk menghitung jumlah ibu dengan ASI Eksklusif
+ * Menghitung dari data anak yang memiliki pengukuran_anak.asi_eksklusif = "Ya"
+ * dan mengelompokkan per nama ibu unik
+ */
+export const calculateBreastfeedingMothers = (anakList: AnakDenganPengukuran[]): number => {
+  // Filter anak dengan ASI Eksklusif
+  const anakASI = anakList.filter(
+    (anak) => anak.pengukuran_anak?.asi_eksklusif === "Ya"
+  );
+
+  // Ambil nama ibu unik dari anak dengan ASI Eksklusif
+  const uniqueMothers = new Set(anakASI.map((anak) => anak.orang_tua.ibu.nama_ibu));
+
+  return uniqueMothers.size;
+};
+
+/**
+ * Helper function untuk menghitung jumlah anak dengan asuransi kesehatan
+ */
+export const calculateChildrenWithInsurance = (
+  anakList: AnakDenganPengukuran[],
+  maxAgeMonths: number
+): number => {
+  const now = new Date();
+  return anakList.filter((anak) => {
+    const birthDate = new Date(anak.tanggal_lahir);
+    const ageInMonths =
+      (now.getFullYear() - birthDate.getFullYear()) * 12 +
+      (now.getMonth() - birthDate.getMonth());
+    return ageInMonths <= maxAgeMonths;
+  }).length;
+};
+
+// Hitung nilai breastfeeding_mothers dari data anak
+const calculatedBreastfeedingMothers = calculateBreastfeedingMothers(anakData);
+
+// Update dashboardSummaryData dengan nilai yang dihitung
+dashboardSummaryData.breastfeeding_mothers = calculatedBreastfeedingMothers;
 
 // Dummy data untuk Monthly Trend
 export const monthlyTrendData: MonthlyTrendData[] = [

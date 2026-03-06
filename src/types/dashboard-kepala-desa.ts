@@ -86,7 +86,7 @@ export interface DashboardSummary {
   women_post_fertile: number; // Wanita usia setelah subur (>49 tahun)
   pregnant_women_under_energized: number; // Ibu hamil dengan KEK (Kurang Energi Kronis)
   high_risk_pregnant_women: number; // Ibu hamil dengan risiko tinggi
-  breastfeeding_mothers: number; // Ibu menyusui
+  breastfeeding_mothers: number; // Ibu menyusui dengan ASI Eksklusif (dihitung dari data anak)
   // Data bayi
   newborn_count: number; // Jumlah bayi baru lahir
   // Imunisasi
@@ -94,10 +94,17 @@ export interface DashboardSummary {
   // KB dan asuransi
   pregnant_women_with_insurance: number; // Ibu hamil dengan jaminan kesehatan
   kb_acceptors: number; // Jumlah akseptor KB
+  // Asuransi kesehatan anak
+  infant_with_insurance: number; // Bayi 0-12 bulan dengan jaminan kesehatan
+  children_under_5_with_insurance: number; // Balita 0-59 bulan dengan jaminan kesehatan
   // Prevalensi balita
   stunting_prevalence: PrevalensiData; // Jumlah dan prevalensi stunting
   wasting_prevalence: PrevalensiData; // Jumlah dan prevalensi wasting
   underweight_prevalence: PrevalensiData; // Jumlah dan prevalensi underweight
+  // Data agregat kader (seperti DashboardAnggotaKader)
+  kehadiran_kompetensi: KehadiranKompetensi; // Kehadiran per kompetensi
+  durasi_jarak_agregat: DurasiJarakAgregat; // Durasi & jarak agregat tim
+  beban_kerja_tim: BebanKerjaTimSummary; // Summary beban kerja tim
 }
 
 export interface InfantImmunizationCoverage {
@@ -161,4 +168,43 @@ export interface KaderDistribution {
   role: string;
   beban_kerja: number;
   status: "aktif" | "non_aktif";
+}
+
+// Kompetensi Kehadiran Types
+export interface KompetensiItem {
+  kompetensi: string;
+  jumlah: number;
+  aktivitas_kader?: string[]; // Optional: untuk ibu hamil
+}
+
+export interface KehadiranKompetensi {
+  balita: {
+    total_hadir: number;
+    detail: KompetensiItem[];
+  };
+  ibu_hamil: {
+    total_hadir: number;
+    detail: KompetensiItem[];
+  };
+}
+
+// Agregat Durasi & Jarak untuk Tim Kader
+export interface DurasiJarakAgregat {
+  total_durasi_kerja_posyandu: number; // jam
+  total_durasi_kunjungan_rumah: number; // jam
+  total_jarak_kunjungan_rumah: number; // km
+  rata_rata_durasi_posyandu: number; // jam per kader
+  rata_rata_durasi_kunjungan: number; // jam per kader
+  rata_rata_jarak: number; // km per kader
+}
+
+// Summary untuk Beban Kerja Tim
+export interface BebanKerjaTimSummary {
+  total_kader: number;
+  skor_beban_rata_rata: number;
+  skor_beban_tertinggi: number;
+  skor_beban_terendah: number;
+  kader_beban_tinggi: number;
+  kader_beban_sedang: number;
+  kader_beban_rendah: number;
 }

@@ -237,9 +237,11 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
               { label: "Wanita Pasca Subur", value: summary.women_post_fertile, icon: "👩", color: "purple" },
               { label: "Ibu Hamil KEK", value: summary.pregnant_women_under_energized, icon: "🤰", color: "pink" },
               { label: "Ibu Hamil Risiko Tinggi", value: summary.high_risk_pregnant_women, icon: "⚠️", color: "red" },
-              { label: "Ibu Menyusui", value: summary.breastfeeding_mothers, icon: "💝", color: "amber" },
+              { label: "Ibu Menyusui (ASI Eksklusif)", value: summary.breastfeeding_mothers, icon: "💝", color: "amber" },
               { label: "Bayi Baru Lahir", value: summary.newborn_count, icon: "🍼", color: "teal" },
               { label: "Ibu Hamil dengan Asuransi", value: summary.pregnant_women_with_insurance, icon: "🛡️", color: "cyan" },
+              { label: "Bayi 0-12 Bulan dengan Asuransi", value: summary.infant_with_insurance, icon: "👶🛡️", color: "cyan" },
+              { label: "Balita 0-59 Bulan dengan Asuransi", value: summary.children_under_5_with_insurance, icon: "🧒🛡️", color: "cyan" },
               { label: "Akseptor KB", value: summary.kb_acceptors, icon: "💊", color: "indigo" },
             ].map((item, index) => (
               <div
