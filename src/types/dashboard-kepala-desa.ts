@@ -1,4 +1,5 @@
 // Type definitions for Dashboard Kepala Desa
+import { SKDNData } from "@/components/Dashboard/component-desa/SKDNBarChart";
 
 export interface PosyanduItem {
   id: string;
@@ -77,7 +78,8 @@ export interface DashboardSummary {
   posyandu_aktif: number;
   posyandu_non_aktif: number;
   // Data kependudukan tambahan
-  skdn: number; // Sistem Klasifikasi Desa Nusantara
+  skdn: number; // Sistem Klasifikasi Desa Nusantara (tingkat 1-4)
+  skdn_data: SKDNData; // Data detail SKDN untuk grafik
   // Kunjungan berdasarkan usia
   infant_0_12_months: number; // Bayi 0-12 bulan berkunjung ke posyandu
   children_0_23_months: number; // Anak 0-23 bulan berkunjung ke posyandu

@@ -9,25 +9,12 @@ interface AdditionalMetricsProps {
 const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
   return (
     <div className="space-y-6">
-      {/* Data Kependudukan & SKDN */}
+      {/* Data Kependudukan */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           📊 Data Kependudukan
         </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-800">
-                <svg className="h-6 w-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">SKDN</p>
-                <p className="text-xl font-bold text-blue-600 dark:text-blue-300">Tingkat {summary.skdn}</p>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="rounded-lg bg-purple-50 p-4 dark:bg-purple-900/20">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-800">

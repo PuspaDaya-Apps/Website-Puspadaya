@@ -13,6 +13,7 @@ import {
   DurasiJarakAgregat,
   BebanKerjaTimSummary,
 } from "@/types/dashboard-kepala-desa";
+import { SKDNData } from "@/components/Dashboard/component-desa/SKDNBarChart";
 import { PengukuranAnakResponseRapor, OrangTuaResponseRapor } from "@/types/data-25/RaporResponse";
 
 // Interface untuk data anak lengkap dengan pengukuran
@@ -170,6 +171,14 @@ export const dashboardSummaryData: DashboardSummary = {
   posyandu_non_aktif: 2,
   // Data kependudukan tambahan
   skdn: 4, // Sistem Klasifikasi Desa Nusantara (tingkat 4 = Maju)
+  skdn_data: {
+    S: 45, // Balita Tidak Datang / Tidak Hadir
+    K: 28, // Balita Tidak Naik BB
+    D: 265, // Balita Naik BB
+    N: 37, // Balita Baru
+    total: 375,
+    persentase_kenaikan_bb: 70.7, // (D / (D + K)) * 100
+  },
   // Kunjungan berdasarkan usia
   infant_0_12_months: 125, // Bayi 0-12 bulan berkunjung ke posyandu
   children_0_23_months: 198, // Anak 0-23 bulan berkunjung ke posyandu

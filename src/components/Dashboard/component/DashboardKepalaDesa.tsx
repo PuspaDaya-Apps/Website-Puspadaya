@@ -22,6 +22,7 @@ import AdditionalMetrics from "../component-desa/AdditionalMetrics";
 import StatistikKehadiranKompetensi from "../component-desa/StatistikKehadiranKompetensi";
 import DurasiJarakAgregat from "../component-desa/DurasiJarakAgregat";
 import BebanKerjaTimSummary from "../component-desa/BebanKerjaTimSummary";
+import SKDNBarChart from "../component-desa/SKDNBarChart";
 import ExpandableDataSection from "../component-desa/ExpandableDataSection";
 
 // Existing components to keep
@@ -186,6 +187,9 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 3: ADDITIONAL METRICS - Data Kependudukan & SKDN */}
       <AdditionalMetrics summary={dashboardSummaryData} />
+
+      {/* LEVEL 3: SKDN BAR CHART */}
+      <SKDNBarChart skdnData={dashboardSummaryData.skdn_data} />
 
       {/* LEVEL 4: CRITICAL CHILDREN LIST (Detailed View) */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
