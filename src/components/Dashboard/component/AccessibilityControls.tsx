@@ -4,14 +4,10 @@ import { useSeniorMode } from "@/contexts/SeniorModeContext";
 
 interface AccessibilityControlsProps {
   onPrint: () => void;
-  onSpeak: () => void;
-  isSpeaking: boolean;
 }
 
 const AccessibilityControls: React.FC<AccessibilityControlsProps> = ({
   onPrint,
-  onSpeak,
-  isSpeaking,
 }) => {
   const { isSeniorMode, toggleSeniorMode, fontSize, setFontSize, highContrast, toggleHighContrast } = useSeniorMode();
   const [isOpen, setIsOpen] = useState(false);
@@ -167,43 +163,16 @@ const AccessibilityControls: React.FC<AccessibilityControlsProps> = ({
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="space-y-2 border-t pt-3">
-            <button
-              onClick={onPrint}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-base font-bold text-white hover:bg-blue-700 transition"
-            >
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-              📄 Cetak Laporan
-            </button>
-            <button
-              onClick={onSpeak}
-              className={`flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-base font-bold text-white transition ${
-                isSpeaking
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
-            >
-              {isSpeaking ? (
-                <>
-                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
-                  </svg>
-                  ⏹️ Stop Baca
-                </>
-              ) : (
-                <>
-                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  </svg>
-                  🔊 Baca Dashboard
-                </>
-              )}
-            </button>
-          </div>
+          {/* Action Buttons - Combined Print & Speak */}
+          <button
+            onClick={onPrint}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-base font-bold text-white hover:bg-blue-700 transition"
+          >
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Cetak / Baca
+          </button>
 
           {/* Info Footer */}
           <div className="mt-3 rounded-lg bg-blue-50 p-2 text-center">
