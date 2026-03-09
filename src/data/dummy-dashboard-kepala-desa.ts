@@ -614,14 +614,20 @@ const calculatedBreastfeedingMothers = calculateBreastfeedingMothers(anakData);
 // Update dashboardSummaryData dengan nilai yang dihitung
 dashboardSummaryData.breastfeeding_mothers = calculatedBreastfeedingMothers;
 
-// Dummy data untuk Monthly Trend
+// Dummy data untuk Monthly Trend (Januari - Desember)
 export const monthlyTrendData: MonthlyTrendData[] = [
-  { bulan: "Oktober", balita: 320, ibu_hamil: 95, kader: 65 },
-  { bulan: "November", balita: 335, ibu_hamil: 98, kader: 66 },
-  { bulan: "Desember", balita: 310, ibu_hamil: 90, kader: 64 },
-  { bulan: "Januari", balita: 350, ibu_hamil: 100, kader: 67 },
-  { bulan: "Februari", balita: 360, ibu_hamil: 102, kader: 68 },
-  { bulan: "Maret", balita: 375, ibu_hamil: 103, kader: 68 },
+  { bulan: "Januari", balita: 320, ibu_hamil: 95, kader: 65 },
+  { bulan: "Februari", balita: 335, ibu_hamil: 98, kader: 66 },
+  { bulan: "Maret", balita: 345, ibu_hamil: 100, kader: 66 },
+  { bulan: "April", balita: 350, ibu_hamil: 102, kader: 67 },
+  { bulan: "Mei", balita: 358, ibu_hamil: 105, kader: 67 },
+  { bulan: "Juni", balita: 362, ibu_hamil: 107, kader: 68 },
+  { bulan: "Juli", balita: 368, ibu_hamil: 108, kader: 68 },
+  { bulan: "Agustus", balita: 370, ibu_hamil: 110, kader: 68 },
+  { bulan: "September", balita: 372, ibu_hamil: 108, kader: 68 },
+  { bulan: "Oktober", balita: 375, ibu_hamil: 106, kader: 68 },
+  { bulan: "November", balita: 378, ibu_hamil: 104, kader: 68 },
+  { bulan: "Desember", balita: 382, ibu_hamil: 103, kader: 68 },
 ];
 
 // Dummy data untuk Posyandu Performance
