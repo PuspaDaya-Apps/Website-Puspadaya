@@ -43,24 +43,62 @@ const KinerjaPosyanduPage: React.FC = () => {
   return (
     <div className="space-y-6 p-4 sm:p-6">
       {/* Header */}
-      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-dark dark:text-white md:text-3xl">
-              Kinerja & Tren Posyandu
-            </h1>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-              Monitoring dan perbandingan kinerja antar posyandu
-            </p>
+      <div className="relative mt-6 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 p-6 shadow-xl dark:from-blue-800 dark:via-blue-900 dark:to-indigo-950 sm:p-8">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full border-4 border-white/20"></div>
+          <div className="absolute -bottom-16 -left-16 h-40 w-40 rounded-full border-4 border-white/20"></div>
+        </div>
+        
+        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-4">
+            {/* Icon */}
+            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm shadow-lg">
+              <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            
+            <div>
+              <h1 className="text-2xl font-bold text-white md:text-3xl lg:text-4xl">
+                Kinerja & Tren Posyandu
+              </h1>
+              <p className="mt-2 text-sm text-blue-100 sm:text-base">
+                Monitoring, perbandingan, dan analisis kinerja antar posyandu secara komprehensif
+              </p>
+              
+              {/* Quick Stats */}
+              <div className="mt-4 flex flex-wrap gap-4">
+                <div className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+                  <span className="text-2xl">📊</span>
+                  <div>
+                    <p className="text-xs text-blue-100">Total Posyandu</p>
+                    <p className="text-lg font-bold text-white">{posyanduPerformanceData.length}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+                  <span className="text-2xl">⭐</span>
+                  <div>
+                    <p className="text-xs text-blue-100">Rata-rata Skor</p>
+                    <p className="text-lg font-bold text-white">{avgScore}/100</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+          
           <Link
             href="/"
-            className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-md transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="group flex items-center justify-center gap-2 rounded-xl bg-white/10 px-5 py-3 text-sm font-medium text-white backdrop-blur-sm shadow-lg transition-all hover:bg-white/20 hover:shadow-xl hover:scale-105"
           >
-            ← Dashboard
+            <svg className="h-5 w-5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span>Dashboard</span>
           </Link>
         </div>
       </div>
+      
 
       {/* Summary Stats */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
