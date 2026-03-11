@@ -33,7 +33,7 @@ import CriticalChildrenList from "../component-desa/CriticalChildrenList";
 const DashboardKepalaDesa: React.FC = () => {
   const [selectedPosyandu, setSelectedPosyandu] = useState<PosyanduItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const { isSeniorMode } = useSeniorMode();
 
   // Filter underperforming posyandu (kategori "Kurang" or "Cukup")
@@ -52,16 +52,21 @@ const DashboardKepalaDesa: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Print report function
+  // Print report function - Open in new tab
   const handlePrintReport = () => {
-    window.print();
+    window.open("/preview-laporan", "_blank");
+  };
+
+  // Show PDF Preview
+  const handleShowPDFPreview = () => {
+    window.open("/preview-laporan", "_blank");
   };
 
   // If senior mode is enabled, show simplified dashboard
   if (isSeniorMode) {
     return (
       <>
-        <AccessibilityControls onPrint={handlePrintReport} />
+        <AccessibilityControls onPrint={handleShowPDFPreview} />
         <DashboardSederhana
           summary={dashboardSummaryData}
           criticalChildren={criticalChildrenData}
@@ -89,7 +94,7 @@ const DashboardKepalaDesa: React.FC = () => {
   return (
     <div className="space-y-6 p-4 sm:p-6">
       {/* Accessibility Controls - Always visible */}
-      <AccessibilityControls onPrint={handlePrintReport} />
+      <AccessibilityControls onPrint={handleShowPDFPreview} />
 
       {/* Page Header */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">

@@ -487,3 +487,53 @@ input[type="search"]::-webkit-search-cancel-button {
 .custom-gradient-1 {
     background-image: linear-gradient(145deg, #EEF 0%, #FFF8FC 100%);;
 }
+
+/* Print Styles */
+@media print {
+    @page {
+        size: A4;
+        margin: 20mm;
+    }
+
+    body {
+        @apply bg-white text-dark;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Hide non-essential elements */
+    aside,
+    nav,
+    header,
+    footer,
+    button,
+    .no-print {
+        display: none !important;
+    }
+
+    /* Remove shadows and backgrounds for cleaner print */
+    .rounded-xl,
+    .rounded-lg {
+        box-shadow: none !important;
+    }
+
+    /* Ensure text is readable */
+    h1, h2, h3, h4, h5, h6 {
+        @apply text-dark break-after-avoid;
+    }
+
+    /* Prevent page breaks inside cards */
+    .rounded-xl,
+    .shadow-md {
+        break-inside: avoid;
+    }
+
+    /* Ensure tables are readable */
+    table {
+        break-inside: avoid;
+    }
+
+    th, td {
+        @apply border border-gray-300;
+    }
+}
