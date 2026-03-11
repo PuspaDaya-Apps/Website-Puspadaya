@@ -32,7 +32,7 @@ const menuGroups = [
       {
         icon: (
           <Image
-            src="/images/menus/dashboard.svg"
+            src="/images/menus/monitoring.svg"
             alt=""
             width={16}
             height={16}
@@ -46,7 +46,7 @@ const menuGroups = [
       {
         icon: (
           <Image
-            src="/images/menus/dashboard.svg"
+            src="/images/menus/gangguan.svg"
             alt=""
             width={16}
             height={16}
