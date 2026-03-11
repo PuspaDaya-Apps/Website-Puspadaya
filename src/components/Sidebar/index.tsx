@@ -28,6 +28,36 @@ const menuGroups = [
         label: "Dashboard",
         route: "/",
       },
+
+      {
+        icon: (
+          <Image
+            src="/images/menus/dashboard.svg"
+            alt=""
+            width={16}
+            height={16}
+            className="fill-current"
+          />
+        ),
+        label: "Kinerja Kader",
+        route: "/monitoring/kinerja-posyandu",
+      },
+
+      {
+        icon: (
+          <Image
+            src="/images/menus/dashboard.svg"
+            alt=""
+            width={16}
+            height={16}
+            className="fill-current"
+          />
+        ),
+        label: "Daftar Kasus",
+        route: "/monitoring/kasus-kritis",
+      },
+
+
       {
         icon: (
           <Image
@@ -70,6 +100,8 @@ const menuGroups = [
         label: "Kebijakan Aplikasi",
         route: "/pengaturan/kebijakan-aplikasi",
       },
+      
+      
       // {
       //   icon: (
       //     <Image
@@ -122,8 +154,25 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState("");
   const [pageName, setPageName] = useLocalStorage("selectedMenu", "dashboard");
+  const namaRole = sessionStorage.getItem("user_role");
 
   const resetActiveMenu = () => setPageName("defaultPageName");
+
+  // Filter menu items based on role
+  const filteredMenuGroups = menuGroups.map((group) => ({
+    ...group,
+    menuItems: group.menuItems.filter((menuItem) => {
+      // Hide "Kuesioner" for Kepala Desa
+      if (namaRole === "Kepala Desa" && menuItem.label === "Kuesioner") {
+        return false;
+      }
+      // Show "Daftar Kasus" and "Kinerja Kader" only for Kepala Desa
+      if (menuItem.label === "Daftar Kasus" || menuItem.label === "Kinerja Kader") {
+        return namaRole === "Kepala Desa";
+      }
+      return true;
+    }),
+  }));
 
   return (
     <>
@@ -144,7 +193,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         >
           <div className="no-scrollbar h-full overflow-y-auto duration-300 ease-linear">
             <nav className="flex flex-col items-start justify-start gap-2 p-4">
-              {menuGroups.map((group, groupIndex) => (
+              {filteredMenuGroups.map((group, groupIndex) => (
                 <div key={groupIndex} className="w-full">
                   <ul>
                     {group.menuItems.map((menuItem, menuIndex) => (
@@ -181,7 +230,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           {/* === SIDEBAR CONTENT === */}
           <div className="no-scrollbar duration-300 ease-linear">
             <nav className="items-center justify-normal gap-2 lg:w-full xl:w-auto xl:justify-normal">
-              {menuGroups.map((group, groupIndex) => (
+              {filteredMenuGroups.map((group, groupIndex) => (
                 <div key={groupIndex}>
                   <ul className="flex items-center">
                     {group.menuItems.map((menuItem, menuIndex) => (
