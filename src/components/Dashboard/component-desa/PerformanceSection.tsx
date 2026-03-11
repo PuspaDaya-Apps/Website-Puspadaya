@@ -49,12 +49,12 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
             </p>
           </div>
         </div>
-        <Link
+        {/* <Link
           href="/monitoring/kinerja-posyandu"
           className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-700"
         >
           Lihat Detail →
-        </Link>
+        </Link> */}
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

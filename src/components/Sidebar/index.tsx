@@ -57,6 +57,20 @@ const menuGroups = [
         route: "/monitoring/kasus-kritis",
       },
 
+       {
+        icon: (
+          <Image
+            src="/images/menus/management-role.svg"
+            alt=""
+            width={16}
+            height={16}
+            className="fill-current"
+          />
+        ),
+        label: "Management",
+        route: "/monitoring/kader",
+      },
+
 
       {
         icon: (
@@ -163,11 +177,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     ...group,
     menuItems: group.menuItems.filter((menuItem) => {
       // Hide "Kuesioner" for Kepala Desa
-      if (namaRole === "Kepala Desa" && menuItem.label === "Kuesioner") {
+      if (namaRole === "Kepala Desa" && menuItem.label === "Kuesioner" ) {
         return false;
       }
-      // Show "Daftar Kasus" and "Kinerja Kader" only for Kepala Desa
-      if (menuItem.label === "Daftar Kasus" || menuItem.label === "Kinerja Kader") {
+      // Hide "Akun Saya" for Kepala Desa
+      if (namaRole === "Kepala Desa" && menuItem.label === "Akun Saya") {
+        return false;
+      }
+      // Show "Daftar Kasus", "Kinerja Kader", and "Management" only for Kepala Desa
+      if (menuItem.label === "Daftar Kasus" || menuItem.label === "Kinerja Kader" || menuItem.label === "Management") {
         return namaRole === "Kepala Desa";
       }
       return true;
