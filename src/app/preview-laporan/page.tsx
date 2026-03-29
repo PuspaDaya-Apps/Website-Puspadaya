@@ -20,13 +20,17 @@ import {
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 const T = {
   navy:    "#0F2044",
-  accent:  "#1D6FE8",
-  emerald: "#059669",
-  amber:   "#D97706",
-  red:     "#DC2626",
-  purple:  "#7C3AED",
-  pink:    "#DB2777",
-  orange:  "#EA580C",
+  accent:  "#4ab4fe",   // biru baru
+  emerald: "#059669",   // hijau tetap
+  amber:   "#D97706",   // tetap
+  red:     "#DC2626",   // tetap
+  purple:  "#e44aba",   // pink baru
+  pink:    "#e44aba",   // pink utama
+  pinkLight: "#ff8d4e", // pink muda untuk gradient
+  pinkSoft:  "#FBCFE8", // pink sangat muda untuk background
+  orange:  "#ff8d4e",   // orange baru
+  purpleGrad: "#ad45f0", // gradasi ungu
+  blueGrad:  "#3b73e1",  // gradasi biru
   border:  "#E2E8F0",
   muted:   "#F8FAFC",
   text:    "#0F172A",
@@ -421,66 +425,100 @@ const PreviewLaporanPage: React.FC = () => {
       <div className="screen-wrapper">
 
         {/* ══ COVER ═══════════════════════════════════════════ */}
-        <div className="a4-cover">
-          <div style={{ height: 7, background: `linear-gradient(90deg,${T.navy},${T.accent},#60A5FA)` }} />
-          <div style={{ flex: 1, background: `linear-gradient(155deg,${T.navy} 0%,#1a3a6b 55%,#0d1f3c 100%)`, padding: "42px 50px", display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative", overflow: "hidden" }}>
-            {[{ t: -80, r: -80, s: 360 }, { b: 40, l: -60, s: 250 }, { t: "38%", r: "8%", s: 140 }].map((c: any, i) => (
-              <div key={i} style={{ position: "absolute", borderRadius: "50%", background: "rgba(29,111,232,0.09)", width: c.s, height: c.s, top: c.t, right: c.r, bottom: c.b, left: c.l, pointerEvents: "none" }} />
-            ))}
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 13, marginBottom: 32 }}>
-                <div style={{ width: 46, height: 46, borderRadius: 12, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 18px rgba(29,111,232,0.5)" }}>
-                  <svg width="22" height="22" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                </div>
-                <div>
-                  <div style={{ color: "#93C5FD", fontSize: 10, fontWeight: 700, letterSpacing: "0.14em" }}>SISTEM INFORMASI POSYANDU TERPADU</div>
-                  <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 9.5, marginTop: 2 }}>Kementerian Kesehatan Republik Indonesia</div>
-                </div>
-              </div>
-              <div style={{ width: 50, height: 3, background: T.accent, borderRadius: 2, marginBottom: 24 }} />
-              <div style={{ display: "inline-block", background: "rgba(29,111,232,0.2)", border: "1px solid rgba(29,111,232,0.35)", borderRadius: 6, padding: "4px 12px", marginBottom: 16 }}>
-                <span style={{ color: "#93C5FD", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.12em" }}>LAPORAN ANALITIK RESMI</span>
-              </div>
-              <h1 style={{ color: "#fff", fontSize: 40, fontWeight: 800, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 13 }}>
-                Laporan Analitik<br /><span style={{ color: "#60A5FA" }}>Kinerja Posyandu</span>
-              </h1>
-              <p style={{ color: "rgba(255,255,255,0.58)", fontSize: 13, lineHeight: 1.65, maxWidth: 390 }}>
-                Evaluasi komprehensif kinerja seluruh unit Posyandu, distribusi beban kader, tren kunjungan, cakupan imunisasi, data gizi, dan penanganan kasus kritis.
-              </p>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 13, margin: "36px 0" }}>
-              {[
-                { icon: "🏥", v: totalPosyandu, u: "Posyandu" },
-                { icon: "👶", v: totalBalita, u: "Balita (Feb)" },
-                { icon: "👩‍⚕️", v: totalKader, u: "Kader Aktif" },
-                { icon: "⚠️", v: criticalChildrenData.length, u: "Kasus Kritis" },
-              ].map((k, i) => (
-                <div key={i} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "15px 17px" }}>
-                  <div style={{ fontSize: 19, marginBottom: 6 }}>{k.icon}</div>
-                  <div style={{ color: "#fff", fontSize: 25, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.02em" }}>{k.v}</div>
-                  <div style={{ color: "rgba(255,255,255,0.42)", fontSize: 9.5, marginTop: 4 }}>{k.u}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-              <div>
-                <div style={{ color: "rgba(255,255,255,0.32)", fontSize: 8.5, fontWeight: 600, letterSpacing: "0.1em", marginBottom: 5 }}>INFORMASI DOKUMEN</div>
-                {[{ l: "Periode", v: `Semester II — Tahun ${currentYear}` }, { l: "Dicetak", v: currentDate }, { l: "Klasifikasi", v: "Rahasia Internal" }].map((m, i) => (
-                  <div key={i} style={{ display: "flex", gap: 10, marginBottom: 2 }}>
-                    <span style={{ color: "rgba(255,255,255,0.32)", fontSize: 9.5, width: 68 }}>{m.l}</span>
-                    <span style={{ color: "rgba(255,255,255,0.72)", fontSize: 9.5, fontWeight: 500 }}>{m.v}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={{ background: "rgba(5,150,105,0.2)", border: "1px solid rgba(5,150,105,0.4)", borderRadius: 10, padding: "11px 18px", textAlign: "right" }}>
-                <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 8.5, fontWeight: 600, letterSpacing: "0.1em", marginBottom: 3 }}>INDEKS KINERJA</div>
-                <div style={{ color: "#fff", fontSize: 36, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.03em" }}>{avgScore}</div>
-                <div style={{ color: "#34D399", fontSize: 9.5, fontWeight: 600, marginTop: 3 }}>✦ {avgScore >= 80 ? "Sangat Baik" : avgScore >= 65 ? "Baik" : "Cukup"}</div>
-              </div>
-            </div>
-          </div>
-          <div style={{ height: 4, background: `linear-gradient(90deg,${T.accent},#60A5FA,${T.navy})` }} />
+    {/* ══ COVER ═══════════════════════════════════════════ */}
+<div className="a4-cover">
+  {/* Strip atas */}
+  <div style={{ height: 7, flexShrink: 0, background: `linear-gradient(90deg, #e44aba, #ad45f0, #ff8d4e)` }} />
+
+  {/* Body cover */}
+  <div style={{
+    flex: 1,
+    background: `linear-gradient(155deg, #e44aba 0%, #ad45f0 50%, #ff8d4e 100%)`,
+    padding: "42px 50px",
+    display: "flex", flexDirection: "column", justifyContent: "space-between",
+    position: "relative", overflow: "hidden",
+  }}>
+    {/* Dekorasi lingkaran background */}
+    <div style={{ position: "absolute", borderRadius: "50%", background: "rgba(255,255,255,0.15)", width: 360, height: 360, top: -80, right: -80, pointerEvents: "none" }} />
+    <div style={{ position: "absolute", borderRadius: "50%", background: "rgba(255,255,255,0.10)", width: 250, height: 250, bottom: 40, left: -60, pointerEvents: "none" }} />
+    <div style={{ position: "absolute", borderRadius: "50%", background: "rgba(255,255,255,0.08)", width: 140, height: 140, top: "38%", right: "8%", pointerEvents: "none" }} />
+
+    {/* Header logo + nama sistem */}
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 13, marginBottom: 32 }}>
+        <div style={{ width: 46, height: 46, borderRadius: 12, background: "rgba(255,255,255,0.25)", backdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 18px rgba(0,0,0,0.2)" }}>
+          <svg width="22" height="22" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
         </div>
+        <div>
+          <div style={{ color: "rgba(255,255,255,0.95)", fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", textShadow: "0 2px 4px rgba(0,0,0,0.2)" }}>SISTEM INFORMASI POSYANDU TERPADU</div>
+          <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 9.5, marginTop: 2, fontWeight: 500 }}>Kementerian Kesehatan Republik Indonesia</div>
+        </div>
+      </div>
+
+      {/* Accent bar — warna putih */}
+      <div style={{ width: 50, height: 3, background: "rgba(255,255,255,0.9)", borderRadius: 2, marginBottom: 24, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }} />
+
+      <div style={{ display: "inline-block", background: "rgba(255,255,255,0.25)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: 6, padding: "4px 12px", marginBottom: 16 }}>
+        <span style={{ color: "#fff", fontSize: 9.5, fontWeight: 800, letterSpacing: "0.12em", textShadow: "0 1px 3px rgba(0,0,0,0.15)" }}>LAPORAN ANALITIK RESMI</span>
+      </div>
+
+      <h1 style={{ color: "#fff", fontSize: 42, fontWeight: 800, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 13, textShadow: "0 3px 12px rgba(0,0,0,0.25)" }}>
+        Laporan Analitik<br />
+        <span style={{ background: "linear-gradient(90deg, #fff, #FFE5F5, #FFF5E5)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.2))" }}>
+          Kinerja Posyandu
+        </span>
+      </h1>
+      <p style={{ color: "rgba(255,255,255,0.92)", fontSize: 13.5, lineHeight: 1.65, maxWidth: 390, fontWeight: 500, textShadow: "0 1px 4px rgba(0,0,0,0.2)" }}>
+        Evaluasi komprehensif kinerja seluruh unit Posyandu, distribusi beban kader, tren kunjungan, cakupan imunisasi, data gizi, dan penanganan kasus kritis.
+      </p>
+    </div>
+
+    {/* KPI Cards */}
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 13, margin: "36px 0" }}>
+      {[
+        { icon: "🏥", v: totalPosyandu, u: "Posyandu", accent: "#fff" },
+        { icon: "👶", v: totalBalita, u: "Balita (Feb)", accent: "#fff" },
+        { icon: "👩‍⚕️", v: totalKader, u: "Kader Aktif", accent: "#fff" },
+        { icon: "⚠️", v: criticalChildrenData.length, u: "Kasus Kritis", accent: "#fff" },
+      ].map((k, i) => (
+        <div key={i} style={{ background: "rgba(255,255,255,0.20)", backdropFilter: "blur(10px)", border: `1px solid rgba(255,255,255,0.35)`, borderRadius: 10, padding: "15px 17px", borderTop: `3px solid rgba(255,255,255,0.8)`, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+          <div style={{ fontSize: 19, marginBottom: 6 }}>{k.icon}</div>
+          <div style={{ color: "#fff", fontSize: 25, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.02em", textShadow: "0 2px 6px rgba(0,0,0,0.2)" }}>{k.v}</div>
+          <div style={{ color: "rgba(255,255,255,0.90)", fontSize: 9.5, marginTop: 4, fontWeight: 600 }}>{k.u}</div>
+        </div>
+      ))}
+    </div>
+
+    {/* Footer cover */}
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.30)" }}>
+      <div>
+        <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 8.5, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 5, textShadow: "0 1px 3px rgba(0,0,0,0.15)" }}>INFORMASI DOKUMEN</div>
+        {[
+          { l: "Periode", v: `Semester II — Tahun ${currentYear}` },
+          { l: "Dicetak", v: currentDate },
+          { l: "Klasifikasi", v: "Rahasia Internal" },
+        ].map((m, i) => (
+          <div key={i} style={{ display: "flex", gap: 10, marginBottom: 2 }}>
+            <span style={{ color: "rgba(255,255,255,0.75)", fontSize: 9.5, fontWeight: 600, width: 68 }}>{m.l}</span>
+            <span style={{ color: "rgba(255,255,255,0.95)", fontSize: 9.5, fontWeight: 600, textShadow: "0 1px 3px rgba(0,0,0,0.15)" }}>{m.v}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Indeks Kinerja */}
+      <div style={{ background: "rgba(255,255,255,0.25)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.45)", borderRadius: 10, padding: "11px 18px", textAlign: "right", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+        <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 8.5, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 3, textShadow: "0 1px 3px rgba(0,0,0,0.15)" }}>INDEKS KINERJA</div>
+        <div style={{ color: "#fff", fontSize: 36, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.03em", textShadow: "0 2px 8px rgba(0,0,0,0.2)" }}>{avgScore}</div>
+        <div style={{ color: "#fff", fontSize: 9.5, fontWeight: 700, marginTop: 3, textShadow: "0 1px 4px rgba(0,0,0,0.2)" }}>
+          ✦ {avgScore >= 80 ? "Sangat Baik" : avgScore >= 65 ? "Baik" : "Cukup"}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Strip bawah */}
+  <div style={{ height: 4, flexShrink: 0, background: `linear-gradient(90deg, #ff8d4e, #ad45f0, #e44aba)` }} />
+</div>
 
         {/* ══ PAGE 1 — KPI + KINERJA + TREN ════════════════════ */}
         <div className="a4-page">
