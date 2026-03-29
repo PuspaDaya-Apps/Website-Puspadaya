@@ -26,6 +26,7 @@ export default function SigninWithPassword() {
       <form
         onSubmit={handleLogin}
         className="w-full max-w-md space-y-6 rounded-lg bg-white p-6 shadow-xl sm:p-8"
+        autoComplete="on"
       >
         <h1 className="mb-2 text-2xl font-bold text-dark dark:text-white sm:text-heading-3">
           Login
@@ -44,13 +45,16 @@ export default function SigninWithPassword() {
           </label>
           <input
             id="username"
-            type="text"
-            placeholder="Enter your username"
             name="username"
-            required
+            type="text"
+            autoComplete="username"
+            placeholder="Enter your username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full rounded-lg border p-3 transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white sm:p-4"
+            autoCapitalize="off"
+            autoCorrect="off"
+            spellCheck="false"
           />
         </div>
 
@@ -64,10 +68,11 @@ export default function SigninWithPassword() {
           </label>
           <div className="relative">
             <input
-              type={showPassword ? "text" : "password"}
+              id="password"
               name="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
               value={password}
-              required
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               className="w-full rounded-lg border p-3 transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white sm:p-4"
@@ -76,6 +81,7 @@ export default function SigninWithPassword() {
               type="button"
               className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-300"
               onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
                 <svg

@@ -21,6 +21,9 @@ export const loginUser = async (username: string, password: string): Promise<str
                 sessionStorage.setItem('user_role', data.role);
                 sessionStorage.setItem('nama_lengkap', data.nama_lengkap);
 
+                // 🔹 Simpan token ke cookies agar middleware bisa mendeteksi
+                document.cookie = `token=${data.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
+
                 // 🔹 Panggil API CURRENT setelah login berhasil
                 try {
                     const currentResponse = await axios.get(APIEndpoints.CURRENT, {
@@ -34,6 +37,7 @@ export const loginUser = async (username: string, password: string): Promise<str
 
                         // Simpan hasil CURRENT ke localStorage
                         localStorage.setItem('current_user', JSON.stringify(currentData));
+                        localStorage.setItem('token', data.access_token);
 
                         // Print hasil CURRENT ke console
                         // console.log('✅ CURRENT user data saved to localStorage:', currentData);
@@ -75,4 +79,20 @@ export const loginUser = async (username: string, password: string): Promise<str
 
         throw new Error(Messages.GENERIC_ERROR);
     }
+};
+
+// Fungsi untuk logout
+export const logoutUser = (): void => {
+    // Hapus token dari cookies
+    document.cookie = 'token=; path=/; max-age=0; SameSite=Strict';
+    
+    // Hapus dari sessionStorage
+    sessionStorage.removeItem('access_token');
+    sessionStorage.removeItem('refresh_token');
+    sessionStorage.removeItem('user_role');
+    sessionStorage.removeItem('nama_lengkap');
+    
+    // Hapus dari localStorage
+    localStorage.removeItem('current_user');
+    localStorage.removeItem('token');
 };

@@ -672,45 +672,34 @@ const PrevalensiCard: React.FC<{
 const PreviewLaporanPage: React.FC = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
-  const [isAuthorized, setIsAuthorized] = useState(false);
 
+  // Hook 1: Cek token dan setup client
   useEffect(() => {
-    setIsClient(true);
-    // Cek token di localStorage
+    // Cek token di localStorage dengan cepat
     const token = localStorage.getItem('token');
+
     if (!token) {
-      // Jika tidak ada token, redirect ke login
-      router.push('/auth/signin');
-    } else {
-      setIsAuthorized(true);
+      // Jika tidak ada token, redirect segera
+      router.replace('/auth/signin');
+      return;
     }
+
+    setIsClient(true);
   }, [router]);
 
-  // Tampilkan loading atau null jika belum authorized
-  if (!isClient || !isAuthorized) {
-    return (
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "center", 
-        alignItems: "center", 
-        minHeight: "100vh",
-        background: "#0F2044",
-        fontFamily: "'DM Sans','Segoe UI',sans-serif"
-      }}>
-        <div style={{ textAlign: "center", color: "#fff" }}>
-          <div style={{ 
-            width: 48, 
-            height: 48, 
-            border: "4px solid rgba(255,255,255,0.3)", 
-            borderTop: "4px solid #e44aba",
-            borderRadius: "50%",
-            animation: "spin 1s linear infinite",
-            margin: "0 auto 16px"
-          }} />
-          <p style={{ fontSize: 16, fontWeight: 600 }}>Memuat laporan...</p>
-        </div>
-      </div>
-    );
+  // Hook 2: Auto print setelah halaman siap
+  useEffect(() => {
+    if (isClient) {
+      const t = setTimeout(() => {
+        window.print();
+      }, 1200);
+      return () => clearTimeout(t);
+    }
+  }, [isClient]);
+
+  // Early return setelah semua hooks
+  if (!isClient) {
+    return null;
   }
 
   const currentDate = new Date().toLocaleDateString("id-ID", {
@@ -803,11 +792,6 @@ const PreviewLaporanPage: React.FC = () => {
   };
 
   const TOTAL_PAGES = 6;
-
-  useEffect(() => {
-    const t = setTimeout(() => window.print(), 1200);
-    return () => clearTimeout(t);
-  }, []);
 
   if (!isClient) return null;
 

@@ -3,41 +3,35 @@ import { NextRequest, NextResponse } from 'next/server';
 export function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
-    const url = req.nextUrl.clone();
-    if (url.pathname === '/') {
-        url.pathname = '/auth/signin';
-        return NextResponse.redirect(url);
+    // Skip static files dan assets
+    if (
+        pathname.startsWith('/_next') ||
+        pathname.startsWith('/images') ||
+        pathname.startsWith('/public') ||
+        pathname === '/favicon.ico'
+    ) {
+        return NextResponse.next();
     }
 
     const token = req.cookies.get('token');
     const loginUrl = new URL('/auth/signin', req.url);
-    const homeUrl = new URL('/', req.url);
 
-    // Proteksi halaman preview-laporan
-    if (pathname.includes('/preview-laporan') && !token) {
+    // Halaman publik yang tidak perlu token
+    const isPublicPage = pathname.startsWith('/auth/signin');
+
+    // Redirect ke login jika tidak ada token dan bukan halaman publik
+    if (!token && !isPublicPage) {
         return NextResponse.redirect(loginUrl);
     }
 
-    // Redirect jika tidak ada token dan bukan ke halaman login
-    if (!token && !loginUrl.pathname.includes('/auth/signin')) {
-        return NextResponse.redirect(loginUrl);
+    // Redirect ke home jika sudah login tapi akses halaman login
+    if (token && isPublicPage) {
+        return NextResponse.redirect(new URL('/', req.url));
     }
 
-    // Redirect jika sudah login dan mencoba mengakses halaman login
-    if (token && loginUrl.pathname.includes('/auth/signin')) {
-        return NextResponse.redirect(homeUrl);
-    }
-
-    // CORS headers
-    const res = NextResponse.next();
-    res.headers.append('Access-Control-Allow-Credentials', 'true');
-    res.headers.append('Access-Control-Allow-Origin', '*');
-    res.headers.append('Access-Control-Allow-Methods', 'GET, DELETE, PATCH, POST, PUT');
-    res.headers.append('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-version');
-
-    return res;
+    return NextResponse.next();
 }
 
 export const config = {
-    matcher: ['/api/:path*', '/preview-laporan/:path*']
+    matcher: ['/((?!_next/static|_next/image|favicon.ico|images|public).*)']
 };
