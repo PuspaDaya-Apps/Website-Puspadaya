@@ -32,20 +32,45 @@ const ReportPreviewModal: React.FC<ReportPreviewModalProps> = ({
         throw new Error("PDF Blob is null");
       }
 
-      // Create URL for preview
-      const url = URL.createObjectURL(pdfBlob);
-
-      // Open in new tab for preview
-      window.open(url, "_blank");
+      // Get current date and desa name for filename
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+      
+      // Get desa name from current user
+      const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+      const desaName = currentUser?.desa_kelurahan?.nama_desa_kelurahan
+        ? currentUser.desa_kelurahan.nama_desa_kelurahan
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '')
+        : 'Desa';
+      
+      // Create filename: Laporan-Analitik-Posyandu-Desa-tanggal.pdf
+      const filename = `Laporan-Analitik-Posyandu-${desaName}-${dateStr}.pdf`;
+      
+      // Create download link
+      const downloadUrl = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Also open in new tab for preview
+      const previewUrl = URL.createObjectURL(pdfBlob);
+      window.open(previewUrl, "_blank");
 
       // Show success message
-      alert("✅ Laporan berhasil dibuat!\n\nPDF dibuka di tab baru untuk preview.\n\nAnda bisa download langsung dari sana.");
+      alert(`✅ Laporan berhasil dibuat!\n\nFile: ${filename}\n\nPDF sedang di-download dan dibuka di tab baru untuk preview.`);
       onClose();
 
       // Cleanup after delay
       setTimeout(() => {
-        URL.revokeObjectURL(url);
-      }, 60000); // Revoke after 1 minute
+        URL.revokeObjectURL(downloadUrl);
+        URL.revokeObjectURL(previewUrl);
+      }, 60000);
     } catch (error) {
       console.error("Error generating report:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error";

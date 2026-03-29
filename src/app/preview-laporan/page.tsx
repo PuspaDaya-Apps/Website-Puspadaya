@@ -687,6 +687,22 @@ const PreviewLaporanPage: React.FC = () => {
       return;
     }
 
+    // Get desa name from current user data
+    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    if (currentUser?.desa_kelurahan?.nama_desa_kelurahan) {
+      // Normalize desa name for filename (replace spaces with hyphens)
+      const desaName = currentUser.desa_kelurahan.nama_desa_kelurahan
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      
+      // Set document title for PDF filename
+      const dateStr = new Date().toISOString().split('T')[0];
+      const filename = `Laporan-Analitik-Posyandu-${desaName}-${dateStr}`;
+      document.title = filename;
+    }
+
     setIsClient(true);
     setIsAuthorized(true);
   }, [router]);
@@ -796,6 +812,39 @@ const PreviewLaporanPage: React.FC = () => {
   };
 
   const TOTAL_PAGES = 6;
+
+  // Function to download PDF with custom filename
+  const handleDownloadPDF = async () => {
+    // Wait for page to be fully rendered
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Get current date for filename
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+
+    // Get desa name from current user
+    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    const desaName = currentUser?.desa_kelurahan?.nama_desa_kelurahan
+      ? currentUser.desa_kelurahan.nama_desa_kelurahan
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')
+      : 'Desa';
+
+    // Create filename: Laporan-Analitik-Posyandu-Desa-tanggal
+    const filename = `Laporan-Analitik-Posyandu-${desaName}-${dateStr}`;
+
+    // Set document title (some browsers use this for filename when saving)
+    document.title = filename;
+
+    // Print to PDF (browser will handle save)
+    window.print();
+
+    // Show message about filename
+    console.log(`Download filename: ${filename}.pdf`);
+    console.log(`Note: Saat save PDF, gunakan nama file: ${filename}.pdf`);
+  };
 
   if (!isClient) return null;
 
@@ -988,7 +1037,7 @@ const PreviewLaporanPage: React.FC = () => {
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <button
-              onClick={() => window.print()}
+              onClick={handleDownloadPDF}
               style={{
                 background: T.accent,
                 color: "#fff",
@@ -1000,6 +1049,7 @@ const PreviewLaporanPage: React.FC = () => {
                 cursor: "pointer",
                 fontFamily: "inherit",
               }}
+              title={`Download: Laporan-Analitik-Posyandu-Desa-${new Date().toISOString().split('T')[0]}.pdf`}
             >
               ↓ Export PDF
             </button>
