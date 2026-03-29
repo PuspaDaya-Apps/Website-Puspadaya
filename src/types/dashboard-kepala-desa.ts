@@ -135,6 +135,7 @@ export interface MonthlyTrendData {
   balita: number;
   ibu_hamil: number;
   kader: number;
+  imunisasi: number;
 }
 
 export interface PosyanduPerformance {

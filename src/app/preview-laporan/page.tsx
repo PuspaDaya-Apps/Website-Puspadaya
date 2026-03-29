@@ -590,9 +590,9 @@ const PreviewLaporanPage: React.FC = () => {
           const col = k.kategori_beban === "Tinggi" ? T.red : k.kategori_beban === "Sedang" ? T.amber : T.emerald;
           return (
             <tr key={i} style={{ borderBottom: `1px solid #F8FAFC` }}>
-              <td style={{ padding: "5px 9px", fontSize: 10.5, fontWeight: 600 }}>{k.nama}</td>
-              <td style={{ padding: "5px 9px", fontSize: 9.5, color: T.textSub }}>{k.posyandu}</td>
-              <td style={{ padding: "5px 9px", fontSize: 10.5, fontWeight: 700, textAlign: "center" }}>{k.jumlah_balita}</td>
+              <td style={{ padding: "5px 9px", fontSize: 10.5, fontWeight: 600 }}>{k.nama_kader}</td>
+              <td style={{ padding: "5px 9px", fontSize: 9.5, color: T.textSub }}>{k.posyandu_nama}</td>
+              <td style={{ padding: "5px 9px", fontSize: 10.5, fontWeight: 700, textAlign: "center" }}>{k.total_balita_dibina}</td>
               <td style={{ padding: "5px 9px", textAlign: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
                   <div style={{ width: 46, height: 4, borderRadius: 2, background: "#F1F5F9", overflow: "hidden" }}>
