@@ -297,7 +297,7 @@ const PreviewLaporanPage: React.FC = () => {
   const priorityColor: Record<string, string> = { "Sangat Tinggi": T.red, "Tinggi": T.orange, "Sedang": T.amber };
   const giziColor: Record<string, string>      = { "Gizi Buruk": T.red, "Gizi Kurang": T.orange, "Gizi Baik": T.emerald };
 
-  const TOTAL_PAGES = 5;
+  const TOTAL_PAGES = 6;
 
   useEffect(() => {
     const t = setTimeout(() => window.print(), 1200);
@@ -309,29 +309,91 @@ const PreviewLaporanPage: React.FC = () => {
   return (
     <div style={{ fontFamily: "'DM Sans','Segoe UI',sans-serif" }}>
 
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+  <style>{`
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        @media print {
-          @page { size: A4 portrait; margin: 10mm 12mm; }
-          html, body { width: 210mm; background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .no-print { display: none !important; }
-          .screen-wrapper { background: white !important; padding: 0 !important; }
-          .a4-cover { width: auto !important; height: auto !important; min-height: 277mm; box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; }
-          .a4-page { width: auto !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; padding: 0 !important; page-break-after: always; }
-          .a4-page:last-child { page-break-after: auto; }
-          .no-break { page-break-inside: avoid; break-inside: avoid; }
-          table { page-break-inside: auto; }
-          thead { display: table-header-group; }
-          tr { page-break-inside: avoid; break-inside: avoid; }
-        }
+  @media print {
+    @page { size: A4 portrait; margin: 0; }
+    html, body {
+      width: 210mm;
+      background: white !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .no-print { display: none !important; }
+    .screen-wrapper { background: white !important; padding: 0 !important; }
 
-        .screen-wrapper { background: #CBD5E1; padding: 36px 0; min-height: 100vh; }
-        .a4-cover { width: 210mm; height: 297mm; background: white; margin: 0 auto 24px; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.2); border-radius: 2px; display: flex; flex-direction: column; }
-        .a4-page { width: 210mm; background: white; margin: 0 auto 24px; padding: 13mm 15mm; box-shadow: 0 8px 40px rgba(0,0,0,0.18); border-radius: 2px; }
-        .no-break { page-break-inside: avoid; break-inside: avoid; }
-      `}</style>
+    /* Cover: full bleed, tepat 1 halaman penuh */
+    .a4-cover {
+      width: 210mm !important;
+      height: 297mm !important;
+      min-height: unset !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      page-break-after: always;
+      break-after: page;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Pages: fixed A4, konten yang lebih terpotong */
+    .a4-page {
+      width: 210mm !important;
+      height: 297mm !important;
+      min-height: unset !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      margin: 0 !important;
+      padding: 13mm 15mm !important;
+      overflow: hidden !important;
+      page-break-after: always;
+      break-after: page;
+    }
+    .a4-page:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .no-break { page-break-inside: avoid; break-inside: avoid; }
+    table { page-break-inside: auto; }
+    thead { display: table-header-group; }
+    tr { page-break-inside: avoid; break-inside: avoid; }
+  }
+
+  /* ── Screen styles ── */
+  .screen-wrapper { background: #CBD5E1; padding: 36px 0; min-height: 100vh; }
+
+  /* Cover screen: flex column agar inner div flex:1 bisa mengisi sisa ruang */
+  .a4-cover {
+    width: 210mm;
+    height: 297mm;
+    background: white;
+    margin: 0 auto 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+    border-radius: 2px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Pages screen: fixed A4 height, konten terpotong jika melebihi */
+  .a4-page {
+    width: 210mm;
+    height: 297mm;
+    background: white;
+    margin: 0 auto 24px;
+    padding: 13mm 15mm;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    border-radius: 2px;
+  }
+
+  .no-break { page-break-inside: avoid; break-inside: avoid; }
+`}</style>
 
       {/* Nav */}
       <div className="no-print" style={{ position: "sticky", top: 0, zIndex: 50, background: T.navy, boxShadow: "0 4px 20px rgba(15,32,68,0.3)" }}>
@@ -850,81 +912,88 @@ const PreviewLaporanPage: React.FC = () => {
           <PageFooter page={4} total={TOTAL_PAGES} />
         </div>
 
-        {/* ══ PAGE 5 — KASUS KRITIS + TTD ══════════════════════ */}
-        <div className="a4-page">
-          <PageHeader title="Kasus Kritis & Rekomendasi Tindakan" page={5} total={TOTAL_PAGES} date={currentDate} />
+      {/* ══ PAGE 5 — KASUS KRITIS ══════════════════════════ */}
+<div className="a4-page">
+  <PageHeader title="Kasus Kritis & Rekomendasi Tindakan" page={5} total={TOTAL_PAGES} date={currentDate} />
 
-          <div className="no-break" style={{ background: "#FEF2F2", borderRadius: 8, padding: "9px 13px", border: "1px solid #FECACA", marginBottom: 13, display: "flex", gap: 9, alignItems: "flex-start" }}>
-            <span style={{ fontSize: 18, flexShrink: 0 }}>🚨</span>
-            <p style={{ fontSize: 10, color: "#7F1D1D", lineHeight: 1.6 }}>
-              Terdapat <strong>{criticalChildrenData.length} anak</strong> yang teridentifikasi mengalami masalah gizi serius dan/atau stunting.
-              Data ini menjadi dasar program <strong>Pemberian Makanan Tambahan (PMT)</strong> dan <strong>kunjungan rumah prioritas</strong>.
-              Seluruh kasus dikoordinasikan dengan Puskesmas dan Dinas Kesehatan setempat.
-            </p>
-          </div>
+  <div className="no-break" style={{ background: "#FEF2F2", borderRadius: 8, padding: "9px 13px", border: "1px solid #FECACA", marginBottom: 13, display: "flex", gap: 9, alignItems: "flex-start" }}>
+    <span style={{ fontSize: 18, flexShrink: 0 }}>🚨</span>
+    <p style={{ fontSize: 10, color: "#7F1D1D", lineHeight: 1.6 }}>
+      Terdapat <strong>{criticalChildrenData.length} anak</strong> yang teridentifikasi mengalami masalah gizi serius dan/atau stunting.
+      Data ini menjadi dasar program <strong>Pemberian Makanan Tambahan (PMT)</strong> dan <strong>kunjungan rumah prioritas</strong>.
+      Seluruh kasus dikoordinasikan dengan Puskesmas dan Dinas Kesehatan setempat.
+    </p>
+  </div>
 
-          <Card style={{ marginBottom: 13, border: "1.5px solid #FECACA" }}>
-            <SectionHeader title="Daftar Kasus Kritis — Gizi Buruk & Stunting" color={T.red} icon="🚨" />
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: "#FEF2F2" }}>
-                  {["No", "Nama Anak", "Nama Ibu", "Posyandu", "Usia", "Status Gizi", "Stunting", "Prioritas"].map(h => (
-                    <th key={h} style={{ padding: "7px 10px", fontSize: 8.5, fontWeight: 700, color: "#991B1B", textAlign: h === "No" || h === "Usia" || h === "Status Gizi" || h === "Stunting" || h === "Prioritas" ? "center" : "left", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid #FECACA" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {criticalChildrenData.map((child: any, idx: number) => (
-                  <tr key={idx} style={{ background: child.prioritas === "Sangat Tinggi" ? "#FFF5F5" : T.white, borderBottom: `1px solid #FEF2F2` }}>
-                    <td style={{ padding: "7px 10px", textAlign: "center", fontSize: 9.5, color: T.textSub, fontWeight: 600 }}>{idx + 1}</td>
-                    <td style={{ padding: "7px 10px", fontSize: 11, fontWeight: 700 }}>{child.nama_anak}</td>
-                    <td style={{ padding: "7px 10px", fontSize: 10, color: T.textSub }}>{child.nama_ibu}</td>
-                    <td style={{ padding: "7px 10px", fontSize: 10, color: T.textSub }}>{child.posyandu_nama}</td>
-                    <td style={{ padding: "7px 10px", textAlign: "center", fontSize: 11, fontWeight: 700 }}>{child.usia_bulan}</td>
-                    <td style={{ padding: "7px 10px", textAlign: "center" }}><Tag label={child.status_gizi} color={giziColor[child.status_gizi] ?? T.textSub} /></td>
-                    <td style={{ padding: "7px 10px", textAlign: "center" }}>
-                      {child.status_stunting === "Stunting" ? <Tag label="✓ Ya" color={T.red} /> : <span style={{ color: "#CBD5E1", fontSize: 11 }}>—</span>}
-                    </td>
-                    <td style={{ padding: "7px 10px", textAlign: "center" }}><Tag label={child.prioritas} color={priorityColor[child.prioritas] ?? T.textSub} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
+  <Card style={{ marginBottom: 13, border: "1.5px solid #FECACA" }}>
+    <SectionHeader title="Daftar Kasus Kritis — Gizi Buruk & Stunting" color={T.red} icon="🚨" />
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead>
+        <tr style={{ background: "#FEF2F2" }}>
+          {["No", "Nama Anak", "Nama Ibu", "Posyandu", "Usia", "Status Gizi", "Stunting", "Prioritas"].map(h => (
+            <th key={h} style={{ padding: "7px 10px", fontSize: 8.5, fontWeight: 700, color: "#991B1B", textAlign: h === "No" || h === "Usia" || h === "Status Gizi" || h === "Stunting" || h === "Prioritas" ? "center" : "left", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid #FECACA" }}>{h}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {criticalChildrenData.map((child: any, idx: number) => (
+          <tr key={idx} style={{ background: child.prioritas === "Sangat Tinggi" ? "#FFF5F5" : T.white, borderBottom: `1px solid #FEF2F2` }}>
+            <td style={{ padding: "7px 10px", textAlign: "center", fontSize: 9.5, color: T.textSub, fontWeight: 600 }}>{idx + 1}</td>
+            <td style={{ padding: "7px 10px", fontSize: 11, fontWeight: 700 }}>{child.nama_anak}</td>
+            <td style={{ padding: "7px 10px", fontSize: 10, color: T.textSub }}>{child.nama_ibu}</td>
+            <td style={{ padding: "7px 10px", fontSize: 10, color: T.textSub }}>{child.posyandu_nama}</td>
+            <td style={{ padding: "7px 10px", textAlign: "center", fontSize: 11, fontWeight: 700 }}>{child.usia_bulan}</td>
+            <td style={{ padding: "7px 10px", textAlign: "center" }}><Tag label={child.status_gizi} color={giziColor[child.status_gizi] ?? T.textSub} /></td>
+            <td style={{ padding: "7px 10px", textAlign: "center" }}>
+              {child.status_stunting === "Stunting" ? <Tag label="✓ Ya" color={T.red} /> : <span style={{ color: "#CBD5E1", fontSize: 11 }}>—</span>}
+            </td>
+            <td style={{ padding: "7px 10px", textAlign: "center" }}><Tag label={child.prioritas} color={priorityColor[child.prioritas] ?? T.textSub} /></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </Card>
 
-          <div className="no-break" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 15 }}>
-            {[
-              { icon: "💊", title: "Intervensi Gizi", color: T.red, desc: `${criticalChildrenData.filter((c: any) => c.status_gizi === "Gizi Buruk").length} anak gizi buruk perlu PMT intensif dan monitoring mingguan oleh kader dan bidan desa.` },
-              { icon: "📏", title: "Program Anti-Stunting", color: T.orange, desc: `${criticalChildrenData.filter((c: any) => c.status_stunting === "Stunting").length} kasus stunting perlu koordinasi Puskesmas untuk terapi tumbuh kembang dan suplementasi.` },
-              { icon: "🏠", title: "Kunjungan Rumah", color: T.amber, desc: `Prioritaskan ${criticalChildrenData.filter((c: any) => c.prioritas === "Sangat Tinggi").length} kasus Sangat Tinggi dalam 7 hari ke depan.` },
-            ].map((a, i) => (
-              <div key={i} style={{ background: `${a.color}08`, borderRadius: 8, padding: "12px 13px", border: `1px solid ${a.color}25` }}>
-                <div style={{ fontSize: 20, marginBottom: 6 }}>{a.icon}</div>
-                <p style={{ fontSize: 10.5, fontWeight: 700, color: a.color, marginBottom: 5 }}>{a.title}</p>
-                <p style={{ fontSize: 9, color: T.text, lineHeight: 1.6 }}>{a.desc}</p>
-              </div>
-            ))}
-          </div>
+  <PageFooter page={5} total={TOTAL_PAGES} />
+</div>
 
-          <div style={{ background: `linear-gradient(135deg,${T.navy} 0%,#1a3a6b 100%)`, borderRadius: 10, padding: "17px 22px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <p style={{ color: "#93C5FD", fontSize: 9, fontWeight: 600, letterSpacing: "0.1em" }}>SISTEM INFORMASI POSYANDU TERPADU</p>
-              <p style={{ color: "#fff", fontSize: 12, fontWeight: 700, marginTop: 3 }}>Laporan ini dibuat secara otomatis dan bersifat rahasia</p>
-              <p style={{ color: "rgba(255,255,255,0.43)", fontSize: 9, marginTop: 2 }}>Dicetak: {currentDate}</p>
-            </div>
-            <div style={{ display: "flex", gap: 32 }}>
-              {["Kepala Desa", "Mengetahui"].map((role, i) => (
-                <div key={i} style={{ textAlign: "center" }}>
-                  <p style={{ color: "rgba(255,255,255,0.43)", fontSize: 8.5, marginBottom: 32 }}>{role}</p>
-                  <div style={{ width: 110, height: 1, background: "rgba(255,255,255,0.28)" }} />
-                  <p style={{ color: "rgba(255,255,255,0.33)", fontSize: 8.5, marginTop: 3 }}>( _______________ )</p>
-                </div>
-              ))}
-            </div>
-          </div>
+{/* ══ PAGE 6 — REKOMENDASI + TTD ════════════════════════ */}
+<div className="a4-page">
+  <PageHeader title="Rekomendasi Tindakan & Pengesahan" page={6} total={TOTAL_PAGES} date={currentDate} />
 
-          <PageFooter page={5} total={TOTAL_PAGES} />
+  <div className="no-break" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
+    {[
+      { icon: "💊", title: "Intervensi Gizi", color: T.red, desc: `${criticalChildrenData.filter((c: any) => c.status_gizi === "Gizi Buruk").length} anak gizi buruk perlu PMT intensif dan monitoring mingguan oleh kader dan bidan desa.` },
+      { icon: "📏", title: "Program Anti-Stunting", color: T.orange, desc: `${criticalChildrenData.filter((c: any) => c.status_stunting === "Stunting").length} kasus stunting perlu koordinasi Puskesmas untuk terapi tumbuh kembang dan suplementasi.` },
+      { icon: "🏠", title: "Kunjungan Rumah", color: T.amber, desc: `Prioritaskan ${criticalChildrenData.filter((c: any) => c.prioritas === "Sangat Tinggi").length} kasus Sangat Tinggi dalam 7 hari ke depan.` },
+    ].map((a, i) => (
+      <div key={i} style={{ background: `${a.color}08`, borderRadius: 8, padding: "14px 15px", border: `1px solid ${a.color}25` }}>
+        <div style={{ fontSize: 22, marginBottom: 8 }}>{a.icon}</div>
+        <p style={{ fontSize: 11, fontWeight: 700, color: a.color, marginBottom: 6 }}>{a.title}</p>
+        <p style={{ fontSize: 9.5, color: T.text, lineHeight: 1.65 }}>{a.desc}</p>
+      </div>
+    ))}
+  </div>
+
+  <div style={{ background: `linear-gradient(135deg,${T.navy} 0%,#1a3a6b 100%)`, borderRadius: 10, padding: "17px 22px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div>
+      <p style={{ color: "#93C5FD", fontSize: 9, fontWeight: 600, letterSpacing: "0.1em" }}>SISTEM INFORMASI POSYANDU TERPADU</p>
+      <p style={{ color: "#fff", fontSize: 12, fontWeight: 700, marginTop: 3 }}>Laporan ini dibuat secara otomatis dan bersifat rahasia</p>
+      <p style={{ color: "rgba(255,255,255,0.43)", fontSize: 9, marginTop: 2 }}>Dicetak: {currentDate}</p>
+    </div>
+    <div style={{ display: "flex", gap: 32 }}>
+      {["Kepala Desa", "Mengetahui"].map((role, i) => (
+        <div key={i} style={{ textAlign: "center" }}>
+          <p style={{ color: "rgba(255,255,255,0.43)", fontSize: 8.5, marginBottom: 32 }}>{role}</p>
+          <div style={{ width: 110, height: 1, background: "rgba(255,255,255,0.28)" }} />
+          <p style={{ color: "rgba(255,255,255,0.33)", fontSize: 8.5, marginTop: 3 }}>( _______________ )</p>
         </div>
+      ))}
+    </div>
+  </div>
+
+  <PageFooter page={6} total={TOTAL_PAGES} />
+</div>
 
       </div>
     </div>
