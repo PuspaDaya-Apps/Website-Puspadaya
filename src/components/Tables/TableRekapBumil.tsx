@@ -9,10 +9,73 @@ import {
 import Link from "next/link";
 import { Column, ColumnBodyOptions } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import { Dialog } from "primereact/dialog"; // Import Dialog
+import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import React, { useEffect, useRef, useState } from "react";
+
+const dummyDataBumil: RekapPengukuranBumil[] = [
+  {
+    id: 1,
+    nik: "3201234567891001",
+    namaLengkap: "Ratna Sari",
+    tanggalPengukuran: "2024-10-01",
+  },
+  {
+    id: 2,
+    nik: "3201234567891002",
+    namaLengkap: "Siti Rohmah",
+    tanggalPengukuran: "2024-10-05",
+  },
+  {
+    id: 3,
+    nik: "3201234567891003",
+    namaLengkap: "Dewi Lestari",
+    tanggalPengukuran: "2024-10-08",
+  },
+  {
+    id: 4,
+    nik: "3201234567891004",
+    namaLengkap: "Intan Permata",
+    tanggalPengukuran: "2024-10-10",
+  },
+  {
+    id: 5,
+    nik: "3201234567891005",
+    namaLengkap: "Yuli Rahmawati",
+    tanggalPengukuran: "2024-10-12",
+  },
+  {
+    id: 6,
+    nik: "3201234567891006",
+    namaLengkap: "Fitri Andini",
+    tanggalPengukuran: "2024-10-15",
+  },
+  {
+    id: 7,
+    nik: "3201234567891007",
+    namaLengkap: "Mega Purnama",
+    tanggalPengukuran: "2024-10-18",
+  },
+  {
+    id: 8,
+    nik: "3201234567891008",
+    namaLengkap: "Rina Kurnia",
+    tanggalPengukuran: "2024-10-20",
+  },
+  {
+    id: 9,
+    nik: "3201234567891009",
+    namaLengkap: "Sri Wahyuni",
+    tanggalPengukuran: "2024-10-22",
+  },
+  {
+    id: 10,
+    nik: "3201234567891010",
+    namaLengkap: "Diana Susanti",
+    tanggalPengukuran: "2024-10-25",
+  },
+];
 
 const TableRekapBumil = () => {
   const [dataRekapBumil, setDataRekapBumil] = useState<RekapPengukuranBumil[]>(
@@ -24,69 +87,6 @@ const TableRekapBumil = () => {
   const [selectedDataRekap, setSelectedDataRekap] =
     useState<RekapPengukuranBumil | null>(null);
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
-
-  const dummyDataBumil: RekapPengukuranBumil[] = [
-    {
-      id: 1,
-      nik: "3201234567891001",
-      namaLengkap: "Ratna Sari",
-      tanggalPengukuran: "2024-10-01",
-    },
-    {
-      id: 2,
-      nik: "3201234567891002",
-      namaLengkap: "Siti Rohmah",
-      tanggalPengukuran: "2024-10-05",
-    },
-    {
-      id: 3,
-      nik: "3201234567891003",
-      namaLengkap: "Dewi Lestari",
-      tanggalPengukuran: "2024-10-08",
-    },
-    {
-      id: 4,
-      nik: "3201234567891004",
-      namaLengkap: "Intan Permata",
-      tanggalPengukuran: "2024-10-10",
-    },
-    {
-      id: 5,
-      nik: "3201234567891005",
-      namaLengkap: "Yuli Rahmawati",
-      tanggalPengukuran: "2024-10-12",
-    },
-    {
-      id: 6,
-      nik: "3201234567891006",
-      namaLengkap: "Fitri Andini",
-      tanggalPengukuran: "2024-10-15",
-    },
-    {
-      id: 7,
-      nik: "3201234567891007",
-      namaLengkap: "Mega Purnama",
-      tanggalPengukuran: "2024-10-18",
-    },
-    {
-      id: 8,
-      nik: "3201234567891008",
-      namaLengkap: "Rina Kurnia",
-      tanggalPengukuran: "2024-10-20",
-    },
-    {
-      id: 9,
-      nik: "3201234567891009",
-      namaLengkap: "Sri Wahyuni",
-      tanggalPengukuran: "2024-10-22",
-    },
-    {
-      id: 10,
-      nik: "3201234567891010",
-      namaLengkap: "Diana Susanti",
-      tanggalPengukuran: "2024-10-25",
-    },
-  ];
 
   useEffect(() => {
     try {

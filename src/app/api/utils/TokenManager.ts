@@ -21,6 +21,11 @@ class TokenManagerClass {
   private refreshThreshold = 60000; // Refresh 1 minute before expiry
   private refreshInterval: NodeJS.Timeout | null = null;
 
+  // Check if running in browser
+  private isBrowser(): boolean {
+    return typeof window !== 'undefined' && typeof document !== 'undefined';
+  }
+
   private constructor() {}
 
   public static getInstance(): TokenManagerClass {
@@ -34,6 +39,10 @@ class TokenManagerClass {
    * Save token to all storage (localStorage, sessionStorage, cookies)
    */
   public saveToken(tokenData: TokenData): void {
+    if (!this.isBrowser()) {
+      return;
+    }
+
     const storedData: StoredTokenData = {
       ...tokenData,
       storedAt: Date.now(),
@@ -69,6 +78,10 @@ class TokenManagerClass {
    * Get token from storage
    */
   public getToken(): TokenData | null {
+    if (!this.isBrowser()) {
+      return null;
+    }
+
     try {
       const stored = localStorage.getItem(this.tokenKey);
       if (!stored) {
@@ -162,6 +175,10 @@ class TokenManagerClass {
    * Start auto-refresh mechanism
    */
   public startAutoRefresh(): void {
+    if (!this.isBrowser()) {
+      return;
+    }
+
     // Clear existing interval
     this.stopAutoRefresh();
 
@@ -170,10 +187,14 @@ class TokenManagerClass {
       if (this.needsRefresh() && !this.isExpired()) {
         // console.log('🔄 Auto-refreshing token...');
         // Emit event for app to handle refresh
-        window.dispatchEvent(new CustomEvent('token:refreshNeeded'));
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('token:refreshNeeded'));
+        }
       } else if (this.isExpired()) {
         // console.log('⚠️ Token expired, logging out...');
-        window.dispatchEvent(new CustomEvent('token:expired'));
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('token:expired'));
+        }
         this.stopAutoRefresh();
       }
     }, 30000); // Check every 30 seconds
@@ -195,6 +216,10 @@ class TokenManagerClass {
    * Clear all token storage (logout)
    */
   public clearToken(): void {
+    if (!this.isBrowser()) {
+      return;
+    }
+
     try {
       // Clear localStorage
       localStorage.removeItem(this.tokenKey);

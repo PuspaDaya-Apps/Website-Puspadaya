@@ -1,9 +1,12 @@
 "use client";
-import DefaultLayout from "@/components/Layouts/DefaultLaout";
+import dynamic from "next/dynamic";
 import React, { useEffect, useState } from "react";
-import Dashboard from "@/components/Dashboard/Dashboard";
 import { useRouter } from "next/navigation";
 import { TokenManager } from "@/app/api/utils/TokenManager";
+
+// Dynamically import layout and dashboard with SSR disabled (uses ApexCharts and Leaflet)
+const DefaultLayout = dynamic(() => import("@/components/Layouts/DefaultLaout"), { ssr: false, loading: () => <p>Loading...</p> });
+const Dashboard = dynamic(() => import("@/components/Dashboard/Dashboard"), { ssr: false, loading: () => <p>Loading...</p> });
 
 export default function Home() {
   const router = useRouter();

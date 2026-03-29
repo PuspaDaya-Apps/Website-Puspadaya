@@ -2,10 +2,7 @@
 import React, { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { statistikDashboard } from "@/app/api/statistik/statistik";
-import MapPersebaranBalitaStunting from "@/components/Charts/PetaPersebaranAnakStunting";
-import MapPersebaranBalitaBerdasarkanWIlayah from "@/components/Charts/MapPersebaranBalitaBerdasarkanWIlayah";
-import MapPersebaranKader from "@/components/Charts/MapPersebaranKader";
-import MapPersebaranKeluargaTanpaMCK from "@/components/Charts/MapPersebaranKeluargaTanpaMCK";
+import dynamic from "next/dynamic";
 import TrendSection from "../card-components/TrendSection";
 import NutritionStatusSection from "../card-components/NutritionStatusSection";
 import AttendanceSection from "../card-components/AttendanceSection";
@@ -15,6 +12,12 @@ import NIKStatisticsSection from "../card-components/NIKStatisticsSection";
 import PregnancyRiskSection from "../card-components/PregnancyRiskSection";
 import PosyanduDistributionSection from "../card-components/PosyanduDistributionSection";
 import KaderDistributionSection from "../card-components/KaderDistributionSection";
+
+// Dynamically import map components with SSR disabled (Leaflet requires window)
+const MapPersebaranBalitaStunting = dynamic(() => import("@/components/Charts/PetaPersebaranAnakStunting"), { ssr: false });
+const MapPersebaranBalitaBerdasarkanWIlayah = dynamic(() => import("@/components/Charts/MapPersebaranBalitaBerdasarkanWIlayah"), { ssr: false });
+const MapPersebaranKader = dynamic(() => import("@/components/Charts/MapPersebaranKader"), { ssr: false });
+const MapPersebaranKeluargaTanpaMCK = dynamic(() => import("@/components/Charts/MapPersebaranKeluargaTanpaMCK"), { ssr: false });
 
 const DashboardDinasSosial = () => {
   const [datadash, setData] = useState<any | null>(null);
