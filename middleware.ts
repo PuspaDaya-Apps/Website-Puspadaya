@@ -17,16 +17,18 @@ export function middleware(req: NextRequest) {
     const loginUrl = new URL('/auth/signin', req.url);
 
     // Halaman publik yang tidak perlu token
-    const isPublicPage = pathname.startsWith('/auth/signin');
+    const publicPages = ['/auth/signin'];
+    const isPublicPage = publicPages.some(page => pathname.startsWith(page));
 
-    // Redirect ke login jika tidak ada token dan bukan halaman publik
-    if (!token && !isPublicPage) {
-        return NextResponse.redirect(loginUrl);
-    }
-
-    // Redirect ke home jika sudah login tapi akses halaman login
+    // Jika sudah login dan mencoba mengakses halaman login, redirect ke home
     if (token && isPublicPage) {
         return NextResponse.redirect(new URL('/', req.url));
+    }
+
+    // Jika tidak ada token dan bukan halaman publik, redirect ke login
+    // TAPI halaman '/' (home) juga redirect ke login tanpa cek token
+    if (!token && !isPublicPage) {
+        return NextResponse.redirect(loginUrl);
     }
 
     return NextResponse.next();
