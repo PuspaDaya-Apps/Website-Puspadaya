@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { TokenManager } from "@/app/api/utils/TokenManager";
 import {
   DashboardSummary,
   CriticalChild,
@@ -672,33 +673,36 @@ const PrevalensiCard: React.FC<{
 const PreviewLaporanPage: React.FC = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   // Hook 1: Cek token dan setup client
   useEffect(() => {
-    // Cek token di localStorage dengan cepat
-    const token = localStorage.getItem('token');
+    // Cek token menggunakan TokenManager (bukan localStorage langsung)
+    const tokenData = TokenManager.getToken();
+    const accessToken = TokenManager.getAccessToken();
 
-    if (!token) {
+    if (!tokenData || !accessToken) {
       // Jika tidak ada token, redirect segera
       router.replace('/auth/signin');
       return;
     }
 
     setIsClient(true);
+    setIsAuthorized(true);
   }, [router]);
 
   // Hook 2: Auto print setelah halaman siap
   useEffect(() => {
-    if (isClient) {
+    if (isClient && isAuthorized) {
       const t = setTimeout(() => {
         window.print();
       }, 1200);
       return () => clearTimeout(t);
     }
-  }, [isClient]);
+  }, [isClient, isAuthorized]);
 
   // Early return setelah semua hooks
-  if (!isClient) {
+  if (!isClient || !isAuthorized) {
     return null;
   }
 

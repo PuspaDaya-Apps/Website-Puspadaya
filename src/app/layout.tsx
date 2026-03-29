@@ -10,6 +10,8 @@ import React, { useEffect, useState } from "react";
 import Loader from "@/components/common/Loader";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SeniorModeProvider } from "@/contexts/SeniorModeContext";
+import SessionTimeoutWarning from "@/components/SessionTimeoutWarning";
+import { initializeApp } from "@/app/api/utils/initializeApp";
 
 const queryClient = new QueryClient();
 
@@ -20,10 +22,14 @@ export default function RootLayout({
 }>) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
-
-  // const pathname = usePathname();
+  const [appInitialized, setAppInitialized] = useState(false);
 
   useEffect(() => {
+    // Initialize app (axios interceptors, token management)
+    initializeApp();
+    setAppInitialized(true);
+    
+    // Show loader for 1 second
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
@@ -44,7 +50,12 @@ export default function RootLayout({
             />
           </head>
           <body suppressHydrationWarning={true}>
-            {loading ? <Loader /> : children}
+            {loading ? <Loader /> : (
+              <>
+                {appInitialized && <SessionTimeoutWarning />}
+                {children}
+              </>
+            )}
           </body>
         </html>
       </SeniorModeProvider>

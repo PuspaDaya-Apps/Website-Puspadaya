@@ -13,11 +13,18 @@ export default function SigninWithPassword() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    
     try {
       await loginUser(username, password);
-      router.push("/");
+      
+      // Small delay to ensure token is fully saved
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Force reload to ensure middleware picks up the cookie
+      window.location.href = '/';
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Login gagal. Silakan coba lagi.');
     }
   };
 

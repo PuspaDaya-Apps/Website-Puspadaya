@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { APIEndpoints } from '@/app/config/route/apiEndpoints';
 import { Messages } from '@/components/Handleerror/message/messages';
-import { useRouter } from 'next/navigation';
+import { TokenManager } from '../utils/TokenManager';
+import { retryAxiosRequest } from '../utils/retry';
 
 export const loginUser = async (username: string, password: string): Promise<string> => {
     if (!username || !password) {
@@ -9,43 +10,51 @@ export const loginUser = async (username: string, password: string): Promise<str
     }
 
     try {
-        const response = await axios.post(APIEndpoints.AUTHENTICATION, { username, password });
+        // Use retry logic for login request
+        const response = await retryAxiosRequest(() => 
+            axios.post(APIEndpoints.AUTHENTICATION, { username, password }),
+            { maxRetries: 2, initialDelay: 500 }
+        );
 
         if (response.status === 200) {
             const { data } = response.data;
 
             if (data?.access_token && data?.refresh_token) {
-                // Simpan token dan data awal ke sessionStorage
-                sessionStorage.setItem('access_token', data.access_token);
-                sessionStorage.setItem('refresh_token', data.refresh_token);
-                sessionStorage.setItem('user_role', data.role);
-                sessionStorage.setItem('nama_lengkap', data.nama_lengkap);
+                // Calculate token expiry (assume 1 hour if not provided)
+                const expiresAt = Date.now() + (60 * 60 * 1000); // 1 hour from now
 
-                // 🔹 Simpan token ke cookies agar middleware bisa mendeteksi
-                document.cookie = `token=${data.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
+                // Handle role - check both data.role and data.user?.role
+                const userRole = data?.role || data?.user?.role || 'Kader';
+                const namaLengkap = data?.nama_lengkap || data?.user?.nama_lengkap || data?.nama || 'User';
 
-                // 🔹 Panggil API CURRENT setelah login berhasil
+                // Save token using TokenManager (syncs to all storage)
+                TokenManager.saveToken({
+                    accessToken: data.access_token,
+                    refreshToken: data.refresh_token,
+                    expiresAt: expiresAt,
+                    role: userRole,
+                    namaLengkap: namaLengkap,
+                });
+
+                // 🔹 Panggil API CURRENT setelah login berhasil dengan retry
                 try {
-                    const currentResponse = await axios.get(APIEndpoints.CURRENT, {
-                        headers: {
-                            Authorization: `Bearer ${data.access_token}`,
-                        },
-                    });
+                    const currentResponse = await retryAxiosRequest(() => 
+                        axios.get(APIEndpoints.CURRENT, {
+                            headers: {
+                                Authorization: `Bearer ${data.access_token}`,
+                            },
+                        }),
+                        { maxRetries: 3, initialDelay: 1000 }
+                    );
 
                     if (currentResponse.status === 200) {
                         const currentData = currentResponse.data?.data || currentResponse.data;
 
                         // Simpan hasil CURRENT ke localStorage
                         localStorage.setItem('current_user', JSON.stringify(currentData));
-                        localStorage.setItem('token', data.access_token);
-
-                        // Print hasil CURRENT ke console
-                        // console.log('✅ CURRENT user data saved to localStorage:', currentData);
-                    } else {
-                        // console.warn('⚠️ Gagal memuat data CURRENT user.');
                     }
                 } catch (currentError: any) {
-                    // console.error('❌ Error fetching CURRENT user:', currentError.response?.data || currentError.message);
+                    // Don't fail login if CURRENT fails - user can still access with valid token
                 }
 
                 return data.access_token;
@@ -57,8 +66,6 @@ export const loginUser = async (username: string, password: string): Promise<str
             throw new Error(Messages.BAD_REQUEST);
         }
     } catch (error: any) {
-        console.error('Login Error:', error.response?.data || error.message);
-
         if (error.response?.data) {
             const errorData = error.response.data;
 
@@ -83,16 +90,12 @@ export const loginUser = async (username: string, password: string): Promise<str
 
 // Fungsi untuk logout
 export const logoutUser = (): void => {
-    // Hapus token dari cookies
-    document.cookie = 'token=; path=/; max-age=0; SameSite=Strict';
+    // Clear token from all storage (cookies, localStorage, sessionStorage)
+    TokenManager.clearToken();
     
-    // Hapus dari sessionStorage
-    sessionStorage.removeItem('access_token');
-    sessionStorage.removeItem('refresh_token');
-    sessionStorage.removeItem('user_role');
-    sessionStorage.removeItem('nama_lengkap');
-    
-    // Hapus dari localStorage
+    // Clear user data
     localStorage.removeItem('current_user');
-    localStorage.removeItem('token');
+    
+    // Dispatch logout event for any listeners
+    window.dispatchEvent(new CustomEvent('auth:logout'));
 };

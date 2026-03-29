@@ -26,35 +26,28 @@ const ReportPreviewModal: React.FC<ReportPreviewModalProps> = ({
     setIsGenerating(true);
 
     try {
-      console.log("📊 Mulai generate PDF report...");
-      
       const pdfBlob = await generateComprehensiveReport(reportOptions);
-      
+
       if (!pdfBlob) {
         throw new Error("PDF Blob is null");
       }
 
-      console.log("✅ PDF Blob created:", pdfBlob.size, "bytes");
-
       // Create URL for preview
       const url = URL.createObjectURL(pdfBlob);
-      
+
       // Open in new tab for preview
       window.open(url, "_blank");
-      
-      console.log("👁️ PDF opened in new tab for preview");
-      
+
       // Show success message
       alert("✅ Laporan berhasil dibuat!\n\nPDF dibuka di tab baru untuk preview.\n\nAnda bisa download langsung dari sana.");
       onClose();
-      
+
       // Cleanup after delay
       setTimeout(() => {
         URL.revokeObjectURL(url);
-        console.log("✅ URL revoked");
       }, 60000); // Revoke after 1 minute
     } catch (error) {
-      console.error("❌ Error generating report:", error);
+      console.error("Error generating report:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       alert("❌ Gagal membuat laporan.\n\nError: " + errorMessage + "\n\nSilakan coba lagi.");
     } finally {
