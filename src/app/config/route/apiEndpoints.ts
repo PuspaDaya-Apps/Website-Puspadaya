@@ -1,5 +1,6 @@
 export const APIEndpoints = {
     AUTHENTICATION: '/api/v1/auth/login',
+    REFRESH_TOKEN: '/api/v1/auth/refresh',
     TOKEN_API: '/api/token',
     CURRENT: '/api/v1/users/current',
 
