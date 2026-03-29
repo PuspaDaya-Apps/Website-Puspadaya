@@ -13,6 +13,11 @@ export function middleware(req: NextRequest) {
     const loginUrl = new URL('/auth/signin', req.url);
     const homeUrl = new URL('/', req.url);
 
+    // Proteksi halaman preview-laporan
+    if (pathname.includes('/preview-laporan') && !token) {
+        return NextResponse.redirect(loginUrl);
+    }
+
     // Redirect jika tidak ada token dan bukan ke halaman login
     if (!token && !loginUrl.pathname.includes('/auth/signin')) {
         return NextResponse.redirect(loginUrl);
@@ -34,5 +39,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/api/:path*']
+    matcher: ['/api/:path*', '/preview-laporan/:path*']
 };

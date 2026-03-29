@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   DashboardSummary,
   CriticalChild,
@@ -669,10 +670,48 @@ const PrevalensiCard: React.FC<{
 // MAIN PAGE COMPONENT
 // ═════════════════════════════════════════════════════════════════════════════
 const PreviewLaporanPage: React.FC = () => {
+  const router = useRouter();
   const [isClient, setIsClient] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    // Cek token di localStorage
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // Jika tidak ada token, redirect ke login
+      router.push('/auth/signin');
+    } else {
+      setIsAuthorized(true);
+    }
+  }, [router]);
+
+  // Tampilkan loading atau null jika belum authorized
+  if (!isClient || !isAuthorized) {
+    return (
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center", 
+        minHeight: "100vh",
+        background: "#0F2044",
+        fontFamily: "'DM Sans','Segoe UI',sans-serif"
+      }}>
+        <div style={{ textAlign: "center", color: "#fff" }}>
+          <div style={{ 
+            width: 48, 
+            height: 48, 
+            border: "4px solid rgba(255,255,255,0.3)", 
+            borderTop: "4px solid #e44aba",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite",
+            margin: "0 auto 16px"
+          }} />
+          <p style={{ fontSize: 16, fontWeight: 600 }}>Memuat laporan...</p>
+        </div>
+      </div>
+    );
+  }
 
   const currentDate = new Date().toLocaleDateString("id-ID", {
     day: "numeric",
@@ -777,6 +816,11 @@ const PreviewLaporanPage: React.FC = () => {
       <style>{`
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 
   @media print {
     @page { size: A4 portrait; margin: 0; }
