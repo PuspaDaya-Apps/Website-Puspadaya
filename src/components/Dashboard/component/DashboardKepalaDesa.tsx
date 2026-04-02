@@ -8,18 +8,15 @@ import {
   posyanduPerformanceData,
   recentActivityData,
   kaderWorkloadData,
-  criticalChildrenData,
 } from "@/data/dummy-dashboard-kepala-desa";
 import { useSeniorMode } from "@/contexts/SeniorModeContext";
 
 // New hierarchical components
-import CriticalAlerts from "../component-desa/CriticalAlerts";
 import KeyMetrics from "../component-desa/KeyMetrics";
 import PosyanduOverview from "../component-desa/PosyanduOverview";
 import PerformanceSection from "../component-desa/PerformanceSection";
 import KaderManagement from "../component-desa/KaderManagement";
 import AdditionalMetrics from "../component-desa/AdditionalMetrics";
-import StatistikKehadiranKompetensi from "../component-desa/StatistikKehadiranKompetensi";
 import DurasiJarakAgregat from "../component-desa/DurasiJarakAgregat";
 import BebanKerjaTimSummary from "../component-desa/BebanKerjaTimSummary";
 import SKDNBarChart from "../component-desa/SKDNBarChart";
@@ -28,7 +25,6 @@ import ExpandableDataSection from "../component-desa/ExpandableDataSection";
 // Senior-friendly components
 import DashboardSederhana from "./DashboardSederhana";
 import AccessibilityControls from "./AccessibilityControls";
-import CriticalChildrenList from "../component-desa/CriticalChildrenList";
 
 const DashboardKepalaDesa: React.FC = () => {
   const [selectedPosyandu, setSelectedPosyandu] = useState<PosyanduItem | null>(null);
@@ -69,7 +65,6 @@ const DashboardKepalaDesa: React.FC = () => {
         <AccessibilityControls onPrint={handleShowPDFPreview} />
         <DashboardSederhana
           summary={dashboardSummaryData}
-          criticalChildren={criticalChildrenData}
           posyanduList={posyanduListData}
           highWorkloadKader={highWorkloadKader}
           onPrintReport={handlePrintReport}
@@ -121,13 +116,6 @@ const DashboardKepalaDesa: React.FC = () => {
         </div>
       </div>
 
-      {/* LEVEL 1: CRITICAL ALERTS - Prioritas Tertinggi */}
-      <CriticalAlerts
-        criticalChildren={criticalChildrenData}
-        underperformingPosyandu={underperformingPosyandu}
-        highWorkloadKader={highWorkloadKader}
-      />
-
       {/* LEVEL 2: KEY METRICS - Indikator Kunci */}
       <KeyMetrics summary={dashboardSummaryData} />
 
@@ -177,9 +165,6 @@ const DashboardKepalaDesa: React.FC = () => {
       {/* LEVEL 3: KADER MANAGEMENT */}
       <KaderManagement workloadData={kaderWorkloadData} />
 
-      {/* LEVEL 3: STATISTIK KEHADIRAN PER KOMPETENSI */}
-      <StatistikKehadiranKompetensi kehadiranKompetensi={dashboardSummaryData.kehadiran_kompetensi} />
-
       {/* LEVEL 3: DURASI DAN JARAK AGREGAT */}
       <DurasiJarakAgregat durasiJarak={dashboardSummaryData.durasi_jarak_agregat} />
 
@@ -191,27 +176,6 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 3: SKDN BAR CHART */}
       <SKDNBarChart skdnData={dashboardSummaryData.skdn_data} />
-
-      {/* LEVEL 4: CRITICAL CHILDREN LIST (Detailed View) */}
-      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-            <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-dark dark:text-white">
-              Daftar Anak dengan Gizi Buruk & Stunting
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Detail lengkap anak yang memerlukan intervensi segera
-            </p>
-          </div>
-        </div>
-        {/* eslint-disable-next-line react/no-children-prop */}
-        <CriticalChildrenList children={criticalChildrenData} />
-      </div>
 
       {/* LEVEL 4: EXPANDABLE DATA SECTIONS */}
       <ExpandableDataSection

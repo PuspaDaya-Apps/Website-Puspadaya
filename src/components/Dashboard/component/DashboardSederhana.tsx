@@ -1,11 +1,10 @@
 "use client";
 import React from "react";
-import { DashboardSummary, CriticalChild, PosyanduItem, KaderWorkload } from "@/types/dashboard-kepala-desa";
+import { DashboardSummary, PosyanduItem, KaderWorkload } from "@/types/dashboard-kepala-desa";
 import { useSeniorMode } from "@/contexts/SeniorModeContext";
 
 interface DashboardSederhanaProps {
   summary: DashboardSummary;
-  criticalChildren: CriticalChild[];
   posyanduList: PosyanduItem[];
   highWorkloadKader: KaderWorkload[];
   onPrintReport: () => void;
@@ -13,7 +12,6 @@ interface DashboardSederhanaProps {
 
 const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
   summary,
-  criticalChildren,
   posyanduList,
   highWorkloadKader,
   onPrintReport,
@@ -65,55 +63,6 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
           Monitor kesehatan balita dan ibu hamil di wilayah Anda
         </p>
       </div>
-
-      {/* CRITICAL ALERTS - Prioritas Utama */}
-      {criticalChildren.length > 0 && (
-        <div className={`rounded-xl p-6 shadow-md ${highContrast ? "bg-red-50 border-4 border-red-600" : "bg-red-50"}`}>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600">
-              <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <div>
-              <h2 className={`${getFontSize("large")} font-bold text-red-800`}>
-                PERHATIAN: {criticalChildren.length} Anak Perlu Bantuan Segera
-              </h2>
-              <p className={`${getFontSize("small")} text-red-700 mt-1`}>
-                Anak dengan gizi buruk dan stunting yang memerlukan tindakan
-              </p>
-            </div>
-          </div>
-          
-          <div className="space-y-3">
-            {criticalChildren.slice(0, 5).map((child) => (
-              <div key={child.id} className="rounded-lg bg-white p-4 border-2 border-red-300">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className={`${getFontSize("medium")} font-bold text-black`}>
-                      {child.nama_anak}
-                    </p>
-                    <p className={`${getFontSize("small")} text-gray-700`}>
-                      {child.posyandu_nama} • Usia: {child.usia_bulan} bulan
-                    </p>
-                    <p className={`${getFontSize("small")} text-gray-700`}>
-                      👤 Ibu: {child.nama_ibu}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`${getFontSize("large")} font-bold text-red-600`}>
-                      {child.berat_badan} kg
-                    </p>
-                    <p className={`${getFontSize("small")} text-gray-600`}>
-                      {child.tinggi_badan} cm
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* 5 METRIC UTAMA */}
       <div className={`${highContrast ? "bg-white border-4 border-black" : "bg-white"} rounded-xl p-6 shadow-md`}>

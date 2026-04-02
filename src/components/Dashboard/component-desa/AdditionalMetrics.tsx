@@ -210,36 +210,6 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
           <ImunisasiCard label="Campak" value={summary.infant_immunization_coverage.campak} color="red" />
         </div>
       </div>
-
-      {/* Prevalensi Balita */}
-      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
-        <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-          Prevalensi Balita
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <PrevalensiCard 
-            title="Stunting" 
-            jumlah={summary.stunting_prevalence.jumlah} 
-            prevalensi={summary.stunting_prevalence.prevalensi_persentase}
-            total={summary.stunting_prevalence.total_balita}
-            color="red"
-          />
-          <PrevalensiCard 
-            title="Wasting" 
-            jumlah={summary.wasting_prevalence.jumlah} 
-            prevalensi={summary.wasting_prevalence.prevalensi_persentase}
-            total={summary.wasting_prevalence.total_balita}
-            color="orange"
-          />
-          <PrevalensiCard 
-            title="Underweight" 
-            jumlah={summary.underweight_prevalence.jumlah} 
-            prevalensi={summary.underweight_prevalence.prevalensi_persentase}
-            total={summary.underweight_prevalence.total_balita}
-            color="amber"
-          />
-        </div>
-      </div>
     </div>
   );
 };
