@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { PosyanduItem } from "@/types/dashboard-kepala-desa";
 
@@ -18,13 +18,11 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   // Filter posyandu based on search
-  const filteredPosyandu = useMemo(() => {
-    return posyanduList.filter(
-      (posyandu) =>
-        posyandu.nama_posyandu.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        posyandu.nama_dusun.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [posyanduList, searchTerm]);
+  const filteredPosyandu = posyanduList.filter(
+    (posyandu) =>
+      posyandu.nama_posyandu.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      posyandu.nama_dusun.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // Get status color
   const getStatusColor = (persentase: number) => {
@@ -32,23 +30,6 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
     if (persentase >= 60) return "bg-yellow-500";
     return "bg-red-500";
   };
-
-  const getStatusLabel = (persentase: number) => {
-    if (persentase >= 80) return "Sangat Aktif";
-    if (persentase >= 60) return "Aktif";
-    return "Kurang Aktif";
-  };
-
-  // Calculate summary stats
-  const summaryStats = useMemo(() => {
-    const totalBalita = posyanduList.reduce((sum, p) => sum + p.total_balita, 0);
-    const totalIbuHamil = posyanduList.reduce((sum, p) => sum + p.total_ibu_hamil, 0);
-    const totalKader = posyanduList.reduce((sum, p) => sum + p.total_kader, 0);
-    const avgKehadiran = Math.round(
-      posyanduList.reduce((sum, p) => sum + p.persentase_kehadiran, 0) / posyanduList.length
-    );
-    return { totalBalita, totalIbuHamil, totalKader, avgKehadiran };
-  }, [posyanduList]);
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
@@ -104,26 +85,6 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
       </div>
 
       {/* Quick Stats */}
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-lg bg-blue-50 p-3 text-center dark:bg-blue-900/20">
-          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summaryStats.totalBalita}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Total Balita</p>
-        </div>
-        <div className="rounded-lg bg-pink-50 p-3 text-center dark:bg-pink-900/20">
-          <p className="text-2xl font-bold text-pink-600 dark:text-pink-400">{summaryStats.totalIbuHamil}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Ibu Hamil</p>
-        </div>
-        <div className="rounded-lg bg-violet-50 p-3 text-center dark:bg-violet-900/20">
-          <p className="text-2xl font-bold text-violet-600 dark:text-violet-400">{summaryStats.totalKader}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Kader</p>
-        </div>
-        <div className="rounded-lg bg-amber-50 p-3 text-center dark:bg-amber-900/20">
-          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{summaryStats.avgKehadiran}%</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Rata-rata Kehadiran</p>
-        </div>
-      </div>
-
-      {/* Search */}
       <div className="mb-6">
         <div className="relative">
           <input
@@ -157,17 +118,10 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
                   : "border-transparent bg-gray-50 dark:bg-gray-800"
               }`}
             >
-              <div className="mb-3 flex items-start justify-between">
+              <div className="mb-3">
                 <h3 className="font-semibold text-dark dark:text-white group-hover:text-primary transition-colors">
                   {posyandu.nama_posyandu}
                 </h3>
-                <span
-                  className={`rounded-full px-2 py-1 text-xs font-medium text-white ${getStatusColor(
-                    posyandu.persentase_kehadiran
-                  )}`}
-                >
-                  {getStatusLabel(posyandu.persentase_kehadiran)}
-                </span>
               </div>
 
               <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
@@ -258,9 +212,6 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
                 <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Kehadiran
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Status
-                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -306,15 +257,6 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
                         {posyandu.persentase_kehadiran}%
                       </span>
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span
-                      className={`rounded-full px-2 py-1 text-xs font-medium text-white ${getStatusColor(
-                        posyandu.persentase_kehadiran
-                      )}`}
-                    >
-                      {getStatusLabel(posyandu.persentase_kehadiran)}
-                    </span>
                   </td>
                 </tr>
               ))}
