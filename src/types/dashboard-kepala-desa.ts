@@ -74,6 +74,8 @@ export interface DashboardSummary {
   total_kader: number;
   rata_rata_kehadiran: number;
   kasus_stunting: number;
+  kasus_stunting_pendek: number; // Stunting pendek
+  kasus_stunting_sangat_pendek: number; // Stunting sangat pendek
   kasus_gizi_buruk: number;
   posyandu_aktif: number;
   posyandu_non_aktif: number;

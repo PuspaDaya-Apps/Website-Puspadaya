@@ -166,6 +166,8 @@ export const dashboardSummaryData: DashboardSummary = {
   total_kader: 68,
   rata_rata_kehadiran: 79,
   kasus_stunting: 32,
+  kasus_stunting_pendek: 20, // Stunting pendek
+  kasus_stunting_sangat_pendek: 12, // Stunting sangat pendek
   kasus_gizi_buruk: 11,
   posyandu_aktif: 6,
   posyandu_non_aktif: 2,

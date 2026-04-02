@@ -124,33 +124,16 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
     );
   };
 
-  // Calculate prevalence percentages
-  const stuntingPrevalence = summary.stunting_prevalence.prevalensi_persentase;
-  const wastingPrevalence = summary.wasting_prevalence.prevalensi_persentase;
-  const underweightPrevalence = summary.underweight_prevalence.prevalensi_persentase;
-
   const cards: MetricCardProps[] = [
     {
       title: "Total Posyandu",
       value: summary.total_posyandu,
-      subtitle: `dari ${summary.posyandu_aktif} aktif`,
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
         </svg>
       ),
       color: "blue",
-    },
-    {
-      title: "Total Balita",
-      value: summary.total_balita,
-      subtitle: `${summary.children_0_59_months} berkunjung`,
-      icon: (
-        <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      color: "emerald",
     },
     {
       title: "Total Kader",
@@ -163,23 +146,28 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
       color: "violet",
     },
     {
-      title: "Total Ibu Hamil",
-      value: summary.total_ibu_hamil,
+      title: "Bayi Baru Lahir",
+      value: summary.newborn_count,
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
         </svg>
       ),
-      color: "pink",
+      color: "cyan",
     },
     {
-      title: "Kasus Stunting",
-      value: summary.kasus_stunting,
-      subtitle: `${stuntingPrevalence.toFixed(1)}% dari total`,
-      trend: {
-        value: 3,
-        direction: "down",
-      },
+      title: "Total Balita",
+      value: summary.total_balita,
+      icon: (
+        <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      color: "emerald",
+    },
+    {
+      title: "Kasus Stunting Pendek",
+      value: summary.kasus_stunting_pendek,
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -188,13 +176,18 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
       color: "red",
     },
     {
+      title: "Kasus Stunting Sangat Pendek",
+      value: summary.kasus_stunting_sangat_pendek,
+      icon: (
+        <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6 6" />
+        </svg>
+      ),
+      color: "rose",
+    },
+    {
       title: "Kasus Wasting",
       value: summary.wasting_prevalence.jumlah,
-      subtitle: `${wastingPrevalence.toFixed(1)}% dari total`,
-      trend: {
-        value: 2,
-        direction: "down",
-      },
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6 6" />
@@ -205,11 +198,6 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
     {
       title: "Kasus Underweight",
       value: summary.underweight_prevalence.jumlah,
-      subtitle: `${underweightPrevalence.toFixed(1)}% dari total`,
-      trend: {
-        value: 1,
-        direction: "down",
-      },
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -218,14 +206,14 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
       color: "amber",
     },
     {
-      title: "Bayi Baru Lahir",
-      value: summary.newborn_count,
+      title: "Total Ibu Hamil",
+      value: summary.total_ibu_hamil,
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
       ),
-      color: "cyan",
+      color: "pink",
     },
     {
       title: "Ibu Hamil Anemia",
