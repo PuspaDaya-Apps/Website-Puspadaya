@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import Link from "next/link";
 import { DashboardSummary as DashboardSummaryType } from "@/types/dashboard-kepala-desa";
 
 interface KeyMetricsProps {
@@ -12,7 +11,7 @@ interface MetricCardProps {
   value: string | number;
   subtitle?: string;
   icon: React.ReactNode;
-  color: "blue" | "emerald" | "pink" | "violet" | "amber" | "red" | "orange";
+  color: "blue" | "emerald" | "pink" | "violet" | "amber" | "red" | "orange" | "green" | "cyan" | "rose";
   trend?: {
     value: number;
     direction: "up" | "down";
@@ -64,6 +63,21 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
         text: "text-orange-600 dark:text-orange-400",
         iconBg: "bg-orange-100 dark:bg-orange-800",
       },
+      green: {
+        bg: "bg-green-50 dark:bg-green-900/20",
+        text: "text-green-600 dark:text-green-400",
+        iconBg: "bg-green-100 dark:bg-green-800",
+      },
+      cyan: {
+        bg: "bg-cyan-50 dark:bg-cyan-900/20",
+        text: "text-cyan-600 dark:text-cyan-400",
+        iconBg: "bg-cyan-100 dark:bg-cyan-800",
+      },
+      rose: {
+        bg: "bg-rose-50 dark:bg-rose-900/20",
+        text: "text-rose-600 dark:text-rose-400",
+        iconBg: "bg-rose-100 dark:bg-rose-800",
+      },
     };
 
     const trendIcon = trend?.direction === "up" ? "↑" : trend?.direction === "down" ? "↓" : "";
@@ -112,7 +126,8 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
 
   // Calculate prevalence percentages
   const stuntingPrevalence = summary.stunting_prevalence.prevalensi_persentase;
-  const giziBurukPrevalence = (summary.kasus_gizi_buruk / summary.total_balita) * 100;
+  const wastingPrevalence = summary.wasting_prevalence.prevalensi_persentase;
+  const underweightPrevalence = summary.underweight_prevalence.prevalensi_persentase;
 
   const cards: MetricCardProps[] = [
     {
@@ -138,18 +153,24 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
       color: "emerald",
     },
     {
-      title: "Rata-rata Kehadiran",
-      value: `${summary.rata_rata_kehadiran}%`,
-      trend: {
-        value: 5,
-        direction: "up",
-      },
+      title: "Total Kader",
+      value: summary.total_kader,
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
       ),
-      color: "amber",
+      color: "violet",
+    },
+    {
+      title: "Total Ibu Hamil",
+      value: summary.total_ibu_hamil,
+      icon: (
+        <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      ),
+      color: "pink",
     },
     {
       title: "Kasus Stunting",
@@ -167,26 +188,62 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
       color: "red",
     },
     {
-      title: "Gizi Buruk",
-      value: summary.kasus_gizi_buruk,
-      subtitle: `${giziBurukPrevalence.toFixed(1)}% dari total`,
+      title: "Kasus Wasting",
+      value: summary.wasting_prevalence.jumlah,
+      subtitle: `${wastingPrevalence.toFixed(1)}% dari total`,
       trend: {
         value: 2,
         direction: "down",
       },
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6 6" />
         </svg>
       ),
       color: "orange",
+    },
+    {
+      title: "Kasus Underweight",
+      value: summary.underweight_prevalence.jumlah,
+      subtitle: `${underweightPrevalence.toFixed(1)}% dari total`,
+      trend: {
+        value: 1,
+        direction: "down",
+      },
+      icon: (
+        <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
+      color: "amber",
+    },
+    {
+      title: "Bayi Baru Lahir",
+      value: summary.newborn_count,
+      icon: (
+        <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+      ),
+      color: "cyan",
+    },
+    {
+      title: "Ibu Hamil Anemia",
+      value: summary.pregnant_women_under_energized,
+      subtitle: "KEK (Kurang Energi Kronis)",
+      icon: (
+        <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      ),
+      color: "rose",
     },
   ];
 
   return (
     <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
             <svg className="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,19 +252,13 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
           </div>
           <div>
             <h2 className="text-xl font-bold text-dark dark:text-white">
-              Indikator Kunci
+              Informasi Data Desa
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              Metric utama untuk monitoring wilayah
+              Data utama untuk monitoring wilayah
             </p>
           </div>
         </div>
-        <Link
-          href="/monitoring/kinerja-posyandu"
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700"
-        >
-          Lihat Detail Kinerja →
-        </Link>
       </div>
 
       {/* Metric Cards */}
