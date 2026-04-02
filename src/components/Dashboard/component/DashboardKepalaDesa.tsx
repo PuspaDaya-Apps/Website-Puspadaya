@@ -8,6 +8,8 @@ import {
   posyanduPerformanceData,
   recentActivityData,
   kaderWorkloadData,
+  statusGiziTrendData,
+  ibuHamilBeresikoTrendData,
 } from "@/data/dummy-dashboard-kepala-desa";
 import { useSeniorMode } from "@/contexts/SeniorModeContext";
 
@@ -159,7 +161,8 @@ const DashboardKepalaDesa: React.FC = () => {
       {/* LEVEL 3: PERFORMANCE & TRENDS */}
       <PerformanceSection
         trendData={monthlyTrendData}
-        performanceData={posyanduPerformanceData}
+        statusGiziTrend={statusGiziTrendData}
+        ibuHamilBeresikoTrend={ibuHamilBeresikoTrendData}
       />
 
       {/* LEVEL 3: KADER MANAGEMENT */}

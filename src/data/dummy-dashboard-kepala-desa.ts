@@ -12,6 +12,8 @@ import {
   KehadiranKompetensi,
   DurasiJarakAgregat,
   BebanKerjaTimSummary,
+  StatusGiziTrendData,
+  IbuHamilBeresikoTrendData,
 } from "@/types/dashboard-kepala-desa";
 import { SKDNData } from "@/components/Dashboard/component-desa/SKDNBarChart";
 import { PengukuranAnakResponseRapor, OrangTuaResponseRapor } from "@/types/data-25/RaporResponse";
@@ -229,6 +231,35 @@ export const dashboardSummaryData: DashboardSummary = {
     prevalensi_persentase: 9.3,
     total_balita: 375,
   },
+  // Tren data
+  status_gizi_trend: [
+    { bulan: "Jan", stunting_pendek: 12, stunting_sangat_pendek: 8, wasting: 15, underweight: 18 },
+    { bulan: "Feb", stunting_pendek: 11, stunting_sangat_pendek: 8, wasting: 14, underweight: 17 },
+    { bulan: "Mar", stunting_pendek: 11, stunting_sangat_pendek: 7, wasting: 14, underweight: 16 },
+    { bulan: "Apr", stunting_pendek: 10, stunting_sangat_pendek: 7, wasting: 13, underweight: 16 },
+    { bulan: "Mei", stunting_pendek: 10, stunting_sangat_pendek: 6, wasting: 13, underweight: 15 },
+    { bulan: "Jun", stunting_pendek: 9, stunting_sangat_pendek: 6, wasting: 12, underweight: 15 },
+    { bulan: "Jul", stunting_pendek: 9, stunting_sangat_pendek: 5, wasting: 12, underweight: 14 },
+    { bulan: "Agt", stunting_pendek: 8, stunting_sangat_pendek: 5, wasting: 11, underweight: 14 },
+    { bulan: "Sep", stunting_pendek: 8, stunting_sangat_pendek: 4, wasting: 11, underweight: 13 },
+    { bulan: "Okt", stunting_pendek: 7, stunting_sangat_pendek: 4, wasting: 10, underweight: 13 },
+    { bulan: "Nov", stunting_pendek: 7, stunting_sangat_pendek: 3, wasting: 10, underweight: 12 },
+    { bulan: "Des", stunting_pendek: 6, stunting_sangat_pendek: 3, wasting: 9, underweight: 12 },
+  ],
+  ibu_hamil_beresiko_trend: [
+    { bulan: "Jan", kek: 18, risiko_tinggi: 10, normal: 75 },
+    { bulan: "Feb", kek: 17, risiko_tinggi: 9, normal: 77 },
+    { bulan: "Mar", kek: 16, risiko_tinggi: 9, normal: 78 },
+    { bulan: "Apr", kek: 16, risiko_tinggi: 8, normal: 79 },
+    { bulan: "Mei", kek: 15, risiko_tinggi: 8, normal: 80 },
+    { bulan: "Jun", kek: 15, risiko_tinggi: 8, normal: 80 },
+    { bulan: "Jul", kek: 14, risiko_tinggi: 7, normal: 82 },
+    { bulan: "Agt", kek: 14, risiko_tinggi: 7, normal: 82 },
+    { bulan: "Sep", kek: 13, risiko_tinggi: 7, normal: 83 },
+    { bulan: "Okt", kek: 13, risiko_tinggi: 6, normal: 84 },
+    { bulan: "Nov", kek: 12, risiko_tinggi: 6, normal: 85 },
+    { bulan: "Des", kek: 12, risiko_tinggi: 6, normal: 85 },
+  ],
   // Data agregat kader (seperti DashboardAnggotaKader)
   kehadiran_kompetensi: {
     balita: {
@@ -631,6 +662,12 @@ export const monthlyTrendData: MonthlyTrendData[] = [
   { bulan: "November", balita: 378, ibu_hamil: 104, kader: 68, imunisasi: 338 },
   { bulan: "Desember", balita: 382, ibu_hamil: 103, kader: 68, imunisasi: 342 },
 ];
+
+// Dummy data untuk Status Gizi Trend
+export const statusGiziTrendData: StatusGiziTrendData[] = dashboardSummaryData.status_gizi_trend;
+
+// Dummy data untuk Ibu Hamil Beresiko Trend
+export const ibuHamilBeresikoTrendData: IbuHamilBeresikoTrendData[] = dashboardSummaryData.ibu_hamil_beresiko_trend;
 
 // Dummy data untuk Posyandu Performance
 export const posyanduPerformanceData: PosyanduPerformance[] = [

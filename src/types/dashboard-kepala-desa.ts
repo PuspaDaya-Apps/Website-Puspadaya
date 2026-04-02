@@ -105,6 +105,9 @@ export interface DashboardSummary {
   stunting_prevalence: PrevalensiData; // Jumlah dan prevalensi stunting
   wasting_prevalence: PrevalensiData; // Jumlah dan prevalensi wasting
   underweight_prevalence: PrevalensiData; // Jumlah dan prevalensi underweight
+  // Tren data
+  status_gizi_trend: StatusGiziTrendData[]; // Tren status gizi balita
+  ibu_hamil_beresiko_trend: IbuHamilBeresikoTrendData[]; // Tren ibu hamil berisiko
   // Data agregat kader (seperti DashboardAnggotaKader)
   kehadiran_kompetensi: KehadiranKompetensi; // Kehadiran per kompetensi
   durasi_jarak_agregat: DurasiJarakAgregat; // Durasi & jarak agregat tim
@@ -138,6 +141,21 @@ export interface MonthlyTrendData {
   ibu_hamil: number;
   kader: number;
   imunisasi: number;
+}
+
+export interface StatusGiziTrendData {
+  bulan: string;
+  stunting_pendek: number;
+  stunting_sangat_pendek: number;
+  wasting: number;
+  underweight: number;
+}
+
+export interface IbuHamilBeresikoTrendData {
+  bulan: string;
+  kek: number; // Kurang Energi Kronis
+  risiko_tinggi: number;
+  normal: number;
 }
 
 export interface PosyanduPerformance {
