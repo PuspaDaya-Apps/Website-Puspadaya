@@ -1,6 +1,5 @@
 "use client";
 import React, { useMemo } from "react";
-import Link from "next/link";
 import { KaderWorkload } from "@/types/dashboard-kepala-desa";
 
 interface KaderManagementProps {
@@ -82,8 +81,10 @@ const KaderManagement: React.FC<KaderManagementProps> = ({ workloadData }) => {
     const lowCount = workloadData.filter((k) => k.kategori_beban === "Rendah").length;
     const totalJamKerja = workloadData.reduce((sum, k) => sum + k.durasi_kerja_posyandu + k.durasi_kunjungan_rumah, 0);
     const totalJarak = Math.round(workloadData.reduce((sum, k) => sum + k.jarak_kunjungan, 0));
+    const avgJarak = total > 0 ? Math.round(totalJarak / total) : 0;
+    const avgWaktuKerja = total > 0 ? Math.round(totalJamKerja / total) : 0;
 
-    return { total, avgWorkload, highCount, mediumCount, lowCount, totalJamKerja, totalJarak };
+    return { total, avgWorkload, highCount, mediumCount, lowCount, totalJamKerja, totalJarak, avgJarak, avgWaktuKerja };
   }, [workloadData]);
 
   // Get workload category color
@@ -110,55 +111,55 @@ const KaderManagement: React.FC<KaderManagementProps> = ({ workloadData }) => {
   return (
     <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-900/30">
-            <svg className="h-6 w-6 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-dark dark:text-white">
-              Manajemen Kader
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Analisis beban kerja dan distribusi
-            </p>
-          </div>
+      <div className="mb-6 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-900/30">
+          <svg className="h-6 w-6 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
         </div>
-        <Link
-          href="/monitoring/kader"
-          className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-violet-700"
-        >
-          Lihat Detail Kader →
-        </Link>
+        <div>
+          <h2 className="text-xl font-bold text-dark dark:text-white">
+            Informasi Kader
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Overview beban kerja dan distribusi kader posyandu
+          </p>
+        </div>
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
         <div className="rounded-lg bg-violet-50 p-3 text-center dark:bg-violet-900/20">
           <p className="text-2xl font-bold text-violet-600 dark:text-violet-400">{stats.total}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Total Kader</p>
         </div>
         <div className="rounded-lg bg-blue-50 p-3 text-center dark:bg-blue-900/20">
           <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.avgWorkload}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Rata-rata Beban</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">Rata-rata Skor Beban Kerja Kader</p>
         </div>
         <div className="rounded-lg bg-red-50 p-3 text-center dark:bg-red-900/20">
           <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.highCount}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Beban Tinggi</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">Kader Beban Tinggi</p>
         </div>
         <div className="rounded-lg bg-yellow-50 p-3 text-center dark:bg-yellow-900/20">
           <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.mediumCount}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Beban Sedang</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">Kader Beban Sedang</p>
         </div>
         <div className="rounded-lg bg-emerald-50 p-3 text-center dark:bg-emerald-900/20">
           <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.lowCount}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Beban Rendah</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">Kader Beban Rendah</p>
         </div>
         <div className="rounded-lg bg-pink-50 p-3 text-center dark:bg-pink-900/20">
           <p className="text-2xl font-bold text-pink-600 dark:text-pink-400">{stats.totalJarak}km</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Total Jarak</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">Total Jarak Kader</p>
+        </div>
+        <div className="rounded-lg bg-cyan-50 p-3 text-center dark:bg-cyan-900/20">
+          <p className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">{stats.avgJarak}km</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">Rata-rata Jarak Kerja Kader</p>
+        </div>
+        <div className="rounded-lg bg-amber-50 p-3 text-center dark:bg-amber-900/20">
+          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{stats.avgWaktuKerja}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">Rata-rata Waktu Kerja Kader (Jam)</p>
         </div>
       </div>
 
@@ -243,127 +244,6 @@ const KaderManagement: React.FC<KaderManagementProps> = ({ workloadData }) => {
           </div>
         </div>
       )}
-
-      {/* Workload Distribution Chart - Enhanced */}
-      <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">
-        <h3 className="mb-6 text-lg font-semibold text-dark dark:text-white">
-          Distribusi Beban Kerja Kader
-        </h3>
-        
-        {/* Progress Bars dengan Detail */}
-        <div className="mb-6 space-y-4">
-          {/* Beban Tinggi */}
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-gradient-to-r from-red-500 to-red-600"></div>
-                <span className="text-sm font-medium text-dark dark:text-white">Beban Tinggi</span>
-              </div>
-              <div className="text-right">
-                <span className="text-lg font-bold text-red-600 dark:text-red-400">{stats.highCount}</span>
-                <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                  ({((stats.highCount / stats.total) * 100).toFixed(1)}%)
-                </span>
-              </div>
-            </div>
-            <div className="relative h-4 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
-              <div
-                className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-500"
-                style={{ width: `${(stats.highCount / stats.total) * 100}%` }}
-              >
-                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Beban Sedang */}
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600"></div>
-                <span className="text-sm font-medium text-dark dark:text-white">Beban Sedang</span>
-              </div>
-              <div className="text-right">
-                <span className="text-lg font-bold text-yellow-600 dark:text-yellow-400">{stats.mediumCount}</span>
-                <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                  ({((stats.mediumCount / stats.total) * 100).toFixed(1)}%)
-                </span>
-              </div>
-            </div>
-            <div className="relative h-4 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
-              <div
-                className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 transition-all duration-500"
-                style={{ width: `${(stats.mediumCount / stats.total) * 100}%` }}
-              >
-                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Beban Rendah */}
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600"></div>
-                <span className="text-sm font-medium text-dark dark:text-white">Beban Rendah</span>
-              </div>
-              <div className="text-right">
-                <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{stats.lowCount}</span>
-                <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                  ({((stats.lowCount / stats.total) * 100).toFixed(1)}%)
-                </span>
-              </div>
-            </div>
-            <div className="relative h-4 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
-              <div
-                className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-500"
-                style={{ width: `${(stats.lowCount / stats.total) * 100}%` }}
-              >
-                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Summary Cards dengan Icon */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-xl bg-gradient-to-br from-red-50 to-red-100 p-4 text-center dark:from-red-900/20 dark:to-red-900/10">
-            <div className="mb-2 flex justify-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white shadow-lg">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-            </div>
-            <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.highCount}</p>
-            <p className="text-xs text-red-700 dark:text-red-300">Tinggi</p>
-          </div>
-
-          <div className="rounded-xl bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 text-center dark:from-yellow-900/20 dark:to-yellow-900/10">
-            <div className="mb-2 flex justify-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-500 text-white shadow-lg">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-            <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.mediumCount}</p>
-            <p className="text-xs text-yellow-700 dark:text-yellow-300">Sedang</p>
-          </div>
-
-          <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 text-center dark:from-emerald-900/20 dark:to-emerald-900/10">
-            <div className="mb-2 flex justify-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.lowCount}</p>
-            <p className="text-xs text-emerald-700 dark:text-emerald-300">Rendah</p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
