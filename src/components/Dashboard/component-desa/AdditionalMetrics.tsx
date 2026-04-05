@@ -9,54 +9,10 @@ interface AdditionalMetricsProps {
 const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
   return (
     <div className="space-y-6">
-      {/* Data Kependudukan */}
-      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
-        <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-          Data Kependudukan
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-lg bg-purple-50 p-4 dark:bg-purple-900/20">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-800">
-                <svg className="h-6 w-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Wanita Pasca Subur</p>
-                <p className="text-xl font-bold text-purple-600 dark:text-purple-300">{summary.women_post_fertile}</p>
-              </div>
-            </div>
-          </div>
-          <div className="rounded-lg bg-indigo-50 p-4 dark:bg-indigo-900/20">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-800">
-                <svg className="h-6 w-6 text-indigo-600 dark:text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Akseptor KB</p>
-                <p className="text-xl font-bold text-indigo-600 dark:text-indigo-300">{summary.kb_acceptors}</p>
-              </div>
-            </div>
-          </div>
-          <div className="rounded-lg bg-cyan-50 p-4 dark:bg-cyan-900/20">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-100 dark:bg-cyan-800">
-                <svg className="h-6 w-6 text-cyan-600 dark:text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Ibu Hamil Asuransi</p>
-                <p className="text-xl font-bold text-cyan-600 dark:text-cyan-300">{summary.pregnant_women_with_insurance}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* 🍼 BAGIAN 1: DATA BALITA */}
+      {/* ═══════════════════════════════════════════════════ */}
+      
       {/* Kunjungan Posyandu Berdasarkan Usia */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
@@ -123,17 +79,24 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
         </div>
       </div>
 
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* 🤰 BAGIAN 2: DATA IBU HAMIL & MENYUSUI */}
+      {/* ═══════════════════════════════════════════════════ */}
+
       {/* Kesehatan Ibu & Bayi */}
-      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
-        <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
+      <div className="rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 p-6 shadow-md dark:from-pink-900/10 dark:to-purple-900/10 dark:bg-gray-dark">
+        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-dark dark:text-white">
+          <svg className="h-6 w-6 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
           Kesehatan Ibu & Bayi
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-lg bg-pink-50 p-4 dark:bg-pink-900/20">
+          <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-pink-100 dark:bg-pink-800">
                 <svg className="h-6 w-6 text-pink-600 dark:text-pink-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
               <div>
@@ -142,7 +105,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
               </div>
             </div>
           </div>
-          <div className="rounded-lg bg-red-50 p-4 dark:bg-red-900/20">
+          <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-800">
                 <svg className="h-6 w-6 text-red-600 dark:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,7 +118,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
               </div>
             </div>
           </div>
-          <div className="rounded-lg bg-amber-50 p-4 dark:bg-amber-900/20">
+          <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-800">
                 <svg className="h-6 w-6 text-amber-600 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,7 +131,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
               </div>
             </div>
           </div>
-          <div className="rounded-lg bg-teal-50 p-4 dark:bg-teal-900/20">
+          <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-800">
                 <svg className="h-6 w-6 text-teal-600 dark:text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,6 +146,61 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
           </div>
         </div>
       </div>
+
+      {/* Data Kependudukan (Wanita & KB) */}
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-dark dark:text-white">
+          <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          Data Wanita & Keluarga Berencana
+        </h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="rounded-lg bg-purple-50 p-4 dark:bg-purple-900/20">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-800">
+                <svg className="h-6 w-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">Wanita Pasca Subur</p>
+                <p className="text-xl font-bold text-purple-600 dark:text-purple-300">{summary.women_post_fertile}</p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg bg-indigo-50 p-4 dark:bg-indigo-900/20">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-800">
+                <svg className="h-6 w-6 text-indigo-600 dark:text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">Akseptor KB</p>
+                <p className="text-xl font-bold text-indigo-600 dark:text-indigo-300">{summary.kb_acceptors}</p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg bg-cyan-50 p-4 dark:bg-cyan-900/20">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-100 dark:bg-cyan-800">
+                <svg className="h-6 w-6 text-cyan-600 dark:text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">Ibu Hamil Asuransi</p>
+                <p className="text-xl font-bold text-cyan-600 dark:text-cyan-300">{summary.pregnant_women_with_insurance}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* 💉 BAGIAN 3: CAKUPAN IMUNISASI BAYI */}
+      {/* ═══════════════════════════════════════════════════ */}
 
       {/* Imunisasi Bayi */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">

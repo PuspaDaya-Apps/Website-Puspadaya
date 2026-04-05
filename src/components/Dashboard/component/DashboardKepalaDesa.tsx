@@ -164,17 +164,17 @@ const DashboardKepalaDesa: React.FC = () => {
         ibuHamilBeresikoTrend={ibuHamilBeresikoTrendData}
       />
 
-      {/* LEVEL 3: DURASI DAN JARAK AGREGAT */}
-      <DurasiJarakAgregat durasiJarak={dashboardSummaryData.durasi_jarak_agregat} />
-
-      {/* LEVEL 3: BEBAN KERJA TIM SUMMARY */}
-      <BebanKerjaTimSummary bebanKerjaTim={dashboardSummaryData.beban_kerja_tim} />
-
-      {/* LEVEL 3: ADDITIONAL METRICS - Data Kependudukan & SKDN */}
+      {/* LEVEL 3: ADDITIONAL METRICS - Data Kependudukan, Balita & Imunisasi */}
       <AdditionalMetrics summary={dashboardSummaryData} />
 
       {/* LEVEL 3: SKDN BAR CHART */}
       <SKDNBarChart skdnData={dashboardSummaryData.skdn_data} />
+
+      {/* LEVEL 3: DURASI DAN JARAK AGREGAT - KADER */}
+      <DurasiJarakAgregat durasiJarak={dashboardSummaryData.durasi_jarak_agregat} />
+
+      {/* LEVEL 3: BEBAN KERJA TIM SUMMARY - KADER */}
+      <BebanKerjaTimSummary bebanKerjaTim={dashboardSummaryData.beban_kerja_tim} />
 
       {/* LEVEL 4: EXPANDABLE DATA SECTIONS */}
       <ExpandableDataSection
