@@ -30,8 +30,20 @@ import AccessibilityControls from "./AccessibilityControls";
 const DashboardKepalaDesa: React.FC = () => {
   const [selectedPosyandu, setSelectedPosyandu] = useState<PosyanduItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [filterBulan, setFilterBulan] = useState<number>(new Date().getMonth());
+  const [filterTahun, setFilterTahun] = useState<number>(new Date().getFullYear());
 
   const { isSeniorMode } = useSeniorMode();
+
+  // Daftar bulan
+  const daftarBulan = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+  ];
+
+  // Daftar tahun (tahun sekarang dan 2 tahun sebelumnya)
+  const tahunSekarang = new Date().getFullYear();
+  const daftarTahun = [tahunSekarang, tahunSekarang - 1, tahunSekarang - 2];
 
   // Filter underperforming posyandu (kategori "Kurang" or "Cukup")
   const underperformingPosyandu = posyanduPerformanceData
@@ -104,12 +116,32 @@ const DashboardKepalaDesa: React.FC = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-gray-100 px-4 py-2 text-sm dark:bg-gray-800">
-              <span className="text-gray-600 dark:text-gray-400">Periode:</span>{" "}
-              <span className="font-medium text-dark dark:text-white">
-                {new Date().toLocaleDateString("id-ID", { month: "long", year: "numeric" })}
-              </span>
-            </div>
+            {/* Filter Periode - Bulan */}
+            <select
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-dark outline-none focus:border-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-primary"
+              value={filterBulan}
+              onChange={(e) => setFilterBulan(Number(e.target.value))}
+            >
+              {daftarBulan.map((bulan, index) => (
+                <option key={index} value={index}>
+                  {bulan}
+                </option>
+              ))}
+            </select>
+
+            {/* Filter Periode - Tahun */}
+            <select
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-dark outline-none focus:border-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-primary"
+              value={filterTahun}
+              onChange={(e) => setFilterTahun(Number(e.target.value))}
+            >
+              {daftarTahun.map((tahun) => (
+                <option key={tahun} value={tahun}>
+                  {tahun}
+                </option>
+              ))}
+            </select>
+
             <div className="rounded-lg bg-primary px-4 py-2 text-sm text-white">
               <span className="font-medium">{posyanduListData.length} Posyandu</span>
             </div>
