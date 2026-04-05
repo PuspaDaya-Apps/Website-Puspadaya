@@ -54,14 +54,12 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({ skdnData }) => {
     },
   ];
 
-  // Hitung total dari data
-  const total = skdnData.total || chartData.reduce((sum, item) => sum + item.nilai, 0);
   const persentaseKenaikan = skdnData.persentase_kenaikan_bb || 0;
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
       {/* Header */}
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
             <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,53 +75,53 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({ skdnData }) => {
             </p>
           </div>
         </div>
-        
-        {/* Badge Persentase Kenaikan BB */}
+
+        {/* Kenaikan BB Card - Right Side */}
         <div className={`rounded-lg px-4 py-2 ${
           persentaseKenaikan >= 80
-            ? "bg-green-100 dark:bg-green-900/30"
+            ? "bg-emerald-100 dark:bg-emerald-900/30"
             : persentaseKenaikan >= 60
-            ? "bg-yellow-100 dark:bg-yellow-900/30"
-            : "bg-red-100 dark:bg-red-900/30"
+            ? "bg-amber-100 dark:bg-amber-900/30"
+            : "bg-rose-100 dark:bg-rose-900/30"
         }`}>
-          <p className={`text-sm font-medium ${
+          <p className={`text-xs font-medium ${
             persentaseKenaikan >= 80
-              ? "text-green-700 dark:text-green-400"
+              ? "text-emerald-700 dark:text-emerald-400"
               : persentaseKenaikan >= 60
-              ? "text-yellow-700 dark:text-yellow-400"
-              : "text-red-700 dark:text-red-400"
+              ? "text-amber-700 dark:text-amber-400"
+              : "text-rose-700 dark:text-rose-400"
           }`}>
             Kenaikan BB Sesuai KBM
           </p>
           <p className={`text-2xl font-bold ${
             persentaseKenaikan >= 80
-              ? "text-green-600 dark:text-green-400"
+              ? "text-emerald-600 dark:text-emerald-400"
               : persentaseKenaikan >= 60
-              ? "text-yellow-600 dark:text-yellow-400"
-              : "text-red-600 dark:text-red-400"
+              ? "text-amber-600 dark:text-amber-400"
+              : "text-rose-600 dark:text-rose-400"
           }`}>
             {persentaseKenaikan.toFixed(1)}%
           </p>
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-lg bg-blue-50 p-4 text-center dark:bg-blue-900/20">
-          <p className="text-xs text-gray-600 dark:text-gray-400">Semua (S)</p>
-          <p className="mt-1 text-2xl font-bold text-blue-600 dark:text-blue-400">{skdnData.S}</p>
-        </div>
-        <div className="rounded-lg bg-green-50 p-4 text-center dark:bg-green-900/20">
-          <p className="text-xs text-gray-600 dark:text-gray-400">Kunjung (K)</p>
-          <p className="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">{skdnData.K}</p>
-        </div>
-        <div className="rounded-lg bg-yellow-50 p-4 text-center dark:bg-yellow-900/20">
-          <p className="text-xs text-gray-600 dark:text-gray-400">Ditimbang (D)</p>
-          <p className="mt-1 text-2xl font-bold text-yellow-600 dark:text-yellow-400">{skdnData.D}</p>
-        </div>
-        <div className="rounded-lg bg-red-50 p-4 text-center dark:bg-red-900/20">
-          <p className="text-xs text-gray-600 dark:text-gray-400">Naik BB (N)</p>
-          <p className="mt-1 text-2xl font-bold text-red-600 dark:text-red-400">{skdnData.N}</p>
+      {/* Kenaikan BB Card - Duplicate Below Header */}
+      <div className="mb-6">
+        <div className={`rounded-lg p-4 text-center ${
+          persentaseKenaikan >= 80
+            ? "bg-emerald-50 dark:bg-emerald-900/20"
+            : persentaseKenaikan >= 60
+            ? "bg-amber-50 dark:bg-amber-900/20"
+            : "bg-rose-50 dark:bg-rose-900/20"
+        }`}>
+          <p className="text-xs text-gray-600 dark:text-gray-400">Kenaikan BB Sesuai KBM</p>
+          <p className={`mt-1 text-2xl font-bold ${
+            persentaseKenaikan >= 80
+              ? "text-emerald-600 dark:text-emerald-400"
+              : persentaseKenaikan >= 60
+              ? "text-amber-600 dark:text-amber-400"
+              : "text-rose-600 dark:text-rose-400"
+          }`}>{persentaseKenaikan.toFixed(1)}%</p>
         </div>
       </div>
 
@@ -140,8 +138,8 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({ skdnData }) => {
               type="number"
               stroke="#6b7280"
               tick={{ fill: "#6b7280", fontSize: 12 }}
-              label={{ 
-                value: 'Jumlah Balita', 
+              label={{
+                value: 'Jumlah Balita',
                 position: 'bottom',
                 fill: '#374151',
                 fontSize: 14,
@@ -213,7 +211,7 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({ skdnData }) => {
 
       {/* Footer Info */}
       <div className="mt-6 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 p-4 dark:from-blue-900/10 dark:to-indigo-900/10">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Cakupan Penimbangan (D/S)
@@ -234,17 +232,6 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({ skdnData }) => {
             </p>
             <p className="text-xs text-gray-600 dark:text-gray-400">
               Target: ≥50% untuk kinerja baik
-            </p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Persentase Kenaikan BB (N/D)
-            </p>
-            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              {skdnData.D > 0 ? ((skdnData.N / skdnData.D) * 100).toFixed(1) : 0}%
-            </p>
-            <p className="text-xs text-gray-600 dark:text-gray-400">
-              Balita yang naik BB dari yang ditimbang
             </p>
           </div>
         </div>

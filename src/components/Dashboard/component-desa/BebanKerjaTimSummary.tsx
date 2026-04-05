@@ -7,12 +7,6 @@ interface BebanKerjaTimSummaryProps {
 }
 
 const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({ bebanKerjaTim }) => {
-  const getBebanKerjaLabel = (score: number) => {
-    if (score >= 80) return "Beban kerja tinggi";
-    if (score >= 60) return "Beban kerja sedang";
-    return "Beban kerja rendah";
-  };
-
   return (
     <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
       <div className="mb-4 flex items-center gap-3">
@@ -32,18 +26,12 @@ const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({ bebanKerjaT
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
         <div className="rounded-lg bg-amber-50 p-4 text-center dark:bg-amber-900/20">
           <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
             {bebanKerjaTim.total_kader}
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Total Kader</p>
-        </div>
-        <div className="rounded-lg bg-blue-50 p-4 text-center dark:bg-blue-900/20">
-          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-            {bebanKerjaTim.skor_beban_rata_rata}
-          </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Rata-rata Skor</p>
         </div>
         <div className="rounded-lg bg-red-50 p-4 text-center dark:bg-red-900/20">
           <p className="text-2xl font-bold text-red-600 dark:text-red-400">
@@ -68,42 +56,6 @@ const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({ bebanKerjaT
             {bebanKerjaTim.kader_beban_sedang + bebanKerjaTim.kader_beban_rendah}
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Beban Normal</p>
-        </div>
-      </div>
-
-      {/* Skor Beban Kerja Average dengan Progress Bar */}
-      <div className="mt-6 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 p-6 dark:from-amber-900/10 dark:to-orange-900/10">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-dark dark:text-white">
-              Skor Beban Kerja Rata-rata
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {getBebanKerjaLabel(bebanKerjaTim.skor_beban_rata_rata)}
-            </p>
-          </div>
-          <span className="text-4xl font-bold text-amber-600 dark:text-amber-400">
-            {bebanKerjaTim.skor_beban_rata_rata}
-          </span>
-        </div>
-
-        <div className="h-4 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-          <div
-            className={`h-4 rounded-full ${
-              bebanKerjaTim.skor_beban_rata_rata >= 80
-                ? "bg-gradient-to-r from-red-500 to-orange-600"
-                : bebanKerjaTim.skor_beban_rata_rata >= 60
-                ? "bg-gradient-to-r from-yellow-500 to-orange-500"
-                : "bg-gradient-to-r from-emerald-500 to-green-600"
-            }`}
-            style={{ width: `${Math.min(bebanKerjaTim.skor_beban_rata_rata, 100)}%` }}
-          />
-        </div>
-
-        <div className="mt-4 flex justify-between text-xs text-gray-600 dark:text-gray-400">
-          <span>Rendah (&lt;60)</span>
-          <span>Sedang (60-79)</span>
-          <span>Tinggi (≥80)</span>
         </div>
       </div>
 
