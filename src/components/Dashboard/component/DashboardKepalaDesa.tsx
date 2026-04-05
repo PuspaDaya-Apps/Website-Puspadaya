@@ -17,7 +17,6 @@ import { useSeniorMode } from "@/contexts/SeniorModeContext";
 import KeyMetrics from "../component-desa/KeyMetrics";
 import PosyanduOverview from "../component-desa/PosyanduOverview";
 import PerformanceSection from "../component-desa/PerformanceSection";
-import KaderManagement from "../component-desa/KaderManagement";
 import AdditionalMetrics from "../component-desa/AdditionalMetrics";
 import DurasiJarakAgregat from "../component-desa/DurasiJarakAgregat";
 import BebanKerjaTimSummary from "../component-desa/BebanKerjaTimSummary";
@@ -164,9 +163,6 @@ const DashboardKepalaDesa: React.FC = () => {
         statusGiziTrend={statusGiziTrendData}
         ibuHamilBeresikoTrend={ibuHamilBeresikoTrendData}
       />
-
-      {/* LEVEL 3: KADER MANAGEMENT */}
-      <KaderManagement workloadData={kaderWorkloadData} />
 
       {/* LEVEL 3: DURASI DAN JARAK AGREGAT */}
       <DurasiJarakAgregat durasiJarak={dashboardSummaryData.durasi_jarak_agregat} />
