@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { CriticalChild } from "@/types/dashboard-kepala-desa";
-import { criticalChildrenData } from "@/data/dummy-dashboard-kepala-desa";
+import { criticalChildrenData, stuntingGiziData } from "@/data/dummy-dashboard-kepala-desa";
 
 const KasusKritisPage: React.FC = () => {
   const [filterPosyandu, setFilterPosyandu] = useState<string>("all");
@@ -47,6 +47,11 @@ const KasusKritisPage: React.FC = () => {
       tinggi: criticalChildrenData.filter((c) => c.prioritas === "Tinggi").length,
       sedang: criticalChildrenData.filter((c) => c.prioritas === "Sedang").length,
     };
+  }, []);
+
+  // Calculate per-Posyandu stats from stuntingGiziData
+  const perPosyanduStats = useMemo(() => {
+    return stuntingGiziData;
   }, []);
 
   // Get priority color
@@ -117,6 +122,72 @@ const KasusKritisPage: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Data Per Posyandu */}
+      <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+        <h2 className="mb-4 text-xl font-bold text-dark dark:text-white md:text-2xl">
+          Data Kasus Kritis Per Posyandu
+        </h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead>
+              <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">No</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Posyandu</th>
+                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Total</th>
+                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Stunting</th>
+                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Gizi Buruk</th>
+                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Normal</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              {perPosyanduStats.map((posyandu, index) => (
+                <tr key={index} className="transition hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <td className="px-4 py-3">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {index + 1}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-sm font-semibold text-dark dark:text-white">
+                      {posyandu.posyandu_nama}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                      {posyandu.total_balita}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                      {posyandu.stunting_count}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                      {posyandu.gizi_buruk_count}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
+                      {posyandu.normal_count}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {perPosyanduStats.length === 0 && (
+          <div className="py-12 text-center">
+            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">Tidak ada data per posyandu</p>
+          </div>
+        )}
       </div>
 
       {/* Stats Summary */}

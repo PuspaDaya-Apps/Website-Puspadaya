@@ -3,7 +3,9 @@
     "allow": [
       "Bash(npm run *)",
       "Bash(taskkill *)",
-      "Bash(rmdir *)"
+      "Bash(rmdir *)",
+      "Bash(npx *)",
+      "Bash(findstr *)"
     ]
   },
   "$version": 3
