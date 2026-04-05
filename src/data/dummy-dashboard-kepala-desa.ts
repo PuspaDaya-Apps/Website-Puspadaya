@@ -184,9 +184,9 @@ export const dashboardSummaryData: DashboardSummary = {
     persentase_kenaikan_bb: 70.7, // (N / D) * 100
   },
   // Kunjungan berdasarkan usia
-  infant_0_12_months: 125, // Bayi 0-12 bulan berkunjung ke posyandu
-  children_0_23_months: 198, // Anak 0-23 bulan berkunjung ke posyandu
-  children_0_59_months: 352, // Anak 0-59 bulan berkunjung ke posyandu
+  baduta_0_23_months: 198, // Baduta 0-23 bulan berkunjung ke posyandu
+  balita_24_59_months: 285, // Balita 24-59 bulan berkunjung ke posyandu
+  pra_sekolah_60_72_months: 142, // Pra Sekolah 60-72 bulan berkunjung ke posyandu
   // Data wanita
   women_post_fertile: 245, // Wanita usia setelah subur (>49 tahun)
   pregnant_women_under_energized: 15, // Ibu hamil dengan KEK (Kurang Energi Kronis)

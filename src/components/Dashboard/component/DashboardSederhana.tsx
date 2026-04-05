@@ -92,7 +92,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
               {summary.total_balita}
             </p>
             <p className={`${getFontSize("small")} text-green-700 mt-1`}>
-              {summary.children_0_59_months} berkunjung
+              {summary.baduta_0_23_months} berkunjung
             </p>
           </div>
 

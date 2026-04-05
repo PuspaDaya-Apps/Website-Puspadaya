@@ -66,8 +66,8 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
           <div className="rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900/20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Bayi (0-12 Bulan)</p>
-                <p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{summary.infant_0_12_months}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Baduta (0-23 Bulan)</p>
+                <p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{summary.baduta_0_23_months}</p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-800">
                 <svg className="h-6 w-6 text-emerald-600 dark:text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,17 +76,17 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
               </div>
             </div>
             <div className="mt-2 h-2 w-full rounded-full bg-emerald-200 dark:bg-emerald-700">
-              <div 
-                className="h-2 rounded-full bg-emerald-500" 
-                style={{ width: `${(summary.infant_0_12_months / summary.total_balita) * 100}%` }}
+              <div
+                className="h-2 rounded-full bg-emerald-500"
+                style={{ width: `${(summary.baduta_0_23_months / summary.total_balita) * 100}%` }}
               />
             </div>
           </div>
           <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Balita (0-23 Bulan)</p>
-                <p className="mt-1 text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.children_0_23_months}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Balita (24-59 Bulan)</p>
+                <p className="mt-1 text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.balita_24_59_months}</p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-800">
                 <svg className="h-6 w-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,17 +95,17 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
               </div>
             </div>
             <div className="mt-2 h-2 w-full rounded-full bg-blue-200 dark:bg-blue-700">
-              <div 
-                className="h-2 rounded-full bg-blue-500" 
-                style={{ width: `${(summary.children_0_23_months / summary.total_balita) * 100}%` }}
+              <div
+                className="h-2 rounded-full bg-blue-500"
+                style={{ width: `${(summary.balita_24_59_months / summary.total_balita) * 100}%` }}
               />
             </div>
           </div>
           <div className="rounded-lg bg-violet-50 p-4 dark:bg-violet-900/20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Balita (0-59 Bulan)</p>
-                <p className="mt-1 text-2xl font-bold text-violet-600 dark:text-violet-400">{summary.children_0_59_months}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Pra Sekolah (60-72 Bulan)</p>
+                <p className="mt-1 text-2xl font-bold text-violet-600 dark:text-violet-400">{summary.pra_sekolah_60_72_months}</p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-800">
                 <svg className="h-6 w-6 text-violet-600 dark:text-violet-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,9 +114,9 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
               </div>
             </div>
             <div className="mt-2 h-2 w-full rounded-full bg-violet-200 dark:bg-violet-700">
-              <div 
-                className="h-2 rounded-full bg-violet-500" 
-                style={{ width: `${(summary.children_0_59_months / summary.total_balita) * 100}%` }}
+              <div
+                className="h-2 rounded-full bg-violet-500"
+                style={{ width: `${(summary.pra_sekolah_60_72_months / summary.total_balita) * 100}%` }}
               />
             </div>
           </div>

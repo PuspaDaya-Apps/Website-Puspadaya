@@ -83,9 +83,9 @@ export interface DashboardSummary {
   skdn: number; // Tingkat SKDN Posyandu (1=Pratama, 2=Madya, 3=Purnama, 4=Mandiri)
   skdn_data: SKDNData; // Data detail SKDN untuk grafik (S, K, D, N)
   // Kunjungan berdasarkan usia
-  infant_0_12_months: number; // Bayi 0-12 bulan berkunjung ke posyandu
-  children_0_23_months: number; // Anak 0-23 bulan berkunjung ke posyandu
-  children_0_59_months: number; // Anak 0-59 bulan berkunjung ke posyandu
+  baduta_0_23_months: number; // Baduta 0-23 bulan berkunjung ke posyandu
+  balita_24_59_months: number; // Balita 24-59 bulan berkunjung ke posyandu
+  pra_sekolah_60_72_months: number; // Pra Sekolah 60-72 bulan berkunjung ke posyandu
   // Data wanita
   women_post_fertile: number; // Wanita usia setelah subur (>49 tahun)
   pregnant_women_under_energized: number; // Ibu hamil dengan KEK (Kurang Energi Kronis)

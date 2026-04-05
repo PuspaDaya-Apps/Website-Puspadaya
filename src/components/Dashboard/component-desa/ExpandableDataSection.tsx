@@ -231,9 +231,9 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
         {activeTab === "kependudukan" && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { label: "Bayi 0-12 Bulan", value: summary.infant_0_12_months, icon: "👶", color: "emerald" },
-              { label: "Balita 0-23 Bulan", value: summary.children_0_23_months, icon: "🧒", color: "blue" },
-              { label: "Balita 0-59 Bulan", value: summary.children_0_59_months, icon: "👦", color: "violet" },
+              { label: "Baduta 0-23 Bulan", value: summary.baduta_0_23_months, icon: "👶", color: "emerald" },
+              { label: "Balita 24-59 Bulan", value: summary.balita_24_59_months, icon: "🧒", color: "blue" },
+              { label: "Pra Sekolah 60-72 Bulan", value: summary.pra_sekolah_60_72_months, icon: "👦", color: "violet" },
               { label: "Wanita Pasca Subur", value: summary.women_post_fertile, icon: "👩", color: "purple" },
               { label: "Ibu Hamil KEK", value: summary.pregnant_women_under_energized, icon: "🤰", color: "pink" },
               { label: "Ibu Hamil Risiko Tinggi", value: summary.high_risk_pregnant_women, icon: "🔴", color: "red" },

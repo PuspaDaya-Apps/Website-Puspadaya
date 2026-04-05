@@ -59,71 +59,122 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({ skdnData }) => {
   return (
     <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-            <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-dark dark:text-white">
-              Statistik SKDN
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Indikator Kinerja Posyandu (S-K-D-N)
-            </p>
-          </div>
-        </div>
+<div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
+  {/* Header */}
+  <div className="mb-6 flex items-center justify-between">
+    
+    {/* LEFT */}
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+        <svg
+          className="h-6 w-6 text-blue-600 dark:text-blue-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
+        </svg>
+      </div>
 
-        {/* Kenaikan BB Card - Right Side */}
-        <div className={`rounded-lg px-4 py-2 ${
+      <div>
+        <h2 className="text-xl font-bold text-dark dark:text-white">
+          Statistik SKDN
+        </h2>
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Indikator Kinerja Posyandu (S-K-D-N)
+        </p>
+      </div>
+    </div>
+
+    {/* RIGHT */}
+    <div className="flex items-stretch gap-3">
+      
+      {/* Card 1 */}
+      <div
+        className={`w-36 rounded-lg px-4 py-3 flex flex-col justify-between ${
           persentaseKenaikan >= 80
             ? "bg-emerald-100 dark:bg-emerald-900/30"
             : persentaseKenaikan >= 60
             ? "bg-amber-100 dark:bg-amber-900/30"
             : "bg-rose-100 dark:bg-rose-900/30"
-        }`}>
-          <p className={`text-xs font-medium ${
-            persentaseKenaikan >= 80
-              ? "text-emerald-700 dark:text-emerald-400"
-              : persentaseKenaikan >= 60
-              ? "text-amber-700 dark:text-amber-400"
-              : "text-rose-700 dark:text-rose-400"
-          }`}>
-            Kenaikan BB Sesuai KBM
+        }`}
+      >
+        <div>
+          <p
+            className={`text-xs font-medium ${
+              persentaseKenaikan >= 80
+                ? "text-emerald-700 dark:text-emerald-400"
+                : persentaseKenaikan >= 60
+                ? "text-amber-700 dark:text-amber-400"
+                : "text-rose-700 dark:text-rose-400"
+            }`}
+          >
+            Kenaikan BB
           </p>
-          <p className={`text-2xl font-bold ${
+        </div>
+
+        <p
+          className={`text-2xl font-bold mt-2 ${
             persentaseKenaikan >= 80
               ? "text-emerald-600 dark:text-emerald-400"
               : persentaseKenaikan >= 60
               ? "text-amber-600 dark:text-amber-400"
               : "text-rose-600 dark:text-rose-400"
-          }`}>
-            {persentaseKenaikan.toFixed(1)}%
-          </p>
-        </div>
+          }`}
+        >
+          {persentaseKenaikan.toFixed(1)}%
+        </p>
       </div>
 
-      {/* Kenaikan BB Card - Duplicate Below Header */}
-      <div className="mb-6">
-        <div className={`rounded-lg p-4 text-center ${
+      {/* Card 2 */}
+      <div
+        className={`w-36 rounded-lg px-4 py-3 flex flex-col justify-between ${
           persentaseKenaikan >= 80
-            ? "bg-emerald-50 dark:bg-emerald-900/20"
+            ? "bg-emerald-100 dark:bg-emerald-900/30"
             : persentaseKenaikan >= 60
-            ? "bg-amber-50 dark:bg-amber-900/20"
-            : "bg-rose-50 dark:bg-rose-900/20"
-        }`}>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Kenaikan BB Sesuai KBM</p>
-          <p className={`mt-1 text-2xl font-bold ${
+            ? "bg-amber-100 dark:bg-amber-900/30"
+            : "bg-rose-100 dark:bg-rose-900/30"
+        }`}
+      >
+        <div>
+          <p
+            className={`text-xs font-medium ${
+              persentaseKenaikan >= 80
+                ? "text-emerald-700 dark:text-emerald-400"
+                : persentaseKenaikan >= 60
+                ? "text-amber-700 dark:text-amber-400"
+                : "text-rose-700 dark:text-rose-400"
+            }`}
+          >
+            Kenaikan BB
+          </p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">
+            Sesuai KBM
+          </p>
+        </div>
+
+        <p
+          className={`text-2xl font-bold mt-2 ${
             persentaseKenaikan >= 80
               ? "text-emerald-600 dark:text-emerald-400"
               : persentaseKenaikan >= 60
               ? "text-amber-600 dark:text-amber-400"
               : "text-rose-600 dark:text-rose-400"
-          }`}>{persentaseKenaikan.toFixed(1)}%</p>
-        </div>
+          }`}
+        >
+          {persentaseKenaikan.toFixed(1)}%
+        </p>
       </div>
+
+    </div>
+  </div>
+</div>
+
 
       {/* Bar Chart */}
       <div className="h-80">

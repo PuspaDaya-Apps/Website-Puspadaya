@@ -2377,25 +2377,25 @@ const PreviewLaporanPage: React.FC = () => {
             >
               {[
                 {
-                  lbl: "Infant (0–12 Bulan)",
-                  sub: "Bayi berkunjung",
-                  val: dashboardSummaryData.infant_0_12_months,
-                  color: "#3B82F6",
-                  bg: "#EFF6FF",
+                  lbl: "Baduta (0–23 Bulan)",
+                  sub: "Bayi bawah 2 tahun",
+                  val: dashboardSummaryData.baduta_0_23_months,
+                  color: T.emerald,
+                  bg: "#ECFDF5",
                 },
                 {
-                  lbl: "Toddler (0–23 Bulan)",
-                  sub: "Bawah 2 tahun",
-                  val: dashboardSummaryData.children_0_23_months,
+                  lbl: "Balita (24–59 Bulan)",
+                  sub: "Balita 2-5 tahun",
+                  val: dashboardSummaryData.balita_24_59_months,
                   color: T.purple,
                   bg: "#F5F3FF",
                 },
                 {
-                  lbl: "Under 5 (0–59 Bulan)",
-                  sub: "Balita berkunjung",
-                  val: dashboardSummaryData.children_0_59_months,
-                  color: T.emerald,
-                  bg: "#ECFDF5",
+                  lbl: "Pra Sekolah (60–72 Bulan)",
+                  sub: "Anak pra sekolah",
+                  val: dashboardSummaryData.pra_sekolah_60_72_months,
+                  color: "#3B82F6",
+                  bg: "#EFF6FF",
                 },
               ].map((u, i) => (
                 <div
