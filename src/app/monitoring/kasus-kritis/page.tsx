@@ -127,7 +127,7 @@ const KasusKritisPage: React.FC = () => {
       {/* Data Per Posyandu */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <h2 className="mb-4 text-xl font-bold text-dark dark:text-white md:text-2xl">
-          Data Kasus Kritis Per Posyandu
+          Data Kasus Kritis
         </h2>
         <div className="overflow-x-auto">
           <table className="min-w-full">

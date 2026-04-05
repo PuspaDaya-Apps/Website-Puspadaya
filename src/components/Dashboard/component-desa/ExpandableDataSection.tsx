@@ -52,7 +52,7 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
   summary,
   activities,
 }) => {
-  const [activeTab, setActiveTab] = useState<"stunting" | "imunisasi" | "kependudukan">("stunting");
+  const [activeTab, setActiveTab] = useState<"imunisasi" | "kependudukan">("imunisasi");
 
   return (
     <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">
@@ -86,16 +86,6 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
         >
         <div className="mb-4 flex gap-2">
           <button
-            onClick={() => setActiveTab("stunting")}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-              activeTab === "stunting"
-                ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
-            }`}
-          >
-            Per Posyandu
-          </button>
-          <button
             onClick={() => setActiveTab("imunisasi")}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
               activeTab === "imunisasi"
@@ -116,45 +106,6 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
             Kependudukan
           </button>
         </div>
-
-        {activeTab === "stunting" && (
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Posyandu</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Total</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-red-500">Stunting</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-orange-500">Gizi Buruk</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-emerald-500">Normal</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {posyanduList.map((posyandu) => (
-                  <tr key={posyandu.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <td className="px-4 py-3 font-medium text-dark dark:text-white">{posyandu.nama_posyandu}</td>
-                    <td className="px-4 py-3 text-center text-gray-600 dark:text-gray-300">{posyandu.total_balita}</td>
-                    <td className="px-4 py-3 text-center">
-                      <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                        {posyandu.status_stunting}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <span className="rounded-full bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700 dark:bg-orange-900/30 dark:text-orange-400">
-                        {posyandu.status_gizi_buruk}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                        {posyandu.total_balita - posyandu.status_stunting - posyandu.status_gizi_buruk}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
 
         {activeTab === "imunisasi" && (
           <div className="space-y-6">
