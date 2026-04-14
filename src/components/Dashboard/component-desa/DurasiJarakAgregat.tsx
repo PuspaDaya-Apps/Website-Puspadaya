@@ -121,7 +121,7 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({ durasiJarak }) 
         {/* Durasi Kerja Chart */}
         <div>
           <h3 className="mb-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-            Durasi Kerja (Jam)
+            Median Durasi Kerja (Jam)
           </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -170,7 +170,7 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({ durasiJarak }) 
         {/* Jarak Tempuh Chart */}
         <div>
           <h3 className="mb-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-            Jarak Tempuh (Km)
+            Median Jarak Tempuh (Km)
           </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">

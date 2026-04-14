@@ -271,7 +271,7 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({ skdnData }) => {
               {skdnData.S > 0 ? ((skdnData.D / skdnData.S) * 100).toFixed(1) : 0}%
             </p>
             <p className="text-xs text-gray-600 dark:text-gray-400">
-              Target: ≥50% untuk Posyandu Purnama/Mandiri
+              Target: ≥80% untuk Posyandu Purnama/Mandiri
             </p>
           </div>
           <div>

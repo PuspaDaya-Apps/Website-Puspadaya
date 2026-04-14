@@ -45,18 +45,6 @@ const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({ bebanKerjaT
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Skor Terendah</p>
         </div>
-        <div className="rounded-lg bg-orange-50 p-4 text-center dark:bg-orange-900/20">
-          <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-            {bebanKerjaTim.kader_beban_tinggi}
-          </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Beban Tinggi</p>
-        </div>
-        <div className="rounded-lg bg-purple-50 p-4 text-center dark:bg-purple-900/20">
-          <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-            {bebanKerjaTim.kader_beban_sedang + bebanKerjaTim.kader_beban_rendah}
-          </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Beban Normal</p>
-        </div>
       </div>
 
       {/* Distribution Chart */}
