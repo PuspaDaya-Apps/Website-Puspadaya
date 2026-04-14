@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { PosyanduPerformance, MonthlyTrendData } from "@/types/dashboard-kepala-desa";
-import { posyanduPerformanceData, monthlyTrendData, posyanduListData } from "@/data/dummy-dashboard-kepala-desa";
+import { PosyanduPerformance } from "@/types/dashboard-kepala-desa";
+import { posyanduPerformanceData, posyanduListData } from "@/data/dummy-dashboard-kepala-desa";
 
 const KinerjaPosyanduPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"ranking" | "tren" | "detail">("ranking");
+  const [activeTab, setActiveTab] = useState<"ranking" | "detail">("ranking");
   const [selectedPosyandu, setSelectedPosyandu] = useState<string | null>(null);
 
   // Sort posyandu by performance
@@ -99,7 +99,6 @@ const KinerjaPosyanduPage: React.FC = () => {
         <div className="mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 dark:border-gray-700 pb-4">
           {[
             { id: "ranking", label: "🏆 Ranking" },
-            { id: "tren", label: "📊 Tren 6 Bulan" },
             { id: "detail", label: "📋 Detail Per Posyandu" },
           ].map((tab) => (
             <button
@@ -263,90 +262,6 @@ const KinerjaPosyanduPage: React.FC = () => {
                     })}
                   </tbody>
                 </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Tren Tab */}
-        {activeTab === "tren" && (
-          <div className="space-y-6">
-            <div>
-              <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">📊 Tren Kehadiran 6 Bulan Terakhir</h3>
-              
-              {/* Balita Trend Chart */}
-              <div className="mb-6 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-                <div className="mb-4 flex items-center gap-2">
-                  <div className="h-4 w-4 rounded-full bg-emerald-500"></div>
-                  <span className="font-medium text-dark dark:text-white">Tren Kehadiran Balita</span>
-                </div>
-                <div className="flex items-end gap-2">
-                  {monthlyTrendData.map((month, index) => {
-                    const maxValue = Math.max(...monthlyTrendData.map((m) => m.balita));
-                    const height = (month.balita / maxValue) * 200;
-                    return (
-                      <div key={index} className="flex-1 text-center">
-                        <div
-                          className="mx-auto w-full rounded-t bg-gradient-to-t from-emerald-600 to-emerald-400 transition-all hover:from-emerald-700 hover:to-emerald-500"
-                          style={{ height: `${height}px`, minHeight: "40px" }}
-                          title={`${month.bulan}: ${month.balita} balita`}
-                        />
-                        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{month.bulan.slice(0, 3)}</p>
-                        <p className="text-sm font-bold text-dark dark:text-white">{month.balita}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Ibu Hamil Trend Chart */}
-              <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-                <div className="mb-4 flex items-center gap-2">
-                  <div className="h-4 w-4 rounded-full bg-pink-500"></div>
-                  <span className="font-medium text-dark dark:text-white">Tren Kehadiran Ibu Hamil</span>
-                </div>
-                <div className="flex items-end gap-2">
-                  {monthlyTrendData.map((month, index) => {
-                    const maxValue = Math.max(...monthlyTrendData.map((m) => m.ibu_hamil));
-                    const height = (month.ibu_hamil / maxValue) * 200;
-                    return (
-                      <div key={index} className="flex-1 text-center">
-                        <div
-                          className="mx-auto w-full rounded-t bg-gradient-to-t from-pink-600 to-pink-400 transition-all hover:from-pink-700 hover:to-pink-500"
-                          style={{ height: `${height}px`, minHeight: "40px" }}
-                          title={`${month.bulan}: ${month.ibu_hamil} ibu hamil`}
-                        />
-                        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{month.bulan.slice(0, 3)}</p>
-                        <p className="text-sm font-bold text-dark dark:text-white">{month.ibu_hamil}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Summary Stats */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div className="rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900/20">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Rata-rata Kehadiran Balita</p>
-                <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
-                  {Math.round(monthlyTrendData.reduce((sum, m) => sum + m.balita, 0) / monthlyTrendData.length)}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">per bulan</p>
-              </div>
-              <div className="rounded-lg bg-pink-50 p-4 dark:bg-pink-900/20">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Rata-rata Kehadiran Ibu Hamil</p>
-                <p className="text-3xl font-bold text-pink-600 dark:text-pink-400">
-                  {Math.round(monthlyTrendData.reduce((sum, m) => sum + m.ibu_hamil, 0) / monthlyTrendData.length)}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">per bulan</p>
-              </div>
-              <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Trend Keseluruhan</p>
-                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                  ↑ {Math.round(((monthlyTrendData[5].balita - monthlyTrendData[0].balita) / monthlyTrendData[0].balita) * 100)}%
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">dalam 6 bulan</p>
               </div>
             </div>
           </div>
