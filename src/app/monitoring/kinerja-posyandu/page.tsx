@@ -3,6 +3,8 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { PosyanduPerformance, CriticalChild, KaderWorkload } from "@/types/dashboard-kepala-desa";
 import { posyanduPerformanceData, posyanduListData, criticalChildrenData, kaderWorkloadData, monthlyTrendData, allChildrenData } from "@/data/dummy-dashboard-kepala-desa";
+import DurasiJarakAgregat from "@/components/Dashboard/component-desa/DurasiJarakAgregat";
+import { dashboardSummaryData } from "@/data/dummy-dashboard-kepala-desa";
 
 const KinerjaPosyanduPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"ranking" | "detail">("ranking");
@@ -718,78 +720,8 @@ const KinerjaPosyanduPage: React.FC = () => {
                   {/* Kinerja Tab */}
                   {detailTab === "kinerja" && selectedPosyanduDetail.performance && (
                     <div className="space-y-6">
-                      {/* Performance Score */}
-                      <div className="rounded-lg bg-gradient-to-r from-primary to-blue-600 p-6 text-white">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-white/80">Skor Kinerja</p>
-                            <p className="text-5xl font-bold">{selectedPosyanduDetail.performance.skor_kinerja}</p>
-                            <p className="mt-2 text-white/80">{selectedPosyanduDetail.performance.kategori}</p>
-                          </div>
-                          <div className="relative h-32 w-32">
-                            <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
-                              <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="8" />
-                              <circle
-                                cx="50"
-                                cy="50"
-                                r="40"
-                                fill="none"
-                                stroke="white"
-                                strokeWidth="8"
-                                strokeDasharray={`${(selectedPosyanduDetail.performance.skor_kinerja / 100) * 251.2} 251.2`}
-                                strokeLinecap="round"
-                              />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Performance Metrics */}
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                        <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Kehadiran</p>
-                          <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{selectedPosyanduDetail.performance.kehadiran}%</p>
-                          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                            <div className="h-full rounded-full bg-blue-500" style={{ width: `${selectedPosyanduDetail.performance.kehadiran}%` }} />
-                          </div>
-                        </div>
-                        <div className="rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900/20">
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Pengukuran Balita</p>
-                          <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{selectedPosyanduDetail.performance.pengukuran_balita}%</p>
-                          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                            <div className="h-full rounded-full bg-emerald-500" style={{ width: `${selectedPosyanduDetail.performance.pengukuran_balita}%` }} />
-                          </div>
-                        </div>
-                        <div className="rounded-lg bg-pink-50 p-4 dark:bg-pink-900/20">
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Pengukuran Ibu Hamil</p>
-                          <p className="text-3xl font-bold text-pink-600 dark:text-pink-400">{selectedPosyanduDetail.performance.pengukuran_ibu_hamil}%</p>
-                          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                            <div className="h-full rounded-full bg-pink-500" style={{ width: `${selectedPosyanduDetail.performance.pengukuran_ibu_hamil}%` }} />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Monthly Trend */}
-                      <div>
-                        <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Tren Kehadiran 6 Bulan Terakhir</h3>
-                        <div className="flex items-end gap-2 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-                          {monthlyTrendData.map((month, index) => {
-                            const maxValue = Math.max(...monthlyTrendData.map((m) => m.balita));
-                            const height = (month.balita / maxValue) * 100;
-                            return (
-                              <div key={index} className="flex-1 text-center">
-                                <div
-                                  className="mx-auto w-full max-w-[50px] rounded-t bg-gradient-to-t from-primary to-blue-400 transition-all hover:from-primary/80 hover:to-blue-300"
-                                  style={{ height: `${height}%`, minHeight: "30px" }}
-                                  title={`${month.bulan}: ${month.balita} balita`}
-                                />
-                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{month.bulan.slice(0, 3)}</p>
-                                <p className="text-xs font-medium text-dark dark:text-white">{month.balita}</p>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
+                      {/* Durasi Kerja Posyandu Chart */}
+                      <DurasiJarakAgregat durasiJarak={dashboardSummaryData.durasi_jarak_agregat} />
                     </div>
                   )}
                 </div>
