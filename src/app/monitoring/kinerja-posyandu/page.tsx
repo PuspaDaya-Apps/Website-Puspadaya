@@ -691,8 +691,9 @@ const KinerjaPosyanduPage: React.FC = () => {
                                 <h4 className="font-semibold text-dark dark:text-white">{kader.nama_kader}</h4>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{kader.role}</p>
                                 <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
-                                  <span>👶 {kader.total_balita_dibina} balita</span>
-                                  <span>🤰 {kader.total_ibu_hamil_dibina} ibu hamil</span>
+                                  <span>⏱️ {kader.durasi_kerja_posyandu} jam kerja</span>
+                                  <span>🏠 {kader.durasi_kunjungan_rumah} jam kunjungan</span>
+                                  <span>📍 {kader.jarak_kunjungan} km jarak</span>
                                 </div>
                               </div>
                               <div className="text-right">
