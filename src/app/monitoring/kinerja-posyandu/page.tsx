@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { PosyanduPerformance, CriticalChild, KaderWorkload } from "@/types/dashboard-kepala-desa";
-import { posyanduPerformanceData, posyanduListData, criticalChildrenData, kaderWorkloadData, monthlyTrendData } from "@/data/dummy-dashboard-kepala-desa";
+import { posyanduPerformanceData, posyanduListData, criticalChildrenData, kaderWorkloadData, monthlyTrendData, allChildrenData } from "@/data/dummy-dashboard-kepala-desa";
 
 const KinerjaPosyanduPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"ranking" | "detail">("ranking");
@@ -38,11 +38,12 @@ const KinerjaPosyanduPage: React.FC = () => {
     if (!selectedPosyandu) return null;
     const performance = posyanduPerformanceData.find((p) => p.posyandu_id === selectedPosyandu);
     const posyandu = posyanduListData.find((p) => p.id === selectedPosyandu);
-    
+
     // Filter data for this posyandu
     const criticalChildren = criticalChildrenData.filter((c) => c.posyandu_id === selectedPosyandu);
+    const allChildren = allChildrenData.filter((c) => c.posyandu_id === selectedPosyandu);
     const kaderList = kaderWorkloadData.filter((k) => k.posyandu_id === selectedPosyandu);
-    
+
     // Calculate stats
     const stats = posyandu ? {
       total_balita: posyandu.total_balita,
@@ -55,8 +56,8 @@ const KinerjaPosyanduPage: React.FC = () => {
       status_gizi_buruk: posyandu.status_gizi_buruk,
       normal: posyandu.total_balita - posyandu.status_stunting - posyandu.status_gizi_buruk,
     } : null;
-    
-    return { performance, posyandu, criticalChildren, kaderList, stats };
+
+    return { performance, posyandu, criticalChildren, allChildren, kaderList, stats };
   }, [selectedPosyandu]);
 
   return (
@@ -579,52 +580,85 @@ const KinerjaPosyanduPage: React.FC = () => {
                   {/* Balita Tab */}
                   {detailTab === "balita" && (
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-dark dark:text-white">👶 Daftar Balita dengan Kondisi Khusus</h3>
-                      {selectedPosyanduDetail.criticalChildren.length > 0 ? (
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-dark dark:text-white">👶 Daftar Semua Balita di Posyandu</h3>
+                        <div className="flex gap-2">
+                          <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                            Total: {selectedPosyanduDetail.allChildren.length} balita
+                          </span>
+                        </div>
+                      </div>
+                      {selectedPosyanduDetail.allChildren.length > 0 ? (
                         <div className="overflow-x-auto">
                           <table className="min-w-full">
                             <thead>
                               <tr className="border-b border-gray-200 dark:border-gray-700">
-                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Nama</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Usia</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Ibu</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">BB/TB</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
-                                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Aksi</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">No</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">NIK</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Nama Anak</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Jenis Kelamin</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Tanggal Lahir</th>
+                                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Usia (Bulan)</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Nama Ibu</th>
+                                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">BB (kg)</th>
+                                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">TB (cm)</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status Gizi</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status Stunting</th>
+                                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Prioritas</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                              {selectedPosyanduDetail.criticalChildren.map((child) => (
+                              {selectedPosyanduDetail.allChildren.map((child, index) => (
                                 <tr key={child.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{index + 1}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{child.nik_anak}</td>
                                   <td className="px-4 py-3 font-medium text-dark dark:text-white">{child.nama_anak}</td>
-                                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{child.usia_bulan} bulan</td>
-                                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{child.nama_ibu}</td>
                                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
-                                    {child.berat_badan}kg / {child.tinggi_badan}cm
+                                    <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+                                      child.jenis_kelamin === "Laki-laki"
+                                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                                        : "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400"
+                                    }`}>
+                                      {child.jenis_kelamin === "Laki-laki" ? "♂ L" : "♀ P"}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{new Date(child.tanggal_lahir).toLocaleDateString('id-ID')}</td>
+                                  <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.usia_bulan}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{child.nama_ibu}</td>
+                                  <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.berat_badan}</td>
+                                  <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.tinggi_badan}</td>
+                                  <td className="px-4 py-3">
+                                    <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+                                      child.status_gizi === "Gizi Buruk"
+                                        ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                                        : child.status_gizi === "Gizi Kurang"
+                                        ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
+                                        : child.status_gizi === "Gizi Lebih"
+                                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                        : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                    }`}>
+                                      {child.status_gizi}
+                                    </span>
                                   </td>
                                   <td className="px-4 py-3">
-                                    <div className="flex flex-wrap gap-1">
-                                      <span className={`rounded-full px-2 py-1 text-xs font-medium ${
-                                        child.status_gizi === "Gizi Buruk"
-                                          ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                                          : "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
-                                      }`}>
-                                        {child.status_gizi}
-                                      </span>
-                                      {child.status_stunting === "Stunting" && (
-                                        <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                                          Stunting
-                                        </span>
-                                      )}
-                                    </div>
+                                    <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+                                      child.status_stunting === "Stunting"
+                                        ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+                                        : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                    }`}>
+                                      {child.status_stunting}
+                                    </span>
                                   </td>
                                   <td className="px-4 py-3 text-center">
-                                    <Link
-                                      href="/monitoring/kasus-kritis"
-                                      className="rounded bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
-                                    >
-                                      Detail
-                                    </Link>
+                                    <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+                                      child.prioritas === "Sangat Tinggi"
+                                        ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                                        : child.prioritas === "Tinggi"
+                                        ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
+                                        : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                                    }`}>
+                                      {child.prioritas}
+                                    </span>
                                   </td>
                                 </tr>
                               ))}
@@ -636,7 +670,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                           <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <p className="mt-2">Tidak ada balita dengan kondisi khusus di posyandu ini</p>
+                          <p className="mt-2">Tidak ada data balita di posyandu ini</p>
                         </div>
                       )}
                     </div>

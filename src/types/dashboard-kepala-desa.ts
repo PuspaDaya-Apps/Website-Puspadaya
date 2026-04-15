@@ -67,6 +67,27 @@ export interface CriticalChild {
   prioritas: "Sangat Tinggi" | "Tinggi" | "Sedang";
 }
 
+// All Children Data Types (for complete balita list)
+export interface AllChildData {
+  id: string;
+  nik_anak: string;
+  nama_anak: string;
+  tanggal_lahir: string;
+  usia_bulan: number;
+  jenis_kelamin: "Laki-laki" | "Perempuan";
+  nama_ibu: string;
+  posyandu_id: string;
+  posyandu_nama: string;
+  dusun: string;
+  berat_badan: number; // kg
+  tinggi_badan: number; // cm
+  status_gizi: "Gizi Buruk" | "Gizi Kurang" | "Gizi Baik" | "Gizi Lebih";
+  status_stunting: "Stunting" | "Tidak Stunting";
+  status_wasting: "Wasting" | "Tidak Wasting";
+  tanggal_pengukuran: string;
+  prioritas: "Sangat Tinggi" | "Tinggi" | "Sedang";
+}
+
 export interface DashboardSummary {
   total_posyandu: number;
   total_balita: number;
