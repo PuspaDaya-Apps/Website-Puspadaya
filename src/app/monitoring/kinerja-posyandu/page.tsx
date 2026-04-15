@@ -217,7 +217,7 @@ const KinerjaPosyanduPage: React.FC = () => {
 
             {/* All Posyandu List */}
             <div>
-              <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">📊 Semua Posyandu</h3>
+              <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">Semua Posyandu</h3>
               <div className="overflow-x-auto">
                 <table className="min-w-full">
                   <thead>
@@ -410,7 +410,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                     <div className="space-y-6">
                       {/* Kehadiran Progress */}
                       <div>
-                        <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">📊 Tingkat Kehadiran</h3>
+                        <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Tingkat Kehadiran</h3>
                         <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
                           <div className="mb-2 flex items-center justify-between">
                             <span className="text-gray-600 dark:text-gray-400">Persentase Kehadiran</span>
@@ -436,9 +436,31 @@ const KinerjaPosyanduPage: React.FC = () => {
                         </div>
                       </div>
 
+                            {/* Monthly Trend */}
+                      <div>
+                        <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Tren Kehadiran 6 Bulan Terakhir</h3>
+                        <div className="flex items-end gap-2 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+                          {monthlyTrendData.map((month, index) => {
+                            const maxValue = Math.max(...monthlyTrendData.map((m) => m.balita));
+                            const height = (month.balita / maxValue) * 100;
+                            return (
+                              <div key={index} className="flex-1 text-center">
+                                <div
+                                  className="mx-auto w-full max-w-[50px] rounded-t bg-gradient-to-t from-primary to-blue-400 transition-all hover:from-primary/80 hover:to-blue-300"
+                                  style={{ height: `${height}%`, minHeight: "30px" }}
+                                  title={`${month.bulan}: ${month.balita} balita`}
+                                />
+                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{month.bulan.slice(0, 3)}</p>
+                                <p className="text-xs font-medium text-dark dark:text-white">{month.balita}</p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
                       {/* Status Gizi Chart */}
                       <div>
-                        <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">📊 Status Gizi Balita</h3>
+                        <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Status Gizi Balita</h3>
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                           <div className="rounded-lg bg-red-50 p-4 text-center dark:bg-red-900/20">
                             <div className="mb-2 flex justify-center">
@@ -549,6 +571,8 @@ const KinerjaPosyanduPage: React.FC = () => {
                           </Link>
                         </div>
                       )}
+
+                
                     </div>
                   )}
 
@@ -712,7 +736,7 @@ const KinerjaPosyanduPage: React.FC = () => {
 
                       {/* Monthly Trend */}
                       <div>
-                        <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">📊 Tren Kehadiran 6 Bulan Terakhir</h3>
+                        <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Tren Kehadiran 6 Bulan Terakhir</h3>
                         <div className="flex items-end gap-2 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
                           {monthlyTrendData.map((month, index) => {
                             const maxValue = Math.max(...monthlyTrendData.map((m) => m.balita));

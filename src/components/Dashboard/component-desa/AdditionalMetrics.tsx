@@ -16,7 +16,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
       {/* Kunjungan Posyandu Berdasarkan Usia */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-          Kunjungan Posyandu Berdasarkan Usia
+          Jumlah Anak Yang Dilayani Berdasarkan Usia
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900/20">
