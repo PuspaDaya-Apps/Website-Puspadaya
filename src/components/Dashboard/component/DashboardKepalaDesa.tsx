@@ -237,6 +237,9 @@ const DashboardKepalaDesa: React.FC = () => {
         posyanduList={posyanduListData}
         summary={dashboardSummaryData}
         activities={recentActivityData}
+        bulan={selectedMonth}
+        tahun={filterTahun}
+        bulanLabel={daftarBulan[selectedMonth - 1]}
       />
     </div>
   );
