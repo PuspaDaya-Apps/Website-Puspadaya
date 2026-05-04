@@ -8,7 +8,79 @@ export interface FetchResult<T> {
   data: T | null;
 }
 
-async function fetchDashboardKepalaDesa<T>(endpoint: string): Promise<FetchResult<T>> {
+export interface DashboardKepalaDesaQueryParams {
+  bulan: string | number;
+  tahun: number | string;
+  kabupatenKota?: string;
+  desa?: string;
+}
+
+interface CurrentUserLocation {
+  kabupaten_kota?: {
+    nama_kabupaten_kota?: string;
+  };
+  desa_kelurahan?: {
+    nama_desa_kelurahan?: string;
+  };
+}
+
+const normalizeBulan = (bulan: string | number): string => {
+  if (typeof bulan === 'number') {
+    return String(bulan + 1);
+  }
+
+  return bulan.trim();
+};
+
+const getCurrentUserLocation = (): Pick<DashboardKepalaDesaQueryParams, 'kabupatenKota' | 'desa'> => {
+  if (typeof window === 'undefined') {
+    return {};
+  }
+
+  try {
+    const rawCurrentUser = localStorage.getItem('current_user');
+
+    if (!rawCurrentUser) {
+      return {};
+    }
+
+    const currentUser = JSON.parse(rawCurrentUser) as CurrentUserLocation;
+
+    return {
+      kabupatenKota: currentUser?.kabupaten_kota?.nama_kabupaten_kota,
+      desa: currentUser?.desa_kelurahan?.nama_desa_kelurahan,
+    };
+  } catch (error) {
+    console.warn('Gagal membaca current_user dari localStorage:', error);
+    return {};
+  }
+};
+
+const buildDashboardKepalaDesaUrl = (endpoint: string, params: DashboardKepalaDesaQueryParams): string => {
+  const resolvedLocation = getCurrentUserLocation();
+  const query = new URLSearchParams();
+
+  const kabupatenKota = params.kabupatenKota ?? resolvedLocation.kabupatenKota;
+  const desa = params.desa ?? resolvedLocation.desa;
+
+  if (kabupatenKota) {
+    query.set('kabupaten_kota', kabupatenKota);
+  }
+
+  if (desa) {
+    query.set('desa', desa);
+  }
+
+  query.set('bulan', normalizeBulan(params.bulan));
+  query.set('tahun', String(params.tahun));
+
+  return `${endpoint}?${query.toString()}`;
+};
+
+async function fetchDashboardKepalaDesa<T>(
+  endpoint: string,
+  params: DashboardKepalaDesaQueryParams
+): Promise<FetchResult<T>> {
   if (typeof window === 'undefined') {
     return { successCode: 500, data: null };
   }
@@ -20,7 +92,7 @@ async function fetchDashboardKepalaDesa<T>(endpoint: string): Promise<FetchResul
       return { successCode: 401, data: null };
     }
 
-    const response = await axios.get(endpoint, {
+    const response = await axios.get(buildDashboardKepalaDesaUrl(endpoint, params), {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
@@ -37,8 +109,11 @@ async function fetchDashboardKepalaDesa<T>(endpoint: string): Promise<FetchResul
   }
 }
 
-export function getDashboardKepalaDesa<T>(endpoint: string): Promise<FetchResult<T>> {
-  return fetchDashboardKepalaDesa<T>(endpoint);
+export function getDashboardKepalaDesa<T>(
+  endpoint: string,
+  params: DashboardKepalaDesaQueryParams
+): Promise<FetchResult<T>> {
+  return fetchDashboardKepalaDesa<T>(endpoint, params);
 }
 
 export { APIEndpoints };

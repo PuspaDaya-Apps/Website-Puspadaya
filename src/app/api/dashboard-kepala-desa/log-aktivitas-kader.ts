@@ -1,7 +1,9 @@
 import { APIEndpoints } from '@/app/config/route/apiEndpoints';
 import { LogAktivitasKaderData } from '@/types/kepala-desa';
-import { FetchResult, getDashboardKepalaDesa } from './client';
+import { DashboardKepalaDesaQueryParams, FetchResult, getDashboardKepalaDesa } from './client';
 
-export const fetchLogAktivitasKader = (): Promise<FetchResult<LogAktivitasKaderData>> => {
-  return getDashboardKepalaDesa<LogAktivitasKaderData>(APIEndpoints.LOGACTIVITYKADER);
+export const fetchLogAktivitasKader = (
+  params: DashboardKepalaDesaQueryParams
+): Promise<FetchResult<LogAktivitasKaderData>> => {
+  return getDashboardKepalaDesa<LogAktivitasKaderData>(APIEndpoints.LOGACTIVITYKADER, params);
 };

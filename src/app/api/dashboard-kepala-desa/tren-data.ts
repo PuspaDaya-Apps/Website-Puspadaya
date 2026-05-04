@@ -1,7 +1,9 @@
 import { APIEndpoints } from '@/app/config/route/apiEndpoints';
 import { TrenDataPosyanduData } from '@/types/kepala-desa';
-import { FetchResult, getDashboardKepalaDesa } from './client';
+import { DashboardKepalaDesaQueryParams, FetchResult, getDashboardKepalaDesa } from './client';
 
-export const fetchTrenDataPosyandu = (): Promise<FetchResult<TrenDataPosyanduData>> => {
-  return getDashboardKepalaDesa<TrenDataPosyanduData>(APIEndpoints.TRENDATAPOSYNADU);
+export const fetchTrenDataPosyandu = (
+  params: DashboardKepalaDesaQueryParams
+): Promise<FetchResult<TrenDataPosyanduData>> => {
+  return getDashboardKepalaDesa<TrenDataPosyanduData>(APIEndpoints.TRENDATAPOSYNADU, params);
 };
