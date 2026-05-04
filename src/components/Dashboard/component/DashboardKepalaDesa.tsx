@@ -222,7 +222,12 @@ const DashboardKepalaDesa: React.FC = () => {
       />
 
       {/* LEVEL 3: DURASI DAN JARAK AGREGAT - KADER */}
-      <DurasiJarakAgregat durasiJarak={dashboardSummaryData.durasi_jarak_agregat} />
+      <DurasiJarakAgregat
+        durasiJarak={dashboardSummaryData.durasi_jarak_agregat}
+        bulan={selectedMonth}
+        tahun={filterTahun}
+        bulanLabel={daftarBulan[selectedMonth - 1]}
+      />
 
       {/* LEVEL 3: BEBAN KERJA TIM SUMMARY - KADER */}
       <BebanKerjaTimSummary bebanKerjaTim={dashboardSummaryData.beban_kerja_tim} />
