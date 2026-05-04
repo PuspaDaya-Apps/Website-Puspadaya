@@ -1,24 +1,117 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { fetchTrenDataPosyandu } from "@/app/api/dashboard-kepala-desa";
 import { PosyanduItem } from "@/types/dashboard-kepala-desa";
+import { TrenDataPosyanduItem } from "@/types/kepala-desa";
 
 interface PosyanduOverviewProps {
   posyanduList: PosyanduItem[];
   selectedPosyandu: PosyanduItem | null;
   onSelectPosyandu: (posyandu: PosyanduItem) => void;
+  bulan: number;
+  tahun: number;
+  bulanLabel?: string;
 }
 
 const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
   posyanduList,
   selectedPosyandu,
   onSelectPosyandu,
+  bulan,
+  tahun,
+  bulanLabel,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [trenData, setTrenData] = useState<TrenDataPosyanduItem[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadTrenData = async () => {
+      setIsLoading(true);
+      setErrorMessage(null);
+      setTrenData(null);
+
+      const result = await fetchTrenDataPosyandu({ bulan, tahun });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setTrenData(result.data.posyandu ?? []);
+      } else {
+        setErrorMessage("Gagal memuat tren data posyandu");
+      }
+
+      setIsLoading(false);
+    };
+
+    loadTrenData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [bulan, tahun]);
+
+  const normalizedKey = (nama: string, dusun: string) =>
+    `${nama.trim().toLowerCase()}__${dusun.trim().toLowerCase()}`;
+
+  const mergedPosyanduList = useMemo(() => {
+    const staticMap = new Map(
+      posyanduList.map((posyandu) => [
+        normalizedKey(posyandu.nama_posyandu, posyandu.nama_dusun),
+        posyandu,
+      ])
+    );
+
+    const mappedFromApi =
+      trenData?.map((item, index) => {
+        const matchedStatic = staticMap.get(normalizedKey(item.nama, item.dusun));
+
+        if (matchedStatic) {
+          return {
+            ...matchedStatic,
+            nama_posyandu: item.nama,
+            nama_dusun: item.dusun,
+            total_balita: item.balita,
+            total_ibu_hamil: item.ibu_hamil,
+            total_kader: item.kader,
+            persentase_kehadiran: item.kehadiran,
+          };
+        }
+
+        return {
+          id: `${item.nama}-${index + 1}`.replace(/\s+/g, "-").toLowerCase(),
+          nama_posyandu: item.nama,
+          nama_dusun: item.dusun,
+          nama_kecamatan: "",
+          nama_kabupaten_kota: "",
+          total_balita: item.balita,
+          total_ibu_hamil: item.ibu_hamil,
+          total_kader: item.kader,
+          kehadiran_balita_bulan_ini: 0,
+          kehadiran_ibu_hamil_bulan_ini: 0,
+          status_stunting: 0,
+          status_gizi_buruk: 0,
+          persentase_kehadiran: item.kehadiran,
+          last_updated: "",
+        } as PosyanduItem;
+      }) ?? [];
+
+    if (mappedFromApi.length > 0) {
+      return mappedFromApi;
+    }
+
+    return posyanduList;
+  }, [posyanduList, trenData]);
 
   // Filter posyandu based on search
-  const filteredPosyandu = posyanduList.filter(
+  const filteredPosyandu = mergedPosyanduList.filter(
     (posyandu) =>
       posyandu.nama_posyandu.toLowerCase().includes(searchTerm.toLowerCase()) ||
       posyandu.nama_dusun.toLowerCase().includes(searchTerm.toLowerCase())
@@ -46,6 +139,8 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
               Daftar Posyandu
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
+              {bulanLabel ? `Periode ${bulanLabel} ${tahun}` : `Periode bulan ${bulan + 1} ${tahun}`}
+              {" "}
               {selectedPosyandu
                 ? `Terpilih: ${selectedPosyandu.nama_posyandu}`
                 : "Klik posyandu untuk melihat detail"}
@@ -105,8 +200,18 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
         </div>
       </div>
 
+      {isLoading ? (
+        <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+          Memuat tren data posyandu...
+        </div>
+      ) : errorMessage ? (
+        <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
+          {errorMessage}
+        </div>
+      ) : null}
+
       {/* Posyandu Grid/List */}
-      {viewMode === "grid" ? (
+      {!isLoading && viewMode === "grid" ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {filteredPosyandu.map((posyandu) => (
             <Link
@@ -188,7 +293,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
             </Link>
           ))}
         </div>
-      ) : (
+      ) : !isLoading ? (
         /* List View */
         <div className="overflow-x-auto">
           <table className="min-w-full">
@@ -263,12 +368,14 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
             </tbody>
           </table>
         </div>
-      )}
+      ) : null}
 
       {/* Result count */}
-      <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-        Menampilkan {filteredPosyandu.length} dari {posyanduList.length} posyandu
-      </div>
+      {!isLoading && (
+        <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+          Menampilkan {filteredPosyandu.length} dari {mergedPosyanduList.length} posyandu
+        </div>
+      )}
     </div>
   );
 };

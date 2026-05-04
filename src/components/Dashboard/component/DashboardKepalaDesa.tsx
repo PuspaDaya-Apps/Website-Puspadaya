@@ -161,6 +161,9 @@ const DashboardKepalaDesa: React.FC = () => {
         posyanduList={posyanduListData}
         selectedPosyandu={selectedPosyandu}
         onSelectPosyandu={setSelectedPosyandu}
+        bulan={filterBulan}
+        tahun={filterTahun}
+        bulanLabel={daftarBulan[filterBulan]}
       />
 
       {/* Selected Posyandu Detail Banner */}
