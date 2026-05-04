@@ -1,29 +1,115 @@
 "use client";
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { fetchAnakCakupanDilayani } from "@/app/api/dashboard-kepala-desa";
 import { DashboardSummary as DashboardSummaryType } from "@/types/dashboard-kepala-desa";
+import { AnakCakupanDilayaniData } from "@/types/kepala-desa";
 
 interface AdditionalMetricsProps {
   summary: DashboardSummaryType;
+  bulan: number;
+  tahun: number;
+  bulanLabel?: string;
 }
 
-const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
+const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary, bulan, tahun, bulanLabel }) => {
+  const [apiData, setApiData] = useState<AnakCakupanDilayaniData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadData = async () => {
+      setIsLoading(true);
+      setErrorMessage(null);
+      setApiData(null);
+
+      const result = await fetchAnakCakupanDilayani({ bulan, tahun });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setApiData(result.data);
+      } else {
+        setErrorMessage("Gagal memuat data cakupan layanan anak");
+      }
+
+      setIsLoading(false);
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [bulan, tahun]);
+
+  const displayData = useMemo(() => ({
+    baduta_0_23_months: apiData?.anak_berdasarkan_usia.baduta ?? summary.baduta_0_23_months,
+    balita_24_59_months: apiData?.anak_berdasarkan_usia.balita ?? summary.balita_24_59_months,
+    pra_sekolah_60_72_months: apiData?.anak_berdasarkan_usia.pra_sekolah ?? summary.pra_sekolah_60_72_months,
+    pregnant_women_under_energized: apiData?.kesehatan_ibu_bayi.ibu_hamil_kek ?? summary.pregnant_women_under_energized,
+    high_risk_pregnant_women: apiData?.kesehatan_ibu_bayi.ibu_hamil_risiko_tinggi ?? summary.high_risk_pregnant_women,
+    breastfeeding_mothers: apiData?.kesehatan_ibu_bayi.ibu_menyusui ?? summary.breastfeeding_mothers,
+    newborn_count: apiData?.kesehatan_ibu_bayi.bayi_baru_lahir ?? summary.newborn_count,
+    women_post_fertile: apiData?.keluarga_berencana.wanita_pasca_subur ?? summary.women_post_fertile,
+    kb_acceptors: apiData?.keluarga_berencana.akseptor_kb ?? summary.kb_acceptors,
+    pregnant_women_with_insurance: apiData?.keluarga_berencana.ibu_hamil_asuransi ?? summary.pregnant_women_with_insurance,
+    infant_immunization_coverage: {
+      ...summary.infant_immunization_coverage,
+      total_imunisasi: apiData?.imunisasi.total ?? summary.infant_immunization_coverage.total_imunisasi,
+      cakupan_persentase: apiData?.imunisasi.cakupan_persen ?? summary.infant_immunization_coverage.cakupan_persentase,
+      bcg: apiData?.imunisasi.detail.bcg ?? summary.infant_immunization_coverage.bcg,
+      dpt_1: apiData?.imunisasi.detail.dpt_1 ?? summary.infant_immunization_coverage.dpt_1,
+      dpt_2: apiData?.imunisasi.detail.dpt_2 ?? summary.infant_immunization_coverage.dpt_2,
+      dpt_3: apiData?.imunisasi.detail.dpt_3 ?? summary.infant_immunization_coverage.dpt_3,
+      polio_1: apiData?.imunisasi.detail.polio_1 ?? summary.infant_immunization_coverage.polio_1,
+      polio_2: apiData?.imunisasi.detail.polio_2 ?? summary.infant_immunization_coverage.polio_2,
+      polio_3: apiData?.imunisasi.detail.polio_3 ?? summary.infant_immunization_coverage.polio_3,
+      polio_4: apiData?.imunisasi.detail.polio_4 ?? summary.infant_immunization_coverage.polio_4,
+      hepatitis: apiData?.imunisasi.detail.hepatitis ?? summary.infant_immunization_coverage.hepatitis,
+      campak: apiData?.imunisasi.detail.campak ?? summary.infant_immunization_coverage.campak,
+    },
+  }), [apiData, summary]);
+
+  const safePercent = (value: number, total: number) => {
+    if (!total) return 0;
+    return (value / total) * 100;
+  };
+
   return (
     <div className="space-y-6">
+      {isLoading ? (
+        <div className="rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+          Memuat data cakupan layanan anak...
+        </div>
+      ) : errorMessage ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
+          {errorMessage}
+        </div>
+      ) : null}
       {/* ═══════════════════════════════════════════════════ */}
       {/* 🍼 BAGIAN 1: DATA BALITA */}
       {/* ═══════════════════════════════════════════════════ */}
       
       {/* Kunjungan Posyandu Berdasarkan Usia */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
-        <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-          Jumlah Anak Yang Dilayani Berdasarkan Usia
-        </h2>
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-dark dark:text-white">
+            Jumlah Anak Yang Dilayani Berdasarkan Usia
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {bulanLabel ? `Periode ${bulanLabel} ${tahun}` : `Periode bulan ${bulan} ${tahun}`}
+          </p>
+        </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900/20">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Baduta (0-23 Bulan)</p>
-                <p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{summary.baduta_0_23_months}</p>
+                <p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{displayData.baduta_0_23_months}</p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-800">
                 <svg className="h-6 w-6 text-emerald-600 dark:text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,7 +120,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
             <div className="mt-2 h-2 w-full rounded-full bg-emerald-200 dark:bg-emerald-700">
               <div
                 className="h-2 rounded-full bg-emerald-500"
-                style={{ width: `${(summary.baduta_0_23_months / summary.total_balita) * 100}%` }}
+                style={{ width: `${safePercent(displayData.baduta_0_23_months, summary.total_balita)}%` }}
               />
             </div>
           </div>
@@ -42,7 +128,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Balita (24-59 Bulan)</p>
-                <p className="mt-1 text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.balita_24_59_months}</p>
+                <p className="mt-1 text-2xl font-bold text-blue-600 dark:text-blue-400">{displayData.balita_24_59_months}</p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-800">
                 <svg className="h-6 w-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,7 +139,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
             <div className="mt-2 h-2 w-full rounded-full bg-blue-200 dark:bg-blue-700">
               <div
                 className="h-2 rounded-full bg-blue-500"
-                style={{ width: `${(summary.balita_24_59_months / summary.total_balita) * 100}%` }}
+                style={{ width: `${safePercent(displayData.balita_24_59_months, summary.total_balita)}%` }}
               />
             </div>
           </div>
@@ -61,7 +147,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Pra Sekolah (60-72 Bulan)</p>
-                <p className="mt-1 text-2xl font-bold text-violet-600 dark:text-violet-400">{summary.pra_sekolah_60_72_months}</p>
+                <p className="mt-1 text-2xl font-bold text-violet-600 dark:text-violet-400">{displayData.pra_sekolah_60_72_months}</p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-800">
                 <svg className="h-6 w-6 text-violet-600 dark:text-violet-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +158,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
             <div className="mt-2 h-2 w-full rounded-full bg-violet-200 dark:bg-violet-700">
               <div
                 className="h-2 rounded-full bg-violet-500"
-                style={{ width: `${(summary.pra_sekolah_60_72_months / summary.total_balita) * 100}%` }}
+                style={{ width: `${safePercent(displayData.pra_sekolah_60_72_months, summary.total_balita)}%` }}
               />
             </div>
           </div>
@@ -101,7 +187,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
               </div>
               <div>
                 <p className="text-xs text-gray-600 dark:text-gray-400">Ibu Hamil KEK</p>
-                <p className="text-xl font-bold text-pink-600 dark:text-pink-300">{summary.pregnant_women_under_energized}</p>
+                <p className="text-xl font-bold text-pink-600 dark:text-pink-300">{displayData.pregnant_women_under_energized}</p>
               </div>
             </div>
           </div>
@@ -114,7 +200,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
               </div>
               <div>
                 <p className="text-xs text-gray-600 dark:text-gray-400">Ibu Hamil Risiko Tinggi</p>
-                <p className="text-xl font-bold text-red-600 dark:text-red-300">{summary.high_risk_pregnant_women}</p>
+                <p className="text-xl font-bold text-red-600 dark:text-red-300">{displayData.high_risk_pregnant_women}</p>
               </div>
             </div>
           </div>
@@ -127,7 +213,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
               </div>
               <div>
                 <p className="text-xs text-gray-600 dark:text-gray-400">Ibu Menyusui</p>
-                <p className="text-xl font-bold text-amber-600 dark:text-amber-300">{summary.breastfeeding_mothers}</p>
+                <p className="text-xl font-bold text-amber-600 dark:text-amber-300">{displayData.breastfeeding_mothers}</p>
               </div>
             </div>
           </div>
@@ -140,7 +226,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
               </div>
               <div>
                 <p className="text-xs text-gray-600 dark:text-gray-400">Bayi Baru Lahir</p>
-                <p className="text-xl font-bold text-teal-600 dark:text-teal-300">{summary.newborn_count}</p>
+                <p className="text-xl font-bold text-teal-600 dark:text-teal-300">{displayData.newborn_count}</p>
               </div>
             </div>
           </div>
@@ -165,7 +251,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
               </div>
               <div>
                 <p className="text-xs text-gray-600 dark:text-gray-400">Wanita Pasca Subur</p>
-                <p className="text-xl font-bold text-purple-600 dark:text-purple-300">{summary.women_post_fertile}</p>
+                <p className="text-xl font-bold text-purple-600 dark:text-purple-300">{displayData.women_post_fertile}</p>
               </div>
             </div>
           </div>
@@ -178,7 +264,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
               </div>
               <div>
                 <p className="text-xs text-gray-600 dark:text-gray-400">Akseptor KB</p>
-                <p className="text-xl font-bold text-indigo-600 dark:text-indigo-300">{summary.kb_acceptors}</p>
+                <p className="text-xl font-bold text-indigo-600 dark:text-indigo-300">{displayData.kb_acceptors}</p>
               </div>
             </div>
           </div>
@@ -191,7 +277,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
               </div>
               <div>
                 <p className="text-xs text-gray-600 dark:text-gray-400">Ibu Hamil Asuransi</p>
-                <p className="text-xl font-bold text-cyan-600 dark:text-cyan-300">{summary.pregnant_women_with_insurance}</p>
+                <p className="text-xl font-bold text-cyan-600 dark:text-cyan-300">{displayData.pregnant_women_with_insurance}</p>
               </div>
             </div>
           </div>
@@ -209,23 +295,23 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary }) => {
         </h2>
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Total Imunisasi: <span className="font-semibold text-dark dark:text-white">{summary.infant_immunization_coverage.total_imunisasi}</span>
+            Total Imunisasi: <span className="font-semibold text-dark dark:text-white">{displayData.infant_immunization_coverage.total_imunisasi}</span>
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Cakupan: <span className="font-bold text-emerald-600 dark:text-emerald-400">{summary.infant_immunization_coverage.cakupan_persentase}%</span>
+            Cakupan: <span className="font-bold text-emerald-600 dark:text-emerald-400">{displayData.infant_immunization_coverage.cakupan_persentase}%</span>
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-          <ImunisasiCard label="BCG" value={summary.infant_immunization_coverage.bcg} color="blue" />
-          <ImunisasiCard label="DPT 1" value={summary.infant_immunization_coverage.dpt_1} color="green" />
-          <ImunisasiCard label="DPT 2" value={summary.infant_immunization_coverage.dpt_2} color="green" />
-          <ImunisasiCard label="DPT 3" value={summary.infant_immunization_coverage.dpt_3} color="green" />
-          <ImunisasiCard label="Polio 1" value={summary.infant_immunization_coverage.polio_1} color="purple" />
-          <ImunisasiCard label="Polio 2" value={summary.infant_immunization_coverage.polio_2} color="purple" />
-          <ImunisasiCard label="Polio 3" value={summary.infant_immunization_coverage.polio_3} color="purple" />
-          <ImunisasiCard label="Polio 4" value={summary.infant_immunization_coverage.polio_4} color="purple" />
-          <ImunisasiCard label="Hepatitis" value={summary.infant_immunization_coverage.hepatitis} color="orange" />
-          <ImunisasiCard label="Campak" value={summary.infant_immunization_coverage.campak} color="red" />
+          <ImunisasiCard label="BCG" value={displayData.infant_immunization_coverage.bcg} color="blue" />
+          <ImunisasiCard label="DPT 1" value={displayData.infant_immunization_coverage.dpt_1} color="green" />
+          <ImunisasiCard label="DPT 2" value={displayData.infant_immunization_coverage.dpt_2} color="green" />
+          <ImunisasiCard label="DPT 3" value={displayData.infant_immunization_coverage.dpt_3} color="green" />
+          <ImunisasiCard label="Polio 1" value={displayData.infant_immunization_coverage.polio_1} color="purple" />
+          <ImunisasiCard label="Polio 2" value={displayData.infant_immunization_coverage.polio_2} color="purple" />
+          <ImunisasiCard label="Polio 3" value={displayData.infant_immunization_coverage.polio_3} color="purple" />
+          <ImunisasiCard label="Polio 4" value={displayData.infant_immunization_coverage.polio_4} color="purple" />
+          <ImunisasiCard label="Hepatitis" value={displayData.infant_immunization_coverage.hepatitis} color="orange" />
+          <ImunisasiCard label="Campak" value={displayData.infant_immunization_coverage.campak} color="red" />
         </div>
       </div>
     </div>

@@ -206,10 +206,20 @@ const DashboardKepalaDesa: React.FC = () => {
       />
 
       {/* LEVEL 3: ADDITIONAL METRICS - Data Kependudukan, Balita & Imunisasi */}
-      <AdditionalMetrics summary={dashboardSummaryData} />
+      <AdditionalMetrics
+        summary={dashboardSummaryData}
+        bulan={selectedMonth}
+        tahun={filterTahun}
+        bulanLabel={daftarBulan[selectedMonth - 1]}
+      />
 
       {/* LEVEL 3: SKDN BAR CHART */}
-      <SKDNBarChart skdnData={dashboardSummaryData.skdn_data} />
+      <SKDNBarChart
+        skdnData={dashboardSummaryData.skdn_data}
+        bulan={selectedMonth}
+        tahun={filterTahun}
+        bulanLabel={daftarBulan[selectedMonth - 1]}
+      />
 
       {/* LEVEL 3: DURASI DAN JARAK AGREGAT - KADER */}
       <DurasiJarakAgregat durasiJarak={dashboardSummaryData.durasi_jarak_agregat} />

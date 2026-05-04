@@ -45,7 +45,7 @@ export const APIEndpoints = {
     // API KEPALA DESA NEW
     INFOMASIDATADESA: '/api/v1/kepala-dashboard/informasi-data-desa',
     TRENDATAPOSYNADU: '/api/v1/kepala-dashboard/tren-data',
-    INFORMASIDATADESA: '/api/v1/kepala-dashboard/informasi-data-desa',
+    INFORMASIDATADESA: '/api/v1/kepala-dashboard/statistik-data-desa',
     ANAKCAKUPANDILAYANI: '/api/v1/kepala-dashboard/anak-cakupan-dilayani',
     DASHBOARDSKDN: '/api/v1/kepala-dashboard/statistik-skdn',
     DURASIKERJAPOSYANDU: '/api/v1/kepala-dashboard/durasi-kerja-posyandu',
