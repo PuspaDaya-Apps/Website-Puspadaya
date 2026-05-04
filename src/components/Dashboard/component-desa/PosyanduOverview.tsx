@@ -31,6 +31,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const itemsPerPage = 12;
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
 
   useEffect(() => {
     let isMounted = true;
@@ -121,8 +122,10 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
   // Filter posyandu based on search
   const filteredPosyandu = mergedPosyanduList.filter(
     (posyandu) =>
-      posyandu.nama_posyandu.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      posyandu.nama_dusun.toLowerCase().includes(searchTerm.toLowerCase())
+      posyandu.nama_posyandu.toLowerCase().includes(normalizedSearchTerm) ||
+      posyandu.nama_dusun.toLowerCase().includes(normalizedSearchTerm) ||
+      posyandu.nama_kecamatan.toLowerCase().includes(normalizedSearchTerm) ||
+      posyandu.nama_kabupaten_kota.toLowerCase().includes(normalizedSearchTerm)
   );
 
   const totalPages = Math.max(1, Math.ceil(filteredPosyandu.length / itemsPerPage));
@@ -163,7 +166,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
               Daftar Posyandu
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              {bulanLabel ? `Periode ${bulanLabel} ${tahun}` : `Periode bulan ${bulan + 1} ${tahun}`}
+              {bulanLabel ? `Periode ${bulanLabel} ${tahun}` : `Periode bulan ${bulan} ${tahun}`}
               {" "}
               {selectedPosyandu
                 ? `Terpilih: ${selectedPosyandu.nama_posyandu}`
@@ -213,6 +216,16 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm("")}
+              className="absolute right-3 top-2 rounded-md px-2 py-1 text-xs font-medium text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+              aria-label="Hapus pencarian"
+            >
+              Hapus
+            </button>
+          )}
           <svg
             className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
             fill="none"
@@ -234,8 +247,14 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
         </div>
       ) : null}
 
+      {!isLoading && !errorMessage && filteredPosyandu.length === 0 && (
+        <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+          Tidak ada posyandu yang cocok dengan pencarian.
+        </div>
+      )}
+
       {/* Posyandu Grid/List */}
-      {!isLoading && viewMode === "grid" ? (
+      {!isLoading && filteredPosyandu.length > 0 && viewMode === "grid" ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {paginatedPosyandu.map((posyandu) => (
             <Link
@@ -317,7 +336,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
             </Link>
           ))}
         </div>
-      ) : !isLoading ? (
+      ) : !isLoading && filteredPosyandu.length > 0 ? (
         /* List View */
         <div className="overflow-x-auto">
           <table className="min-w-full">

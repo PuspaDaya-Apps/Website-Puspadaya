@@ -281,7 +281,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ bulan, tahun, bulanLabel }) => 
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Data utama untuk monitoring wilayah
-              {bulanLabel ? ` - ${bulanLabel} ${tahun}` : ` - bulan ${bulan + 1} ${tahun}`}
+              {bulanLabel ? ` - ${bulanLabel} ${tahun}` : ` - bulan ${bulan} ${tahun}`}
             </p>
           </div>
         </div>

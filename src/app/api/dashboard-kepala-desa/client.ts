@@ -26,7 +26,7 @@ interface CurrentUserLocation {
 
 const normalizeBulan = (bulan: string | number): string => {
   if (typeof bulan === 'number') {
-    return String(bulan + 1);
+    return String(bulan);
   }
 
   return bulan.trim();

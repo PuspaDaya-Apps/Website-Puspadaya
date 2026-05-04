@@ -30,7 +30,7 @@ import AccessibilityControls from "./AccessibilityControls";
 const DashboardKepalaDesa: React.FC = () => {
   const [selectedPosyandu, setSelectedPosyandu] = useState<PosyanduItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [filterBulan, setFilterBulan] = useState<number>(new Date().getMonth());
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [filterTahun, setFilterTahun] = useState<number>(new Date().getFullYear());
   const [totalPosyandu, setTotalPosyandu] = useState<number>(posyanduListData.length);
 
@@ -120,11 +120,11 @@ const DashboardKepalaDesa: React.FC = () => {
             {/* Filter Periode - Bulan */}
             <select
               className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-dark outline-none focus:border-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-primary"
-              value={filterBulan}
-              onChange={(e) => setFilterBulan(Number(e.target.value))}
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(Number(e.target.value))}
             >
               {daftarBulan.map((bulan, index) => (
-                <option key={index} value={index}>
+                <option key={index} value={index + 1}>
                   {bulan}
                 </option>
               ))}
@@ -152,9 +152,9 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 2: KEY METRICS - Indikator Kunci */}
       <KeyMetrics
-        bulan={filterBulan}
+        bulan={selectedMonth}
         tahun={filterTahun}
-        bulanLabel={daftarBulan[filterBulan]}
+        bulanLabel={daftarBulan[selectedMonth - 1]}
       />
 
       {/* LEVEL 3: POSYANDU OVERVIEW - Daftar Posyandu */}
@@ -163,9 +163,9 @@ const DashboardKepalaDesa: React.FC = () => {
         selectedPosyandu={selectedPosyandu}
         onSelectPosyandu={setSelectedPosyandu}
         onTotalPosyanduChange={setTotalPosyandu}
-        bulan={filterBulan}
+        bulan={selectedMonth}
         tahun={filterTahun}
-        bulanLabel={daftarBulan[filterBulan]}
+        bulanLabel={daftarBulan[selectedMonth - 1]}
       />
 
       {/* Selected Posyandu Detail Banner */}
