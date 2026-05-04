@@ -1,29 +1,72 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { fetchLogAktivitasKader } from "@/app/api/dashboard-kepala-desa";
 import { RecentActivity as RecentActivityType } from "@/types/dashboard-kepala-desa";
+import { LogAktivitasKaderData } from "@/types/kepala-desa";
 
 interface RecentActivityTableProps {
-  activities: RecentActivityType[];
+  bulan: number;
+  tahun: number;
+  bulanLabel?: string;
 }
 
 const RecentActivityTable: React.FC<RecentActivityTableProps> = ({
-  activities,
+  bulan,
+  tahun,
 }) => {
-  const [filterType, setFilterType] = useState<string>("all");
-  const [visibleCount, setVisibleCount] = useState(10);
+  const [apiData, setApiData] = useState<LogAktivitasKaderData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Get activity type icon and color
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadData = async () => {
+      setIsLoading(true);
+      setErrorMessage(null);
+      setApiData(null);
+
+      const result = await fetchLogAktivitasKader({ bulan, tahun });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setApiData(result.data);
+      } else {
+        setErrorMessage("Gagal memuat data aktivitas terbaru");
+      }
+
+      setIsLoading(false);
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [bulan, tahun]);
+
+  const activities = useMemo<RecentActivityType[]>(() => {
+    const apiActivities = apiData?.aktivitas ?? [];
+
+    return apiActivities.map((item, index) => ({
+      id: `${item.tanggal}-${item.posyandu}-${index}`,
+      posyandu_nama: item.posyandu,
+      activity_type: item.aktivitas.replace(/\s+/g, "_").toLowerCase() as RecentActivityType["activity_type"],
+      description: item.deskripsi,
+      tanggal: item.tanggal,
+      kader_nama: item.kader,
+    }));
+  }, [apiData]);
+
   const getActivityInfo = (type: string) => {
     switch (type) {
       case "pengukuran_balita":
         return {
           icon: (
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -38,12 +81,7 @@ const RecentActivityTable: React.FC<RecentActivityTableProps> = ({
       case "pengukuran_ibu_hamil":
         return {
           icon: (
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -58,12 +96,7 @@ const RecentActivityTable: React.FC<RecentActivityTableProps> = ({
       case "kuesioner":
         return {
           icon: (
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -78,12 +111,7 @@ const RecentActivityTable: React.FC<RecentActivityTableProps> = ({
       case "laporan":
         return {
           icon: (
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -98,12 +126,7 @@ const RecentActivityTable: React.FC<RecentActivityTableProps> = ({
       default:
         return {
           icon: (
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -118,128 +141,98 @@ const RecentActivityTable: React.FC<RecentActivityTableProps> = ({
     }
   };
 
-  // Format date to Indonesian locale
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("id-ID", {
       day: "numeric",
-      month: "long",
+      month: "short",
       year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     });
   };
 
-  // Filter activities
-  const filteredActivities = activities.filter((activity) => {
-    if (filterType === "all") return true;
-    return activity.activity_type === filterType;
-  });
-
-  // Get unique activity types for filter
-  const activityTypes = Array.from(
-    new Set(activities.map((a) => a.activity_type))
-  );
-
   return (
-    <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-dark dark:text-white">
-            Aktivitas Terbaru
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
-            Riwayat aktivitas dari semua posyandu
-          </p>
-        </div>
+    <div className="overflow-x-auto">
+      <table className="min-w-full">
+        <thead>
+          <tr className="border-b border-gray-200 dark:border-gray-700">
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              Tanggal
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              Posyandu
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              Aktivitas
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              Deskripsi
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              Kader
+            </th>
+          </tr>
+        </thead>
 
-        {/* Filter Dropdown */}
-        <select
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-dark outline-none focus:border-primary dark:border-gray-600 dark:bg-gray-dark dark:text-white dark:focus:border-primary"
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-        >
-          <option value="all">Semua Aktivitas</option>
-          {activityTypes.map((type) => (
-            <option key={type} value={type}>
-              {getActivityInfo(type).label}
-            </option>
-          ))}
-        </select>
-      </div>
+        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          {isLoading ? (
+            <tr>
+              <td className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400" colSpan={5}>
+                Memuat data aktivitas terbaru...
+              </td>
+            </tr>
+          ) : errorMessage ? (
+            <tr>
+              <td className="px-4 py-6 text-sm text-red-700 dark:text-red-300" colSpan={5}>
+                {errorMessage}
+              </td>
+            </tr>
+          ) : activities.length === 0 ? (
+            <tr>
+              <td className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400" colSpan={5}>
+                Tidak ada aktivitas untuk ditampilkan
+              </td>
+            </tr>
+          ) : (
+            activities.slice(0, 10).map((activity) => {
+              const activityInfo = getActivityInfo(activity.activity_type);
 
-      {/* Activity List */}
-      <div className="space-y-3">
-        {filteredActivities.slice(0, visibleCount).map((activity, index) => {
-          const activityInfo = getActivityInfo(activity.activity_type);
-
-          return (
-            <div
-              key={activity.id}
-              className="flex items-start gap-4 rounded-lg border border-gray-200 p-4 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
-            >
-              {/* Icon */}
-              <div
-                className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${activityInfo.color} text-white`}
-              >
-                {activityInfo.icon}
-              </div>
-
-              {/* Content */}
-              <div className="flex-1">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-medium text-dark dark:text-white">
-                      {activity.description}
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      <span className="font-medium">{activity.posyandu_nama}</span>{" "}
-                      • Kader: {activity.kader_nama}
-                    </p>
-                  </div>
-                  <span className="whitespace-nowrap text-xs text-gray-500 dark:text-gray-400">
+              return (
+                <tr key={activity.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                     {formatDate(activity.tanggal)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Empty State */}
-      {filteredActivities.length === 0 && (
-        <div className="py-12 text-center">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Tidak ada aktivitas untuk ditampilkan
-          </p>
-        </div>
-      )}
-
-      {/* Load More Button */}
-      {visibleCount < filteredActivities.length && (
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => setVisibleCount((prev) => prev + 10)}
-            className="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-          >
-            Muat Lebih Banyak
-          </button>
-        </div>
-      )}
+                  </td>
+                  <td className="px-4 py-3 font-medium text-dark dark:text-white">
+                    {activity.posyandu_nama}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs font-medium ${
+                        activity.activity_type === "pengukuran_balita"
+                          ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                          : activity.activity_type === "pengukuran_ibu_hamil"
+                          ? "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400"
+                          : activity.activity_type === "kuesioner"
+                          ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
+                          : activity.activity_type === "laporan"
+                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                          : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+                      }`}
+                    >
+                      {activityInfo.label}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                    {activity.description}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                    {activity.kader_nama}
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };

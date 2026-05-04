@@ -6,7 +6,6 @@ import {
   dashboardSummaryData,
   monthlyTrendData,
   posyanduPerformanceData,
-  recentActivityData,
   kaderWorkloadData,
   statusGiziTrendData,
   ibuHamilBeresikoTrendData,
@@ -234,9 +233,7 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 4: EXPANDABLE DATA SECTIONS */}
       <ExpandableDataSection
-        posyanduList={posyanduListData}
         summary={dashboardSummaryData}
-        activities={recentActivityData}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}

@@ -1,14 +1,12 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import { fetchImunisasiKependudukan, fetchLogAktivitasKader } from "@/app/api/dashboard-kepala-desa";
+import { fetchImunisasiKependudukan } from "@/app/api/dashboard-kepala-desa";
 import { ImunisasiKependudukanData } from "@/types/kepala-desa";
-import { PosyanduItem, DashboardSummary, RecentActivity } from "@/types/dashboard-kepala-desa";
-import { LogAktivitasKaderData } from "@/types/kepala-desa";
+import { PosyanduItem, DashboardSummary } from "@/types/dashboard-kepala-desa";
+import RecentActivityTable from "./RecentActivityTable";
 
 interface ExpandableDataSectionProps {
-  posyanduList: PosyanduItem[];
   summary: DashboardSummary;
-  activities: RecentActivity[];
   bulan: number;
   tahun: number;
   bulanLabel?: string;
@@ -55,16 +53,13 @@ const ExpandableSection: React.FC<SectionProps> = ({
 };
 
 const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
-  posyanduList,
   summary,
-  activities,
   bulan,
   tahun,
   bulanLabel,
 }) => {
   const [activeTab, setActiveTab] = useState<"imunisasi" | "kependudukan">("imunisasi");
   const [apiData, setApiData] = useState<ImunisasiKependudukanData | null>(null);
-  const [activityApiData, setActivityApiData] = useState<LogAktivitasKaderData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -75,34 +70,21 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
       setIsLoading(true);
       setErrorMessage(null);
       setApiData(null);
-      setActivityApiData(null);
 
-      const [result, activityResult] = await Promise.all([
-        fetchImunisasiKependudukan({ bulan, tahun }),
-        fetchLogAktivitasKader({ bulan, tahun }),
-      ]);
+      const result = await fetchImunisasiKependudukan({ bulan, tahun });
 
       if (!isMounted) {
         return;
       }
 
       const hasImunisasiError = !(result.successCode === 200 && result.data);
-      const hasActivityError = !(activityResult.successCode === 200 && activityResult.data);
 
       if (!hasImunisasiError && result.data) {
         setApiData(result.data);
       }
 
-      if (!hasActivityError && activityResult.data) {
-        setActivityApiData(activityResult.data);
-      }
-
-      if (hasImunisasiError && hasActivityError) {
-        setErrorMessage("Gagal memuat data imunisasi, kependudukan, dan aktivitas terbaru");
-      } else if (hasImunisasiError) {
+      if (hasImunisasiError) {
         setErrorMessage("Gagal memuat data imunisasi dan kependudukan");
-      } else if (hasActivityError) {
-        setErrorMessage("Gagal memuat data aktivitas terbaru");
       }
 
       setIsLoading(false);
@@ -148,23 +130,6 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
     }),
     [apiData]
   );
-
-  const displayActivities = useMemo(() => {
-    const apiActivities = activityApiData?.aktivitas ?? [];
-
-    if (apiActivities.length > 0) {
-      return apiActivities.map((item, index) => ({
-        id: `${item.tanggal}-${item.posyandu}-${index}`,
-        posyandu_nama: item.posyandu,
-        activity_type: item.aktivitas.replace(/\s+/g, "_").toLowerCase() as RecentActivity["activity_type"],
-        description: item.deskripsi,
-        tanggal: item.tanggal,
-        kader_nama: item.kader,
-      }));
-    }
-
-    return [];
-  }, [activityApiData]);
 
   const safePercent = (value: number, total: number) => {
     if (!total) return 0;
@@ -367,56 +332,7 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
           }
           defaultOpen={false}
         >
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Tanggal</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Posyandu</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Aktivitas</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Deskripsi</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Kader</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {displayActivities.slice(0, 10).map((activity) => (
-                  <tr key={activity.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
-                      {new Date(activity.tanggal).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-4 py-3 font-medium text-dark dark:text-white">
-                      {activity.posyandu_nama}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`rounded-full px-2 py-1 text-xs font-medium ${
-                          activity.activity_type === "pengukuran_balita"
-                            ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                            : activity.activity_type === "pengukuran_ibu_hamil"
-                            ? "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400"
-                            : activity.activity_type === "kuesioner"
-                            ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
-                            : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400"
-                        }`}
-                      >
-                        {activity.activity_type.replace(/_/g, " ")}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
-                      {activity.description}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
-                      {activity.kader_nama}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <RecentActivityTable bulan={bulan} tahun={tahun} bulanLabel={bulanLabel} />
         </ExpandableSection>
       </div>
     </div>
