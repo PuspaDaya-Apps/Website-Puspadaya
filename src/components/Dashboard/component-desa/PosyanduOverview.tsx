@@ -9,6 +9,7 @@ interface PosyanduOverviewProps {
   posyanduList: PosyanduItem[];
   selectedPosyandu: PosyanduItem | null;
   onSelectPosyandu: (posyandu: PosyanduItem) => void;
+  onTotalPosyanduChange?: (total: number) => void;
   bulan: number;
   tahun: number;
   bulanLabel?: string;
@@ -18,6 +19,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
   posyanduList,
   selectedPosyandu,
   onSelectPosyandu,
+  onTotalPosyanduChange,
   bulan,
   tahun,
   bulanLabel,
@@ -111,6 +113,10 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
 
     return posyanduList;
   }, [posyanduList, trenData]);
+
+  useEffect(() => {
+    onTotalPosyanduChange?.(mergedPosyanduList.length);
+  }, [mergedPosyanduList.length, onTotalPosyanduChange]);
 
   // Filter posyandu based on search
   const filteredPosyandu = mergedPosyanduList.filter(

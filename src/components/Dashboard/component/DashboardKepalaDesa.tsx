@@ -32,6 +32,7 @@ const DashboardKepalaDesa: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [filterBulan, setFilterBulan] = useState<number>(new Date().getMonth());
   const [filterTahun, setFilterTahun] = useState<number>(new Date().getFullYear());
+  const [totalPosyandu, setTotalPosyandu] = useState<number>(posyanduListData.length);
 
   const { isSeniorMode } = useSeniorMode();
 
@@ -143,7 +144,7 @@ const DashboardKepalaDesa: React.FC = () => {
             </select>
 
             <div className="rounded-lg bg-primary px-4 py-2 text-sm text-white">
-              <span className="font-medium">{posyanduListData.length} Posyandu</span>
+              <span className="font-medium">{totalPosyandu} Posyandu</span>
             </div>
           </div>
         </div>
@@ -161,6 +162,7 @@ const DashboardKepalaDesa: React.FC = () => {
         posyanduList={posyanduListData}
         selectedPosyandu={selectedPosyandu}
         onSelectPosyandu={setSelectedPosyandu}
+        onTotalPosyanduChange={setTotalPosyandu}
         bulan={filterBulan}
         tahun={filterTahun}
         bulanLabel={daftarBulan[filterBulan]}
