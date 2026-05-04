@@ -42,4 +42,15 @@ export const APIEndpoints = {
     ANAKPOSYANDU: "/api/v1/anak-posyandu",
     RAPOIRTANAK: "/api/v1/report/balita",
 
+    // API KEPALA DESA NEW
+    INFOMASIDATADESA: '/api/v1/kepala-dashboard/informasi-data-desa',
+    TRENDATAPOSYNADU: '/api/v1/kepala-dashboard/tren-data',
+    INFORMASIDATADESA: '/api/v1/kepala-dashboard/informasi-data-desa',
+    ANAKCAKUPANDILAYANI: '/api/v1/kepala-dashboard/anak-cakupan-dilayani',
+    DASHBOARDSKDN: '/api/v1/kepala-dashboard/statistik-skdn',
+    DURASIKERJAPOSYANDU: '/api/v1/kepala-dashboard/durasi-kerja-posyandu',
+    SKORBEBANKERJATIM: '/api/v1/kepala-dashboard/skor-beban-kerja-tim',
+    IMUNISASIKEPENDUDUKAN: '/api/v1/kepala-dashboard/imunisasi-kependudukan',
+    LOGACTIVITYKADER: '/api/v1/kepala-dashboard/log-aktivitas-kader',
+
 };
