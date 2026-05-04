@@ -1,9 +1,12 @@
 "use client";
-import React from "react";
-import { DashboardSummary as DashboardSummaryType } from "@/types/dashboard-kepala-desa";
+import React, { useEffect, useState } from "react";
+import { fetchInformasiDataDesa } from "@/app/api/dashboard-kepala-desa";
+import { InformasiDataDesaData } from "@/types/kepala-desa";
 
 interface KeyMetricsProps {
-  summary: DashboardSummaryType;
+  bulan: number;
+  tahun: number;
+  bulanLabel?: string;
 }
 
 interface MetricCardProps {
@@ -18,7 +21,42 @@ interface MetricCardProps {
   };
 }
 
-const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
+const KeyMetrics: React.FC<KeyMetricsProps> = ({ bulan, tahun, bulanLabel }) => {
+  const [data, setData] = useState<InformasiDataDesaData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadData = async () => {
+      setIsLoading(true);
+      setData(null);
+      setErrorMessage(null);
+
+      const result = await fetchInformasiDataDesa({ bulan, tahun });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setData(result.data);
+      } else {
+        setData(null);
+        setErrorMessage("Gagal memuat informasi data desa");
+      }
+
+      setIsLoading(false);
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [bulan, tahun]);
+
   const MetricCard: React.FC<MetricCardProps> = ({
     title,
     value,
@@ -127,7 +165,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
   const cards: MetricCardProps[] = [
     {
       title: "Total Posyandu",
-      value: summary.total_posyandu,
+      value: data?.ringkasan.total_posyandu ?? "-",
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -137,7 +175,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
     },
     {
       title: "Total Kader",
-      value: summary.total_kader,
+      value: data?.ringkasan.total_kader ?? "-",
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -147,7 +185,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
     },
     {
       title: "Bayi Baru Lahir",
-      value: summary.newborn_count,
+      value: data?.ringkasan.bayi_baru_lahir ?? "-",
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -157,7 +195,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
     },
     {
       title: "Total Balita",
-      value: summary.total_balita,
+      value: data?.ringkasan.total_balita ?? "-",
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -167,7 +205,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
     },
     {
       title: "Kasus Stunting Pendek",
-      value: summary.kasus_stunting_pendek,
+      value: data?.kasus_gizi.stunting_pendek ?? "-",
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -177,7 +215,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
     },
     {
       title: "Kasus Stunting Sangat Pendek",
-      value: summary.kasus_stunting_sangat_pendek,
+      value: data?.kasus_gizi.stunting_sangat_pendek ?? "-",
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6 6" />
@@ -187,7 +225,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
     },
     {
       title: "Kasus Wasting",
-      value: summary.wasting_prevalence.jumlah,
+      value: data?.kasus_gizi.wasting ?? "-",
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6 6" />
@@ -197,7 +235,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
     },
     {
       title: "Kasus Underweight",
-      value: summary.underweight_prevalence.jumlah,
+      value: data?.kasus_gizi.underweight ?? "-",
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -207,7 +245,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
     },
     {
       title: "Total Ibu Hamil",
-      value: summary.total_ibu_hamil,
+      value: data?.ibu_hamil.total ?? "-",
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -217,7 +255,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
     },
     {
       title: "Ibu Hamil Anemia",
-      value: summary.pregnant_women_under_energized,
+      value: data?.ibu_hamil.anemia ?? "-",
       icon: (
         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -243,13 +281,24 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ summary }) => {
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Data utama untuk monitoring wilayah
+              {bulanLabel ? ` - ${bulanLabel} ${tahun}` : ` - bulan ${bulan + 1} ${tahun}`}
             </p>
           </div>
         </div>
       </div>
 
+      {isLoading ? (
+        <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+          Memuat informasi data desa...
+        </div>
+      ) : errorMessage ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
+          {errorMessage}
+        </div>
+      ) : null}
+
       {/* Metric Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card, index) => (
           <MetricCard key={index} {...card} />
         ))}

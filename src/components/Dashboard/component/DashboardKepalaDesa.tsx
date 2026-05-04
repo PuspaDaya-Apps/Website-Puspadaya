@@ -150,7 +150,11 @@ const DashboardKepalaDesa: React.FC = () => {
       </div>
 
       {/* LEVEL 2: KEY METRICS - Indikator Kunci */}
-      <KeyMetrics summary={dashboardSummaryData} />
+      <KeyMetrics
+        bulan={filterBulan}
+        tahun={filterTahun}
+        bulanLabel={daftarBulan[filterBulan]}
+      />
 
       {/* LEVEL 3: POSYANDU OVERVIEW - Daftar Posyandu */}
       <PosyanduOverview
