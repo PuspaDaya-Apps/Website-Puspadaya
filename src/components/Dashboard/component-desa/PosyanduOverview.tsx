@@ -24,9 +24,11 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [currentPage, setCurrentPage] = useState(1);
   const [trenData, setTrenData] = useState<TrenDataPosyanduItem[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const itemsPerPage = 12;
 
   useEffect(() => {
     let isMounted = true;
@@ -116,6 +118,22 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
       posyandu.nama_posyandu.toLowerCase().includes(searchTerm.toLowerCase()) ||
       posyandu.nama_dusun.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const totalPages = Math.max(1, Math.ceil(filteredPosyandu.length / itemsPerPage));
+  const paginatedPosyandu = filteredPosyandu.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, bulan, tahun]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   // Get status color
   const getStatusColor = (persentase: number) => {
@@ -213,7 +231,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
       {/* Posyandu Grid/List */}
       {!isLoading && viewMode === "grid" ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {filteredPosyandu.map((posyandu) => (
+          {paginatedPosyandu.map((posyandu) => (
             <Link
               key={posyandu.id}
               href={`/monitoring/posyandu/${posyandu.id}`}
@@ -320,7 +338,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredPosyandu.map((posyandu) => (
+              {paginatedPosyandu.map((posyandu) => (
                 <tr
                   key={posyandu.id}
                   className={`cursor-pointer transition hover:bg-gray-50 dark:hover:bg-gray-800 ${
@@ -372,8 +390,36 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
 
       {/* Result count */}
       {!isLoading && (
-        <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-          Menampilkan {filteredPosyandu.length} dari {mergedPosyanduList.length} posyandu
+        <div className="mt-4 flex flex-col items-center gap-3 text-center text-sm text-gray-600 dark:text-gray-400">
+          <div>
+            Menampilkan {paginatedPosyandu.length} dari {filteredPosyandu.length} posyandu
+          </div>
+
+          {filteredPosyandu.length > itemsPerPage && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                disabled={currentPage === 1}
+                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-dark transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-white"
+              >
+                Sebelumnya
+              </button>
+
+              <span className="rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-dark dark:bg-gray-800 dark:text-white">
+                Halaman {currentPage} dari {totalPages}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                disabled={currentPage === totalPages}
+                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-dark transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-white"
+              >
+                Berikutnya
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
