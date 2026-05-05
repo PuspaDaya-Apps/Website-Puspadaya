@@ -16,7 +16,6 @@ interface PosyanduOverviewProps {
 }
 
 const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
-  posyanduList,
   selectedPosyandu,
   onSelectPosyandu,
   onTotalPosyanduChange,
@@ -63,57 +62,26 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
     };
   }, [bulan, tahun]);
 
-  const normalizedKey = (nama: string, dusun: string) =>
-    `${nama.trim().toLowerCase()}__${dusun.trim().toLowerCase()}`;
-
   const mergedPosyanduList = useMemo(() => {
-    const staticMap = new Map(
-      posyanduList.map((posyandu) => [
-        normalizedKey(posyandu.nama_posyandu, posyandu.nama_dusun),
-        posyandu,
-      ])
+    return (
+      trenData?.map((item, index) => ({
+        id: `${item.nama}-${index + 1}`.replace(/\s+/g, "-").toLowerCase(),
+        nama_posyandu: item.nama,
+        nama_dusun: item.dusun,
+        nama_kecamatan: "",
+        nama_kabupaten_kota: "",
+        total_balita: item.balita ?? 0,
+        total_ibu_hamil: item.ibu_hamil ?? 0,
+        total_kader: item.kader ?? 0,
+        kehadiran_balita_bulan_ini: 0,
+        kehadiran_ibu_hamil_bulan_ini: 0,
+        status_stunting: 0,
+        status_gizi_buruk: 0,
+        persentase_kehadiran: item.kehadiran ?? 0,
+        last_updated: "",
+      })) ?? []
     );
-
-    const mappedFromApi =
-      trenData?.map((item, index) => {
-        const matchedStatic = staticMap.get(normalizedKey(item.nama, item.dusun));
-
-        if (matchedStatic) {
-          return {
-            ...matchedStatic,
-            nama_posyandu: item.nama,
-            nama_dusun: item.dusun,
-            total_balita: item.balita,
-            total_ibu_hamil: item.ibu_hamil,
-            total_kader: item.kader,
-            persentase_kehadiran: item.kehadiran,
-          };
-        }
-
-        return {
-          id: `${item.nama}-${index + 1}`.replace(/\s+/g, "-").toLowerCase(),
-          nama_posyandu: item.nama,
-          nama_dusun: item.dusun,
-          nama_kecamatan: "",
-          nama_kabupaten_kota: "",
-          total_balita: item.balita,
-          total_ibu_hamil: item.ibu_hamil,
-          total_kader: item.kader,
-          kehadiran_balita_bulan_ini: 0,
-          kehadiran_ibu_hamil_bulan_ini: 0,
-          status_stunting: 0,
-          status_gizi_buruk: 0,
-          persentase_kehadiran: item.kehadiran,
-          last_updated: "",
-        } as PosyanduItem;
-      }) ?? [];
-
-    if (mappedFromApi.length > 0) {
-      return mappedFromApi;
-    }
-
-    return posyanduList;
-  }, [posyanduList, trenData]);
+  }, [trenData]);
 
   useEffect(() => {
     onTotalPosyanduChange?.(mergedPosyanduList.length);

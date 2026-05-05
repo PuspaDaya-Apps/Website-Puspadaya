@@ -822,4 +822,26 @@ console.log(round(tinggi)); // 26.5
     ]
   }
 }
+
+
+ Pemetaan endpoint
+
+  - INFORMASI_DATA_DESA -> /D:/Website-Puspadaya/src/app/api/dashboard-kepala-desa/informasi-data-desa.ts -> /D:/Website-Puspadaya/src/components/
+    Dashboard/component-desa/KeyMetrics.tsx
+  - TREND_DATA_POSYANDU -> /D:/Website-Puspadaya/src/app/api/dashboard-kepala-desa/tren-data.ts -> /D:/Website-Puspadaya/src/components/Dashboard/
+    component-desa/PosyanduOverview.tsx
+  - STATISTIK_DATA_DESA -> /D:/Website-Puspadaya/src/app/api/dashboard-kepala-desa/statistik-data-desa.ts -> /D:/Website-Puspadaya/src/components/
+    Dashboard/component-desa/PerformanceSection.tsx
+  - ANAK_CAKUPAN_DILAYANI -> /D:/Website-Puspadaya/src/app/api/dashboard-kepala-desa/anak-cakupan-dilayani.ts -> /D:/Website-Puspadaya/src/
+    components/Dashboard/component-desa/AdditionalMetrics.tsx
+  - STATISTIK_SKDN -> /D:/Website-Puspadaya/src/app/api/dashboard-kepala-desa/statistik-skdn.ts -> /D:/Website-Puspadaya/src/components/Dashboard/
+    component-desa/SKDNBarChart.tsx
+  - DURASI_KERJA_POSYANDU -> /D:/Website-Puspadaya/src/app/api/dashboard-kepala-desa/durasi-kerja-posyandu.ts -> /D:/Website-Puspadaya/src/
+    components/Dashboard/component-desa/DurasiJarakAgregat.tsx
+  - SKOR_BEBAN_KERJA_TIM -> /D:/Website-Puspadaya/src/app/api/dashboard-kepala-desa/skor-beban-kerja-tim.ts -> /D:/Website-Puspadaya/src/components/
+    Dashboard/component-desa/BebanKerjaTimSummary.tsx
+  - IMUNISASI_KEPENDUDUKAN -> /D:/Website-Puspadaya/src/app/api/dashboard-kepala-desa/imunisasi-kependudukan.ts -> /D:/Website-Puspadaya/src/
+    components/Dashboard/component-desa/ExpandableDataSection.tsx
+  - LOG_AKTIVITAS_KADER -> /D:/Website-Puspadaya/src/app/api/dashboard-kepala-desa/log-aktivitas-kader.ts -> /D:/Website-Puspadaya/src/components/
+    Dashboard/component-desa/RecentActivityTable.tsx
 ```

@@ -27,8 +27,22 @@ interface DurasiJarakAgregatProps {
   bulanLabel?: string;
 }
 
+const zeroMonths = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "Mei",
+  "Jun",
+  "Jul",
+  "Agt",
+  "Sep",
+  "Okt",
+  "Nov",
+  "Des",
+];
+
 const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
-  durasiJarak,
   bulan,
   tahun,
   bulanLabel,
@@ -76,18 +90,12 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
   }, [bulan, tahun, hasPeriodFilter]);
 
   const displayRingkasan = {
-    total_durasi_kerja_posyandu: hasPeriodFilter
-      ? apiData?.ringkasan.kerja_posyandu_jam
-      : durasiJarak.total_durasi_kerja_posyandu,
-    total_durasi_kunjungan_rumah: hasPeriodFilter
-      ? apiData?.ringkasan.kunjungan_rumah_jam
-      : durasiJarak.total_durasi_kunjungan_rumah,
-    total_jarak_kunjungan_rumah: hasPeriodFilter
-      ? apiData?.ringkasan.jarak_tempuh_km
-      : durasiJarak.total_jarak_kunjungan_rumah,
-    rata_rata_durasi_posyandu: durasiJarak.rata_rata_durasi_posyandu,
-    rata_rata_durasi_kunjungan: durasiJarak.rata_rata_durasi_kunjungan,
-    rata_rata_jarak: durasiJarak.rata_rata_jarak,
+    total_durasi_kerja_posyandu: apiData?.ringkasan?.kerja_posyandu_jam ?? 0,
+    total_durasi_kunjungan_rumah: apiData?.ringkasan?.kunjungan_rumah_jam ?? 0,
+    total_jarak_kunjungan_rumah: apiData?.ringkasan?.jarak_tempuh_km ?? 0,
+    rata_rata_durasi_posyandu: apiData?.ringkasan?.kerja_posyandu_jam ?? 0,
+    rata_rata_durasi_kunjungan: apiData?.ringkasan?.kunjungan_rumah_jam ?? 0,
+    rata_rata_jarak: apiData?.ringkasan?.jarak_tempuh_km ?? 0,
   };
   const isPeriodDataReady = !hasPeriodFilter || !!apiData;
 
@@ -102,25 +110,12 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
       }));
     }
 
-    return [
-      { bulan: "Jan", kerjaPosyandu: 18, kunjunganRumah: 12 },
-      { bulan: "Feb", kerjaPosyandu: 20, kunjunganRumah: 14 },
-      { bulan: "Mar", kerjaPosyandu: 22, kunjunganRumah: 15 },
-      { bulan: "Apr", kerjaPosyandu: 21, kunjunganRumah: 16 },
-      { bulan: "Mei", kerjaPosyandu: 24, kunjunganRumah: 18 },
-      { bulan: "Jun", kerjaPosyandu: 23, kunjunganRumah: 17 },
-      { bulan: "Jul", kerjaPosyandu: 25, kunjunganRumah: 19 },
-      { bulan: "Agt", kerjaPosyandu: 26, kunjunganRumah: 20 },
-      { bulan: "Sep", kerjaPosyandu: 24, kunjunganRumah: 18 },
-      { bulan: "Okt", kerjaPosyandu: 27, kunjunganRumah: 21 },
-      { bulan: "Nov", kerjaPosyandu: 28, kunjunganRumah: 22 },
-      {
-        bulan: "Des",
-        kerjaPosyandu: displayRingkasan.total_durasi_kerja_posyandu ?? 0,
-        kunjunganRumah: displayRingkasan.total_durasi_kunjungan_rumah ?? 0,
-      },
-    ];
-  }, [apiData, displayRingkasan.total_durasi_kerja_posyandu, displayRingkasan.total_durasi_kunjungan_rumah]);
+    return zeroMonths.map((bulan) => ({
+      bulan,
+      kerjaPosyandu: 0,
+      kunjunganRumah: 0,
+    }));
+  }, [apiData]);
 
   const distanceData = useMemo(() => {
     const tren = apiData?.tren.jarak_tempuh;
@@ -132,21 +127,11 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
       }));
     }
 
-    return [
-      { bulan: "Jan", jarak: 145 },
-      { bulan: "Feb", jarak: 158 },
-      { bulan: "Mar", jarak: 162 },
-      { bulan: "Apr", jarak: 170 },
-      { bulan: "Mei", jarak: 175 },
-      { bulan: "Jun", jarak: 168 },
-      { bulan: "Jul", jarak: 182 },
-      { bulan: "Agt", jarak: 188 },
-      { bulan: "Sep", jarak: 176 },
-      { bulan: "Okt", jarak: 195 },
-      { bulan: "Nov", jarak: 202 },
-      { bulan: "Des", jarak: displayRingkasan.total_jarak_kunjungan_rumah },
-    ];
-  }, [apiData, displayRingkasan.total_jarak_kunjungan_rumah]);
+    return zeroMonths.map((bulan) => ({
+      bulan,
+      jarak: 0,
+    }));
+  }, [apiData]);
 
   const customTooltip = ({ active, payload, label, unit }: any) => {
     if (!active || !payload || !payload.length) {

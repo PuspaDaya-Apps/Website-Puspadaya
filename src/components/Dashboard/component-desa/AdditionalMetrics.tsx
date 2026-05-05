@@ -11,7 +11,7 @@ interface AdditionalMetricsProps {
   bulanLabel?: string;
 }
 
-const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary, bulan, tahun, bulanLabel }) => {
+const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ bulan, tahun, bulanLabel }) => {
   const [apiData, setApiData] = useState<AnakCakupanDilayaniData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -47,32 +47,33 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary, bulan, t
   }, [bulan, tahun]);
 
   const displayData = useMemo(() => ({
-    baduta_0_23_months: apiData?.anak_berdasarkan_usia.baduta ?? summary.baduta_0_23_months,
-    balita_24_59_months: apiData?.anak_berdasarkan_usia.balita ?? summary.balita_24_59_months,
-    pra_sekolah_60_72_months: apiData?.anak_berdasarkan_usia.pra_sekolah ?? summary.pra_sekolah_60_72_months,
-    pregnant_women_under_energized: apiData?.kesehatan_ibu_bayi.ibu_hamil_kek ?? summary.pregnant_women_under_energized,
-    high_risk_pregnant_women: apiData?.kesehatan_ibu_bayi.ibu_hamil_risiko_tinggi ?? summary.high_risk_pregnant_women,
-    breastfeeding_mothers: apiData?.kesehatan_ibu_bayi.ibu_menyusui ?? summary.breastfeeding_mothers,
-    newborn_count: apiData?.kesehatan_ibu_bayi.bayi_baru_lahir ?? summary.newborn_count,
-    women_post_fertile: apiData?.keluarga_berencana.wanita_pasca_subur ?? summary.women_post_fertile,
-    kb_acceptors: apiData?.keluarga_berencana.akseptor_kb ?? summary.kb_acceptors,
-    pregnant_women_with_insurance: apiData?.keluarga_berencana.ibu_hamil_asuransi ?? summary.pregnant_women_with_insurance,
+    baduta_0_23_months: apiData?.anak_berdasarkan_usia.baduta ?? 0,
+    balita_24_59_months: apiData?.anak_berdasarkan_usia.balita ?? 0,
+    pra_sekolah_60_72_months: apiData?.anak_berdasarkan_usia.pra_sekolah ?? 0,
+    pregnant_women_under_energized: apiData?.kesehatan_ibu_bayi.ibu_hamil_kek ?? 0,
+    high_risk_pregnant_women: apiData?.kesehatan_ibu_bayi.ibu_hamil_risiko_tinggi ?? 0,
+    breastfeeding_mothers: apiData?.kesehatan_ibu_bayi.ibu_menyusui ?? 0,
+    newborn_count: apiData?.kesehatan_ibu_bayi.bayi_baru_lahir ?? 0,
+    women_post_fertile: apiData?.keluarga_berencana.wanita_pasca_subur ?? 0,
+    kb_acceptors: apiData?.keluarga_berencana.akseptor_kb ?? 0,
+    pregnant_women_with_insurance: apiData?.keluarga_berencana.ibu_hamil_asuransi ?? 0,
     infant_immunization_coverage: {
-      ...summary.infant_immunization_coverage,
-      total_imunisasi: apiData?.imunisasi.total ?? summary.infant_immunization_coverage.total_imunisasi,
-      cakupan_persentase: apiData?.imunisasi.cakupan_persen ?? summary.infant_immunization_coverage.cakupan_persentase,
-      bcg: apiData?.imunisasi.detail.bcg ?? summary.infant_immunization_coverage.bcg,
-      dpt_1: apiData?.imunisasi.detail.dpt_1 ?? summary.infant_immunization_coverage.dpt_1,
-      dpt_2: apiData?.imunisasi.detail.dpt_2 ?? summary.infant_immunization_coverage.dpt_2,
-      dpt_3: apiData?.imunisasi.detail.dpt_3 ?? summary.infant_immunization_coverage.dpt_3,
-      polio_1: apiData?.imunisasi.detail.polio_1 ?? summary.infant_immunization_coverage.polio_1,
-      polio_2: apiData?.imunisasi.detail.polio_2 ?? summary.infant_immunization_coverage.polio_2,
-      polio_3: apiData?.imunisasi.detail.polio_3 ?? summary.infant_immunization_coverage.polio_3,
-      polio_4: apiData?.imunisasi.detail.polio_4 ?? summary.infant_immunization_coverage.polio_4,
-      hepatitis: apiData?.imunisasi.detail.hepatitis ?? summary.infant_immunization_coverage.hepatitis,
-      campak: apiData?.imunisasi.detail.campak ?? summary.infant_immunization_coverage.campak,
+      total_imunisasi: apiData?.imunisasi.total ?? 0,
+      cakupan_persentase: apiData?.imunisasi.cakupan_persen ?? 0,
+      bcg: apiData?.imunisasi.detail.bcg ?? 0,
+      dpt_1: apiData?.imunisasi.detail.dpt_1 ?? 0,
+      dpt_2: apiData?.imunisasi.detail.dpt_2 ?? 0,
+      dpt_3: apiData?.imunisasi.detail.dpt_3 ?? 0,
+      polio_1: apiData?.imunisasi.detail.polio_1 ?? 0,
+      polio_2: apiData?.imunisasi.detail.polio_2 ?? 0,
+      polio_3: apiData?.imunisasi.detail.polio_3 ?? 0,
+      polio_4: apiData?.imunisasi.detail.polio_4 ?? 0,
+      hepatitis: apiData?.imunisasi.detail.hepatitis ?? 0,
+      campak: apiData?.imunisasi.detail.campak ?? 0,
     },
-  }), [apiData, summary]);
+  }), [apiData]);
+
+  const totalBalita = displayData.baduta_0_23_months + displayData.balita_24_59_months + displayData.pra_sekolah_60_72_months;
 
   const safePercent = (value: number, total: number) => {
     if (!total) return 0;
@@ -120,7 +121,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary, bulan, t
             <div className="mt-2 h-2 w-full rounded-full bg-emerald-200 dark:bg-emerald-700">
               <div
                 className="h-2 rounded-full bg-emerald-500"
-                style={{ width: `${safePercent(displayData.baduta_0_23_months, summary.total_balita)}%` }}
+                style={{ width: `${safePercent(displayData.baduta_0_23_months, totalBalita)}%` }}
               />
             </div>
           </div>
@@ -139,7 +140,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary, bulan, t
             <div className="mt-2 h-2 w-full rounded-full bg-blue-200 dark:bg-blue-700">
               <div
                 className="h-2 rounded-full bg-blue-500"
-                style={{ width: `${safePercent(displayData.balita_24_59_months, summary.total_balita)}%` }}
+                style={{ width: `${safePercent(displayData.balita_24_59_months, totalBalita)}%` }}
               />
             </div>
           </div>
@@ -158,7 +159,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ summary, bulan, t
             <div className="mt-2 h-2 w-full rounded-full bg-violet-200 dark:bg-violet-700">
               <div
                 className="h-2 rounded-full bg-violet-500"
-                style={{ width: `${safePercent(displayData.pra_sekolah_60_72_months, summary.total_balita)}%` }}
+                style={{ width: `${safePercent(displayData.pra_sekolah_60_72_months, totalBalita)}%` }}
               />
             </div>
           </div>

@@ -32,7 +32,6 @@ interface SKDNBarChartProps {
 }
 
 const SKDNBarChart: React.FC<SKDNBarChartProps> = ({
-  skdnData,
   bulan,
   tahun,
   bulanLabel,
@@ -76,19 +75,16 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({
     const indikator = apiData?.skdn.indikator;
 
     return {
-      S: jumlah?.sasaran_balita ?? skdnData.S,
-      K: jumlah?.kunjungan ?? skdnData.K,
-      D: jumlah?.ditimbang ?? skdnData.D,
-      N: jumlah?.naik_bb ?? skdnData.N,
-      total: jumlah?.sasaran_balita ?? skdnData.total,
-      persentase_kenaikan_bb:
-        indikator?.kenaikan_bb_persen ?? skdnData.persentase_kenaikan_bb,
+      S: jumlah?.sasaran_balita ?? 0,
+      K: jumlah?.kunjungan ?? 0,
+      D: jumlah?.ditimbang ?? 0,
+      N: jumlah?.naik_bb ?? 0,
+      total: jumlah?.sasaran_balita ?? 0,
+      persentase_kenaikan_bb: indikator?.kenaikan_bb_persen ?? 0,
       persentase_kenaikan_bb_sesuai_kbm:
-        indikator?.kenaikan_bb_sesuai_kbm_persen ??
-        skdnData.persentase_kenaikan_bb_sesuai_kbm ??
-        skdnData.persentase_kenaikan_bb,
+        indikator?.kenaikan_bb_sesuai_kbm_persen ?? 0,
     };
-  }, [apiData, skdnData]);
+  }, [apiData]);
 
   const chartData = [
     {
