@@ -2,10 +2,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { PosyanduItem, CriticalChild, KaderWorkload } from "@/types/dashboard-kepala-desa";
-import { posyanduListData, criticalChildrenData, kaderWorkloadData, monthlyTrendData, posyanduPerformanceData } from "@/data/dummy-dashboard-kepala-desa";
-import { fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
-import { DetailPosyanduOverviewData, DetailPosyanduRingkasanData } from "@/types/kepala-desa";
+import { PosyanduItem, KaderWorkload } from "@/types/dashboard-kepala-desa";
+import { posyanduListData, kaderWorkloadData, monthlyTrendData, posyanduPerformanceData } from "@/data/dummy-dashboard-kepala-desa";
+import { fetchDetailPosyanduBalitaKhusus, fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
+import { DetailPosyanduBalitaKhususData, DetailPosyanduOverviewData, DetailPosyanduRingkasanData } from "@/types/kepala-desa";
 
 const PosyanduDetailPage: React.FC = () => {
   const params = useParams();
@@ -19,6 +19,11 @@ const PosyanduDetailPage: React.FC = () => {
   const [ringkasanData, setRingkasanData] = useState<DetailPosyanduRingkasanData | null>(null);
   const [ringkasanLoading, setRingkasanLoading] = useState(true);
   const [ringkasanError, setRingkasanError] = useState<string | null>(null);
+  const [balitaData, setBalitaData] = useState<DetailPosyanduBalitaKhususData | null>(null);
+  const [balitaLoading, setBalitaLoading] = useState(true);
+  const [balitaError, setBalitaError] = useState<string | null>(null);
+  const [balitaPage, setBalitaPage] = useState(1);
+  const balitaLimit = 5;
 
   const selectedBulan = Number(searchParams.get("bulan") ?? new Date().getMonth() + 1);
   const selectedTahun = Number(searchParams.get("tahun") ?? new Date().getFullYear());
@@ -72,13 +77,39 @@ const PosyanduDetailPage: React.FC = () => {
       setRingkasanLoading(false);
     };
 
+    const loadBalitaKhusus = async () => {
+      setBalitaLoading(true);
+      setBalitaError(null);
+      setBalitaData(null);
+
+      const result = await fetchDetailPosyanduBalitaKhusus(posyanduId, {
+        bulan: selectedBulan,
+        tahun: selectedTahun,
+        page: balitaPage,
+        limit: balitaLimit,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setBalitaData(result.data);
+      } else {
+        setBalitaError("Gagal memuat data balita khusus");
+      }
+
+      setBalitaLoading(false);
+    };
+
     loadOverview();
     loadRingkasan();
+    loadBalitaKhusus();
 
     return () => {
       isMounted = false;
     };
-  }, [posyanduId, selectedBulan, selectedTahun]);
+  }, [posyanduId, selectedBulan, selectedTahun, balitaPage]);
 
   // Find posyandu data
   const posyandu = useMemo(() => {
@@ -89,8 +120,19 @@ const PosyanduDetailPage: React.FC = () => {
 
   // Filter data for this posyandu
   const criticalChildren = useMemo(() => {
-    return criticalChildrenData.filter((c) => c.posyandu_id === posyanduId);
-  }, [posyanduId]);
+    return (
+      balitaData?.balita?.map((item, index) => ({
+        id: `${item.id_balita}-${index}`,
+        nama_anak: item.nama,
+        usia_bulan: Number(item.usia.match(/\d+/)?.[0] ?? 0),
+        nama_ibu: item.ibu,
+        berat_badan: item.berat_badan,
+        tinggi_badan: item.tinggi_badan,
+        status_gizi: item.status,
+        status_stunting: item.status.toLowerCase().includes("stunting") ? "Stunting" : "",
+      })) ?? []
+    );
+  }, [balitaData]);
 
   const kaderList = useMemo(() => {
     return kaderWorkloadData.filter((k) => k.posyandu_id === posyanduId);
@@ -164,20 +206,32 @@ const PosyanduDetailPage: React.FC = () => {
   const overviewStatusGizi = overviewData?.status_gizi_balita ?? [
     {
       status: "Stunting",
-      jumlah: stats.status_stunting,
-      persentase: stats.total_balita > 0 ? Number(((stats.status_stunting / stats.total_balita) * 100).toFixed(1)) : 0,
+      jumlah: stats?.status_stunting ?? 0,
+      persentase:
+        (stats?.total_balita ?? 0) > 0
+          ? Number((((stats?.status_stunting ?? 0) / (stats?.total_balita ?? 1)) * 100).toFixed(1))
+          : 0,
     },
     {
       status: "Gizi Buruk",
-      jumlah: stats.status_gizi_buruk,
-      persentase: stats.total_balita > 0 ? Number(((stats.status_gizi_buruk / stats.total_balita) * 100).toFixed(1)) : 0,
+      jumlah: stats?.status_gizi_buruk ?? 0,
+      persentase:
+        (stats?.total_balita ?? 0) > 0
+          ? Number((((stats?.status_gizi_buruk ?? 0) / (stats?.total_balita ?? 1)) * 100).toFixed(1))
+          : 0,
     },
     {
       status: "Normal",
-      jumlah: stats.normal,
-      persentase: stats.total_balita > 0 ? Number(((stats.normal / stats.total_balita) * 100).toFixed(1)) : 0,
+      jumlah: stats?.normal ?? 0,
+      persentase:
+        (stats?.total_balita ?? 0) > 0
+          ? Number((((stats?.normal ?? 0) / (stats?.total_balita ?? 1)) * 100).toFixed(1))
+          : 0,
     },
   ];
+
+  const balitaRows = balitaData?.balita ?? [];
+  const balitaPagination = balitaData?.pagination;
 
   if ((!posyandu && !apiPosyandu) || !stats) {
     return (
@@ -489,6 +543,34 @@ const PosyanduDetailPage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="mt-2">Tidak ada balita dengan kondisi khusus di posyandu ini</p>
+              </div>
+            )}
+            {balitaPagination && (
+              <div className="flex flex-col items-center gap-3 text-center text-sm text-gray-600 dark:text-gray-400">
+                <div>
+                  Menampilkan {balitaRows.length} dari {balitaPagination.total_data} balita
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setBalitaPage((page) => Math.max(1, page - 1))}
+                    disabled={balitaPage <= 1}
+                    className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-dark transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-white"
+                  >
+                    Sebelumnya
+                  </button>
+                  <span className="rounded-lg bg-gray-100 px-3 py-1.5 font-medium text-dark dark:bg-gray-800 dark:text-white">
+                    Halaman {balitaPagination.page} dari {balitaPagination.total_page}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setBalitaPage((page) => Math.min(balitaPagination.total_page, page + 1))}
+                    disabled={balitaPage >= balitaPagination.total_page}
+                    className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-dark transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-white"
+                  >
+                    Berikutnya
+                  </button>
+                </div>
               </div>
             )}
           </div>

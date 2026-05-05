@@ -11,6 +11,8 @@ export interface FetchResult<T> {
 export interface DetailDashboardKepalaDesaQueryParams {
   bulan: string | number;
   tahun: number | string;
+  page?: number;
+  limit?: number;
 }
 
 const normalizeBulan = (bulan: string | number): string => {
@@ -30,6 +32,12 @@ const buildDetailDashboardKepalaDesaUrl = (
   const query = new URLSearchParams();
   query.set('bulan', normalizeBulan(params.bulan));
   query.set('tahun', String(params.tahun));
+  if (params.page != null) {
+    query.set('page', String(params.page));
+  }
+  if (params.limit != null) {
+    query.set('limit', String(params.limit));
+  }
 
   const resolvedEndpoint = endpoint.replace('{id_posyandu}', idPosyandu);
 
