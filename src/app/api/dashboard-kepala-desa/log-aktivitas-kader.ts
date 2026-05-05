@@ -5,5 +5,5 @@ import { DashboardKepalaDesaQueryParams, FetchResult, getDashboardKepalaDesa } f
 export const fetchLogAktivitasKader = (
   params: DashboardKepalaDesaQueryParams
 ): Promise<FetchResult<LogAktivitasKaderData>> => {
-  return getDashboardKepalaDesa<LogAktivitasKaderData>(APIEndpoints.LOGACTIVITYKADER, params);
+  return getDashboardKepalaDesa<LogAktivitasKaderData>(APIEndpoints.LOG_AKTIVITAS_KADER, params);
 };

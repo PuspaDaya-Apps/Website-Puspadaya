@@ -5,5 +5,5 @@ import { DashboardKepalaDesaQueryParams, FetchResult, getDashboardKepalaDesa } f
 export const fetchAnakCakupanDilayani = (
   params: DashboardKepalaDesaQueryParams
 ): Promise<FetchResult<AnakCakupanDilayaniData>> => {
-  return getDashboardKepalaDesa<AnakCakupanDilayaniData>(APIEndpoints.ANAKCAKUPANDILAYANI, params);
+  return getDashboardKepalaDesa<AnakCakupanDilayaniData>(APIEndpoints.ANAK_CAKUPAN_DILAYANI, params);
 };

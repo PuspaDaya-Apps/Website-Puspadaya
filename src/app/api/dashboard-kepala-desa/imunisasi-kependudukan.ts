@@ -5,5 +5,5 @@ import { DashboardKepalaDesaQueryParams, FetchResult, getDashboardKepalaDesa } f
 export const fetchImunisasiKependudukan = (
   params: DashboardKepalaDesaQueryParams
 ): Promise<FetchResult<ImunisasiKependudukanData>> => {
-  return getDashboardKepalaDesa<ImunisasiKependudukanData>(APIEndpoints.IMUNISASIKEPENDUDUKAN, params);
+  return getDashboardKepalaDesa<ImunisasiKependudukanData>(APIEndpoints.IMUNISASI_KEPENDUDUKAN, params);
 };

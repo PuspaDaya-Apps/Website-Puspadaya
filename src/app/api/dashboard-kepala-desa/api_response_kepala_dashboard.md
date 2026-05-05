@@ -1,6 +1,38 @@
-# API Response Kepala Dashboard
+# Dokumentasi API Response Kepala Dashboard
 
-## Name API: `/api/v1/kepala-dashboard/informasi-data-desa`
+Dokumen ini berisi contoh response API untuk modul **Kepala Dashboard** beserta catatan perhitungan yang digunakan pada beberapa endpoint.
+
+## Daftar Endpoint
+
+| No | Endpoint | Deskripsi Singkat |
+|---:|---|---|
+| 1 | `/api/v1/kepala-dashboard/informasi-data-desa` | Ringkasan data desa, kasus gizi, dan ibu hamil |
+| 2 | `/api/v1/kepala-dashboard/tren-data` | Data posyandu dan persentase kehadiran |
+| 3 | `/api/v1/kepala-dashboard/statistik-data-desa` | Tren kehadiran, status gizi balita, dan ibu hamil KEK |
+| 4 | `/api/v1/kepala-dashboard/anak-cakupan-dilayani` | Data cakupan anak, kesehatan ibu bayi, KB, dan imunisasi |
+| 5 | `/api/v1/kepala-dashboard/statistik-skdn` | Statistik SKDN dan cakupan berat badan balita |
+| 6 | `/api/v1/kepala-dashboard/durasi-kerja-posyandu` | Durasi kerja posyandu, kunjungan rumah, dan jarak tempuh |
+| 7 | `/api/v1/kepala-dashboard/skor-beban-kerja-tim` | Ringkasan dan distribusi skor beban kerja kader |
+| 8 | `/api/v1/kepala-dashboard/imunisasi-kependudukan` | Imunisasi dan kependudukan |
+| 9 | `/api/v1/kepala-dashboard/log-aktivitas-kader` | Log aktivitas kader posyandu |
+
+## Format Response Umum
+
+Sebagian besar endpoint menggunakan format response berikut:
+
+```json
+{
+  "status": "success",
+  "message": "Data dashboard berhasil diambil",
+  "data": {}
+}
+```
+
+Catatan: contoh response pada dokumen ini menggunakan periode **April 2026**, kecuali data aktivitas yang menggunakan tanggal aktivitas masing-masing.
+
+## 1. Name API: `/api/v1/kepala-dashboard/informasi-data-desa`
+
+### Contoh Response
 
 ```json
 {
@@ -31,7 +63,9 @@
 }
 ```
 
-## Name API: `/api/v1/kepala-dashboard/tren-data`
+## 2. Name API: `/api/v1/kepala-dashboard/tren-data`
+
+### Contoh Response
 
 ```json
 {
@@ -80,7 +114,32 @@
 }
 ```
 
-## Response Tambahan: `informasi-data-desa` - tren
+### Catatan Perhitungan Kehadiran
+
+`kehadiran` dalam persen **bukan** dihitung dari jumlah `balita + ibu_hamil` saja. Nilainya dihitung dari jumlah peserta yang hadir dibanding total sasaran.
+
+Rumus:
+
+```text
+Kehadiran (%) = (Jumlah Hadir / Total Sasaran) x 100%
+Total Sasaran = Balita + Ibu Hamil
+```
+
+Contoh:
+
+```text
+Balita = 52
+Ibu hamil = 15
+Total sasaran = 67
+Balita hadir = 40
+Ibu hamil hadir = 12
+Total hadir = 52
+Kehadiran = 52 / 67 x 100% = 77.6%
+```
+
+## 3. Name API: `/api/v1/kepala-dashboard/statistik-data-desa`
+
+### Contoh Response
 
 ```json
 {
@@ -345,7 +404,9 @@
 }
 ```
 
-## Name API: `/api/v1/kepala-dashboard/anak-cakupan-dilayani`
+## 4. Name API: `/api/v1/kepala-dashboard/anak-cakupan-dilayani`
+
+### Contoh Response
 
 ```json
 {
@@ -392,7 +453,9 @@
 }
 ```
 
-## Name API: `/api/v1/kepala-dashboard/statistik-skdn`
+## 5. Name API: `/api/v1/kepala-dashboard/statistik-skdn`
+
+### Contoh Response
 
 ```json
 {
@@ -423,7 +486,54 @@
 }
 ```
 
-## Name API: `/api/v1/kepala-dashboard/durasi-kerja-posyandu`
+### Catatan Rumus SKDN
+
+Keterangan variabel:
+
+- `S` = jumlah sasaran balita
+- `K` = jumlah kunjungan
+- `D` = jumlah ditimbang
+- `N` = jumlah naik berat badan
+- `NKBM` = jumlah anak dengan kenaikan berat badan sesuai Ketentuan Berat Minimal/Kenaikan Berat Minimal
+
+Rumus cakupan:
+
+```text
+K/S (%) = (K / S) x 100%
+D/S (%) = (D / S) x 100%
+N/D (%) = (N / D) x 100%
+Kenaikan BB (%) = (N / D) x 100%
+Kenaikan BB sesuai KBM (%) = (NKBM / D) x 100%
+```
+
+Rumus kenaikan berat badan anak:
+
+```text
+Kenaikan BB = BB sekarang - BB bulan lalu
+```
+
+Nilai acuan NKBM utama:
+
+| Jenis Kelamin | Usia | NKBM |
+|---|---:|---:|
+| Laki-laki | 0-3 bulan | 1.5 kg |
+| Laki-laki | 3-6 bulan | 1.2 kg |
+| Laki-laki | 6-9 bulan | 0.9 kg |
+| Laki-laki | 9-12 bulan | 0.8 kg |
+| Perempuan | 0-3 bulan | 1.4 kg |
+| Perempuan | 3-6 bulan | 1.0 kg |
+| Perempuan | 6-9 bulan | 0.8 kg |
+
+Cara menggunakan:
+
+1. Tentukan usia dan jenis kelamin anak.
+2. Lihat nilai NKBM dari tabel.
+3. Bandingkan kenaikan berat badan aktual dengan nilai NKBM.
+4. Hitung persentase menggunakan rumus yang sesuai.
+
+## 6. Name API: `/api/v1/kepala-dashboard/durasi-kerja-posyandu`
+
+### Contoh Response
 
 ```json
 {
@@ -557,7 +667,13 @@
 }
 ```
 
-## Name API: `/api/v1/kepala-dashboard/skor-beban-kerja-tim`
+### Catatan Perhitungan
+
+Semua value pada endpoint ini menggunakan metode pengambilan **median** sebagai nilai yang ditampilkan.
+
+## 7. Name API: `/api/v1/kepala-dashboard/skor-beban-kerja-tim`
+
+### Contoh Response
 
 ```json
 {
@@ -600,7 +716,31 @@
 }
 ```
 
-## Name API: `/api/v1/kepala-dashboard/imunisasi-kependudukan`
+### Catatan Perhitungan Distribusi Beban Kerja
+
+Persentase tiap kategori dihitung dari jumlah kader pada kategori tersebut dibanding total kader.
+
+Rumus:
+
+```text
+Persen kategori = (Jumlah kategori / Total kader) x 100%
+```
+
+Contoh:
+
+```js
+const total = 68;
+
+const tinggi = (18 / total) * 100;
+const sedang = (32 / total) * 100;
+const rendah = (18 / total) * 100;
+
+console.log(round(tinggi)); // 26.5
+```
+
+## 8. Name API: `/api/v1/kepala-dashboard/imunisasi-kependudukan`
+
+### Contoh Response
 
 ```json
 {
@@ -655,7 +795,9 @@
 }
 ```
 
-## Name API: `/api/v1/kepala-dashboard/log-aktivitas-kader`
+## 9. Name API: `/api/v1/kepala-dashboard/log-aktivitas-kader`
+
+### Contoh Response
 
 ```json
 {

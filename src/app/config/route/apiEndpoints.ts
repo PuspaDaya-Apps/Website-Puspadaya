@@ -43,14 +43,14 @@ export const APIEndpoints = {
     RAPOIRTANAK: "/api/v1/report/balita",
 
     // API KEPALA DESA NEW
-    INFOMASIDATADESA: '/api/v1/kepala-dashboard/informasi-data-desa',
-    TRENDATAPOSYNADU: '/api/v1/kepala-dashboard/tren-data',
-    INFORMASIDATADESA: '/api/v1/kepala-dashboard/statistik-data-desa',
-    ANAKCAKUPANDILAYANI: '/api/v1/kepala-dashboard/anak-cakupan-dilayani',
-    DASHBOARDSKDN: '/api/v1/kepala-dashboard/statistik-skdn',
-    DURASIKERJAPOSYANDU: '/api/v1/kepala-dashboard/durasi-kerja-posyandu',
-    SKORBEBANKERJATIM: '/api/v1/kepala-dashboard/skor-beban-kerja-tim',
-    IMUNISASIKEPENDUDUKAN: '/api/v1/kepala-dashboard/imunisasi-kependudukan',
-    LOGACTIVITYKADER: '/api/v1/kepala-dashboard/log-aktivitas-kader',
+    INFORMASI_DATA_DESA: '/api/v1/kepala-dashboard/informasi-data-desa',
+    TREND_DATA_POSYANDU: '/api/v1/kepala-dashboard/tren-data',
+    STATISTIK_DATA_DESA: '/api/v1/kepala-dashboard/statistik-data-desa',
+    ANAK_CAKUPAN_DILAYANI: '/api/v1/kepala-dashboard/anak-cakupan-dilayani',
+    STATISTIK_SKDN: '/api/v1/kepala-dashboard/statistik-skdn',
+    DURASI_KERJA_POSYANDU: '/api/v1/kepala-dashboard/durasi-kerja-posyandu',
+    SKOR_BEBAN_KERJA_TIM: '/api/v1/kepala-dashboard/skor-beban-kerja-tim',
+    IMUNISASI_KEPENDUDUKAN: '/api/v1/kepala-dashboard/imunisasi-kependudukan',
+    LOG_AKTIVITAS_KADER: '/api/v1/kepala-dashboard/log-aktivitas-kader',
 
 };

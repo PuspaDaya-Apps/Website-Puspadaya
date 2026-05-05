@@ -5,5 +5,5 @@ import { DashboardKepalaDesaQueryParams, FetchResult, getDashboardKepalaDesa } f
 export const fetchDurasiKerjaPosyandu = (
   params: DashboardKepalaDesaQueryParams
 ): Promise<FetchResult<DurasiKerjaPosyanduData>> => {
-  return getDashboardKepalaDesa<DurasiKerjaPosyanduData>(APIEndpoints.DURASIKERJAPOSYANDU, params);
+  return getDashboardKepalaDesa<DurasiKerjaPosyanduData>(APIEndpoints.DURASI_KERJA_POSYANDU, params);
 };

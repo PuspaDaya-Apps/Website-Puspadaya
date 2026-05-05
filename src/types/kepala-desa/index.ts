@@ -7,3 +7,4 @@ export * from './durasi-kerja-posyandu';
 export * from './skor-beban-kerja-tim';
 export * from './imunisasi-kependudukan';
 export * from './log-aktivitas-kader';
+export * from './statistik-data-desa';

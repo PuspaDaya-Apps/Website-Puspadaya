@@ -5,5 +5,5 @@ import { DashboardKepalaDesaQueryParams, FetchResult, getDashboardKepalaDesa } f
 export const fetchInformasiDataDesa = (
   params: DashboardKepalaDesaQueryParams
 ): Promise<FetchResult<InformasiDataDesaData>> => {
-  return getDashboardKepalaDesa<InformasiDataDesaData>(APIEndpoints.INFORMASIDATADESA, params);
+  return getDashboardKepalaDesa<InformasiDataDesaData>(APIEndpoints.INFORMASI_DATA_DESA, params);
 };

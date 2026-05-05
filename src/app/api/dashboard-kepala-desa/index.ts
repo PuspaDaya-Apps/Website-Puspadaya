@@ -1,6 +1,7 @@
 export { APIEndpoints } from './client';
 export type { FetchResult, DashboardKepalaDesaQueryParams } from './client';
 export { fetchInformasiDataDesa } from './informasi-data-desa';
+export { fetchStatistikDataDesa } from './statistik-data-desa';
 export { fetchTrenDataPosyandu } from './tren-data';
 export { fetchAnakCakupanDilayani } from './anak-cakupan-dilayani';
 export { fetchStatistikSkdn } from './statistik-skdn';

@@ -5,5 +5,5 @@ import { DashboardKepalaDesaQueryParams, FetchResult, getDashboardKepalaDesa } f
 export const fetchSkorBebanKerjaTim = (
   params: DashboardKepalaDesaQueryParams
 ): Promise<FetchResult<SkorBebanKerjaTimData>> => {
-  return getDashboardKepalaDesa<SkorBebanKerjaTimData>(APIEndpoints.SKORBEBANKERJATIM, params);
+  return getDashboardKepalaDesa<SkorBebanKerjaTimData>(APIEndpoints.SKOR_BEBAN_KERJA_TIM, params);
 };

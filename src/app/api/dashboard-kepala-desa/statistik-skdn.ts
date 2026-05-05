@@ -5,5 +5,5 @@ import { DashboardKepalaDesaQueryParams, FetchResult, getDashboardKepalaDesa } f
 export const fetchStatistikSkdn = (
   params: DashboardKepalaDesaQueryParams
 ): Promise<FetchResult<StatistikSkdnData>> => {
-  return getDashboardKepalaDesa<StatistikSkdnData>(APIEndpoints.DASHBOARDSKDN, params);
+  return getDashboardKepalaDesa<StatistikSkdnData>(APIEndpoints.STATISTIK_SKDN, params);
 };

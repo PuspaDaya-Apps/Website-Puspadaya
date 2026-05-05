@@ -202,6 +202,9 @@ const DashboardKepalaDesa: React.FC = () => {
         trendData={monthlyTrendData}
         statusGiziTrend={statusGiziTrendData}
         ibuHamilBeresikoTrend={ibuHamilBeresikoTrendData}
+        bulan={selectedMonth}
+        tahun={filterTahun}
+        bulanLabel={daftarBulan[selectedMonth - 1]}
       />
 
       {/* LEVEL 3: ADDITIONAL METRICS - Data Kependudukan, Balita & Imunisasi */}
@@ -229,7 +232,11 @@ const DashboardKepalaDesa: React.FC = () => {
       />
 
       {/* LEVEL 3: BEBAN KERJA TIM SUMMARY - KADER */}
-      <BebanKerjaTimSummary bebanKerjaTim={dashboardSummaryData.beban_kerja_tim} />
+      <BebanKerjaTimSummary
+        bulan={selectedMonth}
+        tahun={filterTahun}
+        bulanLabel={daftarBulan[selectedMonth - 1]}
+      />
 
       {/* LEVEL 4: EXPANDABLE DATA SECTIONS */}
       <ExpandableDataSection
