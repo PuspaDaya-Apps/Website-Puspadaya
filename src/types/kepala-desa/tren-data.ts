@@ -1,6 +1,7 @@
 import { ApiResponse, Periode } from './common';
 
 export interface TrenDataPosyanduItem {
+  id?: string;
   nama: string;
   dusun: string;
   balita: number;

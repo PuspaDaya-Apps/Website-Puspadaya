@@ -65,7 +65,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
   const mergedPosyanduList = useMemo(() => {
     return (
       trenData?.map((item, index) => ({
-        id: `${item.nama}-${index + 1}`.replace(/\s+/g, "-").toLowerCase(),
+        id: item.id ?? `${item.nama}-${index + 1}`.replace(/\s+/g, "-").toLowerCase(),
         nama_posyandu: item.nama,
         nama_dusun: item.dusun,
         nama_kecamatan: "",
