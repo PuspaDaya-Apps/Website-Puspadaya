@@ -52,5 +52,6 @@ export const APIEndpoints = {
     SKOR_BEBAN_KERJA_TIM: '/api/v1/kepala-dashboard/skor-beban-kerja-tim',
     IMUNISASI_KEPENDUDUKAN: '/api/v1/kepala-dashboard/imunisasi-kependudukan',
     LOG_AKTIVITAS_KADER: '/api/v1/kepala-dashboard/log-aktivitas-kader',
+    DETAIL_POSYANDU_KEPALA_DESA: '/api/posyandu/kepaladesa/{id_posyandu}',
 
 };
