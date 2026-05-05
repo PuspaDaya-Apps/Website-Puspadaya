@@ -249,9 +249,9 @@ const PosyanduDetailPage: React.FC = () => {
         overviewData.status_gizi_balita.find((item) => item.status.toLowerCase().includes(match))?.jumlah ?? 0;
 
       return {
-        total_balita: totalBalita,
+        total_balita: balitaData?.pagination?.total_data ?? totalBalita,
         total_ibu_hamil: ringkasanData?.ringkasan?.total_ibu_hamil ?? posyandu?.total_ibu_hamil ?? 0,
-        total_kader: ringkasanData?.ringkasan?.total_kader ?? posyandu?.total_kader ?? 0,
+        total_kader: kaderData?.kader?.length ?? ringkasanData?.ringkasan?.total_kader ?? posyandu?.total_kader ?? 0,
         kehadiran_balita: overviewData.tingkat_kehadiran.hadir,
         kehadiran_ibu_hamil: ringkasanData?.ringkasan?.hadir_ibu_hamil ?? posyandu?.kehadiran_ibu_hamil_bulan_ini ?? 0,
         persentase_kehadiran: overviewData.tingkat_kehadiran.persentase,
@@ -265,9 +265,9 @@ const PosyanduDetailPage: React.FC = () => {
       const ringkasan = ringkasanData.ringkasan;
 
       return {
-        total_balita: ringkasan.total_balita,
+        total_balita: balitaData?.pagination?.total_data ?? ringkasan.total_balita,
         total_ibu_hamil: ringkasan.total_ibu_hamil,
-        total_kader: ringkasan.total_kader,
+        total_kader: kaderData?.kader?.length ?? ringkasan.total_kader,
         kehadiran_balita: ringkasan.hadir_balita,
         kehadiran_ibu_hamil: ringkasan.hadir_ibu_hamil,
         persentase_kehadiran: ringkasan.total_balita > 0
@@ -293,9 +293,9 @@ const PosyanduDetailPage: React.FC = () => {
       };
     }
     return {
-      total_balita: posyandu.total_balita,
+      total_balita: balitaData?.pagination?.total_data ?? posyandu.total_balita,
       total_ibu_hamil: posyandu.total_ibu_hamil,
-      total_kader: posyandu.total_kader,
+      total_kader: kaderData?.kader?.length ?? posyandu.total_kader,
       kehadiran_balita: posyandu.kehadiran_balita_bulan_ini,
       kehadiran_ibu_hamil: posyandu.kehadiran_ibu_hamil_bulan_ini,
       persentase_kehadiran: posyandu.persentase_kehadiran,
@@ -303,7 +303,7 @@ const PosyanduDetailPage: React.FC = () => {
       status_gizi_buruk: posyandu.status_gizi_buruk,
       normal: posyandu.total_balita - posyandu.status_stunting - posyandu.status_gizi_buruk,
     };
-  }, [posyandu, ringkasanData]);
+  }, [balitaData, kaderData, overviewData, posyandu, ringkasanData]);
 
   const overviewKasusKritis =
     overviewData?.kasus_kritis?.map((item) => ({
