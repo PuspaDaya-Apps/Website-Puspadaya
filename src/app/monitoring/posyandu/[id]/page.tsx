@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { PosyanduItem } from "@/types/dashboard-kepala-desa";
-import { posyanduListData } from "@/data/dummy-dashboard-kepala-desa";
 import {
   fetchDetailPosyanduBalitaKhusus,
   fetchDetailPosyanduKader,
@@ -183,11 +182,6 @@ const PosyanduDetailPage: React.FC = () => {
     setKaderPage(1);
   }, [posyanduId, selectedBulan, selectedTahun]);
 
-  // Find posyandu data
-  const posyandu = useMemo(() => {
-    return posyanduListData.find((p) => p.id === posyanduId) ?? null;
-  }, [posyanduId]);
-
   const apiPosyandu = ringkasanData?.posyandu;
 
   // Filter data for this posyandu
@@ -250,10 +244,10 @@ const PosyanduDetailPage: React.FC = () => {
 
       return {
         total_balita: balitaData?.pagination?.total_data ?? totalBalita,
-        total_ibu_hamil: ringkasanData?.ringkasan?.total_ibu_hamil ?? posyandu?.total_ibu_hamil ?? 0,
-        total_kader: kaderData?.kader?.length ?? ringkasanData?.ringkasan?.total_kader ?? posyandu?.total_kader ?? 0,
+        total_ibu_hamil: ringkasanData?.ringkasan?.total_ibu_hamil ?? 0,
+        total_kader: kaderData?.kader?.length ?? ringkasanData?.ringkasan?.total_kader ?? 0,
         kehadiran_balita: overviewData.tingkat_kehadiran.hadir,
-        kehadiran_ibu_hamil: ringkasanData?.ringkasan?.hadir_ibu_hamil ?? posyandu?.kehadiran_ibu_hamil_bulan_ini ?? 0,
+        kehadiran_ibu_hamil: ringkasanData?.ringkasan?.hadir_ibu_hamil ?? 0,
         persentase_kehadiran: overviewData.tingkat_kehadiran.persentase,
         status_stunting: getStatusJumlah("stunting"),
         status_gizi_buruk: getStatusJumlah("buruk"),
@@ -279,31 +273,18 @@ const PosyanduDetailPage: React.FC = () => {
       };
     }
 
-    if (!posyandu) {
-      return {
-        total_balita: 0,
-        total_ibu_hamil: 0,
-        total_kader: 0,
-        kehadiran_balita: 0,
-        kehadiran_ibu_hamil: 0,
-        persentase_kehadiran: 0,
-        status_stunting: 0,
-        status_gizi_buruk: 0,
-        normal: 0,
-      };
-    }
     return {
-      total_balita: balitaData?.pagination?.total_data ?? posyandu.total_balita,
-      total_ibu_hamil: posyandu.total_ibu_hamil,
-      total_kader: kaderData?.kader?.length ?? posyandu.total_kader,
-      kehadiran_balita: posyandu.kehadiran_balita_bulan_ini,
-      kehadiran_ibu_hamil: posyandu.kehadiran_ibu_hamil_bulan_ini,
-      persentase_kehadiran: posyandu.persentase_kehadiran,
-      status_stunting: posyandu.status_stunting,
-      status_gizi_buruk: posyandu.status_gizi_buruk,
-      normal: posyandu.total_balita - posyandu.status_stunting - posyandu.status_gizi_buruk,
+      total_balita: balitaData?.pagination?.total_data ?? 0,
+      total_ibu_hamil: 0,
+      total_kader: kaderData?.kader?.length ?? 0,
+      kehadiran_balita: 0,
+      kehadiran_ibu_hamil: 0,
+      persentase_kehadiran: 0,
+      status_stunting: 0,
+      status_gizi_buruk: 0,
+      normal: 0,
     };
-  }, [balitaData, kaderData, overviewData, posyandu, ringkasanData]);
+  }, [balitaData, kaderData, overviewData, ringkasanData]);
 
   const overviewKasusKritis =
     overviewData?.kasus_kritis?.map((item) => ({
@@ -378,14 +359,14 @@ const PosyanduDetailPage: React.FC = () => {
               <span>Detail Posyandu</span>
             </div>
             <h1 className="mt-1 text-2xl font-bold text-dark md:text-3xl dark:text-white">
-              {apiPosyandu?.nama ?? posyandu?.nama_posyandu}
+              {apiPosyandu?.nama ?? "-"}
             </h1>
             <p className="mt-1 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
               <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              {apiPosyandu?.alamat.dusun ?? posyandu?.nama_dusun}, {apiPosyandu?.alamat.kecamatan ?? posyandu?.nama_kecamatan}
+              {apiPosyandu?.alamat?.dusun ?? "-"}, {apiPosyandu?.alamat?.kecamatan ?? "-"}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -412,35 +393,35 @@ const PosyanduDetailPage: React.FC = () => {
       ) : null}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
-        <div className="rounded-xl bg-emerald-50 p-4 text-center dark:bg-emerald-900/20">
+        <div className="rounded-xl border border-emerald-100 bg-white p-4 text-center shadow-sm dark:border-emerald-900/40 dark:bg-gray-800">
           <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{stats.total_balita}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Total Balita</p>
         </div>
-        <div className="rounded-xl bg-pink-50 p-4 text-center dark:bg-pink-900/20">
+        <div className="rounded-xl border border-pink-100 bg-white p-4 text-center shadow-sm dark:border-pink-900/40 dark:bg-gray-800">
           <p className="text-3xl font-bold text-pink-600 dark:text-pink-400">{stats.total_ibu_hamil}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Ibu Hamil</p>
         </div>
-        <div className="rounded-xl bg-violet-50 p-4 text-center dark:bg-violet-900/20">
+        <div className="rounded-xl border border-violet-100 bg-white p-4 text-center shadow-sm dark:border-violet-900/40 dark:bg-gray-800">
           <p className="text-3xl font-bold text-violet-600 dark:text-violet-400">{stats.total_kader}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Kader</p>
         </div>
-        <div className="rounded-xl bg-blue-50 p-4 text-center dark:bg-blue-900/20">
+        <div className="rounded-xl border border-blue-100 bg-white p-4 text-center shadow-sm dark:border-blue-900/40 dark:bg-gray-800">
           <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.kehadiran_balita}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Hadir Balita</p>
         </div>
-        <div className="rounded-xl bg-amber-50 p-4 text-center dark:bg-amber-900/20">
+        <div className="rounded-xl border border-amber-100 bg-white p-4 text-center shadow-sm dark:border-amber-900/40 dark:bg-gray-800">
           <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">{stats.kehadiran_ibu_hamil}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Hadir Ibu Hamil</p>
         </div>
-        <div className="rounded-xl bg-red-50 p-4 text-center dark:bg-red-900/20">
+        <div className="rounded-xl border border-red-100 bg-white p-4 text-center shadow-sm dark:border-red-900/40 dark:bg-gray-800">
           <p className="text-3xl font-bold text-red-600 dark:text-red-400">{stats.status_stunting}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Stunting</p>
         </div>
-        <div className="rounded-xl bg-orange-50 p-4 text-center dark:bg-orange-900/20">
+        <div className="rounded-xl border border-orange-100 bg-white p-4 text-center shadow-sm dark:border-orange-900/40 dark:bg-gray-800">
           <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">{stats.status_gizi_buruk}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Gizi Buruk</p>
         </div>
-        <div className="rounded-xl bg-teal-50 p-4 text-center dark:bg-teal-900/20">
+        <div className="rounded-xl border border-teal-100 bg-white p-4 text-center shadow-sm dark:border-teal-900/40 dark:bg-gray-800">
           <p className="text-3xl font-bold text-teal-600 dark:text-teal-400">{stats.normal}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400">Normal</p>
         </div>
@@ -449,10 +430,10 @@ const PosyanduDetailPage: React.FC = () => {
       {/* Tabs */}
       <div className="flex gap-2 overflow-x-auto border-b border-gray-200 dark:border-gray-700">
         {[
-          { id: "overview", label: "📊 Overview", icon: "📊" },
-          { id: "balita", label: "👶 Data Balita", icon: "👶" },
-          { id: "kader", label: "👥 Kader", icon: "👥" },
-          { id: "kinerja", label: "📈 Kinerja", icon: "📈" },
+          { id: "overview", label: "Overview", icon: "" },
+          { id: "balita", label: "Data Balita", icon: "" },
+          { id: "kader", label: "Kader", icon: "" },
+          { id: "kinerja", label: "Kinerja", icon: "" },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -475,7 +456,7 @@ const PosyanduDetailPage: React.FC = () => {
           <div className="space-y-6">
             {/* Kehadiran Progress */}
             <div>
-              <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">📊 Tingkat Kehadiran</h3>
+              <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Tingkat Kehadiran</h3>
               <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Persentase Kehadiran</span>
@@ -503,7 +484,7 @@ const PosyanduDetailPage: React.FC = () => {
 
             {/* Status Gizi Chart */}
             <div>
-              <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">📊 Status Gizi Balita</h3>
+              <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Status Gizi Balita</h3>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 {overviewStatusGizi.map((item) => {
                   const color =
@@ -603,7 +584,7 @@ const PosyanduDetailPage: React.FC = () => {
         {/* Balita Tab */}
         {activeTab === "balita" && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-dark dark:text-white">👶 Daftar Balita dengan Kondisi Khusus</h3>
+            <h3 className="text-lg font-semibold text-dark dark:text-white">Daftar Balita dengan Kondisi Khusus</h3>
             {balitaLoading ? (
               <div className="py-12 text-center text-gray-500 dark:text-gray-400">
                 Memuat data balita khusus...
