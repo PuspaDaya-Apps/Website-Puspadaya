@@ -2,10 +2,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { PosyanduItem, KaderWorkload } from "@/types/dashboard-kepala-desa";
-import { posyanduListData, kaderWorkloadData, monthlyTrendData, posyanduPerformanceData } from "@/data/dummy-dashboard-kepala-desa";
-import { fetchDetailPosyanduBalitaKhusus, fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
-import { DetailPosyanduBalitaKhususData, DetailPosyanduOverviewData, DetailPosyanduRingkasanData } from "@/types/kepala-desa";
+import { PosyanduItem } from "@/types/dashboard-kepala-desa";
+import { posyanduListData, monthlyTrendData, posyanduPerformanceData } from "@/data/dummy-dashboard-kepala-desa";
+import { fetchDetailPosyanduBalitaKhusus, fetchDetailPosyanduKader, fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
+import { DetailPosyanduBalitaKhususData, DetailPosyanduKaderData, DetailPosyanduOverviewData, DetailPosyanduRingkasanData } from "@/types/kepala-desa";
 
 const PosyanduDetailPage: React.FC = () => {
   const params = useParams();
@@ -24,6 +24,9 @@ const PosyanduDetailPage: React.FC = () => {
   const [balitaError, setBalitaError] = useState<string | null>(null);
   const [balitaPage, setBalitaPage] = useState(1);
   const balitaLimit = 5;
+  const [kaderData, setKaderData] = useState<DetailPosyanduKaderData | null>(null);
+  const [kaderLoading, setKaderLoading] = useState(true);
+  const [kaderError, setKaderError] = useState<string | null>(null);
 
   const selectedBulan = Number(searchParams.get("bulan") ?? new Date().getMonth() + 1);
   const selectedTahun = Number(searchParams.get("tahun") ?? new Date().getFullYear());
@@ -102,9 +105,33 @@ const PosyanduDetailPage: React.FC = () => {
       setBalitaLoading(false);
     };
 
+    const loadKader = async () => {
+      setKaderLoading(true);
+      setKaderError(null);
+      setKaderData(null);
+
+      const result = await fetchDetailPosyanduKader(posyanduId, {
+        bulan: selectedBulan,
+        tahun: selectedTahun,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setKaderData(result.data);
+      } else {
+        setKaderError("Gagal memuat data kader");
+      }
+
+      setKaderLoading(false);
+    };
+
     loadOverview();
     loadRingkasan();
     loadBalitaKhusus();
+    loadKader();
 
     return () => {
       isMounted = false;
@@ -133,14 +160,11 @@ const PosyanduDetailPage: React.FC = () => {
       })) ?? []
     );
   }, [balitaData]);
-
-  const kaderList = useMemo(() => {
-    return kaderWorkloadData.filter((k) => k.posyandu_id === posyanduId);
-  }, [posyanduId]);
-
   const performance = useMemo(() => {
     return posyanduPerformanceData.find((p) => p.posyandu_id === posyanduId);
   }, [posyanduId]);
+
+  const kaderRows = kaderData?.kader ?? [];
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -606,42 +630,64 @@ const PosyanduDetailPage: React.FC = () => {
         {/* Kader Tab */}
         {activeTab === "kader" && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-dark dark:text-white">👥 Daftar Kader Posyandu</h3>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {kaderList.map((kader) => (
-                <div key={kader.id} className="rounded-lg border border-gray-200 p-4 transition hover:shadow-md dark:border-gray-700">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-white">
-                      {kader.nama_kader.charAt(0)}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-dark dark:text-white">{kader.nama_kader}</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{kader.role}</p>
-                      <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
-                        <span>👶 {kader.total_balita_dibina} balita</span>
-                        <span>🤰 {kader.total_ibu_hamil_dibina} ibu hamil</span>
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-lg font-semibold text-dark dark:text-white">Daftar Kader Posyandu</h3>
+              {!kaderLoading && !kaderError && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">{kaderRows.length} kader</p>
+              )}
+            </div>
+
+            {kaderLoading ? (
+              <div className="rounded-lg border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                Memuat data kader...
+              </div>
+            ) : kaderError ? (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-10 text-center text-sm text-red-600 dark:border-red-900/40 dark:bg-red-900/10 dark:text-red-300">
+                {kaderError}
+              </div>
+            ) : kaderRows.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                Tidak ada data kader pada periode ini.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {kaderRows.map((kader) => {
+                  const statusClass =
+                    kader.status_kinerja?.toLowerCase().includes("tinggi")
+                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
+                      : kader.status_kinerja?.toLowerCase().includes("sedang")
+                      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                      : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+
+                  return (
+                    <div key={kader.id_kader} className="rounded-lg border border-gray-200 p-4 transition hover:shadow-md dark:border-gray-700">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-white">
+                          {kader.nama.charAt(0)}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-dark dark:text-white">{kader.nama}</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{kader.jabatan}</p>
+                          <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
+                            <span>Status: {kader.status_kinerja}</span>
+                            <span>Skor: {kader.skor_kinerja}</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className={`rounded-full px-2 py-1 text-xs font-medium ${statusClass}`}>
+                            {kader.status_kinerja}
+                          </span>
+                          <p className="mt-1 text-sm font-bold text-dark dark:text-white">{kader.skor_kinerja} skor</p>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <span className={`rounded-full px-2 py-1 text-xs font-medium ${
-                        kader.kategori_beban === "Tinggi"
-                          ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                          : kader.kategori_beban === "Sedang"
-                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                          : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
-                      }`}>
-                        {kader.kategori_beban}
-                      </span>
-                      <p className="mt-1 text-sm font-bold text-dark dark:text-white">{kader.skor_beban_kerja} skor</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
-        {/* Kinerja Tab */}
         {activeTab === "kinerja" && performance && (
           <div className="space-y-6">
             {/* Performance Score */}
@@ -724,4 +770,7 @@ const PosyanduDetailPage: React.FC = () => {
 };
 
 export default PosyanduDetailPage;
+
+
+
 
