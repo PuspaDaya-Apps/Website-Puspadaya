@@ -1,20 +1,64 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { PosyanduItem, CriticalChild, KaderWorkload } from "@/types/dashboard-kepala-desa";
 import { posyanduListData, criticalChildrenData, kaderWorkloadData, monthlyTrendData, posyanduPerformanceData } from "@/data/dummy-dashboard-kepala-desa";
+import { fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
+import { DetailPosyanduRingkasanData } from "@/types/kepala-desa";
 
 const PosyanduDetailPage: React.FC = () => {
   const params = useParams();
+  const searchParams = useSearchParams();
   const posyanduId = params.id as string;
 
   const [activeTab, setActiveTab] = useState<"overview" | "balita" | "kader" | "kinerja">("overview");
+  const [ringkasanData, setRingkasanData] = useState<DetailPosyanduRingkasanData | null>(null);
+  const [ringkasanLoading, setRingkasanLoading] = useState(true);
+  const [ringkasanError, setRingkasanError] = useState<string | null>(null);
+
+  const selectedBulan = Number(searchParams.get("bulan") ?? new Date().getMonth() + 1);
+  const selectedTahun = Number(searchParams.get("tahun") ?? new Date().getFullYear());
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadRingkasan = async () => {
+      setRingkasanLoading(true);
+      setRingkasanError(null);
+      setRingkasanData(null);
+
+      const result = await fetchDetailPosyanduRingkasan(posyanduId, {
+        bulan: selectedBulan,
+        tahun: selectedTahun,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setRingkasanData(result.data);
+      } else {
+        setRingkasanError("Gagal memuat ringkasan posyandu");
+      }
+
+      setRingkasanLoading(false);
+    };
+
+    loadRingkasan();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [posyanduId, selectedBulan, selectedTahun]);
 
   // Find posyandu data
   const posyandu = useMemo(() => {
-    return posyanduListData.find((p) => p.id === posyanduId);
+    return posyanduListData.find((p) => p.id === posyanduId) ?? null;
   }, [posyanduId]);
+
+  const apiPosyandu = ringkasanData?.posyandu;
 
   // Filter data for this posyandu
   const criticalChildren = useMemo(() => {
@@ -31,6 +75,24 @@ const PosyanduDetailPage: React.FC = () => {
 
   // Calculate stats
   const stats = useMemo(() => {
+    if (ringkasanData?.ringkasan) {
+      const ringkasan = ringkasanData.ringkasan;
+
+      return {
+        total_balita: ringkasan.total_balita,
+        total_ibu_hamil: ringkasan.total_ibu_hamil,
+        total_kader: ringkasan.total_kader,
+        kehadiran_balita: ringkasan.hadir_balita,
+        kehadiran_ibu_hamil: ringkasan.hadir_ibu_hamil,
+        persentase_kehadiran: ringkasan.total_balita > 0
+          ? Math.round((ringkasan.hadir_balita / ringkasan.total_balita) * 100)
+          : 0,
+        status_stunting: ringkasan.stunting,
+        status_gizi_buruk: ringkasan.gizi_buruk,
+        normal: ringkasan.normal,
+      };
+    }
+
     if (!posyandu) return null;
     return {
       total_balita: posyandu.total_balita,
@@ -43,9 +105,9 @@ const PosyanduDetailPage: React.FC = () => {
       status_gizi_buruk: posyandu.status_gizi_buruk,
       normal: posyandu.total_balita - posyandu.status_stunting - posyandu.status_gizi_buruk,
     };
-  }, [posyandu]);
+  }, [posyandu, ringkasanData]);
 
-  if (!posyandu || !stats) {
+  if ((!posyandu && !apiPosyandu) || !stats) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
@@ -72,14 +134,14 @@ const PosyanduDetailPage: React.FC = () => {
               <span>Detail Posyandu</span>
             </div>
             <h1 className="mt-1 text-2xl font-bold text-dark md:text-3xl dark:text-white">
-              {posyandu.nama_posyandu}
+              {apiPosyandu?.nama ?? posyandu?.nama_posyandu}
             </h1>
             <p className="mt-1 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
               <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              {posyandu.nama_dusun}, {posyandu.nama_kecamatan}
+              {apiPosyandu?.alamat.dusun ?? posyandu?.nama_dusun}, {apiPosyandu?.alamat.kecamatan ?? posyandu?.nama_kecamatan}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -95,6 +157,16 @@ const PosyanduDetailPage: React.FC = () => {
       </div>
 
       {/* Quick Stats */}
+      {ringkasanLoading ? (
+        <div className="rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+          Memuat ringkasan posyandu...
+        </div>
+      ) : ringkasanError ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
+          {ringkasanError}
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
         <div className="rounded-xl bg-emerald-50 p-4 text-center dark:bg-emerald-900/20">
           <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{stats.total_balita}</p>

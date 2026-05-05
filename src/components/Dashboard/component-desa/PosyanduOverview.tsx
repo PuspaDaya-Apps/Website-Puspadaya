@@ -227,7 +227,10 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
           {paginatedPosyandu.map((posyandu) => (
             <Link
               key={posyandu.id}
-              href={`/monitoring/posyandu/${posyandu.id}`}
+              href={{
+                pathname: `/monitoring/posyandu/${posyandu.id}`,
+                query: { bulan, tahun },
+              }}
               className={`group cursor-pointer rounded-xl border-2 p-4 transition-all duration-300 hover:shadow-lg hover:scale-105 ${
                 selectedPosyandu?.id === posyandu.id
                   ? "border-primary bg-blue-50 dark:bg-blue-900/20"
@@ -343,7 +346,10 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
                 >
                   <td className="px-4 py-3">
                     <Link
-                      href={`/monitoring/posyandu/${posyandu.id}`}
+                      href={{
+                        pathname: `/monitoring/posyandu/${posyandu.id}`,
+                        query: { bulan, tahun },
+                      }}
                       className="font-medium text-primary hover:underline dark:text-blue-400"
                     >
                       {posyandu.nama_posyandu}
