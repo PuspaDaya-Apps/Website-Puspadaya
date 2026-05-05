@@ -1,15 +1,30 @@
 "use client";
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PosyanduPerformance, CriticalChild, KaderWorkload } from "@/types/dashboard-kepala-desa";
 import { posyanduPerformanceData, posyanduListData, criticalChildrenData, kaderWorkloadData, monthlyTrendData, allChildrenData } from "@/data/dummy-dashboard-kepala-desa";
 import DurasiJarakAgregat from "@/components/Dashboard/component-desa/DurasiJarakAgregat";
 import { dashboardSummaryData } from "@/data/dummy-dashboard-kepala-desa";
+import { createPosyanduDetailToken } from "@/utils/posyanduDetailToken";
 
 const KinerjaPosyanduPage: React.FC = () => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"ranking" | "detail">("ranking");
   const [selectedPosyandu, setSelectedPosyandu] = useState<string | null>(null);
   const [detailTab, setDetailTab] = useState<"overview" | "balita" | "kader" | "kinerja">("overview");
+  const currentDate = new Date();
+  const currentBulan = currentDate.getMonth() + 1;
+  const currentTahun = currentDate.getFullYear();
+
+  const openPosyanduDetail = (posyanduId: string) => {
+    const token = createPosyanduDetailToken({
+      idPosyandu: posyanduId,
+      bulan: currentBulan,
+      tahun: currentTahun,
+    });
+    router.push(`/monitoring/posyandu/${token}`);
+  };
 
   // Sort posyandu by performance
   const sortedPosyandu = useMemo(() => {
@@ -168,12 +183,13 @@ const KinerjaPosyanduPage: React.FC = () => {
                       <p className="mt-1 text-sm text-white/80">{posyanduInfo?.nama_dusun}</p>
                       <p className="mt-4 text-5xl font-bold">{posyandu.skor_kinerja}</p>
                       <p className="text-sm text-white/80">skor kinerja</p>
-                      <Link
-                        href={`/monitoring/posyandu/${posyandu.posyandu_id}`}
+                      <button
+                        type="button"
+                        onClick={() => openPosyanduDetail(posyandu.posyandu_id)}
                         className="mt-4 inline-block rounded-full bg-white/20 px-4 py-2 text-sm font-medium transition hover:bg-white/30"
                       >
                         Lihat Detail →
-                      </Link>
+                      </button>
                     </div>
                   );
                 })}
@@ -206,12 +222,13 @@ const KinerjaPosyanduPage: React.FC = () => {
                         <p className="text-3xl font-bold text-red-600 dark:text-red-400">{posyandu.skor_kinerja}</p>
                         <p className="text-sm text-red-500 dark:text-red-400">{posyandu.kategori}</p>
                       </div>
-                      <Link
-                        href={`/monitoring/posyandu/${posyandu.posyandu_id}`}
+                      <button
+                        type="button"
+                        onClick={() => openPosyanduDetail(posyandu.posyandu_id)}
                         className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
                       >
                         Detail
-                      </Link>
+                      </button>
                     </div>
                   );
                 })}

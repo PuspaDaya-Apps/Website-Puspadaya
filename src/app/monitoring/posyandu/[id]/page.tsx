@@ -1,8 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
-import { PosyanduItem } from "@/types/dashboard-kepala-desa";
+import { useParams } from "next/navigation";
 import {
   fetchDetailPosyanduBalitaKhusus,
   fetchDetailPosyanduKader,
@@ -17,13 +16,14 @@ import {
   DetailPosyanduOverviewData,
   DetailPosyanduRingkasanData,
 } from "@/types/kepala-desa";
+import { resolvePosyanduDetailToken } from "@/utils/posyanduDetailToken";
 
 const PosyanduDetailPage: React.FC = () => {
   const params = useParams();
-  const searchParams = useSearchParams();
-  const posyanduId = params.id as string;
+  const detailToken = params.id as string;
 
   const [activeTab, setActiveTab] = useState<"overview" | "balita" | "kader" | "kinerja">("overview");
+  const [detailContext, setDetailContext] = useState<{ idPosyandu: string; bulan: number; tahun: number } | null>(null);
   const [overviewData, setOverviewData] = useState<DetailPosyanduOverviewData | null>(null);
   const [overviewLoading, setOverviewLoading] = useState(true);
   const [overviewError, setOverviewError] = useState<string | null>(null);
@@ -44,10 +44,46 @@ const PosyanduDetailPage: React.FC = () => {
   const [kinerjaLoading, setKinerjaLoading] = useState(true);
   const [kinerjaError, setKinerjaError] = useState<string | null>(null);
 
-  const selectedBulan = Number(searchParams.get("bulan") ?? new Date().getMonth() + 1);
-  const selectedTahun = Number(searchParams.get("tahun") ?? new Date().getFullYear());
+  useEffect(() => {
+    const resolved = resolvePosyanduDetailToken(detailToken);
+
+    if (resolved) {
+      setOverviewData(null);
+      setRingkasanData(null);
+      setBalitaData(null);
+      setKaderData(null);
+      setKinerjaData(null);
+      setOverviewLoading(true);
+      setRingkasanLoading(true);
+      setBalitaLoading(true);
+      setKaderLoading(true);
+      setKinerjaLoading(true);
+      setDetailContext({
+        idPosyandu: resolved.idPosyandu,
+        bulan: resolved.bulan,
+        tahun: resolved.tahun,
+      });
+      return;
+    }
+
+    setOverviewData(null);
+    setRingkasanData(null);
+    setBalitaData(null);
+    setKaderData(null);
+    setKinerjaData(null);
+    setDetailContext(null);
+    setOverviewLoading(false);
+    setRingkasanLoading(false);
+    setBalitaLoading(false);
+    setKaderLoading(false);
+    setKinerjaLoading(false);
+  }, [detailToken]);
 
   useEffect(() => {
+    if (!detailContext) {
+      return;
+    }
+
     let isMounted = true;
 
     const loadOverview = async () => {
@@ -55,9 +91,9 @@ const PosyanduDetailPage: React.FC = () => {
       setOverviewError(null);
       setOverviewData(null);
 
-      const result = await fetchDetailPosyanduOverview(posyanduId, {
-        bulan: selectedBulan,
-        tahun: selectedTahun,
+      const result = await fetchDetailPosyanduOverview(detailContext.idPosyandu, {
+        bulan: detailContext.bulan,
+        tahun: detailContext.tahun,
       });
 
       if (!isMounted) {
@@ -78,9 +114,9 @@ const PosyanduDetailPage: React.FC = () => {
       setRingkasanError(null);
       setRingkasanData(null);
 
-      const result = await fetchDetailPosyanduRingkasan(posyanduId, {
-        bulan: selectedBulan,
-        tahun: selectedTahun,
+      const result = await fetchDetailPosyanduRingkasan(detailContext.idPosyandu, {
+        bulan: detailContext.bulan,
+        tahun: detailContext.tahun,
       });
 
       if (!isMounted) {
@@ -101,9 +137,9 @@ const PosyanduDetailPage: React.FC = () => {
       setBalitaError(null);
       setBalitaData(null);
 
-      const result = await fetchDetailPosyanduBalitaKhusus(posyanduId, {
-        bulan: selectedBulan,
-        tahun: selectedTahun,
+      const result = await fetchDetailPosyanduBalitaKhusus(detailContext.idPosyandu, {
+        bulan: detailContext.bulan,
+        tahun: detailContext.tahun,
         page: balitaPage,
         limit: balitaLimit,
       });
@@ -126,9 +162,9 @@ const PosyanduDetailPage: React.FC = () => {
       setKaderError(null);
       setKaderData(null);
 
-      const result = await fetchDetailPosyanduKader(posyanduId, {
-        bulan: selectedBulan,
-        tahun: selectedTahun,
+      const result = await fetchDetailPosyanduKader(detailContext.idPosyandu, {
+        bulan: detailContext.bulan,
+        tahun: detailContext.tahun,
       });
 
       if (!isMounted) {
@@ -149,9 +185,9 @@ const PosyanduDetailPage: React.FC = () => {
       setKinerjaError(null);
       setKinerjaData(null);
 
-      const result = await fetchDetailPosyanduKinerja(posyanduId, {
-        bulan: selectedBulan,
-        tahun: selectedTahun,
+      const result = await fetchDetailPosyanduKinerja(detailContext.idPosyandu, {
+        bulan: detailContext.bulan,
+        tahun: detailContext.tahun,
       });
 
       if (!isMounted) {
@@ -176,11 +212,11 @@ const PosyanduDetailPage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [posyanduId, selectedBulan, selectedTahun, balitaPage]);
+  }, [detailContext, balitaPage]);
 
   useEffect(() => {
     setKaderPage(1);
-  }, [posyanduId, selectedBulan, selectedTahun]);
+  }, [detailContext?.idPosyandu, detailContext?.bulan, detailContext?.tahun]);
 
   const apiPosyandu = ringkasanData?.posyandu;
 

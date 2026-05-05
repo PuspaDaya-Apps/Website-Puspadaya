@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { fetchTrenDataPosyandu } from "@/app/api/dashboard-kepala-desa";
 import { PosyanduItem } from "@/types/dashboard-kepala-desa";
 import { TrenDataPosyanduItem } from "@/types/kepala-desa";
+import { createPosyanduDetailToken } from "@/utils/posyanduDetailToken";
 
 interface PosyanduOverviewProps {
   posyanduList: PosyanduItem[];
@@ -23,6 +24,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
   tahun,
   bulanLabel,
 }) => {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
@@ -117,6 +119,16 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
     if (persentase >= 80) return "bg-emerald-500";
     if (persentase >= 60) return "bg-yellow-500";
     return "bg-red-500";
+  };
+
+  const openPosyanduDetail = (posyandu: PosyanduItem) => {
+    onSelectPosyandu(posyandu);
+    const token = createPosyanduDetailToken({
+      idPosyandu: posyandu.id,
+      bulan,
+      tahun,
+    });
+    router.push(`/monitoring/posyandu/${token}`);
   };
 
   return (
@@ -225,13 +237,11 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
       {!isLoading && filteredPosyandu.length > 0 && viewMode === "grid" ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {paginatedPosyandu.map((posyandu) => (
-            <Link
+            <button
               key={posyandu.id}
-              href={{
-                pathname: `/monitoring/posyandu/${posyandu.id}`,
-                query: { bulan, tahun },
-              }}
-              className={`group cursor-pointer rounded-xl border-2 p-4 transition-all duration-300 hover:shadow-lg hover:scale-105 ${
+              type="button"
+              onClick={() => openPosyanduDetail(posyandu)}
+              className={`group block w-full cursor-pointer rounded-xl border-2 p-4 text-left transition-all duration-300 hover:shadow-lg hover:scale-105 ${
                 selectedPosyandu?.id === posyandu.id
                   ? "border-primary bg-blue-50 dark:bg-blue-900/20"
                   : "border-transparent bg-gray-50 dark:bg-gray-800"
@@ -304,7 +314,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
                 </svg>
                 <span>Detail Posyandu</span>
               </div>
-            </Link>
+            </button>
           ))}
         </div>
       ) : !isLoading && filteredPosyandu.length > 0 ? (
@@ -345,15 +355,16 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
                   onClick={() => onSelectPosyandu(posyandu)}
                 >
                   <td className="px-4 py-3">
-                    <Link
-                      href={{
-                        pathname: `/monitoring/posyandu/${posyandu.id}`,
-                        query: { bulan, tahun },
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        openPosyanduDetail(posyandu);
                       }}
                       className="font-medium text-primary hover:underline dark:text-blue-400"
                     >
                       {posyandu.nama_posyandu}
-                    </Link>
+                    </button>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                     {posyandu.nama_dusun}
