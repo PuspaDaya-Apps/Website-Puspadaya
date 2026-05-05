@@ -27,6 +27,8 @@ const PosyanduDetailPage: React.FC = () => {
   const [kaderData, setKaderData] = useState<DetailPosyanduKaderData | null>(null);
   const [kaderLoading, setKaderLoading] = useState(true);
   const [kaderError, setKaderError] = useState<string | null>(null);
+  const [kaderPage, setKaderPage] = useState(1);
+  const kaderLimit = 6;
 
   const selectedBulan = Number(searchParams.get("bulan") ?? new Date().getMonth() + 1);
   const selectedTahun = Number(searchParams.get("tahun") ?? new Date().getFullYear());
@@ -138,6 +140,10 @@ const PosyanduDetailPage: React.FC = () => {
     };
   }, [posyanduId, selectedBulan, selectedTahun, balitaPage]);
 
+  useEffect(() => {
+    setKaderPage(1);
+  }, [posyanduId, selectedBulan, selectedTahun]);
+
   // Find posyandu data
   const posyandu = useMemo(() => {
     return posyanduListData.find((p) => p.id === posyanduId) ?? null;
@@ -165,6 +171,37 @@ const PosyanduDetailPage: React.FC = () => {
   }, [posyanduId]);
 
   const kaderRows = kaderData?.kader ?? [];
+  const kaderTotalPages = Math.max(1, Math.ceil(kaderRows.length / kaderLimit));
+  const kaderCurrentPage = Math.min(kaderPage, kaderTotalPages);
+  const kaderVisibleRows = useMemo(() => {
+    const start = (kaderCurrentPage - 1) * kaderLimit;
+    return kaderRows.slice(start, start + kaderLimit);
+  }, [kaderCurrentPage, kaderRows]);
+
+  const kaderPagination = useMemo(() => {
+    const totalData = kaderRows.length;
+
+    return {
+      page: kaderCurrentPage,
+      total_data: totalData,
+      total_page: kaderTotalPages,
+    };
+  }, [kaderCurrentPage, kaderRows.length, kaderTotalPages]);
+
+  const kaderPageButtons = useMemo(() => {
+    const totalPage = kaderPagination.total_page;
+    const currentPage = kaderPagination.page;
+
+    if (totalPage <= 5) {
+      return Array.from({ length: totalPage }, (_, index) => index + 1);
+    }
+
+    const start = Math.max(1, currentPage - 2);
+    const end = Math.min(totalPage, start + 4);
+    const adjustedStart = Math.max(1, end - 4);
+
+    return Array.from({ length: end - adjustedStart + 1 }, (_, index) => adjustedStart + index);
+  }, [kaderPagination]);
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -650,8 +687,9 @@ const PosyanduDetailPage: React.FC = () => {
                 Tidak ada data kader pada periode ini.
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {kaderRows.map((kader) => {
+              <>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {kaderVisibleRows.map((kader) => {
                   const statusClass =
                     kader.status_kinerja?.toLowerCase().includes("tinggi")
                       ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
@@ -659,31 +697,71 @@ const PosyanduDetailPage: React.FC = () => {
                       ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
                       : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
 
-                  return (
-                    <div key={kader.id_kader} className="rounded-lg border border-gray-200 p-4 transition hover:shadow-md dark:border-gray-700">
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-white">
-                          {kader.nama.charAt(0)}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-dark dark:text-white">{kader.nama}</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{kader.jabatan}</p>
-                          <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
-                            <span>Status: {kader.status_kinerja}</span>
-                            <span>Skor: {kader.skor_kinerja}</span>
+                    return (
+                      <div key={kader.id_kader} className="rounded-lg border border-gray-200 p-4 transition hover:shadow-md dark:border-gray-700">
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-white">
+                            {kader.nama.charAt(0)}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-dark dark:text-white">{kader.nama}</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{kader.jabatan}</p>
+                            <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
+                              <span>Status: {kader.status_kinerja}</span>
+                              <span>Skor: {kader.skor_kinerja}</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className={`rounded-full px-2 py-1 text-xs font-medium ${statusClass}`}>
+                              {kader.status_kinerja}
+                            </span>
+                            <p className="mt-1 text-sm font-bold text-dark dark:text-white">{kader.skor_kinerja} skor</p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <span className={`rounded-full px-2 py-1 text-xs font-medium ${statusClass}`}>
-                            {kader.status_kinerja}
-                          </span>
-                          <p className="mt-1 text-sm font-bold text-dark dark:text-white">{kader.skor_kinerja} skor</p>
-                        </div>
                       </div>
+                    );
+                  })}
+                </div>
+                {kaderPagination.total_data > kaderLimit && (
+                  <div className="flex flex-col items-center gap-3 text-center text-sm text-gray-600 dark:text-gray-400">
+                    <div>
+                      Menampilkan {kaderVisibleRows.length} dari {kaderPagination.total_data} kader
                     </div>
-                  );
-                })}
-              </div>
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setKaderPage((page) => Math.max(1, page - 1))}
+                        disabled={kaderPagination.page <= 1}
+                        className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-dark transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-white"
+                      >
+                        Sebelumnya
+                      </button>
+                      {kaderPageButtons.map((pageNumber) => (
+                        <button
+                          key={pageNumber}
+                          type="button"
+                          onClick={() => setKaderPage(pageNumber)}
+                          className={`min-w-10 rounded-lg border px-3 py-1.5 font-medium transition ${
+                            pageNumber === kaderPagination.page
+                              ? "border-primary bg-primary text-white"
+                              : "border-gray-300 text-dark hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800"
+                          }`}
+                        >
+                          {pageNumber}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setKaderPage((page) => Math.min(kaderPagination.total_page, page + 1))}
+                        disabled={kaderPagination.page >= kaderPagination.total_page}
+                        className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-dark transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-white"
+                      >
+                        Berikutnya
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
