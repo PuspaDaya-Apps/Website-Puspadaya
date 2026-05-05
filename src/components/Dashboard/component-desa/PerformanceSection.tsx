@@ -119,19 +119,18 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
     }));
   }, [apiData]);
 
-  const latestBalita = combinedTrendData[combinedTrendData.length - 1]?.balita || 0;
-  const latestIbuHamil = combinedTrendData[combinedTrendData.length - 1]?.ibuHamil || 0;
-  const latestStuntingPendek = statusGiziChartData[statusGiziChartData.length - 1]?.stuntingPendek || 0;
-  const latestStuntingSangatPendek = statusGiziChartData[statusGiziChartData.length - 1]?.stuntingSangatPendek || 0;
-  const latestWasting = statusGiziChartData[statusGiziChartData.length - 1]?.wasting || 0;
-  const latestUnderweight = statusGiziChartData[statusGiziChartData.length - 1]?.underweight || 0;
-  const latestKEK = ibuHamilBeresikoChartData[ibuHamilBeresikoChartData.length - 1]?.kek || 0;
+  const latestBalita = apiData?.tren?.kehadiran_balita?.hari_ini ?? 0;
+  const latestIbuHamil = apiData?.tren?.kehadiran_ibu_hamil?.hari_ini ?? 0;
+  const latestStuntingPendek =
+    statusGiziChartData[statusGiziChartData.length - 1]?.stuntingPendek ?? 0;
+  const latestStuntingSangatPendek =
+    statusGiziChartData[statusGiziChartData.length - 1]?.stuntingSangatPendek ?? 0;
+  const latestWasting = statusGiziChartData[statusGiziChartData.length - 1]?.wasting ?? 0;
+  const latestUnderweight =
+    statusGiziChartData[statusGiziChartData.length - 1]?.underweight ?? 0;
+  const latestKEK = apiData?.tren?.ibu_hamil_kek?.hari_ini ?? 0;
 
-  const totalStatusGizi =
-    latestStuntingPendek +
-    latestStuntingSangatPendek +
-    latestWasting +
-    latestUnderweight;
+  const totalStatusGizi = apiData?.tren?.status_gizi_balita?.hari_ini ?? 0;
 
   const periodeLabel = bulanLabel ? `${bulanLabel} ${tahun}` : `bulan ${bulan} ${tahun}`;
 
