@@ -3,9 +3,21 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { PosyanduItem } from "@/types/dashboard-kepala-desa";
-import { posyanduListData, monthlyTrendData, posyanduPerformanceData } from "@/data/dummy-dashboard-kepala-desa";
-import { fetchDetailPosyanduBalitaKhusus, fetchDetailPosyanduKader, fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
-import { DetailPosyanduBalitaKhususData, DetailPosyanduKaderData, DetailPosyanduOverviewData, DetailPosyanduRingkasanData } from "@/types/kepala-desa";
+import { posyanduListData } from "@/data/dummy-dashboard-kepala-desa";
+import {
+  fetchDetailPosyanduBalitaKhusus,
+  fetchDetailPosyanduKader,
+  fetchDetailPosyanduKinerja,
+  fetchDetailPosyanduOverview,
+  fetchDetailPosyanduRingkasan,
+} from "@/app/api/detail-dashboard-kepala-desa";
+import {
+  DetailPosyanduBalitaKhususData,
+  DetailPosyanduKaderData,
+  DetailPosyanduKinerjaData,
+  DetailPosyanduOverviewData,
+  DetailPosyanduRingkasanData,
+} from "@/types/kepala-desa";
 
 const PosyanduDetailPage: React.FC = () => {
   const params = useParams();
@@ -29,6 +41,9 @@ const PosyanduDetailPage: React.FC = () => {
   const [kaderError, setKaderError] = useState<string | null>(null);
   const [kaderPage, setKaderPage] = useState(1);
   const kaderLimit = 6;
+  const [kinerjaData, setKinerjaData] = useState<DetailPosyanduKinerjaData | null>(null);
+  const [kinerjaLoading, setKinerjaLoading] = useState(true);
+  const [kinerjaError, setKinerjaError] = useState<string | null>(null);
 
   const selectedBulan = Number(searchParams.get("bulan") ?? new Date().getMonth() + 1);
   const selectedTahun = Number(searchParams.get("tahun") ?? new Date().getFullYear());
@@ -130,10 +145,34 @@ const PosyanduDetailPage: React.FC = () => {
       setKaderLoading(false);
     };
 
+    const loadKinerja = async () => {
+      setKinerjaLoading(true);
+      setKinerjaError(null);
+      setKinerjaData(null);
+
+      const result = await fetchDetailPosyanduKinerja(posyanduId, {
+        bulan: selectedBulan,
+        tahun: selectedTahun,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setKinerjaData(result.data);
+      } else {
+        setKinerjaError("Gagal memuat data kinerja");
+      }
+
+      setKinerjaLoading(false);
+    };
+
     loadOverview();
     loadRingkasan();
     loadBalitaKhusus();
     loadKader();
+    loadKinerja();
 
     return () => {
       isMounted = false;
@@ -166,10 +205,6 @@ const PosyanduDetailPage: React.FC = () => {
       })) ?? []
     );
   }, [balitaData]);
-  const performance = useMemo(() => {
-    return posyanduPerformanceData.find((p) => p.posyandu_id === posyanduId);
-  }, [posyanduId]);
-
   const kaderRows = kaderData?.kader ?? [];
   const kaderTotalPages = Math.max(1, Math.ceil(kaderRows.length / kaderLimit));
   const kaderCurrentPage = Math.min(kaderPage, kaderTotalPages);
@@ -202,6 +237,9 @@ const PosyanduDetailPage: React.FC = () => {
 
     return Array.from({ length: end - adjustedStart + 1 }, (_, index) => adjustedStart + index);
   }, [kaderPagination]);
+
+  const kinerja = kinerjaData?.kinerja;
+  const kinerjaTren = kinerja?.tren_kehadiran_6_bulan ?? [];
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -766,80 +804,95 @@ const PosyanduDetailPage: React.FC = () => {
           </div>
         )}
 
-        {activeTab === "kinerja" && performance && (
+        {activeTab === "kinerja" && (
           <div className="space-y-6">
-            {/* Performance Score */}
-            <div className="rounded-lg bg-gradient-to-r from-primary to-blue-600 p-6 text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-white/80">Skor Kinerja</p>
-                  <p className="text-5xl font-bold">{performance.skor_kinerja}</p>
-                  <p className="mt-2 text-white/80">{performance.kategori}</p>
-                </div>
-                <div className="relative h-32 w-32">
-                  <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="8" />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      fill="none"
-                      stroke="white"
-                      strokeWidth="8"
-                      strokeDasharray={`${(performance.skor_kinerja / 100) * 251.2} 251.2`}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </div>
+            {kinerjaLoading ? (
+              <div className="rounded-lg border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                Memuat data kinerja...
               </div>
-            </div>
-
-            {/* Performance Metrics */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Kehadiran</p>
-                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{performance.kehadiran}%</p>
-                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div className="h-full rounded-full bg-blue-500" style={{ width: `${performance.kehadiran}%` }} />
-                </div>
+            ) : kinerjaError ? (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-10 text-center text-sm text-red-600 dark:border-red-900/40 dark:bg-red-900/10 dark:text-red-300">
+                {kinerjaError}
               </div>
-              <div className="rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900/20">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Pengukuran Balita</p>
-                <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{performance.pengukuran_balita}%</p>
-                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div className="h-full rounded-full bg-emerald-500" style={{ width: `${performance.pengukuran_balita}%` }} />
-                </div>
-              </div>
-              <div className="rounded-lg bg-pink-50 p-4 dark:bg-pink-900/20">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Pengukuran Ibu Hamil</p>
-                <p className="text-3xl font-bold text-pink-600 dark:text-pink-400">{performance.pengukuran_ibu_hamil}%</p>
-                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div className="h-full rounded-full bg-pink-500" style={{ width: `${performance.pengukuran_ibu_hamil}%` }} />
-                </div>
-              </div>
-            </div>
-
-            {/* Monthly Trend */}
-            <div>
-              <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">📊 Tren Kehadiran 6 Bulan Terakhir</h3>
-              <div className="flex items-end gap-2 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-                {monthlyTrendData.map((month, index) => {
-                  const maxValue = Math.max(...monthlyTrendData.map((m) => m.balita));
-                  const height = (month.balita / maxValue) * 100;
-                  return (
-                    <div key={index} className="flex-1 text-center">
-                      <div
-                        className="mx-auto w-full max-w-[50px] rounded-t bg-gradient-to-t from-primary to-blue-400 transition-all hover:from-primary/80 hover:to-blue-300"
-                        style={{ height: `${height}%`, minHeight: "30px" }}
-                        title={`${month.bulan}: ${month.balita} balita`}
-                      />
-                      <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{month.bulan.slice(0, 3)}</p>
-                      <p className="text-xs font-medium text-dark dark:text-white">{month.balita}</p>
+            ) : kinerja ? (
+              <>
+                <div className="rounded-lg bg-gradient-to-r from-primary to-blue-600 p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white/80">Skor Kinerja</p>
+                      <p className="text-5xl font-bold">{kinerja.skor}</p>
+                      <p className="mt-2 text-white/80">{kinerja.kategori}</p>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+                    <div className="relative h-32 w-32">
+                      <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="8" />
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="40"
+                          fill="none"
+                          stroke="white"
+                          strokeWidth="8"
+                          strokeDasharray={`${(kinerja.skor / 100) * 251.2} 251.2`}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Kehadiran</p>
+                    <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{kinerja.indikator.kehadiran.persentase}%</p>
+                    <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                      <div className="h-full rounded-full bg-blue-500" style={{ width: `${kinerja.indikator.kehadiran.persentase}%` }} />
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900/20">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Pengukuran Balita</p>
+                    <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{kinerja.indikator.pengukuran_balita.persentase}%</p>
+                    <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                      <div className="h-full rounded-full bg-emerald-500" style={{ width: `${kinerja.indikator.pengukuran_balita.persentase}%` }} />
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-pink-50 p-4 dark:bg-pink-900/20">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Pengukuran Ibu Hamil</p>
+                    <p className="text-3xl font-bold text-pink-600 dark:text-pink-400">{kinerja.indikator.pengukuran_ibu_hamil.persentase}%</p>
+                    <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                      <div className="h-full rounded-full bg-pink-500" style={{ width: `${kinerja.indikator.pengukuran_ibu_hamil.persentase}%` }} />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Tren Kehadiran 6 Bulan Terakhir</h3>
+                  <div className="flex items-end gap-2 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+                    {kinerjaTren.length > 0 ? (
+                      kinerjaTren.map((month, index) => {
+                        const maxValue = Math.max(...kinerjaTren.map((item) => item.jumlah_hadir));
+                        const height = maxValue > 0 ? (month.jumlah_hadir / maxValue) * 100 : 0;
+                        return (
+                          <div key={index} className="flex-1 text-center">
+                            <div
+                              className="mx-auto w-full max-w-[50px] rounded-t bg-gradient-to-t from-primary to-blue-400 transition-all hover:from-primary/80 hover:to-blue-300"
+                              style={{ height: `${height}%`, minHeight: "30px" }}
+                              title={`${month.bulan}: ${month.jumlah_hadir} hadir`}
+                            />
+                            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{month.bulan.slice(0, 3)}</p>
+                            <p className="text-xs font-medium text-dark dark:text-white">{month.jumlah_hadir}</p>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="w-full py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                        Tidak ada data tren kinerja.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : null}
           </div>
         )}
       </div>
@@ -848,7 +901,3 @@ const PosyanduDetailPage: React.FC = () => {
 };
 
 export default PosyanduDetailPage;
-
-
-
-
