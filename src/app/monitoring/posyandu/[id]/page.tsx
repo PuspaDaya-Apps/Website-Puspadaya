@@ -180,7 +180,19 @@ const PosyanduDetailPage: React.FC = () => {
       };
     }
 
-    if (!posyandu) return null;
+    if (!posyandu) {
+      return {
+        total_balita: 0,
+        total_ibu_hamil: 0,
+        total_kader: 0,
+        kehadiran_balita: 0,
+        kehadiran_ibu_hamil: 0,
+        persentase_kehadiran: 0,
+        status_stunting: 0,
+        status_gizi_buruk: 0,
+        normal: 0,
+      };
+    }
     return {
       total_balita: posyandu.total_balita,
       total_ibu_hamil: posyandu.total_ibu_hamil,
@@ -232,19 +244,26 @@ const PosyanduDetailPage: React.FC = () => {
 
   const balitaRows = balitaData?.balita ?? [];
   const balitaPagination = balitaData?.pagination;
+  const balitaPageButtons = useMemo(() => {
+    if (!balitaPagination) return [];
 
-  if ((!posyandu && !apiPosyandu) || !stats) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-dark dark:text-white">Posyandu tidak ditemukan</h1>
-          <Link href="/" className="mt-4 inline-block rounded-lg bg-primary px-6 py-2 text-white">
-            ← Kembali ke Dashboard
-          </Link>
-        </div>
-      </div>
-    );
-  }
+    const totalPage = balitaPagination.total_page;
+    const currentPage = balitaPagination.page;
+    const maxButtons = 5;
+
+    if (totalPage <= maxButtons) {
+      return Array.from({ length: totalPage }, (_, index) => index + 1);
+    }
+
+    let start = Math.max(1, currentPage - 2);
+    let end = Math.min(totalPage, start + maxButtons - 1);
+
+    if (end - start + 1 < maxButtons) {
+      start = Math.max(1, end - maxButtons + 1);
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  }, [balitaPagination]);
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
@@ -486,7 +505,11 @@ const PosyanduDetailPage: React.FC = () => {
         {activeTab === "balita" && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-dark dark:text-white">👶 Daftar Balita dengan Kondisi Khusus</h3>
-            {criticalChildren.length > 0 ? (
+            {balitaLoading ? (
+              <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+                Memuat data balita khusus...
+              </div>
+            ) : criticalChildren.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full">
                   <thead>
@@ -537,20 +560,13 @@ const PosyanduDetailPage: React.FC = () => {
                   </tbody>
                 </table>
               </div>
-            ) : (
-              <div className="py-12 text-center text-gray-500 dark:text-gray-400">
-                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="mt-2">Tidak ada balita dengan kondisi khusus di posyandu ini</p>
-              </div>
-            )}
+            ) : null}
             {balitaPagination && (
               <div className="flex flex-col items-center gap-3 text-center text-sm text-gray-600 dark:text-gray-400">
                 <div>
                   Menampilkan {balitaRows.length} dari {balitaPagination.total_data} balita
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-2">
                   <button
                     type="button"
                     onClick={() => setBalitaPage((page) => Math.max(1, page - 1))}
@@ -559,9 +575,20 @@ const PosyanduDetailPage: React.FC = () => {
                   >
                     Sebelumnya
                   </button>
-                  <span className="rounded-lg bg-gray-100 px-3 py-1.5 font-medium text-dark dark:bg-gray-800 dark:text-white">
-                    Halaman {balitaPagination.page} dari {balitaPagination.total_page}
-                  </span>
+                  {balitaPageButtons.map((pageNumber) => (
+                    <button
+                      key={pageNumber}
+                      type="button"
+                      onClick={() => setBalitaPage(pageNumber)}
+                      className={`min-w-10 rounded-lg border px-3 py-1.5 font-medium transition ${
+                        pageNumber === balitaPagination.page
+                          ? "border-primary bg-primary text-white"
+                          : "border-gray-300 text-dark hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  ))}
                   <button
                     type="button"
                     onClick={() => setBalitaPage((page) => Math.min(balitaPagination.total_page, page + 1))}
@@ -697,3 +724,4 @@ const PosyanduDetailPage: React.FC = () => {
 };
 
 export default PosyanduDetailPage;
+
