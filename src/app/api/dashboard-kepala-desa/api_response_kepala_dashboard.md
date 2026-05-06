@@ -83,7 +83,10 @@ Catatan: contoh response pada dokumen ini menggunakan periode **April 2026**, ke
         "balita": 45,
         "ibu_hamil": 12,
         "kader": 8,
-        "kehadiran": 84
+        "kehadiran": 84,
+        "skor": 84,
+        "kategori": "Sangat Baik",
+        "ranking": 1
       },
       {
         "nama": "Posyandu Mawar 2",
@@ -91,7 +94,10 @@ Catatan: contoh response pada dokumen ini menggunakan periode **April 2026**, ke
         "balita": 52,
         "ibu_hamil": 15,
         "kader": 10,
-        "kehadiran": 81
+        "kehadiran": 81,
+        "skor": 81,
+        "kategori": "Sangat Baik",
+        "ranking": 2
       },
       {
         "nama": "Posyandu Anggrek 3",
@@ -99,7 +105,10 @@ Catatan: contoh response pada dokumen ini menggunakan periode **April 2026**, ke
         "balita": 38,
         "ibu_hamil": 9,
         "kader": 6,
-        "kehadiran": 74
+        "kehadiran": 74,
+        "skor": 74,
+        "kategori": "Baik",
+        "ranking": 3
       },
       {
         "nama": "Posyandu Kenanga 4",
@@ -107,7 +116,10 @@ Catatan: contoh response pada dokumen ini menggunakan periode **April 2026**, ke
         "balita": 60,
         "ibu_hamil": 18,
         "kader": 12,
-        "kehadiran": 92
+        "kehadiran": 92,
+        "skor": 92,
+        "kategori": "Sangat Baik",
+        "ranking": 4
       }
     ]
   }

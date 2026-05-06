@@ -80,6 +80,9 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
         status_stunting: 0,
         status_gizi_buruk: 0,
         persentase_kehadiran: item.kehadiran ?? 0,
+        skor_kinerja: item.skor ?? 0,
+        kategori_kinerja: item.kategori ?? "-",
+        ranking: item.ranking ?? 0,
         last_updated: "",
       })) ?? []
     );
@@ -119,6 +122,21 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
     if (persentase >= 80) return "bg-emerald-500";
     if (persentase >= 60) return "bg-yellow-500";
     return "bg-red-500";
+  };
+
+  const getRankingBadgeColor = (kategori: string) => {
+    switch (kategori) {
+      case "Sangat Baik":
+        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400";
+      case "Baik":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
+      case "Cukup":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
+      case "-":
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+    }
   };
 
   const openPosyanduDetail = (posyandu: PosyanduItem) => {
@@ -248,9 +266,14 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
               }`}
             >
               <div className="mb-3">
-                <h3 className="font-semibold text-dark dark:text-white group-hover:text-primary transition-colors">
-                  {posyandu.nama_posyandu}
-                </h3>
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="font-semibold text-dark transition-colors group-hover:text-primary dark:text-white">
+                    {posyandu.nama_posyandu}
+                  </h3>
+                  <span className="rounded-full bg-gray-100 px-2 py-1 text-[11px] font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+                    Rank #{posyandu.ranking}
+                  </span>
+                </div>
               </div>
 
               <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
@@ -287,6 +310,16 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
                     <span className="text-xs text-gray-500 dark:text-gray-400">Kader</span>
                   </div>
                   <span className="font-medium text-purple-600 dark:text-purple-400">{posyandu.total_kader}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Skor</span>
+                  <span className="font-semibold text-dark dark:text-white">{posyandu.skor_kinerja}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Kategori</span>
+                  <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${getRankingBadgeColor(posyandu.kategori_kinerja)}`}>
+                    {posyandu.kategori_kinerja}
+                  </span>
                 </div>
               </div>
 
@@ -341,6 +374,15 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
                 <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Kehadiran
                 </th>
+                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Skor
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Kategori
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Ranking
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -390,6 +432,17 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
                         {posyandu.persentase_kehadiran}%
                       </span>
                     </div>
+                  </td>
+                  <td className="px-4 py-3 text-center text-sm font-semibold text-dark dark:text-white">
+                    {posyandu.skor_kinerja}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${getRankingBadgeColor(posyandu.kategori_kinerja)}`}>
+                      {posyandu.kategori_kinerja}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center text-sm font-semibold text-dark dark:text-white">
+                    #{posyandu.ranking}
                   </td>
                 </tr>
               ))}

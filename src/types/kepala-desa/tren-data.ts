@@ -8,6 +8,9 @@ export interface TrenDataPosyanduItem {
   ibu_hamil: number;
   kader: number;
   kehadiran: number;
+  skor?: number;
+  kategori?: string;
+  ranking?: number;
 }
 
 export interface TrenDataPosyanduData {
