@@ -891,7 +891,7 @@ const KinerjaPosyanduPage: React.FC = () => {
             {/* Top 3 */}
             <div>
               <h3 className="mb-4 flex items-center gap-2 text-xl font-bold text-emerald-600 dark:text-emerald-400">
-                <span>🏆</span> Top 3 Posyandu Terbaik
+                Top 3 Posyandu Terbaik
               </h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {top3.map((posyandu, index) => {
@@ -949,7 +949,7 @@ const KinerjaPosyanduPage: React.FC = () => {
             <div>
               <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="flex items-center gap-2 text-xl font-bold text-red-600 dark:text-red-400">
-                  <span>!</span> Perlu Perhatian Khusus
+                  Perlu Perhatian Khusus
                 </h3>
                 {!perhatianKhususLoading && perhatianKhususList.length > 4 && (
                   <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -1141,7 +1141,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                   >
                     {posyandu.nama_posyandu}
                     {performance && performance.skor_kinerja < 60 && (
-                      <span className="ml-2 rounded-full bg-red-500 px-2 py-0.5 text-xs">⚠️</span>
+                      <span className="ml-2 rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">!</span>
                     )}
                   </button>
                 );
@@ -1151,30 +1151,6 @@ const KinerjaPosyanduPage: React.FC = () => {
             {/* Selected Posyandu Detail */}
             {selectedPosyanduDetail && selectedPosyanduDetail.posyandu && selectedPosyanduDetail.stats && (
               <div className="space-y-6">
-                <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4 dark:border-primary/40 dark:bg-primary/10">
-                  <h3 className="text-sm font-semibold text-dark dark:text-white">Data Posyandu Terpilih</h3>
-                  <div className="mt-3 grid gap-3 text-sm text-gray-700 dark:text-gray-300 sm:grid-cols-2 lg:grid-cols-4">
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">ID API</p>
-                      <p className="font-medium text-dark dark:text-white">{selectedPosyanduApiId ?? "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">ID Detail</p>
-                      <p className="font-medium text-dark dark:text-white">{selectedPosyanduResolvedId ?? "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Nama Posyandu</p>
-                      <p className="font-medium text-dark dark:text-white">{selectedPosyanduResolvedName ?? "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Sumber Ringkasan</p>
-                      <p className="font-medium text-dark dark:text-white">
-                        {detailRingkasanData?.ringkasan ? "API detail-dashboard-kepala-desa" : "Fallback frontend"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Header */}
                 <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -1382,7 +1358,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
                             <h3 className="text-lg font-semibold text-red-800 dark:text-red-300">
-                              ⚠️ Kasus Kritis di Posyandu Ini
+                              Kasus Kritis di Posyandu Ini
                             </h3>
                           </div>
                           <div className="space-y-2">
@@ -1420,7 +1396,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                   {detailTab === "balita" && (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-dark dark:text-white">👶 Daftar Semua Balita di Posyandu</h3>
+                        <h3 className="text-lg font-semibold text-dark dark:text-white">Daftar Semua Balita di Posyandu</h3>
                         <div className="flex gap-2">
                           <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                             Total: {totalBalitaRows} balita
@@ -1531,7 +1507,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                                         ? "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400"
                                         : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
                                     }`}>
-                                      {child.jenis_kelamin === "Laki-laki" ? "♂ L" : "♀ P"}
+                                      {child.jenis_kelamin === "Laki-laki" ? "L" : "P"}
                                     </span>
                                   </td>
                                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
@@ -1624,7 +1600,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                   {/* Kader Tab */}
                   {detailTab === "kader" && (
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-dark dark:text-white">👥 Daftar Kader Posyandu</h3>
+                      <h3 className="text-lg font-semibold text-dark dark:text-white">Daftar Kader Posyandu</h3>
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         {kaderDetailCards.map((kader) => (
                           <div key={kader.id} className="rounded-lg border border-gray-200 p-4 transition hover:shadow-md dark:border-gray-700">
@@ -1636,9 +1612,9 @@ const KinerjaPosyanduPage: React.FC = () => {
                                 <h4 className="font-semibold text-dark dark:text-white">{kader.nama_kader}</h4>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{kader.role}</p>
                                 <div className="hidden mt-2 flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
-                                  <span>⏱️ {kader.durasi_kerja_posyandu} jam kerja</span>
-                                  <span>🏠 {kader.durasi_kunjungan_rumah} jam kunjungan</span>
-                                  <span>📍 {kader.jarak_kunjungan} km jarak</span>
+                                  <span>{kader.durasi_kerja_posyandu} jam kerja</span>
+                                  <span>{kader.durasi_kunjungan_rumah} jam kunjungan</span>
+                                  <span>{kader.jarak_kunjungan} km jarak</span>
                                 </div>
                                 <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
                                   <span>Balita didampingi: {kader.durasi_kerja_posyandu}</span>
