@@ -33,7 +33,7 @@ interface AnakDenganPengukuran {
 export const posyanduListData: PosyanduItem[] = [
   {
     id: "1",
-    nama_posyandu: "Posyandu Melati 1",
+    nama_posyandu: "MELATI 1",
     nama_dusun: "Dusun Krajan",
     nama_kecamatan: "Kecamatan Puspadaya",
     nama_kabupaten_kota: "Kabupaten Garut",
@@ -683,7 +683,7 @@ export const posyanduPerformanceData: PosyanduPerformance[] = [
   },
   {
     posyandu_id: "1",
-    nama_posyandu: "Posyandu Melati 1",
+    nama_posyandu: "MELATI 1",
     skor_kinerja: 85,
     kategori: "Sangat Baik",
     kehadiran: 84,
@@ -758,7 +758,7 @@ export const recentActivityData: RecentActivity[] = [
   },
   {
     id: "2",
-    posyandu_nama: "Posyandu Melati 1",
+    posyandu_nama: "MELATI 1",
     activity_type: "pengukuran_ibu_hamil",
     description: "Pemeriksaan 12 ibu hamil",
     tanggal: "2026-03-01T08:30:00Z",
@@ -822,7 +822,7 @@ export const recentActivityData: RecentActivity[] = [
   },
   {
     id: "10",
-    posyandu_nama: "Posyandu Melati 1",
+    posyandu_nama: "MELATI 1",
     activity_type: "laporan",
     description: "Submit laporan bulanan",
     tanggal: "2026-02-28T09:00:00Z",
@@ -849,7 +849,7 @@ export const recentActivityData: RecentActivity[] = [
 // Dummy data untuk Stunting & Gizi
 export const stuntingGiziData: StuntingGiziData[] = [
   {
-    posyandu_nama: "Posyandu Melati 1",
+    posyandu_nama: "MELATI 1",
     stunting_count: 3,
     gizi_buruk_count: 1,
     normal_count: 41,
@@ -917,7 +917,7 @@ export const kaderDistributionData: KaderDistribution[] = [
   },
   {
     nama_kader: "Aisyah Rahma",
-    posyandu_nama: "Posyandu Melati 1",
+    posyandu_nama: "MELATI 1",
     role: "Sekretaris",
     beban_kerja: 72,
     status: "aktif",
@@ -987,7 +987,7 @@ export const kaderWorkloadData: KaderWorkload[] = [
     id: "2",
     nama_kader: "Aisyah Rahma",
     posyandu_id: "1",
-    posyandu_nama: "Posyandu Melati 1",
+    posyandu_nama: "MELATI 1",
     role: "Sekretaris",
     durasi_kerja_posyandu: 18,
     durasi_kunjungan_rumah: 12,
@@ -1092,7 +1092,7 @@ export const kaderWorkloadData: KaderWorkload[] = [
     id: "9",
     nama_kader: "Nurul Hidayah",
     posyandu_id: "1",
-    posyandu_nama: "Posyandu Melati 1",
+    posyandu_nama: "MELATI 1",
     role: "Kader",
     durasi_kerja_posyandu: 12,
     durasi_kunjungan_rumah: 6,
@@ -1287,7 +1287,7 @@ export const criticalChildrenData: CriticalChild[] = [
     jenis_kelamin: "Laki-laki",
     nama_ibu: "Zainab",
     posyandu_id: "1",
-    posyandu_nama: "Posyandu Melati 1",
+    posyandu_nama: "MELATI 1",
     dusun: "Krajan",
     berat_badan: 7.2,
     tinggi_badan: 70,
@@ -1396,7 +1396,7 @@ export const criticalChildrenData: CriticalChild[] = [
 
 // Dummy data untuk Semua Balita (All Children Data) - Comprehensive data for all posyandu
 export const allChildrenData: AllChildData[] = [
-  // Posyandu Melati 1 (15 children sample)
+  // MELATI 1 (15 children sample)
   {
     id: "c1",
     nik_anak: "3205012345670101",
@@ -1406,7 +1406,7 @@ export const allChildrenData: AllChildData[] = [
     jenis_kelamin: "Laki-laki",
     nama_ibu: "Siti Aminah",
     posyandu_id: "1",
-    posyandu_nama: "Posyandu Melati 1",
+    posyandu_nama: "MELATI 1",
     dusun: "Krajan",
     berat_badan: 12.5,
     tinggi_badan: 88,
@@ -1425,7 +1425,7 @@ export const allChildrenData: AllChildData[] = [
     jenis_kelamin: "Perempuan",
     nama_ibu: "Dewi Lestari",
     posyandu_id: "1",
-    posyandu_nama: "Posyandu Melati 1",
+    posyandu_nama: "MELATI 1",
     dusun: "Krajan",
     berat_badan: 11.8,
     tinggi_badan: 85,
@@ -1444,7 +1444,7 @@ export const allChildrenData: AllChildData[] = [
     jenis_kelamin: "Laki-laki",
     nama_ibu: "Rina Wulandari",
     posyandu_id: "1",
-    posyandu_nama: "Posyandu Melati 1",
+    posyandu_nama: "MELATI 1",
     dusun: "Krajan",
     berat_badan: 10.2,
     tinggi_badan: 82,
@@ -1463,7 +1463,7 @@ export const allChildrenData: AllChildData[] = [
     jenis_kelamin: "Perempuan",
     nama_ibu: "Nur Halimah",
     posyandu_id: "1",
-    posyandu_nama: "Posyandu Melati 1",
+    posyandu_nama: "MELATI 1",
     dusun: "Krajan",
     berat_badan: 9.5,
     tinggi_badan: 78,
@@ -1482,7 +1482,7 @@ export const allChildrenData: AllChildData[] = [
     jenis_kelamin: "Laki-laki",
     nama_ibu: "Yuni Astuti",
     posyandu_id: "1",
-    posyandu_nama: "Posyandu Melati 1",
+    posyandu_nama: "MELATI 1",
     dusun: "Krajan",
     berat_badan: 8.8,
     tinggi_badan: 75,
@@ -1502,7 +1502,7 @@ export const allChildrenData: AllChildData[] = [
     jenis_kelamin: "Laki-laki",
     nama_ibu: "Zainab",
     posyandu_id: "1",
-    posyandu_nama: "Posyandu Melati 1",
+    posyandu_nama: "MELATI 1",
     dusun: "Krajan",
     berat_badan: 7.2,
     tinggi_badan: 70,

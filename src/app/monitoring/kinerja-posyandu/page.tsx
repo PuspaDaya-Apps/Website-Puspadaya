@@ -228,6 +228,50 @@ const KinerjaPosyanduPage: React.FC = () => {
     })
     .sort((a, b) => (a.ranking ?? 0) - (b.ranking ?? 0));
 
+  const detailPosyanduTabs = useMemo(() => {
+    const source = apiPosyanduList.length > 0 ? apiPosyanduList : listPosyandu;
+
+    return source.map((posyandu) => {
+      const matchedDummyPosyandu = posyanduListData.find(
+        (item) => item.id === posyandu.id || item.nama_posyandu === posyandu.nama_posyandu
+      );
+      const matchedPerformance = posyanduPerformanceData.find(
+        (item) => item.posyandu_id === posyandu.id || item.nama_posyandu === posyandu.nama_posyandu
+      );
+
+      return {
+        id: posyandu.id,
+        detailId: matchedDummyPosyandu?.id ?? matchedPerformance?.posyandu_id ?? posyandu.id,
+        nama_posyandu: posyandu.nama_posyandu,
+      };
+    });
+  }, [apiPosyanduList, listPosyandu]);
+
+  useEffect(() => {
+    if (detailPosyanduTabs.length === 0) {
+      return;
+    }
+
+    const hasSelectedPosyandu = detailPosyanduTabs.some((posyandu) => posyandu.detailId === selectedPosyandu);
+
+    if (!selectedPosyandu || !hasSelectedPosyandu) {
+      setSelectedPosyandu(detailPosyanduTabs[0].detailId);
+    }
+  }, [detailPosyanduTabs, selectedPosyandu]);
+
+  const selectedDetailPosyandu = useMemo(() => {
+    if (!selectedPosyandu) {
+      return null;
+    }
+
+    return detailPosyanduTabs.find(
+      (posyandu) => posyandu.detailId === selectedPosyandu || posyandu.id === selectedPosyandu
+    ) ?? null;
+  }, [detailPosyanduTabs, selectedPosyandu]);
+
+  const selectedPosyanduResolvedId = selectedDetailPosyandu?.detailId ?? selectedPosyandu;
+  const selectedPosyanduResolvedName = selectedDetailPosyandu?.nama_posyandu ?? null;
+
   const perhatianKhususList = useMemo(() => {
     if (perhatianKhususData && perhatianKhususData.length > 0) {
       return [...perhatianKhususData].sort((a, b) => b.rank - a.rank);
@@ -289,14 +333,18 @@ const KinerjaPosyanduPage: React.FC = () => {
 
   // Get selected posyandu detail
   const selectedPosyanduDetail = useMemo(() => {
-    if (!selectedPosyandu) return null;
-    const performance = posyanduPerformanceData.find((p) => p.posyandu_id === selectedPosyandu);
-    const posyandu = posyanduListData.find((p) => p.id === selectedPosyandu);
+    if (!selectedPosyanduResolvedId && !selectedPosyanduResolvedName) return null;
+    const performance = posyanduPerformanceData.find(
+      (p) => p.posyandu_id === selectedPosyanduResolvedId || p.nama_posyandu === selectedPosyanduResolvedName
+    );
+    const posyandu = posyanduListData.find(
+      (p) => p.id === selectedPosyanduResolvedId || p.nama_posyandu === selectedPosyanduResolvedName
+    );
 
     // Filter data for this posyandu
-    const criticalChildren = criticalChildrenData.filter((c) => c.posyandu_id === selectedPosyandu);
-    const allChildren = allChildrenData.filter((c) => c.posyandu_id === selectedPosyandu);
-    const kaderList = kaderWorkloadData.filter((k) => k.posyandu_id === selectedPosyandu);
+    const criticalChildren = criticalChildrenData.filter((c) => c.posyandu_id === selectedPosyanduResolvedId);
+    const allChildren = allChildrenData.filter((c) => c.posyandu_id === selectedPosyanduResolvedId);
+    const kaderList = kaderWorkloadData.filter((k) => k.posyandu_id === selectedPosyanduResolvedId);
 
     // Calculate stats
     const stats = posyandu ? {
@@ -312,7 +360,7 @@ const KinerjaPosyanduPage: React.FC = () => {
     } : null;
 
     return { performance, posyandu, criticalChildren, allChildren, kaderList, stats };
-  }, [selectedPosyandu]);
+  }, [selectedPosyanduResolvedId, selectedPosyanduResolvedName]);
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
@@ -622,23 +670,25 @@ const KinerjaPosyanduPage: React.FC = () => {
 
         {/* Detail Tab */}
         {activeTab === "detail" && (
-          <div className="space-y-6">
-            {/* Posyandu Selector */}
-            <div className="flex flex-wrap gap-2">
-              {posyanduListData.map((posyandu) => {
-                const performance = posyanduPerformanceData.find((p) => p.posyandu_id === posyandu.id);
-                return (
-                  <button
-                    key={posyandu.id}
-                    onClick={() => {
-                      setSelectedPosyandu(posyandu.id);
-                      setDetailTab("overview");
-                    }}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                      selectedPosyandu === posyandu.id
-                        ? "bg-primary text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                    }`}
+            <div className="space-y-6">
+              {/* Posyandu Selector */}
+              <div className="flex flex-wrap gap-2">
+                {detailPosyanduTabs.map((posyandu) => {
+                  const performance = posyanduPerformanceData.find(
+                    (p) => p.posyandu_id === posyandu.detailId || p.nama_posyandu === posyandu.nama_posyandu
+                  );
+                  return (
+                    <button
+                      key={posyandu.id}
+                      onClick={() => {
+                        setSelectedPosyandu(posyandu.detailId);
+                        setDetailTab("overview");
+                      }}
+                      className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                        selectedPosyandu === posyandu.detailId
+                          ? "bg-primary text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                      }`}
                   >
                     {posyandu.nama_posyandu}
                     {performance && performance.skor_kinerja < 60 && (
