@@ -56,6 +56,7 @@ export const APIEndpoints = {
     KINERJA_KEPALA_DESA_RINGKASAN: '/api/posyandu/kepaladesa/kinerja/ringkasan',
     KINERJA_KEPALA_DESA_PERHATIAN_KHUSUS: '/api/posyandu/kepaladesa/kinerja/perhatian-khusus',
     DATA_KASUS_KRITIS_KEPALA_DESA: '/api/posyandu/kepaladesa/data-kasus-kritis',
+    DATA_KASUS_KRITIS_BALITA_KEPALA_DESA: '/api/posyandu/kepaladesa/data-kasus-kritis-balita',
     DETAIL_DATA_KASUS_KRITIS_KEPALA_DESA: '/api/posyandu/kepaladesa/detail/data-kasus-kritis',
 
 };

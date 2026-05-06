@@ -14,3 +14,12 @@ export const fetchDataKasusKritis = (
     params
   );
 };
+
+export const fetchDataKasusKritisBalita = (
+  params: DashboardKepalaDesaQueryParams
+): Promise<FetchResult<KinerjaPosyanduKasusKritisData>> => {
+  return getDashboardKinerjaKepalaDesa<KinerjaPosyanduKasusKritisData>(
+    APIEndpoints.DATA_KASUS_KRITIS_BALITA_KEPALA_DESA,
+    params
+  );
+};

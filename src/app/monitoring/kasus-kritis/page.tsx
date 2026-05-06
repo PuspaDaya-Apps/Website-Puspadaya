@@ -1,7 +1,14 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { CriticalChild } from "@/types/dashboard-kepala-desa";
 import { criticalChildrenData } from "@/data/dummy-dashboard-kepala-desa";
+import { fetchDataKasusKritisBalita, type DashboardKepalaDesaQueryParams } from "@/app/api/dashboard-kinerja-kepala-desa";
+import { KinerjaPosyanduKasusKritisData } from "@/types/kepala-desa";
+
+interface CurrentUserLocation {
+  kabupaten_kota?: { nama_kabupaten_kota?: string };
+  desa_kelurahan?: { nama_desa_kelurahan?: string };
+}
 
 type PosyanduCaseSummary = {
   posyandu_nama: string;
@@ -19,6 +26,54 @@ const KasusKritisPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedChild, setSelectedChild] = useState<CriticalChild | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [apiData, setApiData] = useState<KinerjaPosyanduKasusKritisData | null>(null);
+  const [apiLoading, setApiLoading] = useState(true);
+
+  const currentDate = new Date();
+  const currentBulan = currentDate.getMonth() + 1;
+  const currentTahun = currentDate.getFullYear();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadData = async () => {
+      setApiLoading(true);
+
+      const location: Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> = (() => {
+        try {
+          const raw = localStorage.getItem("current_user");
+          if (!raw) return {};
+          const user = JSON.parse(raw) as CurrentUserLocation;
+          return {
+            kabupatenKota: user?.kabupaten_kota?.nama_kabupaten_kota,
+            desa: user?.desa_kelurahan?.nama_desa_kelurahan,
+          };
+        } catch {
+          return {};
+        }
+      })();
+
+      const result = await fetchDataKasusKritisBalita({
+        bulan: currentBulan,
+        tahun: currentTahun,
+        ...location,
+      });
+
+      if (!isMounted) return;
+
+      if (result.successCode === 200 && result.data) {
+        setApiData(result.data);
+      } else {
+        setApiData(null);
+      }
+
+      setApiLoading(false);
+    };
+
+    loadData();
+
+    return () => { isMounted = false; };
+  }, [currentBulan, currentTahun]);
 
   const posyanduList = useMemo(() => {
     return Array.from(new Set(criticalChildrenData.map((c) => c.posyandu_nama)));
@@ -86,6 +141,19 @@ const KasusKritisPage: React.FC = () => {
   }, [filterPosyandu, filterStatus, filterPrioritas, searchTerm]);
 
   const stats = useMemo(() => {
+    if (apiData?.ringkasan) {
+      const r = apiData.ringkasan;
+      return {
+        total: r.total_kasus,
+        wasting: r.wasting,
+        underweight: r.underweight,
+        stunting: r.stunting,
+        sangat_tinggi: r.prioritas.sangat_tinggi,
+        tinggi: r.prioritas.tinggi,
+        sedang: r.prioritas.sedang,
+      };
+    }
+
     return {
       total: criticalChildrenData.length,
       wasting: criticalChildrenData.filter(
@@ -97,9 +165,20 @@ const KasusKritisPage: React.FC = () => {
       tinggi: criticalChildrenData.filter((c) => c.prioritas === "Tinggi").length,
       sedang: criticalChildrenData.filter((c) => c.prioritas === "Sedang").length,
     };
-  }, []);
+  }, [apiData]);
 
   const perPosyanduStats = useMemo<PosyanduCaseSummary[]>(() => {
+    if (apiData?.kasus_kritis && apiData.kasus_kritis.length > 0) {
+      return apiData.kasus_kritis.map((item) => ({
+        posyandu_nama: item.nama_posyandu,
+        total_balita: item.total_anak,
+        wasting_count: item.wasting,
+        underweight_count: item.underweight,
+        stunting_count: item.stunting,
+        normal_count: item.normal,
+      }));
+    }
+
     const grouped = criticalChildrenData.reduce<Record<string, PosyanduCaseSummary>>((acc, child) => {
       if (!acc[child.posyandu_nama]) {
         acc[child.posyandu_nama] = {
@@ -135,7 +214,7 @@ const KasusKritisPage: React.FC = () => {
     }, {});
 
     return Object.values(grouped).sort((a, b) => a.posyandu_nama.localeCompare(b.posyandu_nama));
-  }, []);
+  }, [apiData]);
 
   const getPriorityColor = (prioritas: string) => {
     switch (prioritas) {
@@ -191,6 +270,12 @@ const KasusKritisPage: React.FC = () => {
         <h2 className="mb-4 text-xl font-bold text-dark dark:text-white md:text-2xl">
           Data Kasus Kritis per Posyandu
         </h2>
+        {apiLoading ? (
+          <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+            Memuat data...
+          </div>
+        ) : (
+        <>
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>
@@ -268,6 +353,8 @@ const KasusKritisPage: React.FC = () => {
             </svg>
             <p className="mt-2 text-gray-600 dark:text-gray-400">Tidak ada data per posyandu</p>
           </div>
+        )}
+        </>
         )}
       </div>
 
