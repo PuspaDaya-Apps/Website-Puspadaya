@@ -53,5 +53,9 @@ export const APIEndpoints = {
     IMUNISASI_KEPENDUDUKAN: '/api/v1/kepala-dashboard/imunisasi-kependudukan',
     LOG_AKTIVITAS_KADER: '/api/v1/kepala-dashboard/log-aktivitas-kader',
     DETAIL_POSYANDU_KEPALA_DESA: '/api/posyandu/kepaladesa/{id_posyandu}',
+    KINERJA_KEPALA_DESA_RINGKASAN: '/api/posyandu/kepaladesa/kinerja/ringkasan',
+    KINERJA_KEPALA_DESA_PERHATIAN_KHUSUS: '/api/posyandu/kepaladesa/kinerja/perhatian-khusus',
+    DATA_KASUS_KRITIS_KEPALA_DESA: '/api/posyandu/kepaladesa/data-kasus-kritis',
+    DETAIL_DATA_KASUS_KRITIS_KEPALA_DESA: '/api/posyandu/kepaladesa/detail/data-kasus-kritis',
 
 };

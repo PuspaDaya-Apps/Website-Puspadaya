@@ -1,3 +1,5 @@
+# Dokumentasi Endpoint
+
 ## /api/posyandu/kepaladesa/kinerja/ringkasan
 
 ```json
@@ -63,7 +65,7 @@
 }
 ```
 
-## /api/posyandu/kepaladesa/data-kasus-kritis
+## /api/posyandu/kepaladesa/data-kasus-kritis-balita
 
 ```json
 {
