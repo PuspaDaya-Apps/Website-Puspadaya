@@ -1,9 +1,19 @@
 "use client";
 import React, { useEffect, useState, useMemo } from "react";
+import {
+  ResponsiveContainer,
+  LineChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  Line,
+} from "recharts";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PosyanduPerformance, CriticalChild, KaderWorkload } from "@/types/dashboard-kepala-desa";
-import { fetchDetailPosyanduBalitaAll, fetchDetailPosyanduKader, fetchDetailPosyanduKinerja, fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
+import { fetchDetailPosyanduBalitaAll, fetchDetailPosyanduKader, fetchDetailPosyanduKinerja, fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan, fetchKinerjaPerPosyandu } from "@/app/api/detail-dashboard-kepala-desa";
 import {
   fetchKinerjaRingkasan,
   type DashboardKepalaDesaQueryParams,
@@ -18,10 +28,9 @@ import {
   DetailPosyanduRingkasanData,
   KinerjaPosyanduPerhatianKhususItem,
   TrenDataPosyanduItem,
+  KinerjaPerPosyanduData,
 } from "@/types/kepala-desa";
 import { posyanduPerformanceData, posyanduListData, criticalChildrenData, kaderWorkloadData, monthlyTrendData, allChildrenData } from "@/data/dummy-dashboard-kepala-desa";
-import DurasiJarakAgregat from "@/components/Dashboard/component-desa/DurasiJarakAgregat";
-import { dashboardSummaryData } from "@/data/dummy-dashboard-kepala-desa";
 import { createPosyanduDetailToken } from "@/utils/posyanduDetailToken";
 
 interface CurrentUserLocation {
@@ -55,6 +64,8 @@ const KinerjaPosyanduPage: React.FC = () => {
   const [detailBalitaData, setDetailBalitaData] = useState<DetailPosyanduBalitaKhususData | null>(null);
   const [detailKaderData, setDetailKaderData] = useState<DetailPosyanduKaderData | null>(null);
   const [detailRingkasanData, setDetailRingkasanData] = useState<DetailPosyanduRingkasanData | null>(null);
+  const [kinerjaPerPosyanduData, setKinerjaPerPosyanduData] = useState<KinerjaPerPosyanduData | null>(null);
+  const [kinerjaPerPosyanduLoading, setKinerjaPerPosyanduLoading] = useState(false);
   const [perhatianKhususData, setPerhatianKhususData] = useState<KinerjaPosyanduPerhatianKhususItem[] | null>(null);
   const [perhatianKhususLoading, setPerhatianKhususLoading] = useState(true);
   const [perhatianKhususPage, setPerhatianKhususPage] = useState(1);
@@ -760,11 +771,39 @@ const KinerjaPosyanduPage: React.FC = () => {
       }
     };
 
+    const loadKinerjaPerPosyandu = async () => {
+      if (!selectedPosyanduApiId) {
+        setKinerjaPerPosyanduData(null);
+        return;
+      }
+
+      setKinerjaPerPosyanduData(null);
+      setKinerjaPerPosyanduLoading(true);
+
+      const result = await fetchKinerjaPerPosyandu(selectedPosyanduApiId, {
+        bulan: currentBulan,
+        tahun: currentTahun,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setKinerjaPerPosyanduData(result.data);
+      } else {
+        setKinerjaPerPosyanduData(null);
+      }
+
+      setKinerjaPerPosyanduLoading(false);
+    };
+
     loadDetailOverview();
     loadDetailRingkasan();
     loadDetailKinerja();
     loadDetailBalita();
     loadDetailKader();
+    loadKinerjaPerPosyandu();
 
     return () => {
       isMounted = false;
@@ -1635,8 +1674,91 @@ const KinerjaPosyanduPage: React.FC = () => {
                   {/* Kinerja Tab */}
                   {detailTab === "kinerja" && selectedPosyanduDetail.performance && (
                     <div className="space-y-6">
-                      {/* Durasi Kerja Posyandu Chart */}
-                      <DurasiJarakAgregat durasiJarak={dashboardSummaryData.durasi_jarak_agregat} />
+                      {kinerjaPerPosyanduLoading ? (
+                        <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                          Memuat data kinerja posyandu...
+                        </div>
+                      ) : kinerjaPerPosyanduData ? (
+                        <>
+                          {/* Ringkasan */}
+                          <div className="flex flex-wrap gap-6">
+                            <div className="text-right">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Kerja Posyandu</p>
+                              <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                                {kinerjaPerPosyanduData.ringkasan.kerja_posyandu_jam} jam
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Kunjungan Rumah</p>
+                              <p className="text-lg font-bold text-violet-600 dark:text-violet-400">
+                                {kinerjaPerPosyanduData.ringkasan.kunjungan_rumah_jam} jam
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Jarak Tempuh</p>
+                              <p className="text-lg font-bold text-pink-600 dark:text-pink-400">
+                                {kinerjaPerPosyanduData.ringkasan.jarak_tempuh_km} km
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Grafik */}
+                          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                            <div>
+                              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">
+                                Median Durasi Kerja (Jam)
+                              </h3>
+                              <div className="h-64">
+                                <ResponsiveContainer width="100%" height="100%">
+                                  <LineChart
+                                    data={kinerjaPerPosyanduData.tren.durasi_kerja.map((item) => ({
+                                      bulan: item.bulan,
+                                      kerjaPosyandu: item.kerja_posyandu,
+                                      kunjunganRumah: item.kunjungan_rumah,
+                                    }))}
+                                  >
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                                    <XAxis dataKey="bulan" tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={{ stroke: "#e5e7eb" }} tickLine={{ stroke: "#e5e7eb" }} />
+                                    <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={{ stroke: "#e5e7eb" }} tickLine={{ stroke: "#e5e7eb" }} />
+                                    <Tooltip formatter={(value: number, name: string) => [`${value} jam`, name === "kerjaPosyandu" ? "Kerja Posyandu" : "Kunjungan Rumah"]} />
+                                    <Legend verticalAlign="top" height={36} wrapperStyle={{ paddingBottom: "10px" }} formatter={(value) => value === "kerjaPosyandu" ? "Kerja Posyandu" : "Kunjungan Rumah"} />
+                                    <Line type="monotone" dataKey="kerjaPosyandu" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2, fill: "#fff" }} activeDot={{ r: 7, strokeWidth: 0 }} />
+                                    <Line type="monotone" dataKey="kunjunganRumah" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2, fill: "#fff" }} activeDot={{ r: 7, strokeWidth: 0 }} />
+                                  </LineChart>
+                                </ResponsiveContainer>
+                              </div>
+                            </div>
+
+                            <div>
+                              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">
+                                Median Jarak Tempuh (Km)
+                              </h3>
+                              <div className="h-64">
+                                <ResponsiveContainer width="100%" height="100%">
+                                  <LineChart
+                                    data={kinerjaPerPosyanduData.tren.jarak_tempuh.map((item) => ({
+                                      bulan: item.bulan,
+                                      jarak: item.km,
+                                    }))}
+                                  >
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                                    <XAxis dataKey="bulan" tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={{ stroke: "#e5e7eb" }} tickLine={{ stroke: "#e5e7eb" }} />
+                                    <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={{ stroke: "#e5e7eb" }} tickLine={{ stroke: "#e5e7eb" }} />
+                                    <Tooltip formatter={(value: number) => [`${value} km`, "Jarak Tempuh"]} />
+                                    <Legend verticalAlign="top" height={36} wrapperStyle={{ paddingBottom: "10px" }} formatter={() => "Jarak Tempuh"} />
+                                    <Line type="monotone" dataKey="jarak" stroke="#ec4899" strokeWidth={3} dot={{ r: 4, strokeWidth: 2, fill: "#fff" }} activeDot={{ r: 7, strokeWidth: 0 }} />
+                                  </LineChart>
+                                </ResponsiveContainer>
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="rounded-xl border border-dashed border-gray-300 py-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                          <p className="font-medium">Belum ada data kinerja</p>
+                          <p className="text-sm">API tidak mengembalikan data kinerja untuk posyandu ini.</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
