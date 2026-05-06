@@ -3,13 +3,14 @@ import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PosyanduPerformance, CriticalChild, KaderWorkload } from "@/types/dashboard-kepala-desa";
+import { fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
 import {
   fetchKinerjaRingkasan,
   type DashboardKepalaDesaQueryParams,
 } from "@/app/api/dashboard-kinerja-kepala-desa";
 import { fetchTrenDataPosyandu } from "@/app/api/dashboard-kepala-desa";
 import { fetchKinerjaPerhatianKhusus } from "@/app/api/dashboard-kinerja-kepala-desa";
-import { KinerjaPosyanduPerhatianKhususItem, TrenDataPosyanduItem } from "@/types/kepala-desa";
+import { DetailPosyanduRingkasanData, KinerjaPosyanduPerhatianKhususItem, TrenDataPosyanduItem } from "@/types/kepala-desa";
 import { posyanduPerformanceData, posyanduListData, criticalChildrenData, kaderWorkloadData, monthlyTrendData, allChildrenData } from "@/data/dummy-dashboard-kepala-desa";
 import DurasiJarakAgregat from "@/components/Dashboard/component-desa/DurasiJarakAgregat";
 import { dashboardSummaryData } from "@/data/dummy-dashboard-kepala-desa";
@@ -41,6 +42,7 @@ const KinerjaPosyanduPage: React.FC = () => {
     };
   } | null>(null);
   const [trenData, setTrenData] = useState<TrenDataPosyanduItem[] | null>(null);
+  const [detailRingkasanData, setDetailRingkasanData] = useState<DetailPosyanduRingkasanData | null>(null);
   const [perhatianKhususData, setPerhatianKhususData] = useState<KinerjaPosyanduPerhatianKhususItem[] | null>(null);
   const [perhatianKhususLoading, setPerhatianKhususLoading] = useState(true);
   const [perhatianKhususPage, setPerhatianKhususPage] = useState(1);
@@ -271,6 +273,7 @@ const KinerjaPosyanduPage: React.FC = () => {
 
   const selectedPosyanduResolvedId = selectedDetailPosyandu?.detailId ?? selectedPosyandu;
   const selectedPosyanduResolvedName = selectedDetailPosyandu?.nama_posyandu ?? null;
+  const selectedPosyanduApiId = selectedDetailPosyandu?.id ?? null;
 
   const perhatianKhususList = useMemo(() => {
     if (perhatianKhususData && perhatianKhususData.length > 0) {
@@ -334,10 +337,14 @@ const KinerjaPosyanduPage: React.FC = () => {
   // Get selected posyandu detail
   const selectedPosyanduDetail = useMemo(() => {
     if (!selectedPosyanduResolvedId && !selectedPosyanduResolvedName) return null;
+
+    const selectedListItem = listPosyandu.find(
+      (item) => item.id === selectedPosyanduApiId || item.id === selectedPosyanduResolvedId || item.nama_posyandu === selectedPosyanduResolvedName
+    );
     const performance = posyanduPerformanceData.find(
       (p) => p.posyandu_id === selectedPosyanduResolvedId || p.nama_posyandu === selectedPosyanduResolvedName
     );
-    const posyandu = posyanduListData.find(
+    const posyanduFromDummy = posyanduListData.find(
       (p) => p.id === selectedPosyanduResolvedId || p.nama_posyandu === selectedPosyanduResolvedName
     );
 
@@ -347,20 +354,137 @@ const KinerjaPosyanduPage: React.FC = () => {
     const kaderList = kaderWorkloadData.filter((k) => k.posyandu_id === selectedPosyanduResolvedId);
 
     // Calculate stats
-    const stats = posyandu ? {
-      total_balita: posyandu.total_balita,
-      total_ibu_hamil: posyandu.total_ibu_hamil,
-      total_kader: posyandu.total_kader,
-      kehadiran_balita: posyandu.kehadiran_balita_bulan_ini,
-      kehadiran_ibu_hamil: posyandu.kehadiran_ibu_hamil_bulan_ini,
-      persentase_kehadiran: posyandu.persentase_kehadiran,
-      status_stunting: posyandu.status_stunting,
-      status_gizi_buruk: posyandu.status_gizi_buruk,
-      normal: posyandu.total_balita - posyandu.status_stunting - posyandu.status_gizi_buruk,
-    } : null;
+    const stats = detailRingkasanData?.ringkasan
+      ? (() => {
+          const ringkasan = detailRingkasanData.ringkasan;
+          const totalBalita = ringkasan.total_balita || 0;
 
-    return { performance, posyandu, criticalChildren, allChildren, kaderList, stats };
-  }, [selectedPosyanduResolvedId, selectedPosyanduResolvedName]);
+          return {
+            total_balita: ringkasan.total_balita,
+            total_ibu_hamil: ringkasan.total_ibu_hamil,
+            total_kader: ringkasan.total_kader,
+            kehadiran_balita: ringkasan.hadir_balita,
+            kehadiran_ibu_hamil: ringkasan.hadir_ibu_hamil,
+            persentase_kehadiran: totalBalita > 0 ? Math.round((ringkasan.hadir_balita / totalBalita) * 100) : 0,
+            status_stunting: ringkasan.stunting,
+            status_gizi_buruk: ringkasan.gizi_buruk,
+            normal: ringkasan.normal,
+          };
+        })()
+      : posyanduFromDummy
+        ? {
+            total_balita: posyanduFromDummy.total_balita,
+            total_ibu_hamil: posyanduFromDummy.total_ibu_hamil,
+            total_kader: posyanduFromDummy.total_kader,
+            kehadiran_balita: posyanduFromDummy.kehadiran_balita_bulan_ini,
+            kehadiran_ibu_hamil: posyanduFromDummy.kehadiran_ibu_hamil_bulan_ini,
+            persentase_kehadiran: posyanduFromDummy.persentase_kehadiran,
+            status_stunting: posyanduFromDummy.status_stunting,
+            status_gizi_buruk: posyanduFromDummy.status_gizi_buruk,
+            normal: posyanduFromDummy.total_balita - posyanduFromDummy.status_stunting - posyanduFromDummy.status_gizi_buruk,
+          }
+        : selectedListItem
+          ? {
+              total_balita: selectedListItem.total_balita,
+              total_ibu_hamil: selectedListItem.total_ibu_hamil,
+              total_kader: selectedListItem.total_kader,
+              kehadiran_balita: selectedListItem.kehadiran_balita_bulan_ini,
+              kehadiran_ibu_hamil: selectedListItem.kehadiran_ibu_hamil_bulan_ini,
+              persentase_kehadiran: selectedListItem.persentase_kehadiran,
+              status_stunting: selectedListItem.status_stunting,
+              status_gizi_buruk: selectedListItem.status_gizi_buruk,
+              normal: Math.max(
+                0,
+                selectedListItem.total_balita - selectedListItem.status_stunting - selectedListItem.status_gizi_buruk
+              ),
+            }
+          : detailRingkasanData?.ringkasan
+            ? {
+                total_balita: detailRingkasanData.ringkasan.total_balita,
+                total_ibu_hamil: detailRingkasanData.ringkasan.total_ibu_hamil,
+                total_kader: detailRingkasanData.ringkasan.total_kader,
+                kehadiran_balita: detailRingkasanData.ringkasan.hadir_balita,
+                kehadiran_ibu_hamil: detailRingkasanData.ringkasan.hadir_ibu_hamil,
+                persentase_kehadiran:
+                  detailRingkasanData.ringkasan.total_balita > 0
+                    ? Math.round(
+                        (detailRingkasanData.ringkasan.hadir_balita / detailRingkasanData.ringkasan.total_balita) * 100
+                      )
+                    : 0,
+                status_stunting: detailRingkasanData.ringkasan.stunting,
+                status_gizi_buruk: detailRingkasanData.ringkasan.gizi_buruk,
+                normal: detailRingkasanData.ringkasan.normal,
+              }
+            : null;
+
+    const posyandu = posyanduFromDummy ?? (selectedListItem
+      ? {
+          id: selectedListItem.id,
+          nama_posyandu: selectedListItem.nama_posyandu,
+          nama_dusun: selectedListItem.nama_dusun,
+          nama_kecamatan: selectedListItem.nama_kecamatan,
+          nama_kabupaten_kota: selectedListItem.nama_kabupaten_kota,
+          total_balita: selectedListItem.total_balita,
+          total_ibu_hamil: selectedListItem.total_ibu_hamil,
+          total_kader: selectedListItem.total_kader,
+          kehadiran_balita_bulan_ini: selectedListItem.kehadiran_balita_bulan_ini,
+          kehadiran_ibu_hamil_bulan_ini: selectedListItem.kehadiran_ibu_hamil_bulan_ini,
+          status_stunting: selectedListItem.status_stunting,
+          status_gizi_buruk: selectedListItem.status_gizi_buruk,
+          persentase_kehadiran: selectedListItem.persentase_kehadiran,
+          skor_kinerja: selectedListItem.skor_kinerja,
+          kategori_kinerja: selectedListItem.kategori_kinerja,
+          ranking: selectedListItem.ranking,
+          last_updated: selectedListItem.last_updated,
+          }
+      : null);
+
+    const resolvedPerformance = performance ?? (selectedListItem
+      ? {
+          posyandu_id: selectedPosyanduResolvedId ?? selectedListItem.id,
+          nama_posyandu: selectedListItem.nama_posyandu,
+          skor_kinerja: selectedListItem.skor_kinerja,
+          kehadiran: selectedListItem.persentase_kehadiran,
+          kategori: selectedListItem.kategori_kinerja,
+        }
+      : null);
+
+    return { performance: resolvedPerformance, posyandu, criticalChildren, allChildren, kaderList, stats };
+  }, [detailRingkasanData, listPosyandu, selectedPosyanduApiId, selectedPosyanduResolvedId, selectedPosyanduResolvedName]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadDetailRingkasan = async () => {
+      if (!selectedPosyanduApiId) {
+        setDetailRingkasanData(null);
+        return;
+      }
+
+      setDetailRingkasanData(null);
+
+      const result = await fetchDetailPosyanduRingkasan(selectedPosyanduApiId, {
+        bulan: currentBulan,
+        tahun: currentTahun,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setDetailRingkasanData(result.data);
+      } else {
+        setDetailRingkasanData(null);
+      }
+    };
+
+    loadDetailRingkasan();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedPosyanduApiId, currentBulan, currentTahun]);
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
@@ -420,8 +544,8 @@ const KinerjaPosyanduPage: React.FC = () => {
         {/* Tabs */}
         <div className="mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 dark:border-gray-700 pb-4">
           {[
-            { id: "ranking", label: "🏆 Ranking" },
-            { id: "detail", label: "📋 Detail Per Posyandu" },
+            { id: "ranking", label: "Ranking" },
+            { id: "detail", label: "Detail Per Posyandu" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -682,6 +806,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                       key={posyandu.id}
                       onClick={() => {
                         setSelectedPosyandu(posyandu.detailId);
+                        setActiveTab("detail");
                         setDetailTab("overview");
                       }}
                       className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
@@ -700,8 +825,32 @@ const KinerjaPosyanduPage: React.FC = () => {
             </div>
 
             {/* Selected Posyandu Detail */}
-            {selectedPosyanduDetail && selectedPosyanduDetail.performance && selectedPosyanduDetail.posyandu && selectedPosyanduDetail.stats && (
+            {selectedPosyanduDetail && selectedPosyanduDetail.posyandu && selectedPosyanduDetail.stats && (
               <div className="space-y-6">
+                <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4 dark:border-primary/40 dark:bg-primary/10">
+                  <h3 className="text-sm font-semibold text-dark dark:text-white">Data Posyandu Terpilih</h3>
+                  <div className="mt-3 grid gap-3 text-sm text-gray-700 dark:text-gray-300 sm:grid-cols-2 lg:grid-cols-4">
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">ID API</p>
+                      <p className="font-medium text-dark dark:text-white">{selectedPosyanduApiId ?? "-"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">ID Detail</p>
+                      <p className="font-medium text-dark dark:text-white">{selectedPosyanduResolvedId ?? "-"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Nama Posyandu</p>
+                      <p className="font-medium text-dark dark:text-white">{selectedPosyanduResolvedName ?? "-"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Sumber Ringkasan</p>
+                      <p className="font-medium text-dark dark:text-white">
+                        {detailRingkasanData?.ringkasan ? "API detail-dashboard-kepala-desa" : "Fallback frontend"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Header */}
                 <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -768,10 +917,10 @@ const KinerjaPosyanduPage: React.FC = () => {
                 {/* Sub Tabs */}
                 <div className="flex gap-2 overflow-x-auto border-b border-gray-200 dark:border-gray-700">
                   {[
-                    { id: "overview", label: "📊 Overview" },
-                    { id: "balita", label: "👶 Data Balita" },
-                    { id: "kader", label: "👥 Kader" },
-                    { id: "kinerja", label: "📈 Kinerja" },
+                    { id: "overview", label: "Overview" },
+                    { id: "balita", label: "Data Balita" },
+                    { id: "kader", label: "Kader" },
+                    { id: "kinerja", label: "Kinerja" },
                   ].map((tab) => (
                     <button
                       key={tab.id}
@@ -1125,3 +1274,4 @@ const KinerjaPosyanduPage: React.FC = () => {
 };
 
 export default KinerjaPosyanduPage;
+
