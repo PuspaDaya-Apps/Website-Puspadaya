@@ -1,21 +1,133 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PosyanduPerformance, CriticalChild, KaderWorkload } from "@/types/dashboard-kepala-desa";
+import {
+  fetchKinerjaRingkasan,
+  type DashboardKepalaDesaQueryParams,
+} from "@/app/api/dashboard-kinerja-kepala-desa";
+import { fetchTrenDataPosyandu } from "@/app/api/dashboard-kepala-desa";
+import { TrenDataPosyanduItem } from "@/types/kepala-desa";
 import { posyanduPerformanceData, posyanduListData, criticalChildrenData, kaderWorkloadData, monthlyTrendData, allChildrenData } from "@/data/dummy-dashboard-kepala-desa";
 import DurasiJarakAgregat from "@/components/Dashboard/component-desa/DurasiJarakAgregat";
 import { dashboardSummaryData } from "@/data/dummy-dashboard-kepala-desa";
 import { createPosyanduDetailToken } from "@/utils/posyanduDetailToken";
+
+interface CurrentUserLocation {
+  kabupaten_kota?: {
+    nama_kabupaten_kota?: string;
+  };
+  desa_kelurahan?: {
+    nama_desa_kelurahan?: string;
+  };
+}
 
 const KinerjaPosyanduPage: React.FC = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"ranking" | "detail">("ranking");
   const [selectedPosyandu, setSelectedPosyandu] = useState<string | null>(null);
   const [detailTab, setDetailTab] = useState<"overview" | "balita" | "kader" | "kinerja">("overview");
+  const [ringkasanData, setRingkasanData] = useState<{
+    total_posyandu: number;
+    rata_rata_skor: number;
+    maksimal_skor: number;
+    kategori_posyandu: {
+      sangat_baik: number;
+      baik: number;
+      cukup: number;
+      kurang: number;
+    };
+  } | null>(null);
+  const [trenData, setTrenData] = useState<TrenDataPosyanduItem[] | null>(null);
+  const [userLocation, setUserLocation] = useState<Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa">>({});
   const currentDate = new Date();
   const currentBulan = currentDate.getMonth() + 1;
   const currentTahun = currentDate.getFullYear();
+
+  const getCurrentUserLocation = (): Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> => {
+    if (typeof window === "undefined") {
+      return {};
+    }
+
+    try {
+      const rawCurrentUser = localStorage.getItem("current_user");
+
+      if (!rawCurrentUser) {
+        return {};
+      }
+
+      const currentUser = JSON.parse(rawCurrentUser) as CurrentUserLocation;
+
+      return {
+        kabupatenKota: currentUser?.kabupaten_kota?.nama_kabupaten_kota,
+        desa: currentUser?.desa_kelurahan?.nama_desa_kelurahan,
+      };
+    } catch (error) {
+      console.warn("Gagal membaca current_user dari localStorage:", error);
+      return {};
+    }
+  };
+
+  useEffect(() => {
+    setUserLocation(getCurrentUserLocation());
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadRingkasan = async () => {
+      const result = await fetchKinerjaRingkasan({
+        bulan: currentBulan,
+        tahun: currentTahun,
+        ...userLocation,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setRingkasanData(result.data);
+      } else {
+        setRingkasanData(null);
+      }
+    };
+
+    loadRingkasan();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentBulan, currentTahun, userLocation]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadTrenData = async () => {
+      const result = await fetchTrenDataPosyandu({
+        bulan: currentBulan,
+        tahun: currentTahun,
+        ...userLocation,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setTrenData(result.data.posyandu ?? []);
+      } else {
+        setTrenData(null);
+      }
+    };
+
+    loadTrenData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentBulan, currentTahun, userLocation]);
 
   const openPosyanduDetail = (posyanduId: string) => {
     const token = createPosyanduDetailToken({
@@ -31,24 +143,77 @@ const KinerjaPosyanduPage: React.FC = () => {
     return [...posyanduPerformanceData].sort((a, b) => b.skor_kinerja - a.skor_kinerja);
   }, []);
 
+  const apiPosyanduList = useMemo(() => {
+    return (trenData ?? []).map((item, index) => ({
+      id: item.id ?? `${item.nama}-${index + 1}`,
+      nama_posyandu: item.nama,
+      nama_dusun: item.dusun,
+      nama_kecamatan: "",
+      nama_kabupaten_kota: "",
+      total_balita: item.balita ?? 0,
+      total_ibu_hamil: item.ibu_hamil ?? 0,
+      total_kader: item.kader ?? 0,
+      kehadiran_balita_bulan_ini: 0,
+      kehadiran_ibu_hamil_bulan_ini: 0,
+      status_stunting: 0,
+      status_gizi_buruk: 0,
+      persentase_kehadiran: item.kehadiran ?? 0,
+      skor_kinerja: item.skor ?? 0,
+      kategori_kinerja: item.kategori ?? "-",
+      ranking: item.ranking ?? index + 1,
+      last_updated: "",
+    }));
+  }, [trenData]);
+
+  const listPosyandu = apiPosyanduList.length > 0 ? apiPosyanduList : posyanduPerformanceData
+    .map((performance) => {
+      const info = posyanduListData.find((p) => p.id === performance.posyandu_id);
+
+      return {
+        id: performance.posyandu_id,
+        nama_posyandu: performance.nama_posyandu,
+        nama_dusun: info?.nama_dusun ?? "",
+        nama_kecamatan: info?.nama_kecamatan ?? "",
+        nama_kabupaten_kota: info?.nama_kabupaten_kota ?? "",
+        total_balita: info?.total_balita ?? 0,
+        total_ibu_hamil: info?.total_ibu_hamil ?? 0,
+        total_kader: info?.total_kader ?? 0,
+        kehadiran_balita_bulan_ini: info?.kehadiran_balita_bulan_ini ?? 0,
+        kehadiran_ibu_hamil_bulan_ini: info?.kehadiran_ibu_hamil_bulan_ini ?? 0,
+        status_stunting: info?.status_stunting ?? 0,
+        status_gizi_buruk: info?.status_gizi_buruk ?? 0,
+        persentase_kehadiran: performance.kehadiran,
+        skor_kinerja: performance.skor_kinerja,
+        kategori_kinerja: performance.kategori,
+        ranking: performance.posyandu_id ? Number(performance.posyandu_id) : 0,
+        last_updated: info?.last_updated ?? "",
+      };
+    })
+    .sort((a, b) => (a.ranking ?? 0) - (b.ranking ?? 0));
+
   // Get top 3 and bottom 3
-  const top3 = sortedPosyandu.slice(0, 3);
+  const apiTop3 = [...apiPosyanduList]
+    .filter((posyandu) => [1, 2, 3].includes(posyandu.ranking ?? 0))
+    .sort((a, b) => (a.ranking ?? 0) - (b.ranking ?? 0));
+  const top3 = apiTop3.length > 0 ? apiTop3 : sortedPosyandu.slice(0, 3);
   const bottom3 = sortedPosyandu.slice(-3).reverse();
 
   // Calculate average scores
-  const avgScore = Math.round(
+  const avgScore = ringkasanData?.rata_rata_skor ?? Math.round(
     posyanduPerformanceData.reduce((sum, p) => sum + p.skor_kinerja, 0) / posyanduPerformanceData.length
   );
 
   // Get category counts
   const categoryCounts = useMemo(() => {
     return {
-      sangatBaik: posyanduPerformanceData.filter((p) => p.kategori === "Sangat Baik").length,
-      baik: posyanduPerformanceData.filter((p) => p.kategori === "Baik").length,
-      cukup: posyanduPerformanceData.filter((p) => p.kategori === "Cukup").length,
-      kurang: posyanduPerformanceData.filter((p) => p.kategori === "Kurang").length,
+      sangatBaik: ringkasanData?.kategori_posyandu?.sangat_baik ?? posyanduPerformanceData.filter((p) => p.kategori === "Sangat Baik").length,
+      baik: ringkasanData?.kategori_posyandu?.baik ?? posyanduPerformanceData.filter((p) => p.kategori === "Baik").length,
+      cukup: ringkasanData?.kategori_posyandu?.cukup ?? posyanduPerformanceData.filter((p) => p.kategori === "Cukup").length,
+      kurang: ringkasanData?.kategori_posyandu?.kurang ?? posyanduPerformanceData.filter((p) => p.kategori === "Kurang").length,
     };
-  }, []);
+  }, [ringkasanData]);
+
+  const totalPosyandu = ringkasanData?.total_posyandu ?? listPosyandu.length;
 
   // Get selected posyandu detail
   const selectedPosyanduDetail = useMemo(() => {
@@ -93,7 +258,7 @@ const KinerjaPosyanduPage: React.FC = () => {
           <div className="flex items-center gap-3">
             <div className="rounded-lg bg-gray-100 px-4 py-2 text-sm dark:bg-gray-800">
               <span className="text-gray-600 dark:text-gray-400">Total Posyandu:</span>{" "}
-              <span className="font-medium text-dark dark:text-white">{posyanduPerformanceData.length}</span>
+              <span className="font-medium text-dark dark:text-white">{totalPosyandu}</span>
             </div>
             <div className="rounded-lg bg-primary px-4 py-2 text-sm text-white">
               <span className="font-medium">Rata-rata Skor: {avgScore}/100</span>
@@ -162,10 +327,26 @@ const KinerjaPosyanduPage: React.FC = () => {
               </h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {top3.map((posyandu, index) => {
-                  const posyanduInfo = posyanduListData.find((p) => p.id === posyandu.posyandu_id);
+                  const normalizedPosyandu = posyandu as {
+                    id?: string;
+                    posyandu_id?: string;
+                    nama_posyandu: string;
+                    skor_kinerja?: number;
+                    ranking?: number;
+                    kategori_kinerja?: string;
+                  };
+                  const detailId = normalizedPosyandu.id ?? normalizedPosyandu.posyandu_id ?? null;
+                  const namaPosyandu = normalizedPosyandu.nama_posyandu;
+                  const skorKinerja = normalizedPosyandu.skor_kinerja ?? 0;
+                  const rank = normalizedPosyandu.ranking ?? index + 1;
+                  const posyanduInfo = posyanduListData.find((p) =>
+                    p.id === normalizedPosyandu.id ||
+                    p.id === normalizedPosyandu.posyandu_id ||
+                    p.nama_posyandu === normalizedPosyandu.nama_posyandu
+                  );
                   return (
                     <div
-                      key={posyandu.posyandu_id}
+                      key={detailId ?? `${namaPosyandu}-${index}`}
                       className={`relative overflow-hidden rounded-xl p-6 text-center ${
                         index === 0
                           ? "bg-gradient-to-br from-yellow-400 to-yellow-600 text-white"
@@ -176,16 +357,16 @@ const KinerjaPosyanduPage: React.FC = () => {
                     >
                       <div className="mb-3 flex justify-center">
                         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 text-3xl font-bold">
-                          {index + 1}
+                          {rank}
                         </div>
                       </div>
-                      <h4 className="text-lg font-bold">{posyandu.nama_posyandu}</h4>
+                      <h4 className="text-lg font-bold">{namaPosyandu}</h4>
                       <p className="mt-1 text-sm text-white/80">{posyanduInfo?.nama_dusun}</p>
-                      <p className="mt-4 text-5xl font-bold">{posyandu.skor_kinerja}</p>
+                      <p className="mt-4 text-5xl font-bold">{skorKinerja}</p>
                       <p className="text-sm text-white/80">skor kinerja</p>
                       <button
                         type="button"
-                        onClick={() => openPosyanduDetail(posyandu.posyandu_id)}
+                        onClick={() => detailId && openPosyanduDetail(detailId)}
                         className="mt-4 inline-block rounded-full bg-white/20 px-4 py-2 text-sm font-medium transition hover:bg-white/30"
                       >
                         Lihat Detail →
@@ -253,13 +434,15 @@ const KinerjaPosyanduPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {sortedPosyandu.map((posyandu, index) => {
-                      const posyanduInfo = posyanduListData.find((p) => p.id === posyandu.posyandu_id);
+                    {listPosyandu.map((posyandu, index) => {
+                      const posyanduInfo = posyanduListData.find(
+                        (p) => p.id === posyandu.id || p.nama_posyandu === posyandu.nama_posyandu
+                      );
                       return (
-                        <tr key={posyandu.posyandu_id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <tr key={posyandu.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                           <td className="px-4 py-3">
                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 font-bold text-gray-700 dark:bg-gray-700 dark:text-gray-300">
-                              {index + 1}
+                              {posyandu.ranking ?? index + 1}
                             </div>
                           </td>
                           <td className="px-4 py-3 font-medium text-dark dark:text-white">{posyandu.nama_posyandu}</td>
@@ -267,15 +450,22 @@ const KinerjaPosyanduPage: React.FC = () => {
                           <td className="px-4 py-3 text-center">
                             <div className="flex items-center justify-center gap-2">
                               <div className="h-2 w-20 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                                <div className={`h-full rounded-full ${
-                                  posyandu.kehadiran >= 80 ? "bg-emerald-500" : posyandu.kehadiran >= 60 ? "bg-yellow-500" : "bg-red-500"
-                                }`} style={{ width: `${posyandu.kehadiran}%` }} />
+                                <div
+                                  className={`h-full rounded-full ${
+                                    posyandu.persentase_kehadiran >= 80
+                                      ? "bg-emerald-500"
+                                      : posyandu.persentase_kehadiran >= 60
+                                      ? "bg-yellow-500"
+                                      : "bg-red-500"
+                                  }`}
+                                  style={{ width: `${posyandu.persentase_kehadiran}%` }}
+                                />
                               </div>
-                              <span className="text-sm font-medium">{posyandu.kehadiran}%</span>
+                              <span className="text-sm font-medium">{posyandu.persentase_kehadiran}%</span>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{posyandu.pengukuran_balita}%</td>
-                          <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{posyandu.pengukuran_ibu_hamil}%</td>
+                          <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{posyandu.total_balita}</td>
+                          <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{posyandu.total_ibu_hamil}</td>
                           <td className="px-4 py-3 text-center">
                             <span className={`text-xl font-bold ${
                               posyandu.skor_kinerja >= 80 ? "text-emerald-600" : posyandu.skor_kinerja >= 60 ? "text-yellow-600" : "text-red-600"
@@ -285,15 +475,15 @@ const KinerjaPosyanduPage: React.FC = () => {
                           </td>
                           <td className="px-4 py-3 text-center">
                             <span className={`rounded-full px-3 py-1 text-xs font-medium ${
-                              posyandu.kategori === "Sangat Baik"
+                              posyandu.kategori_kinerja === "Sangat Baik"
                                 ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                : posyandu.kategori === "Baik"
+                                : posyandu.kategori_kinerja === "Baik"
                                 ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
-                                : posyandu.kategori === "Cukup"
+                                : posyandu.kategori_kinerja === "Cukup"
                                 ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
                                 : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
                             }`}>
-                              {posyandu.kategori}
+                              {posyandu.kategori_kinerja}
                             </span>
                           </td>
                         </tr>
