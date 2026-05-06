@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PosyanduPerformance, CriticalChild, KaderWorkload } from "@/types/dashboard-kepala-desa";
-import { fetchDetailPosyanduBalitaAll, fetchDetailPosyanduKinerja, fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
+import { fetchDetailPosyanduBalitaAll, fetchDetailPosyanduKader, fetchDetailPosyanduKinerja, fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
 import {
   fetchKinerjaRingkasan,
   type DashboardKepalaDesaQueryParams,
@@ -14,6 +14,7 @@ import {
   DetailPosyanduOverviewData,
   DetailPosyanduKinerjaData,
   DetailPosyanduBalitaKhususData,
+  DetailPosyanduKaderData,
   DetailPosyanduRingkasanData,
   KinerjaPosyanduPerhatianKhususItem,
   TrenDataPosyanduItem,
@@ -52,6 +53,7 @@ const KinerjaPosyanduPage: React.FC = () => {
   const [detailOverviewData, setDetailOverviewData] = useState<DetailPosyanduOverviewData | null>(null);
   const [detailKinerjaData, setDetailKinerjaData] = useState<DetailPosyanduKinerjaData | null>(null);
   const [detailBalitaData, setDetailBalitaData] = useState<DetailPosyanduBalitaKhususData | null>(null);
+  const [detailKaderData, setDetailKaderData] = useState<DetailPosyanduKaderData | null>(null);
   const [detailRingkasanData, setDetailRingkasanData] = useState<DetailPosyanduRingkasanData | null>(null);
   const [perhatianKhususData, setPerhatianKhususData] = useState<KinerjaPosyanduPerhatianKhususItem[] | null>(null);
   const [perhatianKhususLoading, setPerhatianKhususLoading] = useState(true);
@@ -603,6 +605,32 @@ const KinerjaPosyanduPage: React.FC = () => {
   const balitaRangeStart = totalBalitaRows === 0 ? 0 : (detailBalitaPage - 1) * detailBalitaLimit + 1;
   const balitaRangeEnd = Math.min(detailBalitaPage * detailBalitaLimit, totalBalitaRows);
 
+  const kaderDetailCards = useMemo(() => {
+    if (detailKaderData?.kader?.length) {
+      const totalSasaran = detailKaderData.total_sasaran.total_balita_sasaran + detailKaderData.total_sasaran.total_ibu_hamil_sasaran;
+
+      return detailKaderData.kader.map((kader) => ({
+        id: kader.id_kader,
+        nama: kader.nama,
+        nama_kader: kader.nama,
+        jabatan: kader.jabatan,
+        role: kader.jabatan,
+        skor_kinerja: kader.skor_kinerja,
+        skor_beban_kerja: kader.skor_kinerja,
+        status_kinerja: kader.status_kinerja,
+        kategori_beban: kader.status_kinerja,
+        jumlah_balita_didampingi: kader.jumlah_balita_didampingi,
+        durasi_kerja_posyandu: kader.jumlah_balita_didampingi,
+        jumlah_ibu_hamil_didampingi: kader.jumlah_ibu_hamil_didampingi,
+        durasi_kunjungan_rumah: kader.jumlah_ibu_hamil_didampingi,
+        total_sasaran: totalSasaran,
+        jarak_kunjungan: totalSasaran,
+      }));
+    }
+
+    return [];
+  }, [detailKaderData]);
+
   useEffect(() => {
     setDetailBalitaPage(1);
   }, [selectedPosyanduApiId]);
@@ -708,10 +736,35 @@ const KinerjaPosyanduPage: React.FC = () => {
       }
     };
 
+    const loadDetailKader = async () => {
+      if (!selectedPosyanduApiId) {
+        setDetailKaderData(null);
+        return;
+      }
+
+      setDetailKaderData(null);
+
+      const result = await fetchDetailPosyanduKader(selectedPosyanduApiId, {
+        bulan: currentBulan,
+        tahun: currentTahun,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setDetailKaderData(result.data);
+      } else {
+        setDetailKaderData(null);
+      }
+    };
+
     loadDetailOverview();
     loadDetailRingkasan();
     loadDetailKinerja();
     loadDetailBalita();
+    loadDetailKader();
 
     return () => {
       isMounted = false;
@@ -1534,7 +1587,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-dark dark:text-white">👥 Daftar Kader Posyandu</h3>
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {selectedPosyanduDetail.kaderList.map((kader) => (
+                        {kaderDetailCards.map((kader) => (
                           <div key={kader.id} className="rounded-lg border border-gray-200 p-4 transition hover:shadow-md dark:border-gray-700">
                             <div className="flex items-start gap-3">
                               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-white">
@@ -1543,10 +1596,15 @@ const KinerjaPosyanduPage: React.FC = () => {
                               <div className="flex-1">
                                 <h4 className="font-semibold text-dark dark:text-white">{kader.nama_kader}</h4>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{kader.role}</p>
-                                <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                <div className="hidden mt-2 flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
                                   <span>⏱️ {kader.durasi_kerja_posyandu} jam kerja</span>
                                   <span>🏠 {kader.durasi_kunjungan_rumah} jam kunjungan</span>
                                   <span>📍 {kader.jarak_kunjungan} km jarak</span>
+                                </div>
+                                <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                  <span>Balita didampingi: {kader.durasi_kerja_posyandu}</span>
+                                  <span>Ibu hamil didampingi: {kader.durasi_kunjungan_rumah}</span>
+                                  <span>Total sasaran: {kader.jarak_kunjungan}</span>
                                 </div>
                               </div>
                               <div className="text-right">
@@ -1565,6 +1623,12 @@ const KinerjaPosyanduPage: React.FC = () => {
                           </div>
                         ))}
                       </div>
+                      {kaderDetailCards.length === 0 && (
+                        <div className="rounded-xl border border-dashed border-gray-300 py-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                          <p className="font-medium">Belum ada data kader</p>
+                          <p className="text-sm">API tidak mengembalikan data kader untuk posyandu ini.</p>
+                        </div>
+                      )}
                     </div>
                   )}
 
