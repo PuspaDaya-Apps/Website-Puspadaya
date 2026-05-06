@@ -3,14 +3,19 @@ import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PosyanduPerformance, CriticalChild, KaderWorkload } from "@/types/dashboard-kepala-desa";
-import { fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
+import { fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
 import {
   fetchKinerjaRingkasan,
   type DashboardKepalaDesaQueryParams,
 } from "@/app/api/dashboard-kinerja-kepala-desa";
 import { fetchTrenDataPosyandu } from "@/app/api/dashboard-kepala-desa";
 import { fetchKinerjaPerhatianKhusus } from "@/app/api/dashboard-kinerja-kepala-desa";
-import { DetailPosyanduRingkasanData, KinerjaPosyanduPerhatianKhususItem, TrenDataPosyanduItem } from "@/types/kepala-desa";
+import {
+  DetailPosyanduOverviewData,
+  DetailPosyanduRingkasanData,
+  KinerjaPosyanduPerhatianKhususItem,
+  TrenDataPosyanduItem,
+} from "@/types/kepala-desa";
 import { posyanduPerformanceData, posyanduListData, criticalChildrenData, kaderWorkloadData, monthlyTrendData, allChildrenData } from "@/data/dummy-dashboard-kepala-desa";
 import DurasiJarakAgregat from "@/components/Dashboard/component-desa/DurasiJarakAgregat";
 import { dashboardSummaryData } from "@/data/dummy-dashboard-kepala-desa";
@@ -42,6 +47,7 @@ const KinerjaPosyanduPage: React.FC = () => {
     };
   } | null>(null);
   const [trenData, setTrenData] = useState<TrenDataPosyanduItem[] | null>(null);
+  const [detailOverviewData, setDetailOverviewData] = useState<DetailPosyanduOverviewData | null>(null);
   const [detailRingkasanData, setDetailRingkasanData] = useState<DetailPosyanduRingkasanData | null>(null);
   const [perhatianKhususData, setPerhatianKhususData] = useState<KinerjaPosyanduPerhatianKhususItem[] | null>(null);
   const [perhatianKhususLoading, setPerhatianKhususLoading] = useState(true);
@@ -274,6 +280,24 @@ const KinerjaPosyanduPage: React.FC = () => {
   const selectedPosyanduResolvedId = selectedDetailPosyandu?.detailId ?? selectedPosyandu;
   const selectedPosyanduResolvedName = selectedDetailPosyandu?.nama_posyandu ?? null;
   const selectedPosyanduApiId = selectedDetailPosyandu?.id ?? null;
+  const overviewStats = useMemo(() => {
+    if (!detailOverviewData) {
+      return null;
+    }
+
+    const totalBalita = detailOverviewData.status_gizi_balita.reduce((sum, item) => sum + item.jumlah, 0);
+    const getStatusJumlah = (match: string) =>
+      detailOverviewData.status_gizi_balita.find((item) => item.status.toLowerCase().includes(match))?.jumlah ?? 0;
+
+    return {
+      total_balita: totalBalita,
+      kehadiran_balita: detailOverviewData.tingkat_kehadiran.hadir,
+      persentase_kehadiran: detailOverviewData.tingkat_kehadiran.persentase,
+      status_stunting: getStatusJumlah("stunting"),
+      status_gizi_buruk: getStatusJumlah("buruk"),
+      normal: getStatusJumlah("normal"),
+    };
+  }, [detailOverviewData]);
 
   const perhatianKhususList = useMemo(() => {
     if (perhatianKhususData && perhatianKhususData.length > 0) {
@@ -354,8 +378,20 @@ const KinerjaPosyanduPage: React.FC = () => {
     const kaderList = kaderWorkloadData.filter((k) => k.posyandu_id === selectedPosyanduResolvedId);
 
     // Calculate stats
-    const stats = detailRingkasanData?.ringkasan
-      ? (() => {
+    const stats = overviewStats
+      ? {
+          total_balita: overviewStats.total_balita,
+          total_ibu_hamil: detailRingkasanData?.ringkasan?.total_ibu_hamil ?? posyanduFromDummy?.total_ibu_hamil ?? selectedListItem?.total_ibu_hamil ?? 0,
+          total_kader: detailRingkasanData?.ringkasan?.total_kader ?? posyanduFromDummy?.total_kader ?? selectedListItem?.total_kader ?? 0,
+          kehadiran_balita: overviewStats.kehadiran_balita,
+          kehadiran_ibu_hamil: detailRingkasanData?.ringkasan?.hadir_ibu_hamil ?? posyanduFromDummy?.kehadiran_ibu_hamil_bulan_ini ?? selectedListItem?.kehadiran_ibu_hamil_bulan_ini ?? 0,
+          persentase_kehadiran: overviewStats.persentase_kehadiran,
+          status_stunting: overviewStats.status_stunting,
+          status_gizi_buruk: overviewStats.status_gizi_buruk,
+          normal: overviewStats.normal,
+        }
+      : detailRingkasanData?.ringkasan
+        ? (() => {
           const ringkasan = detailRingkasanData.ringkasan;
           const totalBalita = ringkasan.total_balita || 0;
 
@@ -450,10 +486,85 @@ const KinerjaPosyanduPage: React.FC = () => {
       : null);
 
     return { performance: resolvedPerformance, posyandu, criticalChildren, allChildren, kaderList, stats };
-  }, [detailRingkasanData, listPosyandu, selectedPosyanduApiId, selectedPosyanduResolvedId, selectedPosyanduResolvedName]);
+  }, [detailRingkasanData, listPosyandu, overviewStats, selectedPosyanduApiId, selectedPosyanduResolvedId, selectedPosyanduResolvedName]);
+
+  const overviewStatusGizi = useMemo(() => {
+    if (detailOverviewData?.status_gizi_balita?.length) {
+      return detailOverviewData.status_gizi_balita;
+    }
+
+    if (!selectedPosyanduDetail?.stats) {
+      return [];
+    }
+
+    return [
+      {
+        status: "Stunting",
+        jumlah: selectedPosyanduDetail.stats.status_stunting,
+        persentase:
+          selectedPosyanduDetail.stats.total_balita > 0
+            ? Number(((selectedPosyanduDetail.stats.status_stunting / selectedPosyanduDetail.stats.total_balita) * 100).toFixed(1))
+            : 0,
+      },
+      {
+        status: "Gizi Buruk",
+        jumlah: selectedPosyanduDetail.stats.status_gizi_buruk,
+        persentase:
+          selectedPosyanduDetail.stats.total_balita > 0
+            ? Number(((selectedPosyanduDetail.stats.status_gizi_buruk / selectedPosyanduDetail.stats.total_balita) * 100).toFixed(1))
+            : 0,
+      },
+      {
+        status: "Normal",
+        jumlah: selectedPosyanduDetail.stats.normal,
+        persentase:
+          selectedPosyanduDetail.stats.total_balita > 0
+            ? Number(((selectedPosyanduDetail.stats.normal / selectedPosyanduDetail.stats.total_balita) * 100).toFixed(1))
+            : 0,
+      },
+    ];
+  }, [detailOverviewData, selectedPosyanduDetail]);
+
+  const overviewKasusKritis = useMemo(() => {
+    if (detailOverviewData?.kasus_kritis?.length) {
+      return detailOverviewData.kasus_kritis.map((item) => ({
+        id: String(item.id_balita),
+        nama_anak: item.nama,
+        usia_bulan: Number(item.usia.match(/\d+/)?.[0] ?? 0),
+        status_gizi: item.status,
+        status_stunting: item.status.toLowerCase().includes("stunting") ? "Stunting" : "",
+      }));
+    }
+
+    return selectedPosyanduDetail?.criticalChildren ?? [];
+  }, [detailOverviewData, selectedPosyanduDetail]);
 
   useEffect(() => {
     let isMounted = true;
+
+    const loadDetailOverview = async () => {
+      if (!selectedPosyanduApiId) {
+        setDetailOverviewData(null);
+        return;
+      }
+
+      setDetailOverviewData(null);
+
+      const result = await fetchDetailPosyanduOverview(selectedPosyanduApiId, {
+        bulan: currentBulan,
+        tahun: currentTahun,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setDetailOverviewData(result.data);
+      } else {
+        setDetailOverviewData(null);
+      }
+    };
 
     const loadDetailRingkasan = async () => {
       if (!selectedPosyanduApiId) {
@@ -479,6 +590,7 @@ const KinerjaPosyanduPage: React.FC = () => {
       }
     };
 
+    loadDetailOverview();
     loadDetailRingkasan();
 
     return () => {
@@ -995,80 +1107,63 @@ const KinerjaPosyanduPage: React.FC = () => {
                       <div>
                         <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Status Gizi Balita</h3>
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                          <div className="rounded-lg bg-red-50 p-4 text-center dark:bg-red-900/20">
-                            <div className="mb-2 flex justify-center">
-                              <div className="relative h-20 w-20">
-                                <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
-                                  <circle cx="50" cy="50" r="40" fill="none" stroke="#fecaca" strokeWidth="12" />
-                                  <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="40"
-                                    fill="none"
-                                    stroke="#ef4444"
-                                    strokeWidth="12"
-                                    strokeDasharray={`${(selectedPosyanduDetail.stats!.status_stunting / selectedPosyanduDetail.stats!.total_balita) * 251.2} 251.2`}
-                                  />
-                                </svg>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <span className="text-lg font-bold text-red-600 dark:text-red-400">{selectedPosyanduDetail.stats!.status_stunting}</span>
+                          {overviewStatusGizi.map((item) => {
+                            const color =
+                              item.status === "Stunting"
+                                ? {
+                                    bg: "bg-red-50 dark:bg-red-900/20",
+                                    track: "#fecaca",
+                                    fill: "#ef4444",
+                                    text: "text-red-600 dark:text-red-400",
+                                    label: "text-red-700 dark:text-red-300",
+                                  }
+                                : item.status === "Gizi Buruk"
+                                  ? {
+                                      bg: "bg-orange-50 dark:bg-orange-900/20",
+                                      track: "#fed7aa",
+                                      fill: "#f97316",
+                                      text: "text-orange-600 dark:text-orange-400",
+                                      label: "text-orange-700 dark:text-orange-300",
+                                    }
+                                  : {
+                                      bg: "bg-emerald-50 dark:bg-emerald-900/20",
+                                      track: "#a7f3d0",
+                                      fill: "#10b981",
+                                      text: "text-emerald-600 dark:text-emerald-400",
+                                      label: "text-emerald-700 dark:text-emerald-300",
+                                    };
+
+                            return (
+                              <div key={item.status} className={`rounded-lg p-4 text-center ${color.bg}`}>
+                                <div className="mb-2 flex justify-center">
+                                  <div className="relative h-20 w-20">
+                                    <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
+                                      <circle cx="50" cy="50" r="40" fill="none" stroke={color.track} strokeWidth="12" />
+                                      <circle
+                                        cx="50"
+                                        cy="50"
+                                        r="40"
+                                        fill="none"
+                                        stroke={color.fill}
+                                        strokeWidth="12"
+                                        strokeDasharray={`${Math.max(0, Math.min(100, item.persentase)) * 2.512} 251.2`}
+                                      />
+                                    </svg>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                      <span className={`text-lg font-bold ${color.text}`}>{item.jumlah}</span>
+                                    </div>
+                                  </div>
                                 </div>
+                                <p className={`text-sm font-medium ${color.label}`}>{item.status}</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">{item.persentase}%</p>
                               </div>
-                            </div>
-                            <p className="text-sm font-medium text-red-700 dark:text-red-300">Stunting</p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">{((selectedPosyanduDetail.stats!.status_stunting / selectedPosyanduDetail.stats!.total_balita) * 100).toFixed(1)}%</p>
-                          </div>
-                          <div className="rounded-lg bg-orange-50 p-4 text-center dark:bg-orange-900/20">
-                            <div className="mb-2 flex justify-center">
-                              <div className="relative h-20 w-20">
-                                <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
-                                  <circle cx="50" cy="50" r="40" fill="none" stroke="#fed7aa" strokeWidth="12" />
-                                  <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="40"
-                                    fill="none"
-                                    stroke="#f97316"
-                                    strokeWidth="12"
-                                    strokeDasharray={`${(selectedPosyanduDetail.stats!.status_gizi_buruk / selectedPosyanduDetail.stats!.total_balita) * 251.2} 251.2`}
-                                  />
-                                </svg>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <span className="text-lg font-bold text-orange-600 dark:text-orange-400">{selectedPosyanduDetail.stats!.status_gizi_buruk}</span>
-                                </div>
-                              </div>
-                            </div>
-                            <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Gizi Buruk</p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">{((selectedPosyanduDetail.stats!.status_gizi_buruk / selectedPosyanduDetail.stats!.total_balita) * 100).toFixed(1)}%</p>
-                          </div>
-                          <div className="rounded-lg bg-emerald-50 p-4 text-center dark:bg-emerald-900/20">
-                            <div className="mb-2 flex justify-center">
-                              <div className="relative h-20 w-20">
-                                <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
-                                  <circle cx="50" cy="50" r="40" fill="none" stroke="#a7f3d0" strokeWidth="12" />
-                                  <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="40"
-                                    fill="none"
-                                    stroke="#10b981"
-                                    strokeWidth="12"
-                                    strokeDasharray={`${(selectedPosyanduDetail.stats!.normal / selectedPosyanduDetail.stats!.total_balita) * 251.2} 251.2`}
-                                  />
-                                </svg>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{selectedPosyanduDetail.stats!.normal}</span>
-                                </div>
-                              </div>
-                            </div>
-                            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Normal</p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">{((selectedPosyanduDetail.stats!.normal / selectedPosyanduDetail.stats!.total_balita) * 100).toFixed(1)}%</p>
-                          </div>
+                            );
+                          })}
                         </div>
                       </div>
 
                       {/* Critical Children Alert */}
-                      {selectedPosyanduDetail.criticalChildren.length > 0 && (
+                      {overviewKasusKritis.length > 0 && (
                         <div className="rounded-lg border-2 border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
                           <div className="mb-3 flex items-center gap-2">
                             <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1079,7 +1174,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                             </h3>
                           </div>
                           <div className="space-y-2">
-                            {selectedPosyanduDetail.criticalChildren.slice(0, 5).map((child) => (
+                            {overviewKasusKritis.slice(0, 5).map((child) => (
                               <div key={child.id} className="flex items-center justify-between rounded bg-white p-3 dark:bg-gray-800">
                                 <div>
                                   <p className="font-medium text-dark dark:text-white">{child.nama_anak}</p>
@@ -1100,7 +1195,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                             href="/monitoring/kasus-kritis"
                             className="mt-3 block text-center text-sm font-medium text-red-700 hover:text-red-800 dark:text-red-300 dark:hover:text-red-200"
                           >
-                            Lihat semua {selectedPosyanduDetail.criticalChildren.length} kasus kritis →
+                            Lihat semua {overviewKasusKritis.length} kasus kritis →
                           </Link>
                         </div>
                       )}
