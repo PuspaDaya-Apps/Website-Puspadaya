@@ -1680,25 +1680,40 @@ const KinerjaPosyanduPage: React.FC = () => {
                         </div>
                       ) : kinerjaPerPosyanduData ? (
                         <>
-                          {/* Ringkasan */}
-                          <div className="flex flex-wrap gap-6">
-                            <div className="text-right">
-                              <p className="text-xs text-gray-500 dark:text-gray-400">Kerja Posyandu</p>
-                              <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                                {kinerjaPerPosyanduData.ringkasan.kerja_posyandu_jam} jam
-                              </p>
+                          {/* Header: judul kiri, ringkasan kanan */}
+                          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-violet-600">
+                                <svg className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                              <div>
+                                <h2 className="text-lg font-bold text-dark dark:text-white">Durasi Kerja Posyandu</h2>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  Tren kerja posyandu, kunjungan rumah, dan jarak tempuh kader
+                                </p>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <p className="text-xs text-gray-500 dark:text-gray-400">Kunjungan Rumah</p>
-                              <p className="text-lg font-bold text-violet-600 dark:text-violet-400">
-                                {kinerjaPerPosyanduData.ringkasan.kunjungan_rumah_jam} jam
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-xs text-gray-500 dark:text-gray-400">Jarak Tempuh</p>
-                              <p className="text-lg font-bold text-pink-600 dark:text-pink-400">
-                                {kinerjaPerPosyanduData.ringkasan.jarak_tempuh_km} km
-                              </p>
+                            <div className="flex flex-wrap gap-4">
+                              <div className="text-right">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Kerja Posyandu</p>
+                                <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                                  {kinerjaPerPosyanduData.ringkasan.kerja_posyandu_jam} jam
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Kunjungan Rumah</p>
+                                <p className="text-lg font-bold text-violet-600 dark:text-violet-400">
+                                  {kinerjaPerPosyanduData.ringkasan.kunjungan_rumah_jam} jam
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Jarak Tempuh</p>
+                                <p className="text-lg font-bold text-pink-600 dark:text-pink-400">
+                                  {kinerjaPerPosyanduData.ringkasan.jarak_tempuh_km} km
+                                </p>
+                              </div>
                             </div>
                           </div>
 
