@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PosyanduPerformance, CriticalChild, KaderWorkload } from "@/types/dashboard-kepala-desa";
-import { fetchDetailPosyanduKinerja, fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
+import { fetchDetailPosyanduBalitaAll, fetchDetailPosyanduKinerja, fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
 import {
   fetchKinerjaRingkasan,
   type DashboardKepalaDesaQueryParams,
@@ -13,6 +13,7 @@ import { fetchKinerjaPerhatianKhusus } from "@/app/api/dashboard-kinerja-kepala-
 import {
   DetailPosyanduOverviewData,
   DetailPosyanduKinerjaData,
+  DetailPosyanduBalitaKhususData,
   DetailPosyanduRingkasanData,
   KinerjaPosyanduPerhatianKhususItem,
   TrenDataPosyanduItem,
@@ -50,15 +51,18 @@ const KinerjaPosyanduPage: React.FC = () => {
   const [trenData, setTrenData] = useState<TrenDataPosyanduItem[] | null>(null);
   const [detailOverviewData, setDetailOverviewData] = useState<DetailPosyanduOverviewData | null>(null);
   const [detailKinerjaData, setDetailKinerjaData] = useState<DetailPosyanduKinerjaData | null>(null);
+  const [detailBalitaData, setDetailBalitaData] = useState<DetailPosyanduBalitaKhususData | null>(null);
   const [detailRingkasanData, setDetailRingkasanData] = useState<DetailPosyanduRingkasanData | null>(null);
   const [perhatianKhususData, setPerhatianKhususData] = useState<KinerjaPosyanduPerhatianKhususItem[] | null>(null);
   const [perhatianKhususLoading, setPerhatianKhususLoading] = useState(true);
   const [perhatianKhususPage, setPerhatianKhususPage] = useState(1);
+  const [detailBalitaPage, setDetailBalitaPage] = useState(1);
   const [userLocation, setUserLocation] = useState<Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa">>({});
   const currentDate = new Date();
   const currentBulan = currentDate.getMonth() + 1;
   const currentTahun = currentDate.getFullYear();
   const perhatianKhususItemsPerPage = 4;
+  const detailBalitaLimit = 10;
 
   const getCurrentUserLocation = (): Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> => {
     if (typeof window === "undefined") {
@@ -552,6 +556,57 @@ const KinerjaPosyanduPage: React.FC = () => {
     }));
   }, [detailKinerjaData]);
 
+  const balitaTableData = useMemo(() => {
+    if (detailBalitaData?.balita?.length) {
+      return detailBalitaData.balita.map((child) => ({
+        id: String(child.id_balita),
+        nik_anak: "-",
+        nama_anak: child.nama,
+        jenis_kelamin: "-",
+        usia_bulan: Number(child.usia.match(/\d+/)?.[0] ?? 0),
+        usia_label: child.usia,
+        tanggal_lahir: "-",
+        nama_ibu: child.ibu,
+        berat_badan: child.berat_badan,
+        tinggi_badan: child.tinggi_badan,
+        status_gizi: child.status,
+        status_stunting: "-",
+        prioritas: "-",
+      }));
+    }
+
+    return (selectedPosyanduDetail?.allChildren ?? []).map((child) => ({
+      id: child.id,
+      nik_anak: child.nik_anak,
+      nama_anak: child.nama_anak,
+      jenis_kelamin: child.jenis_kelamin,
+      usia_bulan: child.usia_bulan,
+      usia_label: `${child.usia_bulan} bulan`,
+      tanggal_lahir: child.tanggal_lahir,
+      nama_ibu: child.nama_ibu,
+      berat_badan: child.berat_badan,
+      tinggi_badan: child.tinggi_badan,
+      status_gizi: child.status_gizi,
+      status_stunting: child.status_stunting,
+      prioritas: child.prioritas,
+    }));
+  }, [detailBalitaData, selectedPosyanduDetail]);
+
+  const totalBalitaRows = detailBalitaData?.pagination?.total_data ?? balitaTableData.length;
+  const totalBalitaPages = Math.max(1, detailBalitaData?.pagination?.total_page ?? 1);
+  const balitaStatusSummary = useMemo(() => {
+    return balitaTableData.reduce<Record<string, number>>((acc, child) => {
+      acc[child.status_gizi] = (acc[child.status_gizi] ?? 0) + 1;
+      return acc;
+    }, {});
+  }, [balitaTableData]);
+  const balitaRangeStart = totalBalitaRows === 0 ? 0 : (detailBalitaPage - 1) * detailBalitaLimit + 1;
+  const balitaRangeEnd = Math.min(detailBalitaPage * detailBalitaLimit, totalBalitaRows);
+
+  useEffect(() => {
+    setDetailBalitaPage(1);
+  }, [selectedPosyanduApiId]);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -627,14 +682,41 @@ const KinerjaPosyanduPage: React.FC = () => {
       }
     };
 
+    const loadDetailBalita = async () => {
+      if (!selectedPosyanduApiId) {
+        setDetailBalitaData(null);
+        return;
+      }
+
+      setDetailBalitaData(null);
+
+      const result = await fetchDetailPosyanduBalitaAll(selectedPosyanduApiId, {
+        bulan: currentBulan,
+        tahun: currentTahun,
+        page: detailBalitaPage,
+        limit: detailBalitaLimit,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setDetailBalitaData(result.data);
+      } else {
+        setDetailBalitaData(null);
+      }
+    };
+
     loadDetailOverview();
     loadDetailRingkasan();
     loadDetailKinerja();
+    loadDetailBalita();
 
     return () => {
       isMounted = false;
     };
-  }, [selectedPosyanduApiId, currentBulan, currentTahun]);
+  }, [selectedPosyanduApiId, currentBulan, currentTahun, detailBalitaPage]);
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
@@ -1249,12 +1331,83 @@ const KinerjaPosyanduPage: React.FC = () => {
                         <h3 className="text-lg font-semibold text-dark dark:text-white">👶 Daftar Semua Balita di Posyandu</h3>
                         <div className="flex gap-2">
                           <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                            Total: {selectedPosyanduDetail.allChildren.length} balita
+                            Total: {totalBalitaRows} balita
                           </span>
                         </div>
                       </div>
-                      {selectedPosyanduDetail.allChildren.length > 0 ? (
-                        <div className="overflow-x-auto">
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Total balita</p>
+                          <p className="mt-1 text-2xl font-bold text-dark dark:text-white">{totalBalitaRows}</p>
+                        </div>
+                        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Status gizi terbanyak</p>
+                          <p className="mt-1 text-base font-semibold text-dark dark:text-white">
+                            {Object.entries(balitaStatusSummary).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "-"}
+                          </p>
+                        </div>
+                        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Halaman aktif</p>
+                          <p className="mt-1 text-2xl font-bold text-dark dark:text-white">{detailBalitaPage}</p>
+                        </div>
+                      </div>
+                      {Object.keys(balitaStatusSummary).length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {Object.entries(balitaStatusSummary).map(([status, total]) => (
+                            <span
+                              key={status}
+                              className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-sm font-medium text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                            >
+                              {status}: {total}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {balitaTableData.length > 0 ? (
+                        <div className="space-y-4">
+                          <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+                            <div className="overflow-x-auto">
+                              <table className="min-w-full">
+                                <thead className="bg-gray-50 dark:bg-gray-800/80">
+                                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">No</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Nama Balita</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Nama Ibu</th>
+                                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Usia</th>
+                                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">BB (kg)</th>
+                                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">TB (cm)</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status Gizi</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-dark">
+                                  {balitaTableData.map((child, index) => (
+                                    <tr key={`summary-${child.id}`} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{((detailBalitaPage - 1) * detailBalitaLimit) + index + 1}</td>
+                                      <td className="px-4 py-3 font-medium text-dark dark:text-white">{child.nama_anak}</td>
+                                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{child.nama_ibu}</td>
+                                      <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.usia_label}</td>
+                                      <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.berat_badan}</td>
+                                      <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.tinggi_badan}</td>
+                                      <td className="px-4 py-3">
+                                        <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                                          child.status_gizi === "Gizi Buruk"
+                                            ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                                            : child.status_gizi === "Gizi Kurang"
+                                            ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
+                                            : child.status_gizi === "Gizi Lebih"
+                                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                            : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                        }`}>
+                                          {child.status_gizi}
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        <div className="hidden overflow-x-auto">
                           <table className="min-w-full">
                             <thead>
                               <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -1273,21 +1426,25 @@ const KinerjaPosyanduPage: React.FC = () => {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                              {selectedPosyanduDetail.allChildren.map((child, index) => (
+                              {balitaTableData.map((child, index) => (
                                 <tr key={child.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{index + 1}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{((detailBalitaPage - 1) * detailBalitaLimit) + index + 1}</td>
                                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{child.nik_anak}</td>
                                   <td className="px-4 py-3 font-medium text-dark dark:text-white">{child.nama_anak}</td>
                                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                                     <span className={`rounded-full px-2 py-1 text-xs font-medium ${
                                       child.jenis_kelamin === "Laki-laki"
                                         ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
-                                        : "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400"
+                                        : child.jenis_kelamin === "Perempuan"
+                                        ? "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400"
+                                        : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
                                     }`}>
                                       {child.jenis_kelamin === "Laki-laki" ? "♂ L" : "♀ P"}
                                     </span>
                                   </td>
-                                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{new Date(child.tanggal_lahir).toLocaleDateString('id-ID')}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                                    {child.tanggal_lahir !== "-" ? new Date(child.tanggal_lahir).toLocaleDateString('id-ID') : "-"}
+                                  </td>
                                   <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.usia_bulan}</td>
                                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{child.nama_ibu}</td>
                                   <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.berat_badan}</td>
@@ -1309,6 +1466,8 @@ const KinerjaPosyanduPage: React.FC = () => {
                                     <span className={`rounded-full px-2 py-1 text-xs font-medium ${
                                       child.status_stunting === "Stunting"
                                         ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+                                        : child.status_stunting === "-"
+                                        ? "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
                                         : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                                     }`}>
                                       {child.status_stunting}
@@ -1320,6 +1479,8 @@ const KinerjaPosyanduPage: React.FC = () => {
                                         ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
                                         : child.prioritas === "Tinggi"
                                         ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
+                                        : child.prioritas === "-"
+                                        ? "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
                                         : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
                                     }`}>
                                       {child.prioritas}
@@ -1330,12 +1491,39 @@ const KinerjaPosyanduPage: React.FC = () => {
                             </tbody>
                           </table>
                         </div>
+                        </div>
                       ) : (
-                        <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+                        <div className="rounded-xl border border-dashed border-gray-300 py-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
                           <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <p className="mt-2">Tidak ada data balita di posyandu ini</p>
+                          <p className="mt-2 font-medium">Belum ada data balita</p>
+                          <p className="text-sm">API tidak mengembalikan item untuk posyandu dan periode ini.</p>
+                        </div>
+                      )}
+                      {detailBalitaData?.pagination && totalBalitaPages > 1 && (
+                        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Halaman {detailBalitaPage} dari {totalBalitaPages}
+                          </p>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setDetailBalitaPage((prev) => Math.max(1, prev - 1))}
+                              disabled={detailBalitaPage <= 1}
+                              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+                            >
+                              Sebelumnya
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDetailBalitaPage((prev) => Math.min(totalBalitaPages, prev + 1))}
+                              disabled={detailBalitaPage >= totalBalitaPages}
+                              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              Berikutnya
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
