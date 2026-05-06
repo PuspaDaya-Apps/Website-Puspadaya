@@ -8,7 +8,8 @@ import {
   type DashboardKepalaDesaQueryParams,
 } from "@/app/api/dashboard-kinerja-kepala-desa";
 import { fetchTrenDataPosyandu } from "@/app/api/dashboard-kepala-desa";
-import { TrenDataPosyanduItem } from "@/types/kepala-desa";
+import { fetchKinerjaPerhatianKhusus } from "@/app/api/dashboard-kinerja-kepala-desa";
+import { KinerjaPosyanduPerhatianKhususItem, TrenDataPosyanduItem } from "@/types/kepala-desa";
 import { posyanduPerformanceData, posyanduListData, criticalChildrenData, kaderWorkloadData, monthlyTrendData, allChildrenData } from "@/data/dummy-dashboard-kepala-desa";
 import DurasiJarakAgregat from "@/components/Dashboard/component-desa/DurasiJarakAgregat";
 import { dashboardSummaryData } from "@/data/dummy-dashboard-kepala-desa";
@@ -40,10 +41,14 @@ const KinerjaPosyanduPage: React.FC = () => {
     };
   } | null>(null);
   const [trenData, setTrenData] = useState<TrenDataPosyanduItem[] | null>(null);
+  const [perhatianKhususData, setPerhatianKhususData] = useState<KinerjaPosyanduPerhatianKhususItem[] | null>(null);
+  const [perhatianKhususLoading, setPerhatianKhususLoading] = useState(true);
+  const [perhatianKhususPage, setPerhatianKhususPage] = useState(1);
   const [userLocation, setUserLocation] = useState<Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa">>({});
   const currentDate = new Date();
   const currentBulan = currentDate.getMonth() + 1;
   const currentTahun = currentDate.getFullYear();
+  const perhatianKhususItemsPerPage = 4;
 
   const getCurrentUserLocation = (): Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> => {
     if (typeof window === "undefined") {
@@ -129,6 +134,38 @@ const KinerjaPosyanduPage: React.FC = () => {
     };
   }, [currentBulan, currentTahun, userLocation]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadPerhatianKhusus = async () => {
+      setPerhatianKhususLoading(true);
+
+      const result = await fetchKinerjaPerhatianKhusus({
+        bulan: currentBulan,
+        tahun: currentTahun,
+        ...userLocation,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setPerhatianKhususData(result.data.posyandu ?? []);
+      } else {
+        setPerhatianKhususData(null);
+      }
+
+      setPerhatianKhususLoading(false);
+    };
+
+    loadPerhatianKhusus();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentBulan, currentTahun, userLocation]);
+
   const openPosyanduDetail = (posyanduId: string) => {
     const token = createPosyanduDetailToken({
       idPosyandu: posyanduId,
@@ -191,12 +228,47 @@ const KinerjaPosyanduPage: React.FC = () => {
     })
     .sort((a, b) => (a.ranking ?? 0) - (b.ranking ?? 0));
 
+  const perhatianKhususList = useMemo(() => {
+    if (perhatianKhususData && perhatianKhususData.length > 0) {
+      return [...perhatianKhususData].sort((a, b) => b.rank - a.rank);
+    }
+
+    return [...sortedPosyandu]
+      .slice(-4)
+      .reverse()
+      .map((posyandu, index) => {
+        const posyanduInfo = posyanduListData.find(
+          (p) => p.id === posyandu.posyandu_id || p.nama_posyandu === posyandu.nama_posyandu
+        );
+
+        return {
+          rank: sortedPosyandu.length - index,
+          id_posyandu: Number(posyandu.posyandu_id),
+          nama_posyandu: posyandu.nama_posyandu,
+          lokasi: posyanduInfo?.nama_dusun ?? "",
+          skor: posyandu.skor_kinerja,
+          kategori: posyandu.kategori,
+        };
+      });
+  }, [perhatianKhususData, sortedPosyandu]);
+
+  const perhatianKhususTotalPages = Math.max(1, Math.ceil(perhatianKhususList.length / perhatianKhususItemsPerPage));
+  const perhatianKhususVisible = perhatianKhususList.slice(
+    (perhatianKhususPage - 1) * perhatianKhususItemsPerPage,
+    perhatianKhususPage * perhatianKhususItemsPerPage
+  );
+
+  useEffect(() => {
+    if (perhatianKhususPage > perhatianKhususTotalPages) {
+      setPerhatianKhususPage(perhatianKhususTotalPages);
+    }
+  }, [perhatianKhususPage, perhatianKhususTotalPages]);
+
   // Get top 3 and bottom 3
   const apiTop3 = [...apiPosyanduList]
     .filter((posyandu) => [1, 2, 3].includes(posyandu.ranking ?? 0))
     .sort((a, b) => (a.ranking ?? 0) - (b.ranking ?? 0));
   const top3 = apiTop3.length > 0 ? apiTop3 : sortedPosyandu.slice(0, 3);
-  const bottom3 = sortedPosyandu.slice(-3).reverse();
 
   // Calculate average scores
   const avgScore = ringkasanData?.rata_rata_skor ?? Math.round(
@@ -379,41 +451,91 @@ const KinerjaPosyanduPage: React.FC = () => {
 
             {/* Bottom 3 */}
             <div>
-              <h3 className="mb-4 flex items-center gap-2 text-xl font-bold text-red-600 dark:text-red-400">
-                <span>⚠️</span> Perlu Perhatian Khusus
-              </h3>
-              <div className="space-y-3">
-                {bottom3.map((posyandu) => {
-                  const posyanduInfo = posyanduListData.find((p) => p.id === posyandu.posyandu_id);
-                  return (
-                    <div
-                      key={posyandu.posyandu_id}
-                      className="flex items-center justify-between rounded-lg border-2 border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-200 font-bold text-red-700 dark:bg-red-800 dark:text-red-300">
-                          {sortedPosyandu.indexOf(posyandu) + 1}
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-dark dark:text-white">{posyandu.nama_posyandu}</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{posyanduInfo?.nama_dusun}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-3xl font-bold text-red-600 dark:text-red-400">{posyandu.skor_kinerja}</p>
-                        <p className="text-sm text-red-500 dark:text-red-400">{posyandu.kategori}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => openPosyanduDetail(posyandu.posyandu_id)}
-                        className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
-                      >
-                        Detail
-                      </button>
-                    </div>
-                  );
-                })}
+              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h3 className="flex items-center gap-2 text-xl font-bold text-red-600 dark:text-red-400">
+                  <span>!</span> Perlu Perhatian Khusus
+                </h3>
+                {!perhatianKhususLoading && perhatianKhususList.length > 4 && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Menampilkan {perhatianKhususVisible.length} dari {perhatianKhususList.length} posyandu
+                  </p>
+                )}
               </div>
+
+              {perhatianKhususLoading ? (
+                <div className="rounded-xl border border-dashed border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+                  Memuat data perhatian khusus...
+                </div>
+              ) : perhatianKhususList.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {perhatianKhususVisible.map((posyandu) => (
+                      <div
+                        key={posyandu.id_posyandu}
+                        className="rounded-xl border-2 border-red-200 bg-red-50 p-5 shadow-sm transition hover:shadow-md dark:border-red-800 dark:bg-red-900/20"
+                      >
+                        <div className="mb-4 flex items-start justify-between gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-200 font-bold text-red-700 dark:bg-red-800 dark:text-red-300">
+                              {posyandu.rank}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-dark dark:text-white">{posyandu.nama_posyandu}</h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">{posyandu.lokasi}</p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => openPosyanduDetail(String(posyandu.id_posyandu))}
+                            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+                          >
+                            Detail
+                          </button>
+                        </div>
+                        <div className="flex items-end justify-between gap-3">
+                          <div>
+                            <p className="text-xs uppercase tracking-wide text-red-500 dark:text-red-400">Skor Kinerja</p>
+                            <p className="text-3xl font-bold text-red-600 dark:text-red-400">{posyandu.skor}</p>
+                          </div>
+                          <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-red-700 shadow-sm dark:bg-gray-800 dark:text-red-300">
+                            {posyandu.kategori}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {perhatianKhususList.length > perhatianKhususItemsPerPage && (
+                    <div className="mt-4 flex flex-col items-center gap-3 text-center text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setPerhatianKhususPage((page) => Math.max(1, page - 1))}
+                          disabled={perhatianKhususPage === 1}
+                          className="rounded-lg border border-red-300 px-3 py-1.5 font-medium text-red-700 transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-800 dark:text-red-300"
+                        >
+                          Sebelumnya
+                        </button>
+                        <span className="rounded-lg bg-red-100 px-3 py-1.5 font-medium text-red-700 dark:bg-red-900/30 dark:text-red-300">
+                          Halaman {perhatianKhususPage} dari {perhatianKhususTotalPages}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setPerhatianKhususPage((page) => Math.min(perhatianKhususTotalPages, page + 1))}
+                          disabled={perhatianKhususPage === perhatianKhususTotalPages}
+                          className="rounded-lg border border-red-300 px-3 py-1.5 font-medium text-red-700 transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-800 dark:text-red-300"
+                        >
+                          Berikutnya
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="rounded-xl border border-dashed border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+                  Tidak ada data perhatian khusus.
+                </div>
+              )}
             </div>
 
             {/* All Posyandu List */}
