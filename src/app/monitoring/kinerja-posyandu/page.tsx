@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PosyanduPerformance, CriticalChild, KaderWorkload } from "@/types/dashboard-kepala-desa";
-import { fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
+import { fetchDetailPosyanduKinerja, fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan } from "@/app/api/detail-dashboard-kepala-desa";
 import {
   fetchKinerjaRingkasan,
   type DashboardKepalaDesaQueryParams,
@@ -12,6 +12,7 @@ import { fetchTrenDataPosyandu } from "@/app/api/dashboard-kepala-desa";
 import { fetchKinerjaPerhatianKhusus } from "@/app/api/dashboard-kinerja-kepala-desa";
 import {
   DetailPosyanduOverviewData,
+  DetailPosyanduKinerjaData,
   DetailPosyanduRingkasanData,
   KinerjaPosyanduPerhatianKhususItem,
   TrenDataPosyanduItem,
@@ -48,6 +49,7 @@ const KinerjaPosyanduPage: React.FC = () => {
   } | null>(null);
   const [trenData, setTrenData] = useState<TrenDataPosyanduItem[] | null>(null);
   const [detailOverviewData, setDetailOverviewData] = useState<DetailPosyanduOverviewData | null>(null);
+  const [detailKinerjaData, setDetailKinerjaData] = useState<DetailPosyanduKinerjaData | null>(null);
   const [detailRingkasanData, setDetailRingkasanData] = useState<DetailPosyanduRingkasanData | null>(null);
   const [perhatianKhususData, setPerhatianKhususData] = useState<KinerjaPosyanduPerhatianKhususItem[] | null>(null);
   const [perhatianKhususLoading, setPerhatianKhususLoading] = useState(true);
@@ -539,6 +541,17 @@ const KinerjaPosyanduPage: React.FC = () => {
     return selectedPosyanduDetail?.criticalChildren ?? [];
   }, [detailOverviewData, selectedPosyanduDetail]);
 
+  const overviewAttendanceTrend = useMemo(() => {
+    if (detailKinerjaData?.kinerja?.tren_kehadiran_6_bulan?.length) {
+      return detailKinerjaData.kinerja.tren_kehadiran_6_bulan;
+    }
+
+    return monthlyTrendData.map((item) => ({
+      bulan: item.bulan,
+      jumlah_hadir: item.balita,
+    }));
+  }, [detailKinerjaData]);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -590,8 +603,33 @@ const KinerjaPosyanduPage: React.FC = () => {
       }
     };
 
+    const loadDetailKinerja = async () => {
+      if (!selectedPosyanduApiId) {
+        setDetailKinerjaData(null);
+        return;
+      }
+
+      setDetailKinerjaData(null);
+
+      const result = await fetchDetailPosyanduKinerja(selectedPosyanduApiId, {
+        bulan: currentBulan,
+        tahun: currentTahun,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setDetailKinerjaData(result.data);
+      } else {
+        setDetailKinerjaData(null);
+      }
+    };
+
     loadDetailOverview();
     loadDetailRingkasan();
+    loadDetailKinerja();
 
     return () => {
       isMounted = false;
@@ -1085,18 +1123,18 @@ const KinerjaPosyanduPage: React.FC = () => {
                       <div>
                         <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Tren Kehadiran 6 Bulan Terakhir</h3>
                         <div className="flex items-end gap-2 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-                          {monthlyTrendData.map((month, index) => {
-                            const maxValue = Math.max(...monthlyTrendData.map((m) => m.balita));
-                            const height = (month.balita / maxValue) * 100;
+                          {overviewAttendanceTrend.map((month, index) => {
+                            const maxValue = Math.max(...overviewAttendanceTrend.map((item) => item.jumlah_hadir), 1);
+                            const height = (month.jumlah_hadir / maxValue) * 100;
                             return (
                               <div key={index} className="flex-1 text-center">
                                 <div
                                   className="mx-auto w-full max-w-[50px] rounded-t bg-gradient-to-t from-primary to-blue-400 transition-all hover:from-primary/80 hover:to-blue-300"
                                   style={{ height: `${height}%`, minHeight: "30px" }}
-                                  title={`${month.bulan}: ${month.balita} balita`}
+                                  title={`${month.bulan}: ${month.jumlah_hadir} hadir`}
                                 />
                                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{month.bulan.slice(0, 3)}</p>
-                                <p className="text-xs font-medium text-dark dark:text-white">{month.balita}</p>
+                                <p className="text-xs font-medium text-dark dark:text-white">{month.jumlah_hadir}</p>
                               </div>
                             );
                           })}
