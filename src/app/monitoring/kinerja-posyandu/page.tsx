@@ -12,7 +12,6 @@ import {
 } from "recharts";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PosyanduPerformance, CriticalChild, KaderWorkload } from "@/types/dashboard-kepala-desa";
 import { fetchDetailPosyanduBalitaAll, fetchDetailPosyanduKader, fetchDetailPosyanduKinerja, fetchDetailPosyanduOverview, fetchDetailPosyanduRingkasan, fetchKinerjaPerPosyandu } from "@/app/api/detail-dashboard-kepala-desa";
 import {
   fetchKinerjaRingkasan,
@@ -30,7 +29,6 @@ import {
   TrenDataPosyanduItem,
   KinerjaPerPosyanduData,
 } from "@/types/kepala-desa";
-import { posyanduPerformanceData, posyanduListData, criticalChildrenData, kaderWorkloadData, monthlyTrendData, allChildrenData } from "@/data/dummy-dashboard-kepala-desa";
 import { createPosyanduDetailToken } from "@/utils/posyanduDetailToken";
 
 interface CurrentUserLocation {
@@ -76,6 +74,24 @@ const KinerjaPosyanduPage: React.FC = () => {
   const currentTahun = currentDate.getFullYear();
   const perhatianKhususItemsPerPage = 4;
   const detailBalitaLimit = 10;
+  const zeroTrendMonths = useMemo(
+    () => ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"].map((bulan) => ({ bulan, jumlah_hadir: 0 })),
+    []
+  );
+
+  const ErrorCard = ({ title, message }: { title: string; message: string }) => (
+    <div className="rounded-xl border border-dashed border-red-300 bg-red-50 p-6 text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-full bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300">
+          !
+        </div>
+        <div>
+          <p className="font-semibold">{title}</p>
+          <p className="mt-1 text-sm">{message}</p>
+        </div>
+      </div>
+    </div>
+  );
 
   const getCurrentUserLocation = (): Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> => {
     if (typeof window === "undefined") {
@@ -202,11 +218,6 @@ const KinerjaPosyanduPage: React.FC = () => {
     router.push(`/monitoring/posyandu/${token}`);
   };
 
-  // Sort posyandu by performance
-  const sortedPosyandu = useMemo(() => {
-    return [...posyanduPerformanceData].sort((a, b) => b.skor_kinerja - a.skor_kinerja);
-  }, []);
-
   const apiPosyanduList = useMemo(() => {
     return (trenData ?? []).map((item, index) => ({
       id: item.id ?? `${item.nama}-${index + 1}`,
@@ -229,50 +240,16 @@ const KinerjaPosyanduPage: React.FC = () => {
     }));
   }, [trenData]);
 
-  const listPosyandu = apiPosyanduList.length > 0 ? apiPosyanduList : posyanduPerformanceData
-    .map((performance) => {
-      const info = posyanduListData.find((p) => p.id === performance.posyandu_id);
-
-      return {
-        id: performance.posyandu_id,
-        nama_posyandu: performance.nama_posyandu,
-        nama_dusun: info?.nama_dusun ?? "",
-        nama_kecamatan: info?.nama_kecamatan ?? "",
-        nama_kabupaten_kota: info?.nama_kabupaten_kota ?? "",
-        total_balita: info?.total_balita ?? 0,
-        total_ibu_hamil: info?.total_ibu_hamil ?? 0,
-        total_kader: info?.total_kader ?? 0,
-        kehadiran_balita_bulan_ini: info?.kehadiran_balita_bulan_ini ?? 0,
-        kehadiran_ibu_hamil_bulan_ini: info?.kehadiran_ibu_hamil_bulan_ini ?? 0,
-        status_stunting: info?.status_stunting ?? 0,
-        status_gizi_buruk: info?.status_gizi_buruk ?? 0,
-        persentase_kehadiran: performance.kehadiran,
-        skor_kinerja: performance.skor_kinerja,
-        kategori_kinerja: performance.kategori,
-        ranking: performance.posyandu_id ? Number(performance.posyandu_id) : 0,
-        last_updated: info?.last_updated ?? "",
-      };
-    })
-    .sort((a, b) => (a.ranking ?? 0) - (b.ranking ?? 0));
+  const listPosyandu = apiPosyanduList;
 
   const detailPosyanduTabs = useMemo(() => {
-    const source = apiPosyanduList.length > 0 ? apiPosyanduList : listPosyandu;
-
-    return source.map((posyandu) => {
-      const matchedDummyPosyandu = posyanduListData.find(
-        (item) => item.id === posyandu.id || item.nama_posyandu === posyandu.nama_posyandu
-      );
-      const matchedPerformance = posyanduPerformanceData.find(
-        (item) => item.posyandu_id === posyandu.id || item.nama_posyandu === posyandu.nama_posyandu
-      );
-
-      return {
-        id: posyandu.id,
-        detailId: matchedDummyPosyandu?.id ?? matchedPerformance?.posyandu_id ?? posyandu.id,
-        nama_posyandu: posyandu.nama_posyandu,
-      };
-    });
-  }, [apiPosyanduList, listPosyandu]);
+    return listPosyandu.map((posyandu) => ({
+      id: posyandu.id,
+      detailId: posyandu.id,
+      nama_posyandu: posyandu.nama_posyandu,
+      skor_kinerja: posyandu.skor_kinerja,
+    }));
+  }, [listPosyandu]);
 
   useEffect(() => {
     if (detailPosyanduTabs.length === 0) {
@@ -323,24 +300,8 @@ const KinerjaPosyanduPage: React.FC = () => {
       return [...perhatianKhususData].sort((a, b) => b.rank - a.rank);
     }
 
-    return [...sortedPosyandu]
-      .slice(-4)
-      .reverse()
-      .map((posyandu, index) => {
-        const posyanduInfo = posyanduListData.find(
-          (p) => p.id === posyandu.posyandu_id || p.nama_posyandu === posyandu.nama_posyandu
-        );
-
-        return {
-          rank: sortedPosyandu.length - index,
-          id_posyandu: Number(posyandu.posyandu_id),
-          nama_posyandu: posyandu.nama_posyandu,
-          lokasi: posyanduInfo?.nama_dusun ?? "",
-          skor: posyandu.skor_kinerja,
-          kategori: posyandu.kategori,
-        };
-      });
-  }, [perhatianKhususData, sortedPosyandu]);
+    return [];
+  }, [perhatianKhususData]);
 
   const perhatianKhususTotalPages = Math.max(1, Math.ceil(perhatianKhususList.length / perhatianKhususItemsPerPage));
   const perhatianKhususVisible = perhatianKhususList.slice(
@@ -358,24 +319,22 @@ const KinerjaPosyanduPage: React.FC = () => {
   const apiTop3 = [...apiPosyanduList]
     .filter((posyandu) => [1, 2, 3].includes(posyandu.ranking ?? 0))
     .sort((a, b) => (a.ranking ?? 0) - (b.ranking ?? 0));
-  const top3 = apiTop3.length > 0 ? apiTop3 : sortedPosyandu.slice(0, 3);
+  const top3 = apiTop3;
 
   // Calculate average scores
-  const avgScore = ringkasanData?.rata_rata_skor ?? Math.round(
-    posyanduPerformanceData.reduce((sum, p) => sum + p.skor_kinerja, 0) / posyanduPerformanceData.length
-  );
+  const avgScore = ringkasanData?.rata_rata_skor ?? 0;
 
   // Get category counts
   const categoryCounts = useMemo(() => {
     return {
-      sangatBaik: ringkasanData?.kategori_posyandu?.sangat_baik ?? posyanduPerformanceData.filter((p) => p.kategori === "Sangat Baik").length,
-      baik: ringkasanData?.kategori_posyandu?.baik ?? posyanduPerformanceData.filter((p) => p.kategori === "Baik").length,
-      cukup: ringkasanData?.kategori_posyandu?.cukup ?? posyanduPerformanceData.filter((p) => p.kategori === "Cukup").length,
-      kurang: ringkasanData?.kategori_posyandu?.kurang ?? posyanduPerformanceData.filter((p) => p.kategori === "Kurang").length,
+      sangatBaik: ringkasanData?.kategori_posyandu?.sangat_baik ?? 0,
+      baik: ringkasanData?.kategori_posyandu?.baik ?? 0,
+      cukup: ringkasanData?.kategori_posyandu?.cukup ?? 0,
+      kurang: ringkasanData?.kategori_posyandu?.kurang ?? 0,
     };
   }, [ringkasanData]);
 
-  const totalPosyandu = ringkasanData?.total_posyandu ?? listPosyandu.length;
+  const totalPosyandu = ringkasanData?.total_posyandu ?? 0;
 
   // Get selected posyandu detail
   const selectedPosyanduDetail = useMemo(() => {
@@ -384,26 +343,15 @@ const KinerjaPosyanduPage: React.FC = () => {
     const selectedListItem = listPosyandu.find(
       (item) => item.id === selectedPosyanduApiId || item.id === selectedPosyanduResolvedId || item.nama_posyandu === selectedPosyanduResolvedName
     );
-    const performance = posyanduPerformanceData.find(
-      (p) => p.posyandu_id === selectedPosyanduResolvedId || p.nama_posyandu === selectedPosyanduResolvedName
-    );
-    const posyanduFromDummy = posyanduListData.find(
-      (p) => p.id === selectedPosyanduResolvedId || p.nama_posyandu === selectedPosyanduResolvedName
-    );
-
-    // Filter data for this posyandu
-    const criticalChildren = criticalChildrenData.filter((c) => c.posyandu_id === selectedPosyanduResolvedId);
-    const allChildren = allChildrenData.filter((c) => c.posyandu_id === selectedPosyanduResolvedId);
-    const kaderList = kaderWorkloadData.filter((k) => k.posyandu_id === selectedPosyanduResolvedId);
 
     // Calculate stats
     const stats = overviewStats
       ? {
           total_balita: overviewStats.total_balita,
-          total_ibu_hamil: detailRingkasanData?.ringkasan?.total_ibu_hamil ?? posyanduFromDummy?.total_ibu_hamil ?? selectedListItem?.total_ibu_hamil ?? 0,
-          total_kader: detailRingkasanData?.ringkasan?.total_kader ?? posyanduFromDummy?.total_kader ?? selectedListItem?.total_kader ?? 0,
+          total_ibu_hamil: detailRingkasanData?.ringkasan?.total_ibu_hamil ?? selectedListItem?.total_ibu_hamil ?? 0,
+          total_kader: detailRingkasanData?.ringkasan?.total_kader ?? selectedListItem?.total_kader ?? 0,
           kehadiran_balita: overviewStats.kehadiran_balita,
-          kehadiran_ibu_hamil: detailRingkasanData?.ringkasan?.hadir_ibu_hamil ?? posyanduFromDummy?.kehadiran_ibu_hamil_bulan_ini ?? selectedListItem?.kehadiran_ibu_hamil_bulan_ini ?? 0,
+          kehadiran_ibu_hamil: detailRingkasanData?.ringkasan?.hadir_ibu_hamil ?? selectedListItem?.kehadiran_ibu_hamil_bulan_ini ?? 0,
           persentase_kehadiran: overviewStats.persentase_kehadiran,
           status_stunting: overviewStats.status_stunting,
           status_gizi_buruk: overviewStats.status_gizi_buruk,
@@ -426,53 +374,51 @@ const KinerjaPosyanduPage: React.FC = () => {
             normal: ringkasan.normal,
           };
         })()
-      : posyanduFromDummy
+      : selectedListItem
         ? {
-            total_balita: posyanduFromDummy.total_balita,
-            total_ibu_hamil: posyanduFromDummy.total_ibu_hamil,
-            total_kader: posyanduFromDummy.total_kader,
-            kehadiran_balita: posyanduFromDummy.kehadiran_balita_bulan_ini,
-            kehadiran_ibu_hamil: posyanduFromDummy.kehadiran_ibu_hamil_bulan_ini,
-            persentase_kehadiran: posyanduFromDummy.persentase_kehadiran,
-            status_stunting: posyanduFromDummy.status_stunting,
-            status_gizi_buruk: posyanduFromDummy.status_gizi_buruk,
-            normal: posyanduFromDummy.total_balita - posyanduFromDummy.status_stunting - posyanduFromDummy.status_gizi_buruk,
+            total_balita: selectedListItem.total_balita,
+            total_ibu_hamil: selectedListItem.total_ibu_hamil,
+            total_kader: selectedListItem.total_kader,
+            kehadiran_balita: selectedListItem.kehadiran_balita_bulan_ini,
+            kehadiran_ibu_hamil: selectedListItem.kehadiran_ibu_hamil_bulan_ini,
+            persentase_kehadiran: selectedListItem.persentase_kehadiran,
+            status_stunting: selectedListItem.status_stunting,
+            status_gizi_buruk: selectedListItem.status_gizi_buruk,
+            normal: Math.max(
+              0,
+              selectedListItem.total_balita - selectedListItem.status_stunting - selectedListItem.status_gizi_buruk
+            ),
           }
-        : selectedListItem
+        : detailRingkasanData?.ringkasan
           ? {
-              total_balita: selectedListItem.total_balita,
-              total_ibu_hamil: selectedListItem.total_ibu_hamil,
-              total_kader: selectedListItem.total_kader,
-              kehadiran_balita: selectedListItem.kehadiran_balita_bulan_ini,
-              kehadiran_ibu_hamil: selectedListItem.kehadiran_ibu_hamil_bulan_ini,
-              persentase_kehadiran: selectedListItem.persentase_kehadiran,
-              status_stunting: selectedListItem.status_stunting,
-              status_gizi_buruk: selectedListItem.status_gizi_buruk,
-              normal: Math.max(
-                0,
-                selectedListItem.total_balita - selectedListItem.status_stunting - selectedListItem.status_gizi_buruk
-              ),
+              total_balita: detailRingkasanData.ringkasan.total_balita,
+              total_ibu_hamil: detailRingkasanData.ringkasan.total_ibu_hamil,
+              total_kader: detailRingkasanData.ringkasan.total_kader,
+              kehadiran_balita: detailRingkasanData.ringkasan.hadir_balita,
+              kehadiran_ibu_hamil: detailRingkasanData.ringkasan.hadir_ibu_hamil,
+              persentase_kehadiran:
+                detailRingkasanData.ringkasan.total_balita > 0
+                  ? Math.round(
+                      (detailRingkasanData.ringkasan.hadir_balita / detailRingkasanData.ringkasan.total_balita) * 100
+                    )
+                  : 0,
+              status_stunting: detailRingkasanData.ringkasan.stunting,
+              status_gizi_buruk: detailRingkasanData.ringkasan.gizi_buruk,
+              normal: detailRingkasanData.ringkasan.normal,
             }
-          : detailRingkasanData?.ringkasan
-            ? {
-                total_balita: detailRingkasanData.ringkasan.total_balita,
-                total_ibu_hamil: detailRingkasanData.ringkasan.total_ibu_hamil,
-                total_kader: detailRingkasanData.ringkasan.total_kader,
-                kehadiran_balita: detailRingkasanData.ringkasan.hadir_balita,
-                kehadiran_ibu_hamil: detailRingkasanData.ringkasan.hadir_ibu_hamil,
-                persentase_kehadiran:
-                  detailRingkasanData.ringkasan.total_balita > 0
-                    ? Math.round(
-                        (detailRingkasanData.ringkasan.hadir_balita / detailRingkasanData.ringkasan.total_balita) * 100
-                      )
-                    : 0,
-                status_stunting: detailRingkasanData.ringkasan.stunting,
-                status_gizi_buruk: detailRingkasanData.ringkasan.gizi_buruk,
-                normal: detailRingkasanData.ringkasan.normal,
-              }
-            : null;
+          : {
+              total_balita: 0,
+              total_ibu_hamil: 0,
+              total_kader: 0,
+              kehadiran_balita: 0,
+              kehadiran_ibu_hamil: 0,
+              persentase_kehadiran: 0,
+              status_stunting: 0,
+              status_gizi_buruk: 0,
+              normal: 0,
+            };
 
-    const posyandu = posyanduFromDummy ?? (selectedListItem
+    const posyandu = selectedListItem
       ? {
           id: selectedListItem.id,
           nama_posyandu: selectedListItem.nama_posyandu,
@@ -492,9 +438,9 @@ const KinerjaPosyanduPage: React.FC = () => {
           ranking: selectedListItem.ranking,
           last_updated: selectedListItem.last_updated,
           }
-      : null);
+      : null;
 
-    const resolvedPerformance = performance ?? (selectedListItem
+    const resolvedPerformance = selectedListItem
       ? {
           posyandu_id: selectedPosyanduResolvedId ?? selectedListItem.id,
           nama_posyandu: selectedListItem.nama_posyandu,
@@ -502,9 +448,9 @@ const KinerjaPosyanduPage: React.FC = () => {
           kehadiran: selectedListItem.persentase_kehadiran,
           kategori: selectedListItem.kategori_kinerja,
         }
-      : null);
+      : null;
 
-    return { performance: resolvedPerformance, posyandu, criticalChildren, allChildren, kaderList, stats };
+    return { performance: resolvedPerformance, posyandu, stats };
   }, [detailRingkasanData, listPosyandu, overviewStats, selectedPosyanduApiId, selectedPosyanduResolvedId, selectedPosyanduResolvedName]);
 
   const overviewStatusGizi = useMemo(() => {
@@ -555,19 +501,16 @@ const KinerjaPosyanduPage: React.FC = () => {
       }));
     }
 
-    return selectedPosyanduDetail?.criticalChildren ?? [];
-  }, [detailOverviewData, selectedPosyanduDetail]);
+    return [];
+  }, [detailOverviewData]);
 
   const overviewAttendanceTrend = useMemo(() => {
     if (detailKinerjaData?.kinerja?.tren_kehadiran_6_bulan?.length) {
       return detailKinerjaData.kinerja.tren_kehadiran_6_bulan;
     }
 
-    return monthlyTrendData.map((item) => ({
-      bulan: item.bulan,
-      jumlah_hadir: item.balita,
-    }));
-  }, [detailKinerjaData]);
+    return zeroTrendMonths;
+  }, [detailKinerjaData, zeroTrendMonths]);
 
   const balitaTableData = useMemo(() => {
     if (detailBalitaData?.balita?.length) {
@@ -588,22 +531,8 @@ const KinerjaPosyanduPage: React.FC = () => {
       }));
     }
 
-    return (selectedPosyanduDetail?.allChildren ?? []).map((child) => ({
-      id: child.id,
-      nik_anak: child.nik_anak,
-      nama_anak: child.nama_anak,
-      jenis_kelamin: child.jenis_kelamin,
-      usia_bulan: child.usia_bulan,
-      usia_label: `${child.usia_bulan} bulan`,
-      tanggal_lahir: child.tanggal_lahir,
-      nama_ibu: child.nama_ibu,
-      berat_badan: child.berat_badan,
-      tinggi_badan: child.tinggi_badan,
-      status_gizi: child.status_gizi,
-      status_stunting: child.status_stunting,
-      prioritas: child.prioritas,
-    }));
-  }, [detailBalitaData, selectedPosyanduDetail]);
+    return [];
+  }, [detailBalitaData]);
 
   const totalBalitaRows = detailBalitaData?.pagination?.total_data ?? balitaTableData.length;
   const totalBalitaPages = Math.max(1, detailBalitaData?.pagination?.total_page ?? 1);
@@ -887,8 +816,9 @@ const KinerjaPosyanduPage: React.FC = () => {
               <h3 className="mb-4 flex items-center gap-2 text-xl font-bold text-emerald-600 dark:text-emerald-400">
                 Top 3 Posyandu Terbaik
               </h3>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                {top3.map((posyandu, index) => {
+              {top3.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  {top3.map((posyandu, index) => {
                   const normalizedPosyandu = posyandu as {
                     id?: string;
                     posyandu_id?: string;
@@ -901,11 +831,6 @@ const KinerjaPosyanduPage: React.FC = () => {
                   const namaPosyandu = normalizedPosyandu.nama_posyandu;
                   const skorKinerja = normalizedPosyandu.skor_kinerja ?? 0;
                   const rank = normalizedPosyandu.ranking ?? index + 1;
-                  const posyanduInfo = posyanduListData.find((p) =>
-                    p.id === normalizedPosyandu.id ||
-                    p.id === normalizedPosyandu.posyandu_id ||
-                    p.nama_posyandu === normalizedPosyandu.nama_posyandu
-                  );
                   return (
                     <div
                       key={detailId ?? `${namaPosyandu}-${index}`}
@@ -923,7 +848,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                         </div>
                       </div>
                       <h4 className="text-lg font-bold">{namaPosyandu}</h4>
-                      <p className="mt-1 text-sm text-white/80">{posyanduInfo?.nama_dusun}</p>
+                      <p className="mt-1 text-sm text-white/80">{posyandu.nama_dusun}</p>
                       <p className="mt-4 text-5xl font-bold">{skorKinerja}</p>
                       <p className="text-sm text-white/80">skor kinerja</p>
                       <button
@@ -931,12 +856,18 @@ const KinerjaPosyanduPage: React.FC = () => {
                         onClick={() => detailId && openPosyanduDetail(detailId)}
                         className="mt-4 inline-block rounded-full bg-white/20 px-4 py-2 text-sm font-medium transition hover:bg-white/30"
                       >
-                        Lihat Detail →
+                        Lihat Detail â†’
                       </button>
                     </div>
                   );
-                })}
-              </div>
+                  })}
+                </div>
+              ) : (
+                <ErrorCard
+                  title="Data ranking tidak tersedia"
+                  message="API tidak mengembalikan data ranking posyandu untuk periode ini."
+                />
+              )}
             </div>
 
             {/* Bottom 3 */}
@@ -1024,35 +955,33 @@ const KinerjaPosyanduPage: React.FC = () => {
                   )}
                 </>
               ) : (
-                <div className="rounded-xl border border-dashed border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
-                  Tidak ada data perhatian khusus.
-                </div>
+                <ErrorCard
+                  title="Data perhatian khusus tidak tersedia"
+                  message="API tidak mengembalikan daftar posyandu yang perlu perhatian khusus."
+                />
               )}
             </div>
 
             {/* All Posyandu List */}
             <div>
               <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">Semua Posyandu</h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200 dark:border-gray-700">
-                      <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Rank</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Posyandu</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Lokasi</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Kehadiran</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Peng. Balita</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Peng. Bumil</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Skor</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Kategori</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {listPosyandu.map((posyandu, index) => {
-                      const posyanduInfo = posyanduListData.find(
-                        (p) => p.id === posyandu.id || p.nama_posyandu === posyandu.nama_posyandu
-                      );
-                      return (
+              {listPosyandu.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200 dark:border-gray-700">
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Rank</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Posyandu</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Lokasi</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Kehadiran</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Peng. Balita</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Peng. Bumil</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Skor</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Kategori</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                      {listPosyandu.map((posyandu, index) => (
                         <tr key={posyandu.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                           <td className="px-4 py-3">
                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 font-bold text-gray-700 dark:bg-gray-700 dark:text-gray-300">
@@ -1060,7 +989,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                             </div>
                           </td>
                           <td className="px-4 py-3 font-medium text-dark dark:text-white">{posyandu.nama_posyandu}</td>
-                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{posyanduInfo?.nama_dusun}</td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{posyandu.nama_dusun}</td>
                           <td className="px-4 py-3 text-center">
                             <div className="flex items-center justify-center gap-2">
                               <div className="h-2 w-20 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
@@ -1101,11 +1030,16 @@ const KinerjaPosyanduPage: React.FC = () => {
                             </span>
                           </td>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <ErrorCard
+                  title="Data posyandu kosong"
+                  message="API tidak mengembalikan daftar posyandu untuk periode ini."
+                />
+              )}
             </div>
           </div>
         )}
@@ -1114,12 +1048,9 @@ const KinerjaPosyanduPage: React.FC = () => {
         {activeTab === "detail" && (
             <div className="space-y-6">
               {/* Posyandu Selector */}
-              <div className="flex flex-wrap gap-2">
-                {detailPosyanduTabs.map((posyandu) => {
-                  const performance = posyanduPerformanceData.find(
-                    (p) => p.posyandu_id === posyandu.detailId || p.nama_posyandu === posyandu.nama_posyandu
-                  );
-                  return (
+              {detailPosyanduTabs.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {detailPosyanduTabs.map((posyandu) => (
                     <button
                       key={posyandu.id}
                       onClick={() => {
@@ -1132,18 +1063,23 @@ const KinerjaPosyanduPage: React.FC = () => {
                           ? "bg-primary text-white"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                       }`}
-                  >
-                    {posyandu.nama_posyandu}
-                    {performance && performance.skor_kinerja < 60 && (
-                      <span className="ml-2 rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">!</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+                    >
+                      {posyandu.nama_posyandu}
+                      {posyandu.skor_kinerja < 60 && (
+                        <span className="ml-2 rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">!</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <ErrorCard
+                  title="Data detail posyandu kosong"
+                  message="API tidak mengembalikan daftar posyandu, jadi detail per posyandu tidak bisa ditampilkan."
+                />
+              )}
 
             {/* Selected Posyandu Detail */}
-            {selectedPosyanduDetail && selectedPosyanduDetail.posyandu && selectedPosyanduDetail.stats && (
+            {selectedPosyanduDetail && selectedPosyanduDetail.posyandu && selectedPosyanduDetail.stats ? (
               <div className="space-y-6">
                 {/* Header */}
                 <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
@@ -1345,15 +1281,13 @@ const KinerjaPosyanduPage: React.FC = () => {
                       </div>
 
                       {/* Critical Children Alert */}
-                      {overviewKasusKritis.length > 0 && (
+                      {overviewKasusKritis.length > 0 ? (
                         <div className="rounded-lg border-2 border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
                           <div className="mb-3 flex items-center gap-2">
                             <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
-                            <h3 className="text-lg font-semibold text-red-800 dark:text-red-300">
-                              Kasus Kritis di Posyandu Ini
-                            </h3>
+                            <h3 className="text-lg font-semibold text-red-800 dark:text-red-300">Kasus Kritis di Posyandu Ini</h3>
                           </div>
                           <div className="space-y-2">
                             {overviewKasusKritis.slice(0, 5).map((child) => (
@@ -1361,31 +1295,23 @@ const KinerjaPosyanduPage: React.FC = () => {
                                 <div>
                                   <p className="font-medium text-dark dark:text-white">{child.nama_anak}</p>
                                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                                    {child.usia_bulan} bulan • {child.status_gizi} {child.status_stunting === "Stunting" && "• Stunting"}
+                                    {child.usia_bulan} bulan - {child.status_gizi}
+                                    {child.status_stunting === "Stunting" && " - Stunting"}
                                   </p>
                                 </div>
-                                <Link
-                                  href="/monitoring/kasus-kritis"
-                                  className="rounded bg-red-600 px-3 py-1 text-sm font-medium text-white transition hover:bg-red-700"
-                                >
+                                <Link href="/monitoring/kasus-kritis" className="rounded bg-red-600 px-3 py-1 text-sm font-medium text-white transition hover:bg-red-700">
                                   Detail
                                 </Link>
                               </div>
                             ))}
                           </div>
-                          <Link
-                            href="/monitoring/kasus-kritis"
-                            className="mt-3 block text-center text-sm font-medium text-red-700 hover:text-red-800 dark:text-red-300 dark:hover:text-red-200"
-                          >
-                            Lihat semua {overviewKasusKritis.length} kasus kritis →
-                          </Link>
                         </div>
+                      ) : (
+                        <ErrorCard title="Data kasus kritis kosong" message="API tidak mengembalikan kasus kritis untuk posyandu ini." />
                       )}
 
-                
                     </div>
                   )}
-
                   {/* Balita Tab */}
                   {detailTab === "balita" && (
                     <div className="space-y-4">
@@ -1550,13 +1476,10 @@ const KinerjaPosyanduPage: React.FC = () => {
                         </div>
                         </div>
                       ) : (
-                        <div className="rounded-xl border border-dashed border-gray-300 py-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <p className="mt-2 font-medium">Belum ada data balita</p>
-                          <p className="text-sm">API tidak mengembalikan item untuk posyandu dan periode ini.</p>
-                        </div>
+                        <ErrorCard
+                          title="Data balita kosong"
+                          message="API tidak mengembalikan daftar balita untuk posyandu ini."
+                        />
                       )}
                       {detailBalitaData?.pagination && totalBalitaPages > 1 && (
                         <div className="flex flex-col gap-3 rounded-xl border border-gray-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700">
@@ -1628,10 +1551,10 @@ const KinerjaPosyanduPage: React.FC = () => {
                         ))}
                       </div>
                       {kaderDetailCards.length === 0 && (
-                        <div className="rounded-xl border border-dashed border-gray-300 py-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                          <p className="font-medium">Belum ada data kader</p>
-                          <p className="text-sm">API tidak mengembalikan data kader untuk posyandu ini.</p>
-                        </div>
+                        <ErrorCard
+                          title="Data kader kosong"
+                          message="API tidak mengembalikan data kader untuk posyandu ini."
+                        />
                       )}
                     </div>
                   )}
@@ -1734,18 +1657,23 @@ const KinerjaPosyanduPage: React.FC = () => {
                           </div>
                         </>
                       ) : (
-                        <div className="rounded-xl border border-dashed border-gray-300 py-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                          <p className="font-medium">Belum ada data kinerja</p>
-                          <p className="text-sm">API tidak mengembalikan data kinerja untuk posyandu ini.</p>
-                        </div>
+                        <ErrorCard
+                          title="Data kinerja kosong"
+                          message="API tidak mengembalikan data kinerja untuk posyandu ini."
+                        />
                       )}
                     </div>
                   )}
                 </div>
               </div>
-            )}
+            ) : detailPosyanduTabs.length > 0 ? (
+              <ErrorCard
+                title="Detail posyandu tidak tersedia"
+                message="API tidak mengembalikan data detail untuk posyandu yang dipilih."
+              />
+            ) : null}
 
-            {!selectedPosyandu && (
+            {!selectedPosyandu && detailPosyanduTabs.length > 0 && (
               <div className="py-12 text-center text-gray-500 dark:text-gray-400">
                 <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16l2.879-2.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
