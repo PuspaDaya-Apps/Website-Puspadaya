@@ -282,7 +282,7 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
                 { label: "Bayi Baru Lahir", value: displayData.kependudukan.newborn_count, icon: "🍼", color: "teal" },
                 { label: "Ibu Hamil dengan Asuransi", value: displayData.kependudukan.pregnant_women_with_insurance, icon: "🛡️", color: "cyan" },
                 { label: "Bayi 0-12 Bulan dengan Asuransi", value: displayData.kependudukan.infant_with_insurance, icon: "👶", color: "cyan" },
-                { label: "Balita 0-59 Bulan dengan Asuransi", value: displayData.kependudukan.children_under_5_with_insurance, icon: "🧒", color: "cyan" },
+                { label: "Balita 13-59 Bulan dengan Asuransi", value: displayData.kependudukan.children_under_5_with_insurance, icon: "🧒", color: "cyan" },
                 { label: "Akseptor KB", value: displayData.kependudukan.kb_acceptors, icon: "💊", color: "indigo" },
               ].map((item, index) => (
                 <div
