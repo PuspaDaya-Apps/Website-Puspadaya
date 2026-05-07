@@ -2,8 +2,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { CriticalChild } from "@/types/dashboard-kepala-desa";
 import { criticalChildrenData } from "@/data/dummy-dashboard-kepala-desa";
-import { fetchDataKasusKritisBalita, type DashboardKepalaDesaQueryParams } from "@/app/api/dashboard-kinerja-kepala-desa";
-import { KinerjaPosyanduKasusKritisData } from "@/types/kepala-desa";
+import { fetchDataKasusKritisBalita, fetchDataKasusKritis, type DashboardKepalaDesaQueryParams } from "@/app/api/dashboard-kinerja-kepala-desa";
+import { KinerjaPosyanduKasusKritisData, KinerjaPosyanduKasusKritisDaftarPrioritasItem, TrenDataPosyanduItem } from "@/types/kepala-desa";
+import { fetchTrenDataPosyandu } from "@/app/api/dashboard-kepala-desa";
 
 interface CurrentUserLocation {
   kabupaten_kota?: { nama_kabupaten_kota?: string };
@@ -20,14 +21,17 @@ type PosyanduCaseSummary = {
 };
 
 const KasusKritisPage: React.FC = () => {
-  const [filterPosyandu, setFilterPosyandu] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [filterPrioritas, setFilterPrioritas] = useState<string>("all");
+  const [filterPosyanduId, setFilterPosyanduId] = useState<string>("");
+  const [filterStatusGizi, setFilterStatusGizi] = useState<string>("");
+  const [filterStatusPrioritas, setFilterStatusPrioritas] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [posyanduOptions, setPosyanduOptions] = useState<TrenDataPosyanduItem[]>([]);
   const [selectedChild, setSelectedChild] = useState<CriticalChild | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [apiData, setApiData] = useState<KinerjaPosyanduKasusKritisData | null>(null);
   const [apiLoading, setApiLoading] = useState(true);
+  const [daftarPrioritasData, setDaftarPrioritasData] = useState<KinerjaPosyanduKasusKritisDaftarPrioritasItem[] | null>(null);
+  const [daftarPrioritasLoading, setDaftarPrioritasLoading] = useState(true);
 
   const currentDate = new Date();
   const currentBulan = currentDate.getMonth() + 1;
@@ -75,9 +79,69 @@ const KasusKritisPage: React.FC = () => {
     return () => { isMounted = false; };
   }, [currentBulan, currentTahun]);
 
-  const posyanduList = useMemo(() => {
-    return Array.from(new Set(criticalChildrenData.map((c) => c.posyandu_nama)));
-  }, []);
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadPosyanduOptions = async () => {
+      const result = await fetchTrenDataPosyandu({ bulan: currentBulan, tahun: currentTahun });
+      if (!isMounted) return;
+      if (result.successCode === 200 && result.data?.posyandu) {
+        setPosyanduOptions(result.data.posyandu.filter((p) => p.id));
+      }
+    };
+
+    loadPosyanduOptions();
+
+    return () => { isMounted = false; };
+  }, [currentBulan, currentTahun]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadDaftarPrioritas = async () => {
+      setDaftarPrioritasLoading(true);
+
+      const location: Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> = (() => {
+        try {
+          const raw = localStorage.getItem("current_user");
+          if (!raw) return {};
+          const user = JSON.parse(raw) as CurrentUserLocation;
+          return {
+            kabupatenKota: user?.kabupaten_kota?.nama_kabupaten_kota,
+            desa: user?.desa_kelurahan?.nama_desa_kelurahan,
+          };
+        } catch {
+          return {};
+        }
+      })();
+
+      const extraParams: Record<string, string> = {};
+      if (filterPosyanduId) extraParams.id_posyandu = filterPosyanduId;
+      if (filterStatusGizi) extraParams.status_gizi = filterStatusGizi;
+      if (filterStatusPrioritas) extraParams.status_prioritas = filterStatusPrioritas;
+
+      const result = await fetchDataKasusKritis({
+        bulan: currentBulan,
+        tahun: currentTahun,
+        ...location,
+        extraParams,
+      });
+
+      if (!isMounted) return;
+
+      if (result.successCode === 200 && result.data?.daftar_prioritas) {
+        setDaftarPrioritasData(result.data.daftar_prioritas);
+      } else {
+        setDaftarPrioritasData(null);
+      }
+
+      setDaftarPrioritasLoading(false);
+    };
+
+    loadDaftarPrioritas();
+
+    return () => { isMounted = false; };
+  }, [currentBulan, currentTahun, filterPosyanduId, filterStatusGizi, filterStatusPrioritas]);
 
   const getDisplayStatusLabel = (child: CriticalChild) => {
     if (child.status_wasting === "Wasting" || child.status_gizi === "Gizi Buruk") {
@@ -120,25 +184,42 @@ const KasusKritisPage: React.FC = () => {
     }
   };
 
+  const prioritasDisplayMap: Record<string, string> = {
+    sangat_tinggi: "Sangat Tinggi",
+    tinggi: "Tinggi",
+    sedang: "Sedang",
+  };
+
   const filteredChildren = useMemo(() => {
     return criticalChildrenData.filter((child) => {
-      const matchPosyandu = filterPosyandu === "all" || child.posyandu_nama === filterPosyandu;
+      const selectedNama = filterPosyanduId
+        ? posyanduOptions.find((p) => p.id === filterPosyanduId)?.nama
+        : null;
+      const matchPosyandu = !selectedNama || child.posyandu_nama === selectedNama;
       const displayStatus = getDisplayStatusLabel(child);
       const matchStatus =
-        filterStatus === "all" ||
-        (filterStatus === "Wasting" && displayStatus === "Wasting") ||
-        (filterStatus === "Underweight" && displayStatus === "Underweight") ||
-        (filterStatus === "Stunting" && displayStatus === "Stunting") ||
-        child.status_gizi === filterStatus ||
-        child.status_stunting === filterStatus;
-      const matchPrioritas = filterPrioritas === "all" || child.prioritas === filterPrioritas;
+        !filterStatusGizi || displayStatus.toLowerCase() === filterStatusGizi;
+      const matchPrioritas =
+        !filterStatusPrioritas || child.prioritas === prioritasDisplayMap[filterStatusPrioritas];
       const matchSearch =
         child.nama_anak.toLowerCase().includes(searchTerm.toLowerCase()) ||
         child.nama_ibu.toLowerCase().includes(searchTerm.toLowerCase()) ||
         child.dusun.toLowerCase().includes(searchTerm.toLowerCase());
       return matchPosyandu && matchStatus && matchPrioritas && matchSearch;
     });
-  }, [filterPosyandu, filterStatus, filterPrioritas, searchTerm]);
+  }, [filterPosyanduId, filterStatusGizi, filterStatusPrioritas, searchTerm, posyanduOptions]);
+
+  const filteredDaftarPrioritas = useMemo(() => {
+    if (!daftarPrioritasData) return null;
+    if (!searchTerm) return daftarPrioritasData;
+    const q = searchTerm.toLowerCase();
+    return daftarPrioritasData.filter(
+      (item) =>
+        item.anak.nama.toLowerCase().includes(q) ||
+        item.anak.ibu.toLowerCase().includes(q) ||
+        item.lokasi.dusun.toLowerCase().includes(q)
+    );
+  }, [daftarPrioritasData, searchTerm]);
 
   const stats = useMemo(() => {
     if (apiData?.ringkasan) {
@@ -415,158 +496,248 @@ const KasusKritisPage: React.FC = () => {
             <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Posyandu</label>
             <select
               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-dark outline-none focus:border-primary dark:border-gray-600 dark:bg-gray-dark dark:text-white dark:focus:border-primary"
-              value={filterPosyandu}
-              onChange={(e) => setFilterPosyandu(e.target.value)}
+              value={filterPosyanduId}
+              onChange={(e) => setFilterPosyanduId(e.target.value)}
             >
-              <option value="all">Semua Posyandu</option>
-              {posyanduList.map((posyandu) => (
-                <option key={posyandu} value={posyandu}>
-                  {posyandu}
+              <option value="">Semua Posyandu</option>
+              {posyanduOptions.map((p) => (
+                <option key={p.id} value={p.id ?? ""}>
+                  {p.nama}
                 </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Status Gizi</label>
             <select
               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-dark outline-none focus:border-primary dark:border-gray-600 dark:bg-gray-dark dark:text-white dark:focus:border-primary"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              value={filterStatusGizi}
+              onChange={(e) => setFilterStatusGizi(e.target.value)}
             >
-              <option value="all">Semua Status</option>
-              <option value="Wasting">Wasting</option>
-              <option value="Underweight">Underweight</option>
-              <option value="Stunting">Stunting</option>
+              <option value="">Semua Status</option>
+              <option value="wasting">Wasting</option>
+              <option value="underweight">Underweight</option>
+              <option value="stunting">Stunting</option>
             </select>
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Prioritas</label>
             <select
               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-dark outline-none focus:border-primary dark:border-gray-600 dark:bg-gray-dark dark:text-white dark:focus:border-primary"
-              value={filterPrioritas}
-              onChange={(e) => setFilterPrioritas(e.target.value)}
+              value={filterStatusPrioritas}
+              onChange={(e) => setFilterStatusPrioritas(e.target.value)}
             >
-              <option value="all">Semua Prioritas</option>
-              <option value="Sangat Tinggi">Sangat Tinggi</option>
-              <option value="Tinggi">Tinggi</option>
-              <option value="Sedang">Sedang</option>
+              <option value="">Semua Prioritas</option>
+              <option value="sangat_tinggi">Sangat Tinggi</option>
+              <option value="tinggi">Tinggi</option>
+              <option value="sedang">Sedang</option>
             </select>
           </div>
         </div>
       </div>
 
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Prioritas
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Anak
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Usia
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Posyandu/Dusun
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Pengukuran
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Aksi
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredChildren.map((child) => {
-                const displayStatus = getDisplayStatusLabel(child);
-
-                return (
-                  <tr key={child.id} className="transition hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <div className={`h-3 w-3 rounded-full ${getPriorityColor(child.prioritas)}`}></div>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{child.prioritas}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div>
-                        <p className="font-medium text-dark dark:text-white">{child.nama_anak}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Ibu: {child.nama_ibu}</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm text-gray-600 dark:text-gray-300">
-                        {calculateAge(child.tanggal_lahir)} bulan
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div>
-                        <p className="text-sm font-medium text-dark dark:text-white">{child.posyandu_nama}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{child.dusun}</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="text-sm text-gray-600 dark:text-gray-300">
-                        <p>BB: {child.berat_badan} kg</p>
-                        <p>TB: {child.tinggi_badan} cm</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-1">
-                        <span className={`rounded-full px-2 py-1 text-xs font-medium ${getDisplayStatusColor(displayStatus)}`}>
-                          {displayStatus}
-                        </span>
-                        {child.status_stunting === "Stunting" && (
-                          <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                            Stunting
-                          </span>
-                        )}
-                        {child.status_wasting === "Wasting" && (
-                          <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
-                            Wasting
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-center">
-                        <button
-                          onClick={() => {
-                            setSelectedChild(child);
-                            setShowModal(true);
-                          }}
-                          className="rounded-lg bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
-                        >
-                          Detail
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {filteredChildren.length === 0 && (
-          <div className="py-12 text-center">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">Tidak ada data yang sesuai dengan filter</p>
+        {daftarPrioritasLoading ? (
+          <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+            Memuat data...
           </div>
+        ) : filteredDaftarPrioritas ? (
+          <>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Prioritas
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Anak
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Usia
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Posyandu/Dusun
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Pengukuran
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  {filteredDaftarPrioritas.map((item) => (
+                    <tr key={item.id} className="transition hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <div className={`h-3 w-3 rounded-full ${getPriorityColor(item.prioritas)}`}></div>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.prioritas}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div>
+                          <p className="font-medium text-dark dark:text-white">{item.anak.nama}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Ibu: {item.anak.ibu}</p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-sm text-gray-600 dark:text-gray-300">{item.anak.usia_bulan} bulan</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div>
+                          <p className="text-sm font-medium text-dark dark:text-white">{item.lokasi.posyandu}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{item.lokasi.dusun}</p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                          <p>BB: {item.pengukuran.berat_badan_kg} kg</p>
+                          <p>TB: {item.pengukuran.tinggi_badan_cm} cm</p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          {item.status.map((s) => (
+                            <span key={s} className={`rounded-full px-2 py-1 text-xs font-medium ${getDisplayStatusColor(s)}`}>
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {filteredDaftarPrioritas.length === 0 && (
+              <div className="py-12 text-center">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="mt-2 text-gray-600 dark:text-gray-400">Tidak ada data yang sesuai dengan filter</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Prioritas
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Anak
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Usia
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Posyandu/Dusun
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Pengukuran
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Aksi
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  {filteredChildren.map((child) => {
+                    const displayStatus = getDisplayStatusLabel(child);
+                    return (
+                      <tr key={child.id} className="transition hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <div className={`h-3 w-3 rounded-full ${getPriorityColor(child.prioritas)}`}></div>
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{child.prioritas}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div>
+                            <p className="font-medium text-dark dark:text-white">{child.nama_anak}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Ibu: {child.nama_ibu}</p>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-sm text-gray-600 dark:text-gray-300">
+                            {calculateAge(child.tanggal_lahir)} bulan
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div>
+                            <p className="text-sm font-medium text-dark dark:text-white">{child.posyandu_nama}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{child.dusun}</p>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="text-sm text-gray-600 dark:text-gray-300">
+                            <p>BB: {child.berat_badan} kg</p>
+                            <p>TB: {child.tinggi_badan} cm</p>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-wrap gap-1">
+                            <span className={`rounded-full px-2 py-1 text-xs font-medium ${getDisplayStatusColor(displayStatus)}`}>
+                              {displayStatus}
+                            </span>
+                            {child.status_stunting === "Stunting" && (
+                              <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                                Stunting
+                              </span>
+                            )}
+                            {child.status_wasting === "Wasting" && (
+                              <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                                Wasting
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-center">
+                            <button
+                              onClick={() => {
+                                setSelectedChild(child);
+                                setShowModal(true);
+                              }}
+                              className="rounded-lg bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                            >
+                              Detail
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {filteredChildren.length === 0 && (
+              <div className="py-12 text-center">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="mt-2 text-gray-600 dark:text-gray-400">Tidak ada data yang sesuai dengan filter</p>
+              </div>
+            )}
+          </>
         )}
       </div>
 

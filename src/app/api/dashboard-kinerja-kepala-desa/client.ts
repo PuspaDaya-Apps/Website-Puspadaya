@@ -13,6 +13,7 @@ export interface DashboardKepalaDesaQueryParams {
   tahun: number | string;
   kabupatenKota?: string;
   desa?: string;
+  extraParams?: Record<string, string>;
 }
 
 interface CurrentUserLocation {
@@ -73,6 +74,12 @@ const buildDashboardKinerjaKepalaDesaUrl = (endpoint: string, params: DashboardK
 
   query.set('bulan', normalizeBulan(params.bulan));
   query.set('tahun', String(params.tahun));
+
+  if (params.extraParams) {
+    Object.entries(params.extraParams).forEach(([key, value]) => {
+      if (value) query.set(key, value);
+    });
+  }
 
   return `${endpoint}?${query.toString()}`;
 };
