@@ -124,7 +124,10 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
         newborn_count: apiData?.kependudukan.bayi.bayi_baru_lahir ?? 0,
         pregnant_women_with_insurance: apiData?.kependudukan.ibu.ibu_hamil_asuransi ?? 0,
         infant_with_insurance: apiData?.kependudukan.bayi.bayi_0_12_bulan_asuransi ?? 0,
-        children_under_5_with_insurance: apiData?.kependudukan.balita_asuransi.balita_0_59_bulan_asuransi ?? 0,
+        children_under_5_with_insurance:
+          apiData?.kependudukan.balita_asuransi.balita_13_59_bulan_asuransi ??
+          apiData?.kependudukan.balita_asuransi.balita_0_59_bulan_asuransi ??
+          0,
         kb_acceptors: apiData?.kependudukan.kesehatan_reproduksi.akseptor_kb ?? 0,
       },
     }),

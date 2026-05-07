@@ -800,7 +800,7 @@ console.log(round(tinggi)); // 26.5
         "akseptor_kb": 156
       },
       "balita_asuransi": {
-        "balita_0_59_bulan_asuransi": 340
+        "balita_13_59_bulan_asuransi": 340
       }
     }
   }

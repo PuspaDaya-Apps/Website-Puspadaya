@@ -25,7 +25,8 @@ export interface KependudukanKesehatanReproduksi {
 }
 
 export interface KependudukanBalitaAsuransi {
-  balita_0_59_bulan_asuransi: number;
+  balita_13_59_bulan_asuransi: number;
+  balita_0_59_bulan_asuransi?: number;
 }
 
 export interface ImunisasiKependudukanData {
