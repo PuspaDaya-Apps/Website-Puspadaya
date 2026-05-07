@@ -396,11 +396,14 @@ const KasusKritisPage: React.FC = () => {
                   type="button"
                   onClick={() => setCurrentPosyanduPage((page) => Math.max(1, page - 1))}
                   disabled={safePosyanduPage === 1}
-                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                  className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:py-2 sm:text-sm dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
                   Sebelumnya
                 </button>
-                <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300 sm:hidden">
+                  {safePosyanduPage}/{totalPosyanduPages}
+                </span>
+                <div className="hidden flex-wrap items-center gap-2 sm:flex">
                   {getPageNumbers().map((page, index) =>
                     page === "..." ? (
                       <span key={`ellipsis-${index}`} className="px-2 text-sm text-gray-500 dark:text-gray-400">
@@ -426,7 +429,7 @@ const KasusKritisPage: React.FC = () => {
                   type="button"
                   onClick={() => setCurrentPosyanduPage((page) => Math.min(totalPosyanduPages, page + 1))}
                   disabled={safePosyanduPage === totalPosyanduPages}
-                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                  className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:py-2 sm:text-sm dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
                   Berikutnya
                 </button>
@@ -607,11 +610,14 @@ const KasusKritisPage: React.FC = () => {
                   type="button"
                   onClick={() => setCurrentPrioritasPage((page) => Math.max(1, page - 1))}
                   disabled={safePrioritasPage === 1}
-                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                  className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:py-2 sm:text-sm dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
                   Sebelumnya
                 </button>
-                <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300 sm:hidden">
+                  {safePrioritasPage}/{totalPrioritasPages}
+                </span>
+                <div className="hidden flex-wrap items-center gap-2 sm:flex">
                   {getPrioritasPageNumbers().map((page, index) =>
                     page === "..." ? (
                       <span key={`prioritas-ellipsis-${index}`} className="px-2 text-sm text-gray-500 dark:text-gray-400">
@@ -637,7 +643,7 @@ const KasusKritisPage: React.FC = () => {
                   type="button"
                   onClick={() => setCurrentPrioritasPage((page) => Math.min(totalPrioritasPages, page + 1))}
                   disabled={safePrioritasPage === totalPrioritasPages}
-                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                  className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:py-2 sm:text-sm dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
                   Berikutnya
                 </button>
