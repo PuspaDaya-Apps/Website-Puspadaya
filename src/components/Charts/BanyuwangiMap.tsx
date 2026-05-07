@@ -29,7 +29,7 @@ const BanyuwangiMap: React.FC = () => {
     // Load dan tambahkan GeoJSON
     const fetchGeoJSON = async () => {
       try {
-        const response = await fetch("/api/geojson/banyuwangi"); // Buat endpoint API untuk serve file GeoJSON
+        const response = await fetch("/data/cluring_banyuwangi.geojson");
         const geoJSONData: any = await response.json();
 
         const geoJSONLayer = L.geoJSON(geoJSONData, {

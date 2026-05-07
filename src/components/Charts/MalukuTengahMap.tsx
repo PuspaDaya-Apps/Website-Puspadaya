@@ -47,7 +47,7 @@ const MalukuTengahMap: React.FC = () => {
     // Load dan tambahkan GeoJSON
     const fetchGeoJSON = async () => {
       try {
-        const response = await fetch("/api/geojson/maluku-tengah");
+        const response = await fetch("/data/maluku_tengah_new.geojson");
         const geoJSONData: any = await response.json();
 
         if (mapRef.current) {

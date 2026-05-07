@@ -124,8 +124,8 @@ const PetaPersebaranAnakStunting: React.FC = () => {
 
       const fetchGeoJSON = async () => {
         const endpoint = selectedWilayah.code === "Banyuwangi"
-          ? "/api/geojson/banyuwangi"
-          : "/api/geojson/maluku-tengah";
+          ? "/data/cluring_banyuwangi.geojson"
+          : "/data/maluku_tengah_new.geojson";
         try {
           const response = await fetch(endpoint);
           const geoJSONData: any = await response.json();

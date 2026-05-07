@@ -64,8 +64,8 @@ const MapPersebaranDesa: React.FC = () => {
       const fetchGeoJSON = async () => {
         const endpoint =
           selectedWilayah.code === "Bwi"
-            ? "/api/geojson/banyuwangi"
-            : "/api/geojson/maluku-tengah";
+            ? "/data/cluring_banyuwangi.geojson"
+            : "/data/maluku_tengah_new.geojson";
 
         try {
           const response = await fetch(endpoint);
