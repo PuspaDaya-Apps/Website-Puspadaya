@@ -572,19 +572,19 @@ const KinerjaPosyanduPage: React.FC = () => {
   const balitaTableData = useMemo(() => {
     if (detailBalitaData?.balita?.length) {
       return detailBalitaData.balita.map((child) => ({
-        id: String(child.id_balita),
+        id: child.id_balita,
         nik_anak: "-",
         nama_anak: child.nama,
-        jenis_kelamin: "-",
-        usia_bulan: Number(child.usia.match(/\d+/)?.[0] ?? 0),
+        jenis_kelamin: child.jenis_kelamin || "-",
+        usia_bulan: child.usia_bulan,
         usia_label: child.usia,
-        tanggal_lahir: "-",
+        tanggal_lahir: child.tanggal_lahir || "-",
         nama_ibu: child.ibu,
         berat_badan: child.berat_badan,
         tinggi_badan: child.tinggi_badan,
         status_gizi: child.status,
         status_stunting: "-",
-        prioritas: "-",
+        prioritas: child.prioritas || "-",
       }));
     }
 
@@ -607,12 +607,6 @@ const KinerjaPosyanduPage: React.FC = () => {
 
   const totalBalitaRows = detailBalitaData?.pagination?.total_data ?? balitaTableData.length;
   const totalBalitaPages = Math.max(1, detailBalitaData?.pagination?.total_page ?? 1);
-  const balitaStatusSummary = useMemo(() => {
-    return balitaTableData.reduce<Record<string, number>>((acc, child) => {
-      acc[child.status_gizi] = (acc[child.status_gizi] ?? 0) + 1;
-      return acc;
-    }, {});
-  }, [balitaTableData]);
   const balitaRangeStart = totalBalitaRows === 0 ? 0 : (detailBalitaPage - 1) * detailBalitaLimit + 1;
   const balitaRangeEnd = Math.min(detailBalitaPage * detailBalitaLimit, totalBalitaRows);
 
@@ -1403,34 +1397,6 @@ const KinerjaPosyanduPage: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Total balita</p>
-                          <p className="mt-1 text-2xl font-bold text-dark dark:text-white">{totalBalitaRows}</p>
-                        </div>
-                        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Status gizi terbanyak</p>
-                          <p className="mt-1 text-base font-semibold text-dark dark:text-white">
-                            {Object.entries(balitaStatusSummary).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "-"}
-                          </p>
-                        </div>
-                        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Halaman aktif</p>
-                          <p className="mt-1 text-2xl font-bold text-dark dark:text-white">{detailBalitaPage}</p>
-                        </div>
-                      </div>
-                      {Object.keys(balitaStatusSummary).length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {Object.entries(balitaStatusSummary).map(([status, total]) => (
-                            <span
-                              key={status}
-                              className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-sm font-medium text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                            >
-                              {status}: {total}
-                            </span>
-                          ))}
-                        </div>
-                      )}
                       {balitaTableData.length > 0 ? (
                         <div className="space-y-4">
                           <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
@@ -1441,10 +1407,13 @@ const KinerjaPosyanduPage: React.FC = () => {
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">No</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Nama Balita</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Nama Ibu</th>
+                                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Tanggal Lahir</th>
+                                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Jenis Kelamin</th>
                                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Usia</th>
                                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">BB (kg)</th>
                                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">TB (cm)</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status Gizi</th>
+                                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Prioritas</th>
                                   </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-dark">
@@ -1453,6 +1422,10 @@ const KinerjaPosyanduPage: React.FC = () => {
                                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{((detailBalitaPage - 1) * detailBalitaLimit) + index + 1}</td>
                                       <td className="px-4 py-3 font-medium text-dark dark:text-white">{child.nama_anak}</td>
                                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{child.nama_ibu}</td>
+                                      <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.tanggal_lahir}</td>
+                                      <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">
+                                        {child.jenis_kelamin === "l" ? "L" : child.jenis_kelamin === "p" ? "P" : child.jenis_kelamin}
+                                      </td>
                                       <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.usia_label}</td>
                                       <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.berat_badan}</td>
                                       <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.tinggi_badan}</td>
@@ -1467,6 +1440,22 @@ const KinerjaPosyanduPage: React.FC = () => {
                                             : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
                                         }`}>
                                           {child.status_gizi}
+                                        </span>
+                                      </td>
+                                      <td className="px-4 py-3 text-center">
+                                        <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                                          child.prioritas === "sangat_tinggi"
+                                            ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                                            : child.prioritas === "tinggi"
+                                            ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
+                                            : child.prioritas === "sedang"
+                                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                            : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                                        }`}>
+                                          {child.prioritas === "sangat_tinggi" ? "Sangat Tinggi"
+                                            : child.prioritas === "tinggi" ? "Tinggi"
+                                            : child.prioritas === "sedang" ? "Sedang"
+                                            : child.prioritas}
                                         </span>
                                       </td>
                                     </tr>
