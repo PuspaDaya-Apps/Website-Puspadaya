@@ -1,8 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import { CriticalChild } from "@/types/dashboard-kepala-desa";
-import { criticalChildrenData } from "@/data/dummy-dashboard-kepala-desa";
-import { fetchDataKasusKritisBalita, fetchDataKasusKritis, fetchDetailDataKasusKritis, type DashboardKepalaDesaQueryParams } from "@/app/api/dashboard-kinerja-kepala-desa";
+import { fetchDataKasusKritis, fetchDetailDataKasusKritis, type DashboardKepalaDesaQueryParams } from "@/app/api/dashboard-kinerja-kepala-desa";
 import { KinerjaPosyanduKasusKritisData, KinerjaPosyanduKasusKritisDaftarPrioritasItem, KinerjaPosyanduDetailKasusKritisData, TrenDataPosyanduItem } from "@/types/kepala-desa";
 import { fetchTrenDataPosyandu } from "@/app/api/dashboard-kepala-desa";
 
@@ -20,14 +18,40 @@ type PosyanduCaseSummary = {
   normal_count: number;
 };
 
+const InfoCard = ({ message }: { message: string }) => (
+  <div className="rounded-xl border border-blue-100 bg-blue-50 p-6 dark:border-blue-900/30 dark:bg-blue-900/10">
+    <div className="flex items-start gap-3">
+      <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <div>
+        <p className="text-sm font-medium text-blue-800 dark:text-blue-300">Data Tidak Tersedia</p>
+        <p className="mt-1 text-sm text-blue-600 dark:text-blue-400">{message}</p>
+      </div>
+    </div>
+  </div>
+);
+
+const getLocation = (): Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> => {
+  try {
+    const raw = localStorage.getItem("current_user");
+    if (!raw) return {};
+    const user = JSON.parse(raw) as CurrentUserLocation;
+    return {
+      kabupatenKota: user?.kabupaten_kota?.nama_kabupaten_kota,
+      desa: user?.desa_kelurahan?.nama_desa_kelurahan,
+    };
+  } catch {
+    return {};
+  }
+};
+
 const KasusKritisPage: React.FC = () => {
   const [filterPosyanduId, setFilterPosyanduId] = useState<string>("");
   const [filterStatusGizi, setFilterStatusGizi] = useState<string>("");
   const [filterStatusPrioritas, setFilterStatusPrioritas] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
   const [posyanduOptions, setPosyanduOptions] = useState<TrenDataPosyanduItem[]>([]);
-  const [selectedChild, setSelectedChild] = useState<CriticalChild | null>(null);
-  const [showModal, setShowModal] = useState(false);
   const [apiData, setApiData] = useState<KinerjaPosyanduKasusKritisData | null>(null);
   const [apiLoading, setApiLoading] = useState(true);
   const [daftarPrioritasData, setDaftarPrioritasData] = useState<KinerjaPosyanduKasusKritisDaftarPrioritasItem[] | null>(null);
@@ -42,208 +66,103 @@ const KasusKritisPage: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-
-    const loadData = async () => {
+    const load = async () => {
       setApiLoading(true);
-
-      const location: Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> = (() => {
-        try {
-          const raw = localStorage.getItem("current_user");
-          if (!raw) return {};
-          const user = JSON.parse(raw) as CurrentUserLocation;
-          return {
-            kabupatenKota: user?.kabupaten_kota?.nama_kabupaten_kota,
-            desa: user?.desa_kelurahan?.nama_desa_kelurahan,
-          };
-        } catch {
-          return {};
-        }
-      })();
-
-      const result = await fetchDataKasusKritisBalita({
+      const result = await fetchDataKasusKritis({
         bulan: currentBulan,
         tahun: currentTahun,
-        ...location,
+        ...getLocation(),
       });
-
       if (!isMounted) return;
-
-      if (result.successCode === 200 && result.data) {
-        setApiData(result.data);
-      } else {
-        setApiData(null);
-      }
-
+      setApiData(result.successCode === 200 && result.data ? result.data : null);
       setApiLoading(false);
     };
-
-    loadData();
-
+    load();
     return () => { isMounted = false; };
   }, [currentBulan, currentTahun]);
 
   useEffect(() => {
     let isMounted = true;
-
-    const loadPosyanduOptions = async () => {
+    const load = async () => {
       const result = await fetchTrenDataPosyandu({ bulan: currentBulan, tahun: currentTahun });
       if (!isMounted) return;
       if (result.successCode === 200 && result.data?.posyandu) {
         setPosyanduOptions(result.data.posyandu.filter((p) => p.id));
       }
     };
-
-    loadPosyanduOptions();
-
+    load();
     return () => { isMounted = false; };
   }, [currentBulan, currentTahun]);
 
   useEffect(() => {
     let isMounted = true;
-
-    const loadDaftarPrioritas = async () => {
+    const load = async () => {
       setDaftarPrioritasLoading(true);
-
-      const location: Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> = (() => {
-        try {
-          const raw = localStorage.getItem("current_user");
-          if (!raw) return {};
-          const user = JSON.parse(raw) as CurrentUserLocation;
-          return {
-            kabupatenKota: user?.kabupaten_kota?.nama_kabupaten_kota,
-            desa: user?.desa_kelurahan?.nama_desa_kelurahan,
-          };
-        } catch {
-          return {};
-        }
-      })();
-
       const extraParams: Record<string, string> = {};
       if (filterPosyanduId) extraParams.id_posyandu = filterPosyanduId;
       if (filterStatusGizi) extraParams.status_gizi = filterStatusGizi;
       if (filterStatusPrioritas) extraParams.status_prioritas = filterStatusPrioritas;
-
       const result = await fetchDataKasusKritis({
         bulan: currentBulan,
         tahun: currentTahun,
-        ...location,
+        ...getLocation(),
         extraParams,
       });
-
       if (!isMounted) return;
-
-      if (result.successCode === 200 && result.data?.daftar_prioritas) {
-        setDaftarPrioritasData(result.data.daftar_prioritas);
-      } else {
-        setDaftarPrioritasData(null);
-      }
-
+      setDaftarPrioritasData(
+        result.successCode === 200 && result.data?.daftar_prioritas
+          ? result.data.daftar_prioritas
+          : null
+      );
       setDaftarPrioritasLoading(false);
     };
-
-    loadDaftarPrioritas();
-
+    load();
     return () => { isMounted = false; };
   }, [currentBulan, currentTahun, filterPosyanduId, filterStatusGizi, filterStatusPrioritas]);
 
-  const getDisplayStatusLabel = (child: CriticalChild) => {
-    if (child.status_wasting === "Wasting" || child.status_gizi === "Gizi Buruk") {
-      return "Wasting";
-    }
-
-    if (child.status_gizi === "Gizi Kurang") {
-      return "Underweight";
-    }
-
-    if (child.status_stunting === "Stunting") {
-      return "Stunting";
-    }
-
-    if (child.status_gizi === "Gizi Baik") {
-      return "Normal";
-    }
-
-    if (child.status_gizi === "Gizi Lebih") {
-      return "Overweight";
-    }
-
-    return "-";
-  };
-
   const getDisplayStatusColor = (status: string) => {
     switch (status) {
-      case "Wasting":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
-      case "Underweight":
-        return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400";
-      case "Stunting":
-        return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400";
-      case "Normal":
-        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400";
-      case "Overweight":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400";
+      case "Wasting":    return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+      case "Underweight": return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400";
+      case "Stunting":   return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400";
+      case "Normal":     return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400";
+      default:           return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400";
     }
   };
 
-  const prioritasDisplayMap: Record<string, string> = {
-    sangat_tinggi: "Sangat Tinggi",
-    tinggi: "Tinggi",
-    sedang: "Sedang",
+  const getPriorityColor = (prioritas: string) => {
+    switch (prioritas) {
+      case "Sangat Tinggi": return "bg-red-500";
+      case "Tinggi":        return "bg-orange-500";
+      case "Sedang":        return "bg-yellow-500";
+      default:              return "bg-gray-500";
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
   };
 
   const handleDetailClick = async (idAnak: string) => {
     setShowDetailModal(true);
     setDetailLoading(true);
     setSelectedDetailData(null);
-
-    const location: Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> = (() => {
-      try {
-        const raw = localStorage.getItem("current_user");
-        if (!raw) return {};
-        const user = JSON.parse(raw) as CurrentUserLocation;
-        return {
-          kabupatenKota: user?.kabupaten_kota?.nama_kabupaten_kota,
-          desa: user?.desa_kelurahan?.nama_desa_kelurahan,
-        };
-      } catch {
-        return {};
-      }
-    })();
-
     const result = await fetchDetailDataKasusKritis({
       bulan: currentBulan,
       tahun: currentTahun,
-      ...location,
+      ...getLocation(),
       extraParams: { id_anak: idAnak },
     });
-
     if (result.successCode === 200 && result.data) {
       setSelectedDetailData(result.data);
     }
-
     setDetailLoading(false);
   };
-
-  const filteredChildren = useMemo(() => {
-    return criticalChildrenData.filter((child) => {
-      const selectedNama = filterPosyanduId
-        ? posyanduOptions.find((p) => p.id === filterPosyanduId)?.nama
-        : null;
-      const matchPosyandu = !selectedNama || child.posyandu_nama === selectedNama;
-      const displayStatus = getDisplayStatusLabel(child);
-      const matchStatus =
-        !filterStatusGizi || displayStatus.toLowerCase() === filterStatusGizi;
-      const matchPrioritas =
-        !filterStatusPrioritas || child.prioritas === prioritasDisplayMap[filterStatusPrioritas];
-      const matchSearch =
-        child.nama_anak.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        child.nama_ibu.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        child.dusun.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchPosyandu && matchStatus && matchPrioritas && matchSearch;
-    });
-  }, [filterPosyanduId, filterStatusGizi, filterStatusPrioritas, searchTerm, posyanduOptions]);
 
   const filteredDaftarPrioritas = useMemo(() => {
     if (!daftarPrioritasData) return null;
@@ -270,18 +189,7 @@ const KasusKritisPage: React.FC = () => {
         sedang: r.prioritas.sedang,
       };
     }
-
-    return {
-      total: criticalChildrenData.length,
-      wasting: criticalChildrenData.filter(
-        (c) => c.status_wasting === "Wasting" || c.status_gizi === "Gizi Buruk",
-      ).length,
-      underweight: criticalChildrenData.filter((c) => c.status_gizi === "Gizi Kurang").length,
-      stunting: criticalChildrenData.filter((c) => c.status_stunting === "Stunting").length,
-      sangat_tinggi: criticalChildrenData.filter((c) => c.prioritas === "Sangat Tinggi").length,
-      tinggi: criticalChildrenData.filter((c) => c.prioritas === "Tinggi").length,
-      sedang: criticalChildrenData.filter((c) => c.prioritas === "Sedang").length,
-    };
+    return { total: 0, wasting: 0, underweight: 0, stunting: 0, sangat_tinggi: 0, tinggi: 0, sedang: 0 };
   }, [apiData]);
 
   const perPosyanduStats = useMemo<PosyanduCaseSummary[]>(() => {
@@ -295,74 +203,12 @@ const KasusKritisPage: React.FC = () => {
         normal_count: item.normal,
       }));
     }
-
-    const grouped = criticalChildrenData.reduce<Record<string, PosyanduCaseSummary>>((acc, child) => {
-      if (!acc[child.posyandu_nama]) {
-        acc[child.posyandu_nama] = {
-          posyandu_nama: child.posyandu_nama,
-          total_balita: 0,
-          wasting_count: 0,
-          underweight_count: 0,
-          stunting_count: 0,
-          normal_count: 0,
-        };
-      }
-
-      const summary = acc[child.posyandu_nama];
-      summary.total_balita += 1;
-
-      if (child.status_wasting === "Wasting" || child.status_gizi === "Gizi Buruk") {
-        summary.wasting_count += 1;
-      }
-
-      if (child.status_gizi === "Gizi Kurang") {
-        summary.underweight_count += 1;
-      }
-
-      if (child.status_stunting === "Stunting") {
-        summary.stunting_count += 1;
-      }
-
-      if (child.status_gizi === "Gizi Baik") {
-        summary.normal_count += 1;
-      }
-
-      return acc;
-    }, {});
-
-    return Object.values(grouped).sort((a, b) => a.posyandu_nama.localeCompare(b.posyandu_nama));
+    return [];
   }, [apiData]);
-
-  const getPriorityColor = (prioritas: string) => {
-    switch (prioritas) {
-      case "Sangat Tinggi":
-        return "bg-red-500";
-      case "Tinggi":
-        return "bg-orange-500";
-      case "Sedang":
-        return "bg-yellow-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  };
-
-  const calculateAge = (tanggal_lahir: string) => {
-    const birthDate = new Date(tanggal_lahir);
-    const today = new Date();
-    const months = (today.getFullYear() - birthDate.getFullYear()) * 12 + (today.getMonth() - birthDate.getMonth());
-    return months;
-  };
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
+      {/* Header */}
       <div className="mt-6 rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -383,6 +229,7 @@ const KasusKritisPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Tabel per Posyandu */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <h2 className="mb-4 text-xl font-bold text-dark dark:text-white md:text-2xl">
           Data Kasus Kritis per Posyandu
@@ -391,90 +238,49 @@ const KasusKritisPage: React.FC = () => {
           <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
             Memuat data...
           </div>
-        ) : (
-        <>
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  No
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Posyandu
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Total
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Wasting
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Underweight
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Stunting
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Normal
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {perPosyanduStats.map((posyandu, index) => (
-                <tr key={posyandu.posyandu_nama} className="transition hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <td className="px-4 py-3">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{index + 1}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-sm font-semibold text-dark dark:text-white">{posyandu.posyandu_nama}</span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{posyandu.total_balita}</span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-800 dark:bg-red-900/30 dark:text-red-400">
-                      {posyandu.wasting_count}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
-                      {posyandu.underweight_count}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                      {posyandu.stunting_count}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
-                      {posyandu.normal_count}
-                    </span>
-                  </td>
+        ) : perPosyanduStats.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">No</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Posyandu</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Total</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Wasting</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Underweight</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Stunting</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Normal</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {perPosyanduStats.length === 0 && (
-          <div className="py-12 text-center">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">Tidak ada data per posyandu</p>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {perPosyanduStats.map((p, index) => (
+                  <tr key={p.posyandu_nama} className="transition hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">{index + 1}</td>
+                    <td className="px-4 py-3 text-sm font-semibold text-dark dark:text-white">{p.posyandu_nama || "-"}</td>
+                    <td className="px-4 py-3 text-center text-lg font-bold text-blue-600 dark:text-blue-400">{p.total_balita}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-800 dark:bg-red-900/30 dark:text-red-400">{p.wasting_count}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">{p.underweight_count}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">{p.stunting_count}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">{p.normal_count}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
-        </>
+        ) : (
+          <InfoCard message="Tidak ada data kasus kritis per posyandu untuk periode ini." />
         )}
       </div>
 
+      {/* Stat Cards */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-7">
           <div className="rounded-xl bg-blue-50 p-4 text-center dark:bg-blue-900/20">
@@ -508,6 +314,7 @@ const KasusKritisPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Filter */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <div className="relative lg:col-span-2">
@@ -520,12 +327,7 @@ const KasusKritisPage: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <svg className="absolute left-3 top-9 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
           <div>
@@ -537,9 +339,7 @@ const KasusKritisPage: React.FC = () => {
             >
               <option value="">Semua Posyandu</option>
               {posyanduOptions.map((p) => (
-                <option key={p.id} value={p.id ?? ""}>
-                  {p.nama}
-                </option>
+                <option key={p.id} value={p.id ?? ""}>{p.nama}</option>
               ))}
             </select>
           </div>
@@ -572,232 +372,91 @@ const KasusKritisPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Tabel Daftar Prioritas */}
       <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
         {daftarPrioritasLoading ? (
           <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
             Memuat data...
           </div>
-        ) : filteredDaftarPrioritas ? (
-          <>
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Prioritas
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Anak
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Usia
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Posyandu/Dusun
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Pengukuran
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Status
-                    </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Aksi
-                    </th>
+        ) : filteredDaftarPrioritas && filteredDaftarPrioritas.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Prioritas</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Anak</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Usia</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Posyandu/Dusun</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Pengukuran</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {filteredDaftarPrioritas.map((item) => (
+                  <tr key={item.id} className="transition hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className={`h-3 w-3 rounded-full ${getPriorityColor(item.prioritas)}`} />
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.prioritas || "-"}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-dark dark:text-white">{item.anak.nama || "-"}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Ibu: {item.anak.ibu || "-"}</p>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                      {item.anak.usia_bulan ?? 0} bulan
+                    </td>
+                    <td className="px-4 py-3">
+                      <p className="text-sm font-medium text-dark dark:text-white">{item.lokasi.posyandu || "-"}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{item.lokasi.dusun || "-"}</p>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                      <p>BB: {item.pengukuran.berat_badan_kg ?? 0} kg</p>
+                      <p>TB: {item.pengukuran.tinggi_badan_cm ?? 0} cm</p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap gap-1">
+                        {item.status.length > 0
+                          ? item.status.map((s) => (
+                              <span key={s} className={`rounded-full px-2 py-1 text-xs font-medium ${getDisplayStatusColor(s)}`}>{s}</span>
+                            ))
+                          : <span className="text-xs text-gray-400">-</span>
+                        }
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => handleDetailClick(item.anak.id_anak)}
+                        className="rounded-lg bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                      >
+                        Detail
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredDaftarPrioritas.map((item) => (
-                    <tr key={item.id} className="transition hover:bg-gray-50 dark:hover:bg-gray-800">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className={`h-3 w-3 rounded-full ${getPriorityColor(item.prioritas)}`}></div>
-                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.prioritas}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div>
-                          <p className="font-medium text-dark dark:text-white">{item.anak.nama}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Ibu: {item.anak.ibu}</p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm text-gray-600 dark:text-gray-300">{item.anak.usia_bulan} bulan</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div>
-                          <p className="text-sm font-medium text-dark dark:text-white">{item.lokasi.posyandu}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{item.lokasi.dusun}</p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="text-sm text-gray-600 dark:text-gray-300">
-                          <p>BB: {item.pengukuran.berat_badan_kg} kg</p>
-                          <p>TB: {item.pengukuran.tinggi_badan_cm} cm</p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1">
-                          {item.status.map((s) => (
-                            <span key={s} className={`rounded-full px-2 py-1 text-xs font-medium ${getDisplayStatusColor(s)}`}>
-                              {s}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <button
-                          onClick={() => handleDetailClick(item.anak.id_anak)}
-                          className="rounded-lg bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
-                        >
-                          Detail
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {filteredDaftarPrioritas.length === 0 && (
-              <div className="py-12 text-center">
-                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">Tidak ada data yang sesuai dengan filter</p>
-              </div>
-            )}
-          </>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : filteredDaftarPrioritas && filteredDaftarPrioritas.length === 0 ? (
+          <InfoCard message="Tidak ada data yang sesuai dengan filter yang dipilih." />
         ) : (
-          <>
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Prioritas
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Anak
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Usia
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Posyandu/Dusun
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Pengukuran
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Status
-                    </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Aksi
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredChildren.map((child) => {
-                    const displayStatus = getDisplayStatusLabel(child);
-                    return (
-                      <tr key={child.id} className="transition hover:bg-gray-50 dark:hover:bg-gray-800">
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <div className={`h-3 w-3 rounded-full ${getPriorityColor(child.prioritas)}`}></div>
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{child.prioritas}</span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div>
-                            <p className="font-medium text-dark dark:text-white">{child.nama_anak}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Ibu: {child.nama_ibu}</p>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="text-sm text-gray-600 dark:text-gray-300">
-                            {calculateAge(child.tanggal_lahir)} bulan
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div>
-                            <p className="text-sm font-medium text-dark dark:text-white">{child.posyandu_nama}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{child.dusun}</p>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="text-sm text-gray-600 dark:text-gray-300">
-                            <p>BB: {child.berat_badan} kg</p>
-                            <p>TB: {child.tinggi_badan} cm</p>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex flex-wrap gap-1">
-                            <span className={`rounded-full px-2 py-1 text-xs font-medium ${getDisplayStatusColor(displayStatus)}`}>
-                              {displayStatus}
-                            </span>
-                            {child.status_stunting === "Stunting" && (
-                              <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                                Stunting
-                              </span>
-                            )}
-                            {child.status_wasting === "Wasting" && (
-                              <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
-                                Wasting
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center justify-center">
-                            <button
-                              onClick={() => {
-                                setSelectedChild(child);
-                                setShowModal(true);
-                              }}
-                              className="rounded-lg bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
-                            >
-                              Detail
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-            {filteredChildren.length === 0 && (
-              <div className="py-12 text-center">
-                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">Tidak ada data yang sesuai dengan filter</p>
-              </div>
-            )}
-          </>
+          <InfoCard message="Tidak ada data daftar prioritas untuk periode ini." />
         )}
       </div>
 
+      {/* Modal Detail */}
       {showDetailModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
           <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-dark">
             <div className="mb-6 flex items-start justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-dark dark:text-white">
-                  {detailLoading ? "Memuat..." : (selectedDetailData?.anak.nama ?? "Detail Anak")}
+                  {detailLoading ? "Memuat..." : (selectedDetailData?.anak.nama || "Detail Anak")}
                 </h2>
                 {selectedDetailData && (
-                  <p className="text-gray-600 dark:text-gray-400">ID: {selectedDetailData.anak.id_anak}</p>
+                  <p className="text-gray-600 dark:text-gray-400">ID: {selectedDetailData.anak.id_anak || "-"}</p>
                 )}
               </div>
               <button
@@ -819,7 +478,7 @@ const KasusKritisPage: React.FC = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">NIK</span>
-                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.anak.nik}</span>
+                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.anak.nik || "-"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Tanggal Lahir</span>
@@ -827,15 +486,15 @@ const KasusKritisPage: React.FC = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Usia</span>
-                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.anak.usia_bulan} bulan</span>
+                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.anak.usia_bulan ?? 0} bulan</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Jenis Kelamin</span>
-                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.anak.jenis_kelamin}</span>
+                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.anak.jenis_kelamin || "-"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Nama Ibu</span>
-                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.anak.nama_ibu}</span>
+                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.anak.nama_ibu || "-"}</span>
                     </div>
                   </div>
                 </div>
@@ -845,11 +504,11 @@ const KasusKritisPage: React.FC = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Posyandu</span>
-                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.lokasi.posyandu}</span>
+                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.lokasi.posyandu || "-"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Dusun</span>
-                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.lokasi.dusun}</span>
+                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.lokasi.dusun || "-"}</span>
                     </div>
                   </div>
                 </div>
@@ -859,11 +518,11 @@ const KasusKritisPage: React.FC = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Berat Badan</span>
-                      <span className="font-bold text-blue-600 dark:text-blue-400">{selectedDetailData.pengukuran_terakhir.berat_badan_kg} kg</span>
+                      <span className="font-bold text-blue-600 dark:text-blue-400">{selectedDetailData.pengukuran_terakhir.berat_badan_kg ?? 0} kg</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Tinggi Badan</span>
-                      <span className="font-bold text-blue-600 dark:text-blue-400">{selectedDetailData.pengukuran_terakhir.tinggi_badan_cm} cm</span>
+                      <span className="font-bold text-blue-600 dark:text-blue-400">{selectedDetailData.pengukuran_terakhir.tinggi_badan_cm ?? 0} cm</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Tanggal</span>
@@ -876,11 +535,12 @@ const KasusKritisPage: React.FC = () => {
                   <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Status Kesehatan</h3>
                   <div className="space-y-3">
                     <div className="flex flex-wrap gap-2">
-                      {selectedDetailData.status_kesehatan.map((s) => (
-                        <span key={s} className={`rounded-full px-3 py-1 text-sm font-medium ${getDisplayStatusColor(s)}`}>
-                          {s}
-                        </span>
-                      ))}
+                      {selectedDetailData.status_kesehatan.length > 0
+                        ? selectedDetailData.status_kesehatan.map((s) => (
+                            <span key={s} className={`rounded-full px-3 py-1 text-sm font-medium ${getDisplayStatusColor(s)}`}>{s}</span>
+                          ))
+                        : <span className="text-sm text-gray-400">-</span>
+                      }
                     </div>
                     <div className="mt-2">
                       <span className="text-sm text-gray-600 dark:text-gray-400">Prioritas: </span>
@@ -893,131 +553,16 @@ const KasusKritisPage: React.FC = () => {
                               : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
                         }`}
                       >
-                        <div className={`h-2 w-2 rounded-full ${getPriorityColor(selectedDetailData.prioritas)}`}></div>
-                        {selectedDetailData.prioritas}
+                        <div className={`h-2 w-2 rounded-full ${getPriorityColor(selectedDetailData.prioritas)}`} />
+                        {selectedDetailData.prioritas || "-"}
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
-                Gagal memuat data detail.
-              </div>
+              <InfoCard message="Gagal memuat data detail. Silakan coba lagi." />
             )}
-          </div>
-        </div>
-      )}
-
-      {showModal && selectedChild && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-dark">
-            <div className="mb-6 flex items-start justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-dark dark:text-white">{selectedChild.nama_anak}</h2>
-                <p className="text-gray-600 dark:text-gray-400">NIK: {selectedChild.nik_anak}</p>
-              </div>
-              <button
-                onClick={() => setShowModal(false)}
-                className="rounded-lg bg-gray-100 p-2 text-gray-600 transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
-              >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-                <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Informasi Pribadi</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Tanggal Lahir</span>
-                    <span className="font-medium text-dark dark:text-white">{formatDate(selectedChild.tanggal_lahir)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Usia</span>
-                    <span className="font-medium text-dark dark:text-white">{calculateAge(selectedChild.tanggal_lahir)} bulan</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Jenis Kelamin</span>
-                    <span className="font-medium text-dark dark:text-white">{selectedChild.jenis_kelamin}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Nama Ibu</span>
-                    <span className="font-medium text-dark dark:text-white">{selectedChild.nama_ibu}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-                <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Lokasi</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Posyandu</span>
-                    <span className="font-medium text-dark dark:text-white">{selectedChild.posyandu_nama}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Dusun</span>
-                    <span className="font-medium text-dark dark:text-white">{selectedChild.dusun}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-                <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Pengukuran Terakhir</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Berat Badan</span>
-                    <span className="font-bold text-blue-600 dark:text-blue-400">{selectedChild.berat_badan} kg</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Tinggi Badan</span>
-                    <span className="font-bold text-blue-600 dark:text-blue-400">{selectedChild.tinggi_badan} cm</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Tanggal</span>
-                    <span className="font-medium text-dark dark:text-white">{formatDate(selectedChild.tanggal_pengukuran)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-lg bg-red-50 p-4 dark:bg-red-900/20">
-                <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Status Kesehatan</h3>
-                <div className="space-y-2">
-                  <div className="flex flex-wrap gap-2">
-                    <span className={`rounded-full px-3 py-1 text-sm font-medium ${getDisplayStatusColor(getDisplayStatusLabel(selectedChild))}`}>
-                      {getDisplayStatusLabel(selectedChild)}
-                    </span>
-                    {selectedChild.status_stunting === "Stunting" && (
-                      <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                        Stunting
-                      </span>
-                    )}
-                    {selectedChild.status_wasting === "Wasting" && (
-                      <span className="rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
-                        Wasting
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-3">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Prioritas: </span>
-                    <span
-                      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${
-                        selectedChild.prioritas === "Sangat Tinggi"
-                          ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                          : selectedChild.prioritas === "Tinggi"
-                            ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
-                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                      }`}
-                    >
-                      <div className={`h-2 w-2 rounded-full ${getPriorityColor(selectedChild.prioritas)}`}></div>
-                      {selectedChild.prioritas}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       )}
