@@ -7,6 +7,7 @@ interface KeyMetricsProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
+  refreshSignal?: number;
 }
 
 interface MetricCardProps {
@@ -21,7 +22,7 @@ interface MetricCardProps {
   };
 }
 
-const KeyMetrics: React.FC<KeyMetricsProps> = ({ bulan, tahun, bulanLabel }) => {
+const KeyMetrics: React.FC<KeyMetricsProps> = ({ bulan, tahun, bulanLabel, refreshSignal }) => {
   const [data, setData] = useState<InformasiDataDesaData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -30,9 +31,12 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ bulan, tahun, bulanLabel }) => 
     let isMounted = true;
 
     const loadData = async () => {
-      setIsLoading(true);
-      setData(null);
-      setErrorMessage(null);
+      const hasExistingData = data !== null;
+
+      if (!hasExistingData) {
+        setIsLoading(true);
+        setErrorMessage(null);
+      }
 
       const result = await fetchInformasiDataDesa({ bulan, tahun });
 
@@ -42,12 +46,15 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ bulan, tahun, bulanLabel }) => 
 
       if (result.successCode === 200 && result.data) {
         setData(result.data);
-      } else {
+        setErrorMessage(null);
+      } else if (!hasExistingData) {
         setData(null);
         setErrorMessage("Gagal memuat informasi data desa");
       }
 
-      setIsLoading(false);
+      if (!hasExistingData) {
+        setIsLoading(false);
+      }
     };
 
     loadData();
@@ -55,7 +62,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ bulan, tahun, bulanLabel }) => 
     return () => {
       isMounted = false;
     };
-  }, [bulan, tahun]);
+  }, [bulan, tahun, refreshSignal]);
 
   const MetricCard: React.FC<MetricCardProps> = ({
     title,

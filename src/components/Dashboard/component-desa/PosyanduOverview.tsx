@@ -14,6 +14,7 @@ interface PosyanduOverviewProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
+  refreshSignal?: number;
 }
 
 const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
@@ -23,6 +24,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
   bulan,
   tahun,
   bulanLabel,
+  refreshSignal,
 }) => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,9 +40,12 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
     let isMounted = true;
 
     const loadTrenData = async () => {
-      setIsLoading(true);
-      setErrorMessage(null);
-      setTrenData(null);
+      const hasExistingData = trenData !== null;
+
+      if (!hasExistingData) {
+        setIsLoading(true);
+        setErrorMessage(null);
+      }
 
       const result = await fetchTrenDataPosyandu({ bulan, tahun });
 
@@ -50,11 +55,14 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
 
       if (result.successCode === 200 && result.data) {
         setTrenData(result.data.posyandu ?? []);
-      } else {
+        setErrorMessage(null);
+      } else if (!hasExistingData) {
         setErrorMessage("Gagal memuat tren data posyandu");
       }
 
-      setIsLoading(false);
+      if (!hasExistingData) {
+        setIsLoading(false);
+      }
     };
 
     loadTrenData();
@@ -62,7 +70,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [bulan, tahun]);
+  }, [bulan, tahun, refreshSignal]);
 
   const mergedPosyanduList = useMemo(() => {
     return (

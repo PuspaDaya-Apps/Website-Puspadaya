@@ -10,6 +10,7 @@ interface ExpandableDataSectionProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
+  refreshSignal?: number;
 }
 
 interface SectionProps {
@@ -57,6 +58,7 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
   bulan,
   tahun,
   bulanLabel,
+  refreshSignal,
 }) => {
   const [activeTab, setActiveTab] = useState<"imunisasi" | "kependudukan">("imunisasi");
   const [apiData, setApiData] = useState<ImunisasiKependudukanData | null>(null);
@@ -67,9 +69,12 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
     let isMounted = true;
 
     const loadData = async () => {
-      setIsLoading(true);
-      setErrorMessage(null);
-      setApiData(null);
+      const hasExistingData = apiData !== null;
+
+      if (!hasExistingData) {
+        setIsLoading(true);
+        setErrorMessage(null);
+      }
 
       const result = await fetchImunisasiKependudukan({ bulan, tahun });
 
@@ -83,11 +88,15 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
         setApiData(result.data);
       }
 
-      if (hasImunisasiError) {
+      if (hasImunisasiError && !hasExistingData) {
         setErrorMessage("Gagal memuat data imunisasi dan kependudukan");
+      } else if (!hasImunisasiError) {
+        setErrorMessage(null);
       }
 
-      setIsLoading(false);
+      if (!hasExistingData) {
+        setIsLoading(false);
+      }
     };
 
     loadData();
@@ -95,7 +104,7 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [bulan, tahun]);
+  }, [bulan, tahun, refreshSignal]);
 
   const displayData = useMemo(
     () => ({
@@ -335,7 +344,7 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
           }
           defaultOpen={false}
         >
-          <RecentActivityTable bulan={bulan} tahun={tahun} bulanLabel={bulanLabel} />
+          <RecentActivityTable bulan={bulan} tahun={tahun} bulanLabel={bulanLabel} refreshSignal={refreshSignal} />
         </ExpandableSection>
       </div>
     </div>

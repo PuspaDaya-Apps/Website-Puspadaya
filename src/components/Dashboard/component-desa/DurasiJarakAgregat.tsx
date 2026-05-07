@@ -25,6 +25,7 @@ interface DurasiJarakAgregatProps {
   bulan?: number;
   tahun?: number;
   bulanLabel?: string;
+  refreshSignal?: number;
 }
 
 const zeroMonths = [
@@ -46,6 +47,7 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
   bulan,
   tahun,
   bulanLabel,
+  refreshSignal,
 }) => {
   const hasPeriodFilter = bulan != null && tahun != null;
   const [apiData, setApiData] = useState<DurasiKerjaPosyanduData | null>(null);
@@ -63,9 +65,12 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
     let isMounted = true;
 
     const loadData = async () => {
-      setIsLoading(true);
-      setErrorMessage(null);
-      setApiData(null);
+      const hasExistingData = apiData !== null;
+
+      if (!hasExistingData) {
+        setIsLoading(true);
+        setErrorMessage(null);
+      }
 
       const result = await fetchDurasiKerjaPosyandu({ bulan, tahun });
 
@@ -75,11 +80,14 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
 
       if (result.successCode === 200 && result.data) {
         setApiData(result.data);
-      } else {
+        setErrorMessage(null);
+      } else if (!hasExistingData) {
         setErrorMessage("Gagal memuat durasi kerja posyandu");
       }
 
-      setIsLoading(false);
+      if (!hasExistingData) {
+        setIsLoading(false);
+      }
     };
 
     loadData();
@@ -87,7 +95,7 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [bulan, tahun, hasPeriodFilter]);
+  }, [bulan, tahun, hasPeriodFilter, refreshSignal]);
 
   const displayRingkasan = {
     total_durasi_kerja_posyandu: apiData?.ringkasan?.kerja_posyandu_jam ?? 0,

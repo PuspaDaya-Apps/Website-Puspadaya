@@ -9,9 +9,10 @@ interface AdditionalMetricsProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
+  refreshSignal?: number;
 }
 
-const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ bulan, tahun, bulanLabel }) => {
+const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ bulan, tahun, bulanLabel, refreshSignal }) => {
   const [apiData, setApiData] = useState<AnakCakupanDilayaniData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -20,9 +21,12 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ bulan, tahun, bul
     let isMounted = true;
 
     const loadData = async () => {
-      setIsLoading(true);
-      setErrorMessage(null);
-      setApiData(null);
+      const hasExistingData = apiData !== null;
+
+      if (!hasExistingData) {
+        setIsLoading(true);
+        setErrorMessage(null);
+      }
 
       const result = await fetchAnakCakupanDilayani({ bulan, tahun });
 
@@ -32,11 +36,14 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ bulan, tahun, bul
 
       if (result.successCode === 200 && result.data) {
         setApiData(result.data);
-      } else {
+        setErrorMessage(null);
+      } else if (!hasExistingData) {
         setErrorMessage("Gagal memuat data cakupan layanan anak");
       }
 
-      setIsLoading(false);
+      if (!hasExistingData) {
+        setIsLoading(false);
+      }
     };
 
     loadData();
@@ -44,7 +51,7 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ bulan, tahun, bul
     return () => {
       isMounted = false;
     };
-  }, [bulan, tahun]);
+  }, [bulan, tahun, refreshSignal]);
 
   const displayData = useMemo(() => ({
     baduta_0_23_months: apiData?.anak_berdasarkan_usia.baduta ?? 0,

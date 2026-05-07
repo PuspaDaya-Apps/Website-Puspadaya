@@ -25,6 +25,7 @@ interface PerformanceSectionProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
+  refreshSignal?: number;
 }
 
 type CombinedTrendPoint = {
@@ -50,6 +51,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
   bulan,
   tahun,
   bulanLabel,
+  refreshSignal,
 }) => {
   const [apiData, setApiData] = useState<StatistikDataDesaData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,9 +61,12 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
     let isMounted = true;
 
     const loadData = async () => {
-      setIsLoading(true);
-      setErrorMessage(null);
-      setApiData(null);
+      const hasExistingData = apiData !== null;
+
+      if (!hasExistingData) {
+        setIsLoading(true);
+        setErrorMessage(null);
+      }
 
       const result = await fetchStatistikDataDesa({ bulan, tahun });
 
@@ -71,11 +76,14 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
 
       if (result.successCode === 200 && result.data) {
         setApiData(result.data);
-      } else {
+        setErrorMessage(null);
+      } else if (!hasExistingData) {
         setErrorMessage("Gagal memuat data tren performa");
       }
 
-      setIsLoading(false);
+      if (!hasExistingData) {
+        setIsLoading(false);
+      }
     };
 
     loadData();
@@ -83,7 +91,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [bulan, tahun]);
+  }, [bulan, tahun, refreshSignal]);
 
   const combinedTrendData = useMemo<CombinedTrendPoint[]>(() => {
     const apiBalita = apiData?.tren?.kehadiran_balita?.data ?? [];

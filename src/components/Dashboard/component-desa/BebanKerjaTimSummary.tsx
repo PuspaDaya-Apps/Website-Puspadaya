@@ -7,12 +7,14 @@ interface BebanKerjaTimSummaryProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
+  refreshSignal?: number;
 }
 
 const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({
   bulan,
   tahun,
   bulanLabel,
+  refreshSignal,
 }) => {
   const [apiData, setApiData] = useState<SkorBebanKerjaTimData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,9 +24,12 @@ const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({
     let isMounted = true;
 
     const loadData = async () => {
-      setIsLoading(true);
-      setErrorMessage(null);
-      setApiData(null);
+      const hasExistingData = apiData !== null;
+
+      if (!hasExistingData) {
+        setIsLoading(true);
+        setErrorMessage(null);
+      }
 
       const result = await fetchSkorBebanKerjaTim({ bulan, tahun });
 
@@ -34,11 +39,14 @@ const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({
 
       if (result.successCode === 200 && result.data) {
         setApiData(result.data);
-      } else {
+        setErrorMessage(null);
+      } else if (!hasExistingData) {
         setErrorMessage("Gagal memuat skor beban kerja tim");
       }
 
-      setIsLoading(false);
+      if (!hasExistingData) {
+        setIsLoading(false);
+      }
     };
 
     loadData();
@@ -46,7 +54,7 @@ const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [bulan, tahun]);
+  }, [bulan, tahun, refreshSignal]);
 
   const ringkasan = apiData?.kader?.ringkasan;
   const distribusi = useMemo(

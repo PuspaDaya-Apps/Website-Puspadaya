@@ -68,6 +68,7 @@ const KinerjaPosyanduPage: React.FC = () => {
   const [perhatianKhususLoading, setPerhatianKhususLoading] = useState(true);
   const [perhatianKhususPage, setPerhatianKhususPage] = useState(1);
   const [detailBalitaPage, setDetailBalitaPage] = useState(1);
+  const [refreshTick, setRefreshTick] = useState(0);
   const [userLocation, setUserLocation] = useState<Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa">>({});
   const currentDate = new Date();
   const currentBulan = currentDate.getMonth() + 1;
@@ -122,9 +123,19 @@ const KinerjaPosyanduPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const timer = window.setInterval(() => {
+      setRefreshTick((value) => value + 1);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
     let isMounted = true;
 
     const loadRingkasan = async () => {
+      const hasExistingData = ringkasanData !== null;
+
       const result = await fetchKinerjaRingkasan({
         bulan: currentBulan,
         tahun: currentTahun,
@@ -137,7 +148,7 @@ const KinerjaPosyanduPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setRingkasanData(result.data);
-      } else {
+      } else if (!hasExistingData) {
         setRingkasanData(null);
       }
     };
@@ -147,12 +158,14 @@ const KinerjaPosyanduPage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [currentBulan, currentTahun, userLocation]);
+  }, [currentBulan, currentTahun, userLocation, refreshTick]);
 
   useEffect(() => {
     let isMounted = true;
 
     const loadTrenData = async () => {
+      const hasExistingData = trenData !== null;
+
       const result = await fetchTrenDataPosyandu({
         bulan: currentBulan,
         tahun: currentTahun,
@@ -165,7 +178,7 @@ const KinerjaPosyanduPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setTrenData(result.data.posyandu ?? []);
-      } else {
+      } else if (!hasExistingData) {
         setTrenData(null);
       }
     };
@@ -175,13 +188,17 @@ const KinerjaPosyanduPage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [currentBulan, currentTahun, userLocation]);
+  }, [currentBulan, currentTahun, userLocation, refreshTick]);
 
   useEffect(() => {
     let isMounted = true;
 
     const loadPerhatianKhusus = async () => {
-      setPerhatianKhususLoading(true);
+      const hasExistingData = perhatianKhususData !== null;
+
+      if (!hasExistingData) {
+        setPerhatianKhususLoading(true);
+      }
 
       const result = await fetchKinerjaPerhatianKhusus({
         bulan: currentBulan,
@@ -195,11 +212,13 @@ const KinerjaPosyanduPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setPerhatianKhususData(result.data.posyandu ?? []);
-      } else {
+      } else if (!hasExistingData) {
         setPerhatianKhususData(null);
       }
 
-      setPerhatianKhususLoading(false);
+      if (!hasExistingData) {
+        setPerhatianKhususLoading(false);
+      }
     };
 
     loadPerhatianKhusus();
@@ -207,7 +226,7 @@ const KinerjaPosyanduPage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [currentBulan, currentTahun, userLocation]);
+  }, [currentBulan, currentTahun, userLocation, refreshTick]);
 
   const openPosyanduDetail = (posyanduId: string) => {
     const token = createPosyanduDetailToken({
@@ -578,7 +597,7 @@ const KinerjaPosyanduPage: React.FC = () => {
         return;
       }
 
-      setDetailOverviewData(null);
+      const hasExistingData = detailOverviewData !== null;
 
       const result = await fetchDetailPosyanduOverview(selectedPosyanduApiId, {
         bulan: currentBulan,
@@ -591,7 +610,7 @@ const KinerjaPosyanduPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setDetailOverviewData(result.data);
-      } else {
+      } else if (!hasExistingData) {
         setDetailOverviewData(null);
       }
     };
@@ -602,7 +621,7 @@ const KinerjaPosyanduPage: React.FC = () => {
         return;
       }
 
-      setDetailRingkasanData(null);
+      const hasExistingData = detailRingkasanData !== null;
 
       const result = await fetchDetailPosyanduRingkasan(selectedPosyanduApiId, {
         bulan: currentBulan,
@@ -615,7 +634,7 @@ const KinerjaPosyanduPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setDetailRingkasanData(result.data);
-      } else {
+      } else if (!hasExistingData) {
         setDetailRingkasanData(null);
       }
     };
@@ -626,7 +645,7 @@ const KinerjaPosyanduPage: React.FC = () => {
         return;
       }
 
-      setDetailKinerjaData(null);
+      const hasExistingData = detailKinerjaData !== null;
 
       const result = await fetchDetailPosyanduKinerja(selectedPosyanduApiId, {
         bulan: currentBulan,
@@ -639,7 +658,7 @@ const KinerjaPosyanduPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setDetailKinerjaData(result.data);
-      } else {
+      } else if (!hasExistingData) {
         setDetailKinerjaData(null);
       }
     };
@@ -650,7 +669,7 @@ const KinerjaPosyanduPage: React.FC = () => {
         return;
       }
 
-      setDetailBalitaData(null);
+      const hasExistingData = detailBalitaData !== null;
 
       const result = await fetchDetailPosyanduBalitaAll(selectedPosyanduApiId, {
         bulan: currentBulan,
@@ -665,7 +684,7 @@ const KinerjaPosyanduPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setDetailBalitaData(result.data);
-      } else {
+      } else if (!hasExistingData) {
         setDetailBalitaData(null);
       }
     };
@@ -676,7 +695,7 @@ const KinerjaPosyanduPage: React.FC = () => {
         return;
       }
 
-      setDetailKaderData(null);
+      const hasExistingData = detailKaderData !== null;
 
       const result = await fetchDetailPosyanduKader(selectedPosyanduApiId, {
         bulan: currentBulan,
@@ -689,7 +708,7 @@ const KinerjaPosyanduPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setDetailKaderData(result.data);
-      } else {
+      } else if (!hasExistingData) {
         setDetailKaderData(null);
       }
     };
@@ -700,8 +719,11 @@ const KinerjaPosyanduPage: React.FC = () => {
         return;
       }
 
-      setKinerjaPerPosyanduData(null);
-      setKinerjaPerPosyanduLoading(true);
+      const hasExistingData = kinerjaPerPosyanduData !== null;
+
+      if (!hasExistingData) {
+        setKinerjaPerPosyanduLoading(true);
+      }
 
       const result = await fetchKinerjaPerPosyandu(selectedPosyanduApiId, {
         bulan: currentBulan,
@@ -714,11 +736,13 @@ const KinerjaPosyanduPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setKinerjaPerPosyanduData(result.data);
-      } else {
+      } else if (!hasExistingData) {
         setKinerjaPerPosyanduData(null);
       }
 
-      setKinerjaPerPosyanduLoading(false);
+      if (!hasExistingData) {
+        setKinerjaPerPosyanduLoading(false);
+      }
     };
 
     loadDetailOverview();
@@ -731,7 +755,7 @@ const KinerjaPosyanduPage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [selectedPosyanduApiId, currentBulan, currentTahun, detailBalitaPage]);
+  }, [selectedPosyanduApiId, currentBulan, currentTahun, detailBalitaPage, refreshTick]);
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
@@ -856,7 +880,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                         onClick={() => detailId && openPosyanduDetail(detailId)}
                         className="mt-4 inline-block rounded-full bg-white/20 px-4 py-2 text-sm font-medium transition hover:bg-white/30"
                       >
-                        Lihat Detail â†’
+                        Lihat Detail →
                       </button>
                     </div>
                   );
@@ -1689,4 +1713,5 @@ const KinerjaPosyanduPage: React.FC = () => {
 };
 
 export default KinerjaPosyanduPage;
+
 

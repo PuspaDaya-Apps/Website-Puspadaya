@@ -43,6 +43,7 @@ const PosyanduDetailPage: React.FC = () => {
   const [kinerjaData, setKinerjaData] = useState<DetailPosyanduKinerjaData | null>(null);
   const [kinerjaLoading, setKinerjaLoading] = useState(true);
   const [kinerjaError, setKinerjaError] = useState<string | null>(null);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   useEffect(() => {
     const resolved = resolvePosyanduDetailToken(detailToken);
@@ -80,6 +81,14 @@ const PosyanduDetailPage: React.FC = () => {
   }, [detailToken]);
 
   useEffect(() => {
+    const timer = window.setInterval(() => {
+      setRefreshTick((value) => value + 1);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
     if (!detailContext) {
       return;
     }
@@ -87,9 +96,12 @@ const PosyanduDetailPage: React.FC = () => {
     let isMounted = true;
 
     const loadOverview = async () => {
-      setOverviewLoading(true);
-      setOverviewError(null);
-      setOverviewData(null);
+      const hasExistingData = overviewData !== null;
+
+      if (!hasExistingData) {
+        setOverviewLoading(true);
+        setOverviewError(null);
+      }
 
       const result = await fetchDetailPosyanduOverview(detailContext.idPosyandu, {
         bulan: detailContext.bulan,
@@ -102,17 +114,23 @@ const PosyanduDetailPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setOverviewData(result.data);
-      } else {
+        setOverviewError(null);
+      } else if (!hasExistingData) {
         setOverviewError("Gagal memuat overview posyandu");
       }
 
-      setOverviewLoading(false);
+      if (!hasExistingData) {
+        setOverviewLoading(false);
+      }
     };
 
     const loadRingkasan = async () => {
-      setRingkasanLoading(true);
-      setRingkasanError(null);
-      setRingkasanData(null);
+      const hasExistingData = ringkasanData !== null;
+
+      if (!hasExistingData) {
+        setRingkasanLoading(true);
+        setRingkasanError(null);
+      }
 
       const result = await fetchDetailPosyanduRingkasan(detailContext.idPosyandu, {
         bulan: detailContext.bulan,
@@ -125,17 +143,23 @@ const PosyanduDetailPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setRingkasanData(result.data);
-      } else {
+        setRingkasanError(null);
+      } else if (!hasExistingData) {
         setRingkasanError("Gagal memuat ringkasan posyandu");
       }
 
-      setRingkasanLoading(false);
+      if (!hasExistingData) {
+        setRingkasanLoading(false);
+      }
     };
 
     const loadBalitaKhusus = async () => {
-      setBalitaLoading(true);
-      setBalitaError(null);
-      setBalitaData(null);
+      const hasExistingData = balitaData !== null;
+
+      if (!hasExistingData) {
+        setBalitaLoading(true);
+        setBalitaError(null);
+      }
 
       const result = await fetchDetailPosyanduBalitaKhusus(detailContext.idPosyandu, {
         bulan: detailContext.bulan,
@@ -150,17 +174,23 @@ const PosyanduDetailPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setBalitaData(result.data);
-      } else {
+        setBalitaError(null);
+      } else if (!hasExistingData) {
         setBalitaError("Gagal memuat data balita khusus");
       }
 
-      setBalitaLoading(false);
+      if (!hasExistingData) {
+        setBalitaLoading(false);
+      }
     };
 
     const loadKader = async () => {
-      setKaderLoading(true);
-      setKaderError(null);
-      setKaderData(null);
+      const hasExistingData = kaderData !== null;
+
+      if (!hasExistingData) {
+        setKaderLoading(true);
+        setKaderError(null);
+      }
 
       const result = await fetchDetailPosyanduKader(detailContext.idPosyandu, {
         bulan: detailContext.bulan,
@@ -173,17 +203,23 @@ const PosyanduDetailPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setKaderData(result.data);
-      } else {
+        setKaderError(null);
+      } else if (!hasExistingData) {
         setKaderError("Gagal memuat data kader");
       }
 
-      setKaderLoading(false);
+      if (!hasExistingData) {
+        setKaderLoading(false);
+      }
     };
 
     const loadKinerja = async () => {
-      setKinerjaLoading(true);
-      setKinerjaError(null);
-      setKinerjaData(null);
+      const hasExistingData = kinerjaData !== null;
+
+      if (!hasExistingData) {
+        setKinerjaLoading(true);
+        setKinerjaError(null);
+      }
 
       const result = await fetchDetailPosyanduKinerja(detailContext.idPosyandu, {
         bulan: detailContext.bulan,
@@ -196,11 +232,14 @@ const PosyanduDetailPage: React.FC = () => {
 
       if (result.successCode === 200 && result.data) {
         setKinerjaData(result.data);
-      } else {
+        setKinerjaError(null);
+      } else if (!hasExistingData) {
         setKinerjaError("Gagal memuat data kinerja");
       }
 
-      setKinerjaLoading(false);
+      if (!hasExistingData) {
+        setKinerjaLoading(false);
+      }
     };
 
     loadOverview();
@@ -212,7 +251,7 @@ const PosyanduDetailPage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [detailContext, balitaPage]);
+  }, [detailContext, balitaPage, refreshTick]);
 
   useEffect(() => {
     setKaderPage(1);

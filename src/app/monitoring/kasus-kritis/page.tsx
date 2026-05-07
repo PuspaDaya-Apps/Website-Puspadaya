@@ -53,6 +53,7 @@ const KasusKritisPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPosyanduPage, setCurrentPosyanduPage] = useState(1);
   const [currentPrioritasPage, setCurrentPrioritasPage] = useState(1);
+  const [refreshTick, setRefreshTick] = useState(0);
   const [posyanduOptions, setPosyanduOptions] = useState<TrenDataPosyanduItem[]>([]);
   const [apiData, setApiData] = useState<KinerjaPosyanduKasusKritisData | null>(null);
   const [apiLoading, setApiLoading] = useState(true);
@@ -69,42 +70,59 @@ const KasusKritisPage: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
     const load = async () => {
-      setApiLoading(true);
+      const hasExistingData = apiData !== null;
+
+      if (!hasExistingData) {
+        setApiLoading(true);
+      }
+
       const result = await fetchDataKasusKritisBalita({
         bulan: currentBulan,
         tahun: currentTahun,
         ...getLocation(),
       });
       if (!isMounted) return;
-      setApiData(result.successCode === 200 && result.data ? result.data : null);
-      setApiLoading(false);
-    };
-    load();
-    return () => { isMounted = false; };
-  }, [currentBulan, currentTahun]);
-
-  useEffect(() => {
-    let isMounted = true;
-    const load = async () => {
-      const result = await fetchTrenDataPosyandu({ bulan: currentBulan, tahun: currentTahun });
-      if (!isMounted) return;
-      if (result.successCode === 200 && result.data?.posyandu) {
-        setPosyanduOptions(result.data.posyandu.filter((p) => p.id));
+      if (result.successCode === 200 && result.data) {
+        setApiData(result.data);
+      } else if (!hasExistingData) {
+        setApiData(null);
+      }
+      if (!hasExistingData) {
+        setApiLoading(false);
       }
     };
     load();
     return () => { isMounted = false; };
-  }, [currentBulan, currentTahun]);
+  }, [currentBulan, currentTahun, refreshTick]);
 
   useEffect(() => {
     let isMounted = true;
     const load = async () => {
-      setDaftarPrioritasLoading(true);
+      const hasExistingData = posyanduOptions.length > 0;
+      const result = await fetchTrenDataPosyandu({ bulan: currentBulan, tahun: currentTahun });
+      if (!isMounted) return;
+      if (result.successCode === 200 && result.data?.posyandu) {
+        setPosyanduOptions(result.data.posyandu.filter((p) => p.id));
+      } else if (!hasExistingData) {
+        setPosyanduOptions([]);
+      }
+    };
+    load();
+    return () => { isMounted = false; };
+  }, [currentBulan, currentTahun, refreshTick]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const load = async () => {
+      const hasExistingData = daftarPrioritasData !== null;
+      if (!hasExistingData) {
+        setDaftarPrioritasLoading(true);
+      }
+
       const extraParams: Record<string, string> = {};
       if (filterPosyanduId) extraParams.id_posyandu = filterPosyanduId;
       if (filterStatusGizi) extraParams.status_gizi = filterStatusGizi;
       if (filterStatusPrioritas) extraParams.status_prioritas = filterStatusPrioritas;
-      setCurrentPrioritasPage(1);
       const result = await fetchDataKasusKritis({
         bulan: currentBulan,
         tahun: currentTahun,
@@ -112,16 +130,30 @@ const KasusKritisPage: React.FC = () => {
         extraParams,
       });
       if (!isMounted) return;
-      setDaftarPrioritasData(
-        result.successCode === 200 && result.data?.daftar_prioritas
-          ? result.data.daftar_prioritas
-          : null
-      );
-      setDaftarPrioritasLoading(false);
+      if (result.successCode === 200 && result.data?.daftar_prioritas) {
+        setDaftarPrioritasData(result.data.daftar_prioritas);
+      } else if (!hasExistingData) {
+        setDaftarPrioritasData(null);
+      }
+      if (!hasExistingData) {
+        setDaftarPrioritasLoading(false);
+      }
     };
     load();
     return () => { isMounted = false; };
-  }, [currentBulan, currentTahun, filterPosyanduId, filterStatusGizi, filterStatusPrioritas]);
+  }, [currentBulan, currentTahun, filterPosyanduId, filterStatusGizi, filterStatusPrioritas, refreshTick]);
+
+  useEffect(() => {
+    setCurrentPrioritasPage(1);
+  }, [filterPosyanduId, filterStatusGizi, filterStatusPrioritas]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setRefreshTick((value) => value + 1);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   const getDisplayStatusColor = (status: string) => {
     switch (status) {

@@ -8,11 +8,13 @@ interface RecentActivityTableProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
+  refreshSignal?: number;
 }
 
 const RecentActivityTable: React.FC<RecentActivityTableProps> = ({
   bulan,
   tahun,
+  refreshSignal,
 }) => {
   const [apiData, setApiData] = useState<LogAktivitasKaderData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,9 +24,12 @@ const RecentActivityTable: React.FC<RecentActivityTableProps> = ({
     let isMounted = true;
 
     const loadData = async () => {
-      setIsLoading(true);
-      setErrorMessage(null);
-      setApiData(null);
+      const hasExistingData = apiData !== null;
+
+      if (!hasExistingData) {
+        setIsLoading(true);
+        setErrorMessage(null);
+      }
 
       const result = await fetchLogAktivitasKader({ bulan, tahun });
 
@@ -34,11 +39,14 @@ const RecentActivityTable: React.FC<RecentActivityTableProps> = ({
 
       if (result.successCode === 200 && result.data) {
         setApiData(result.data);
-      } else {
+        setErrorMessage(null);
+      } else if (!hasExistingData) {
         setErrorMessage("Gagal memuat data aktivitas terbaru");
       }
 
-      setIsLoading(false);
+      if (!hasExistingData) {
+        setIsLoading(false);
+      }
     };
 
     loadData();
@@ -46,7 +54,7 @@ const RecentActivityTable: React.FC<RecentActivityTableProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [bulan, tahun]);
+  }, [bulan, tahun, refreshSignal]);
 
   const activities = useMemo<RecentActivityType[]>(() => {
     const apiActivities = apiData?.aktivitas ?? [];

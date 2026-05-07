@@ -32,6 +32,7 @@ const DashboardKepalaDesa: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [filterTahun, setFilterTahun] = useState<number>(new Date().getFullYear());
   const [totalPosyandu, setTotalPosyandu] = useState<number>(posyanduListData.length);
+  const [refreshSignal, setRefreshSignal] = useState(0);
 
   const { isSeniorMode } = useSeniorMode();
 
@@ -59,6 +60,14 @@ const DashboardKepalaDesa: React.FC = () => {
       setIsLoading(false);
     }, 500);
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setRefreshSignal((value) => value + 1);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
   }, []);
 
   // Print report function - Open in new tab
@@ -151,6 +160,7 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 2: KEY METRICS - Indikator Kunci */}
       <KeyMetrics
+        refreshSignal={refreshSignal}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
@@ -162,6 +172,7 @@ const DashboardKepalaDesa: React.FC = () => {
         selectedPosyandu={selectedPosyandu}
         onSelectPosyandu={setSelectedPosyandu}
         onTotalPosyanduChange={setTotalPosyandu}
+        refreshSignal={refreshSignal}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
@@ -202,6 +213,7 @@ const DashboardKepalaDesa: React.FC = () => {
         trendData={monthlyTrendData}
         statusGiziTrend={statusGiziTrendData}
         ibuHamilBeresikoTrend={ibuHamilBeresikoTrendData}
+        refreshSignal={refreshSignal}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
@@ -210,6 +222,7 @@ const DashboardKepalaDesa: React.FC = () => {
       {/* LEVEL 3: ADDITIONAL METRICS - Data Kependudukan, Balita & Imunisasi */}
       <AdditionalMetrics
         summary={dashboardSummaryData}
+        refreshSignal={refreshSignal}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
@@ -218,6 +231,7 @@ const DashboardKepalaDesa: React.FC = () => {
       {/* LEVEL 3: SKDN BAR CHART */}
       <SKDNBarChart
         skdnData={dashboardSummaryData.skdn_data}
+        refreshSignal={refreshSignal}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
@@ -226,6 +240,7 @@ const DashboardKepalaDesa: React.FC = () => {
       {/* LEVEL 3: DURASI DAN JARAK AGREGAT - KADER */}
       <DurasiJarakAgregat
         durasiJarak={dashboardSummaryData.durasi_jarak_agregat}
+        refreshSignal={refreshSignal}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
@@ -233,6 +248,7 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 3: BEBAN KERJA TIM SUMMARY - KADER */}
       <BebanKerjaTimSummary
+        refreshSignal={refreshSignal}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
@@ -241,6 +257,7 @@ const DashboardKepalaDesa: React.FC = () => {
       {/* LEVEL 4: EXPANDABLE DATA SECTIONS */}
       <ExpandableDataSection
         summary={dashboardSummaryData}
+        refreshSignal={refreshSignal}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
