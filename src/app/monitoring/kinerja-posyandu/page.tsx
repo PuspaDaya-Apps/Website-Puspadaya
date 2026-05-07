@@ -580,8 +580,8 @@ const KinerjaPosyanduPage: React.FC = () => {
         usia_label: child.usia,
         tanggal_lahir: child.tanggal_lahir || "-",
         nama_ibu: child.ibu,
-        berat_badan: child.berat_badan,
-        tinggi_badan: child.tinggi_badan,
+        berat_badan: child.berat_badan ?? 0,
+        tinggi_badan: child.tinggi_badan ?? 0,
         status_gizi: child.status,
         status_stunting: "-",
         prioritas: child.prioritas || "-",
@@ -1410,8 +1410,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Tanggal Lahir</th>
                                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Jenis Kelamin</th>
                                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Usia</th>
-                                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">BB (kg)</th>
-                                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">TB (cm)</th>
+                                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">BB / TB</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status Gizi</th>
                                     <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Prioritas</th>
                                   </tr>
@@ -1427,8 +1426,7 @@ const KinerjaPosyanduPage: React.FC = () => {
                                         {child.jenis_kelamin === "l" ? "L" : child.jenis_kelamin === "p" ? "P" : child.jenis_kelamin}
                                       </td>
                                       <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.usia_label}</td>
-                                      <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.berat_badan}</td>
-                                      <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.tinggi_badan}</td>
+                                      <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-300">{child.berat_badan ?? 0} / {child.tinggi_badan ?? 0}</td>
                                       <td className="px-4 py-3">
                                         <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${
                                           child.status_gizi === "Gizi Buruk"
