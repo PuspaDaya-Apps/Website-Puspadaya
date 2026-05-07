@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import { fetchDataKasusKritis, fetchDetailDataKasusKritis, type DashboardKepalaDesaQueryParams } from "@/app/api/dashboard-kinerja-kepala-desa";
+import { fetchDataKasusKritis, fetchDataKasusKritisBalita, fetchDetailDataKasusKritis, type DashboardKepalaDesaQueryParams } from "@/app/api/dashboard-kinerja-kepala-desa";
 import { KinerjaPosyanduKasusKritisData, KinerjaPosyanduKasusKritisDaftarPrioritasItem, KinerjaPosyanduDetailKasusKritisData, TrenDataPosyanduItem } from "@/types/kepala-desa";
 import { fetchTrenDataPosyandu } from "@/app/api/dashboard-kepala-desa";
 
@@ -68,7 +68,7 @@ const KasusKritisPage: React.FC = () => {
     let isMounted = true;
     const load = async () => {
       setApiLoading(true);
-      const result = await fetchDataKasusKritis({
+      const result = await fetchDataKasusKritisBalita({
         bulan: currentBulan,
         tahun: currentTahun,
         ...getLocation(),
