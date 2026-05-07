@@ -2,8 +2,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { CriticalChild } from "@/types/dashboard-kepala-desa";
 import { criticalChildrenData } from "@/data/dummy-dashboard-kepala-desa";
-import { fetchDataKasusKritisBalita, fetchDataKasusKritis, type DashboardKepalaDesaQueryParams } from "@/app/api/dashboard-kinerja-kepala-desa";
-import { KinerjaPosyanduKasusKritisData, KinerjaPosyanduKasusKritisDaftarPrioritasItem, TrenDataPosyanduItem } from "@/types/kepala-desa";
+import { fetchDataKasusKritisBalita, fetchDataKasusKritis, fetchDetailDataKasusKritis, type DashboardKepalaDesaQueryParams } from "@/app/api/dashboard-kinerja-kepala-desa";
+import { KinerjaPosyanduKasusKritisData, KinerjaPosyanduKasusKritisDaftarPrioritasItem, KinerjaPosyanduDetailKasusKritisData, TrenDataPosyanduItem } from "@/types/kepala-desa";
 import { fetchTrenDataPosyandu } from "@/app/api/dashboard-kepala-desa";
 
 interface CurrentUserLocation {
@@ -32,6 +32,9 @@ const KasusKritisPage: React.FC = () => {
   const [apiLoading, setApiLoading] = useState(true);
   const [daftarPrioritasData, setDaftarPrioritasData] = useState<KinerjaPosyanduKasusKritisDaftarPrioritasItem[] | null>(null);
   const [daftarPrioritasLoading, setDaftarPrioritasLoading] = useState(true);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [selectedDetailData, setSelectedDetailData] = useState<KinerjaPosyanduDetailKasusKritisData | null>(null);
 
   const currentDate = new Date();
   const currentBulan = currentDate.getMonth() + 1;
@@ -188,6 +191,39 @@ const KasusKritisPage: React.FC = () => {
     sangat_tinggi: "Sangat Tinggi",
     tinggi: "Tinggi",
     sedang: "Sedang",
+  };
+
+  const handleDetailClick = async (idAnak: string) => {
+    setShowDetailModal(true);
+    setDetailLoading(true);
+    setSelectedDetailData(null);
+
+    const location: Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> = (() => {
+      try {
+        const raw = localStorage.getItem("current_user");
+        if (!raw) return {};
+        const user = JSON.parse(raw) as CurrentUserLocation;
+        return {
+          kabupatenKota: user?.kabupaten_kota?.nama_kabupaten_kota,
+          desa: user?.desa_kelurahan?.nama_desa_kelurahan,
+        };
+      } catch {
+        return {};
+      }
+    })();
+
+    const result = await fetchDetailDataKasusKritis({
+      bulan: currentBulan,
+      tahun: currentTahun,
+      ...location,
+      extraParams: { id_anak: idAnak },
+    });
+
+    if (result.successCode === 200 && result.data) {
+      setSelectedDetailData(result.data);
+    }
+
+    setDetailLoading(false);
   };
 
   const filteredChildren = useMemo(() => {
@@ -565,6 +601,9 @@ const KasusKritisPage: React.FC = () => {
                     <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                       Status
                     </th>
+                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      Aksi
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -605,6 +644,14 @@ const KasusKritisPage: React.FC = () => {
                             </span>
                           ))}
                         </div>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <button
+                          onClick={() => handleDetailClick(item.anak.id_anak)}
+                          className="rounded-lg bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                        >
+                          Detail
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -740,6 +787,127 @@ const KasusKritisPage: React.FC = () => {
           </>
         )}
       </div>
+
+      {showDetailModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-dark">
+            <div className="mb-6 flex items-start justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-dark dark:text-white">
+                  {detailLoading ? "Memuat..." : (selectedDetailData?.anak.nama ?? "Detail Anak")}
+                </h2>
+                {selectedDetailData && (
+                  <p className="text-gray-600 dark:text-gray-400">ID: {selectedDetailData.anak.id_anak}</p>
+                )}
+              </div>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="rounded-lg bg-gray-100 p-2 text-gray-600 transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {detailLoading ? (
+              <div className="py-12 text-center text-sm text-gray-500 dark:text-gray-400">Memuat data detail...</div>
+            ) : selectedDetailData ? (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+                  <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Informasi Pribadi</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">NIK</span>
+                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.anak.nik}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Tanggal Lahir</span>
+                      <span className="font-medium text-dark dark:text-white">{formatDate(selectedDetailData.anak.tanggal_lahir)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Usia</span>
+                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.anak.usia_bulan} bulan</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Jenis Kelamin</span>
+                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.anak.jenis_kelamin}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Nama Ibu</span>
+                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.anak.nama_ibu}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+                  <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Lokasi</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Posyandu</span>
+                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.lokasi.posyandu}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Dusun</span>
+                      <span className="font-medium text-dark dark:text-white">{selectedDetailData.lokasi.dusun}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+                  <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Pengukuran Terakhir</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Berat Badan</span>
+                      <span className="font-bold text-blue-600 dark:text-blue-400">{selectedDetailData.pengukuran_terakhir.berat_badan_kg} kg</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Tinggi Badan</span>
+                      <span className="font-bold text-blue-600 dark:text-blue-400">{selectedDetailData.pengukuran_terakhir.tinggi_badan_cm} cm</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Tanggal</span>
+                      <span className="font-medium text-dark dark:text-white">{formatDate(selectedDetailData.pengukuran_terakhir.tanggal)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-lg bg-red-50 p-4 dark:bg-red-900/20">
+                  <h3 className="mb-3 text-lg font-semibold text-dark dark:text-white">Status Kesehatan</h3>
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {selectedDetailData.status_kesehatan.map((s) => (
+                        <span key={s} className={`rounded-full px-3 py-1 text-sm font-medium ${getDisplayStatusColor(s)}`}>
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="mt-2">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Prioritas: </span>
+                      <span
+                        className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${
+                          selectedDetailData.prioritas === "Sangat Tinggi"
+                            ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                            : selectedDetailData.prioritas === "Tinggi"
+                              ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
+                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                        }`}
+                      >
+                        <div className={`h-2 w-2 rounded-full ${getPriorityColor(selectedDetailData.prioritas)}`}></div>
+                        {selectedDetailData.prioritas}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                Gagal memuat data detail.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {showModal && selectedChild && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
