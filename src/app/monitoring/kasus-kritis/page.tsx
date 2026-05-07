@@ -51,6 +51,7 @@ const KasusKritisPage: React.FC = () => {
   const [filterStatusGizi, setFilterStatusGizi] = useState<string>("");
   const [filterStatusPrioritas, setFilterStatusPrioritas] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [posyanduOptions, setPosyanduOptions] = useState<TrenDataPosyanduItem[]>([]);
   const [apiData, setApiData] = useState<KinerjaPosyanduKasusKritisData | null>(null);
   const [apiLoading, setApiLoading] = useState(true);
@@ -206,6 +207,59 @@ const KasusKritisPage: React.FC = () => {
     return [];
   }, [apiData]);
 
+  const itemsPerPage = 10;
+  const totalPosyanduPages = Math.max(1, Math.ceil(perPosyanduStats.length / itemsPerPage));
+  const safeCurrentPage = Math.min(currentPage, totalPosyanduPages);
+  const paginatedPerPosyanduStats = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * itemsPerPage;
+    return perPosyanduStats.slice(startIndex, startIndex + itemsPerPage);
+  }, [perPosyanduStats, safeCurrentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [apiData]);
+
+  useEffect(() => {
+    if (currentPage > totalPosyanduPages) {
+      setCurrentPage(totalPosyanduPages);
+    }
+  }, [currentPage, totalPosyanduPages]);
+
+  const visibleStart = perPosyanduStats.length === 0 ? 0 : (safeCurrentPage - 1) * itemsPerPage + 1;
+  const visibleEnd = Math.min(safeCurrentPage * itemsPerPage, perPosyanduStats.length);
+
+  const getPageNumbers = () => {
+    const pages: (number | "...")[] = [];
+    const maxVisible = 5;
+
+    if (totalPosyanduPages <= maxVisible) {
+      for (let page = 1; page <= totalPosyanduPages; page += 1) {
+        pages.push(page);
+      }
+      return pages;
+    }
+
+    pages.push(1);
+
+    const left = Math.max(2, safeCurrentPage - 1);
+    const right = Math.min(totalPosyanduPages - 1, safeCurrentPage + 1);
+
+    if (left > 2) {
+      pages.push("...");
+    }
+
+    for (let page = left; page <= right; page += 1) {
+      pages.push(page);
+    }
+
+    if (right < totalPosyanduPages - 1) {
+      pages.push("...");
+    }
+
+    pages.push(totalPosyanduPages);
+    return pages;
+  };
+
   return (
     <div className="space-y-6 p-4 sm:p-6">
       {/* Header */}
@@ -239,7 +293,8 @@ const KasusKritisPage: React.FC = () => {
             Memuat data...
           </div>
         ) : perPosyanduStats.length > 0 ? (
-          <div className="overflow-x-auto">
+          <div className="space-y-4">
+            <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
@@ -253,9 +308,11 @@ const KasusKritisPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {perPosyanduStats.map((p, index) => (
+                {paginatedPerPosyanduStats.map((p, index) => (
                   <tr key={p.posyandu_nama} className="transition hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <td className="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">{index + 1}</td>
+                    <td className="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {(safeCurrentPage - 1) * itemsPerPage + index + 1}
+                    </td>
                     <td className="px-4 py-3 text-sm font-semibold text-dark dark:text-white">{p.posyandu_nama || "-"}</td>
                     <td className="px-4 py-3 text-center text-lg font-bold text-blue-600 dark:text-blue-400">{p.total_balita}</td>
                     <td className="px-4 py-3 text-center">
@@ -274,6 +331,53 @@ const KasusKritisPage: React.FC = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Menampilkan {visibleStart}-{visibleEnd} dari {perPosyanduStats.length} posyandu
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  disabled={safeCurrentPage === 1}
+                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                >
+                  Sebelumnya
+                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  {getPageNumbers().map((page, index) =>
+                    page === "..." ? (
+                      <span key={`ellipsis-${index}`} className="px-2 text-sm text-gray-500 dark:text-gray-400">
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        key={page}
+                        type="button"
+                        onClick={() => setCurrentPage(page)}
+                        className={`min-w-10 rounded-lg px-3 py-2 text-sm font-medium transition ${
+                          page === safeCurrentPage
+                            ? "bg-primary text-white"
+                            : "border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPosyanduPages, page + 1))}
+                  disabled={safeCurrentPage === totalPosyanduPages}
+                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                >
+                  Berikutnya
+                </button>
+              </div>
+            </div>
           </div>
         ) : (
           <InfoCard message="Tidak ada data kasus kritis per posyandu untuk periode ini." />
