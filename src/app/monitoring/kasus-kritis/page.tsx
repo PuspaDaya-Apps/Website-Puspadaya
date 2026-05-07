@@ -51,7 +51,8 @@ const KasusKritisPage: React.FC = () => {
   const [filterStatusGizi, setFilterStatusGizi] = useState<string>("");
   const [filterStatusPrioritas, setFilterStatusPrioritas] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPosyanduPage, setCurrentPosyanduPage] = useState(1);
+  const [currentPrioritasPage, setCurrentPrioritasPage] = useState(1);
   const [posyanduOptions, setPosyanduOptions] = useState<TrenDataPosyanduItem[]>([]);
   const [apiData, setApiData] = useState<KinerjaPosyanduKasusKritisData | null>(null);
   const [apiLoading, setApiLoading] = useState(true);
@@ -103,6 +104,7 @@ const KasusKritisPage: React.FC = () => {
       if (filterPosyanduId) extraParams.id_posyandu = filterPosyanduId;
       if (filterStatusGizi) extraParams.status_gizi = filterStatusGizi;
       if (filterStatusPrioritas) extraParams.status_prioritas = filterStatusPrioritas;
+      setCurrentPrioritasPage(1);
       const result = await fetchDataKasusKritis({
         bulan: currentBulan,
         tahun: currentTahun,
@@ -207,26 +209,26 @@ const KasusKritisPage: React.FC = () => {
     return [];
   }, [apiData]);
 
-  const itemsPerPage = 10;
-  const totalPosyanduPages = Math.max(1, Math.ceil(perPosyanduStats.length / itemsPerPage));
-  const safeCurrentPage = Math.min(currentPage, totalPosyanduPages);
+  const itemsPerPosyanduPage = 10;
+  const totalPosyanduPages = Math.max(1, Math.ceil(perPosyanduStats.length / itemsPerPosyanduPage));
+  const safePosyanduPage = Math.min(currentPosyanduPage, totalPosyanduPages);
   const paginatedPerPosyanduStats = useMemo(() => {
-    const startIndex = (safeCurrentPage - 1) * itemsPerPage;
-    return perPosyanduStats.slice(startIndex, startIndex + itemsPerPage);
-  }, [perPosyanduStats, safeCurrentPage]);
+    const startIndex = (safePosyanduPage - 1) * itemsPerPosyanduPage;
+    return perPosyanduStats.slice(startIndex, startIndex + itemsPerPosyanduPage);
+  }, [perPosyanduStats, safePosyanduPage]);
 
   useEffect(() => {
-    setCurrentPage(1);
+    setCurrentPosyanduPage(1);
   }, [apiData]);
 
   useEffect(() => {
-    if (currentPage > totalPosyanduPages) {
-      setCurrentPage(totalPosyanduPages);
+    if (currentPosyanduPage > totalPosyanduPages) {
+      setCurrentPosyanduPage(totalPosyanduPages);
     }
-  }, [currentPage, totalPosyanduPages]);
+  }, [currentPosyanduPage, totalPosyanduPages]);
 
-  const visibleStart = perPosyanduStats.length === 0 ? 0 : (safeCurrentPage - 1) * itemsPerPage + 1;
-  const visibleEnd = Math.min(safeCurrentPage * itemsPerPage, perPosyanduStats.length);
+  const visibleStart = perPosyanduStats.length === 0 ? 0 : (safePosyanduPage - 1) * itemsPerPosyanduPage + 1;
+  const visibleEnd = Math.min(safePosyanduPage * itemsPerPosyanduPage, perPosyanduStats.length);
 
   const getPageNumbers = () => {
     const pages: (number | "...")[] = [];
@@ -241,8 +243,8 @@ const KasusKritisPage: React.FC = () => {
 
     pages.push(1);
 
-    const left = Math.max(2, safeCurrentPage - 1);
-    const right = Math.min(totalPosyanduPages - 1, safeCurrentPage + 1);
+    const left = Math.max(2, safePosyanduPage - 1);
+    const right = Math.min(totalPosyanduPages - 1, safePosyanduPage + 1);
 
     if (left > 2) {
       pages.push("...");
@@ -257,6 +259,58 @@ const KasusKritisPage: React.FC = () => {
     }
 
     pages.push(totalPosyanduPages);
+    return pages;
+  };
+
+  const itemsPerPrioritasPage = 15;
+  const totalPrioritasPages = Math.max(1, Math.ceil((filteredDaftarPrioritas?.length ?? 0) / itemsPerPrioritasPage));
+  const safePrioritasPage = Math.min(currentPrioritasPage, totalPrioritasPages);
+  const paginatedDaftarPrioritas = useMemo(() => {
+    if (!filteredDaftarPrioritas) return null;
+    const startIndex = (safePrioritasPage - 1) * itemsPerPrioritasPage;
+    return filteredDaftarPrioritas.slice(startIndex, startIndex + itemsPerPrioritasPage);
+  }, [filteredDaftarPrioritas, safePrioritasPage]);
+
+  useEffect(() => {
+    if (currentPrioritasPage > totalPrioritasPages) {
+      setCurrentPrioritasPage(totalPrioritasPages);
+    }
+  }, [currentPrioritasPage, totalPrioritasPages]);
+
+  const visiblePrioritasStart = filteredDaftarPrioritas && filteredDaftarPrioritas.length > 0
+    ? (safePrioritasPage - 1) * itemsPerPrioritasPage + 1
+    : 0;
+  const visiblePrioritasEnd = Math.min(safePrioritasPage * itemsPerPrioritasPage, filteredDaftarPrioritas?.length ?? 0);
+
+  const getPrioritasPageNumbers = () => {
+    const pages: (number | "...")[] = [];
+    const maxVisible = 5;
+
+    if (totalPrioritasPages <= maxVisible) {
+      for (let page = 1; page <= totalPrioritasPages; page += 1) {
+        pages.push(page);
+      }
+      return pages;
+    }
+
+    pages.push(1);
+
+    const left = Math.max(2, safePrioritasPage - 1);
+    const right = Math.min(totalPrioritasPages - 1, safePrioritasPage + 1);
+
+    if (left > 2) {
+      pages.push("...");
+    }
+
+    for (let page = left; page <= right; page += 1) {
+      pages.push(page);
+    }
+
+    if (right < totalPrioritasPages - 1) {
+      pages.push("...");
+    }
+
+    pages.push(totalPrioritasPages);
     return pages;
   };
 
@@ -311,7 +365,7 @@ const KasusKritisPage: React.FC = () => {
                 {paginatedPerPosyanduStats.map((p, index) => (
                   <tr key={p.posyandu_nama} className="transition hover:bg-gray-50 dark:hover:bg-gray-800">
                     <td className="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {(safeCurrentPage - 1) * itemsPerPage + index + 1}
+                      {(safePosyanduPage - 1) * itemsPerPosyanduPage + index + 1}
                     </td>
                     <td className="px-4 py-3 text-sm font-semibold text-dark dark:text-white">{p.posyandu_nama || "-"}</td>
                     <td className="px-4 py-3 text-center text-lg font-bold text-blue-600 dark:text-blue-400">{p.total_balita}</td>
@@ -340,8 +394,8 @@ const KasusKritisPage: React.FC = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                  disabled={safeCurrentPage === 1}
+                  onClick={() => setCurrentPosyanduPage((page) => Math.max(1, page - 1))}
+                  disabled={safePosyanduPage === 1}
                   className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
                   Sebelumnya
@@ -356,9 +410,9 @@ const KasusKritisPage: React.FC = () => {
                       <button
                         key={page}
                         type="button"
-                        onClick={() => setCurrentPage(page)}
+                        onClick={() => setCurrentPosyanduPage(page)}
                         className={`min-w-10 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                          page === safeCurrentPage
+                          page === safePosyanduPage
                             ? "bg-primary text-white"
                             : "border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                         }`}
@@ -370,8 +424,8 @@ const KasusKritisPage: React.FC = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setCurrentPage((page) => Math.min(totalPosyanduPages, page + 1))}
-                  disabled={safeCurrentPage === totalPosyanduPages}
+                  onClick={() => setCurrentPosyanduPage((page) => Math.min(totalPosyanduPages, page + 1))}
+                  disabled={safePosyanduPage === totalPosyanduPages}
                   className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
                   Berikutnya
@@ -483,7 +537,8 @@ const KasusKritisPage: React.FC = () => {
             Memuat data...
           </div>
         ) : filteredDaftarPrioritas && filteredDaftarPrioritas.length > 0 ? (
-          <div className="overflow-x-auto">
+          <div className="space-y-4">
+            <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
@@ -497,7 +552,7 @@ const KasusKritisPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredDaftarPrioritas.map((item) => (
+                {paginatedDaftarPrioritas?.map((item) => (
                   <tr key={item.id} className="transition hover:bg-gray-50 dark:hover:bg-gray-800">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
@@ -542,6 +597,52 @@ const KasusKritisPage: React.FC = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Menampilkan {visiblePrioritasStart}-{visiblePrioritasEnd} dari {filteredDaftarPrioritas.length} data
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPrioritasPage((page) => Math.max(1, page - 1))}
+                  disabled={safePrioritasPage === 1}
+                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                >
+                  Sebelumnya
+                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  {getPrioritasPageNumbers().map((page, index) =>
+                    page === "..." ? (
+                      <span key={`prioritas-ellipsis-${index}`} className="px-2 text-sm text-gray-500 dark:text-gray-400">
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        key={page}
+                        type="button"
+                        onClick={() => setCurrentPrioritasPage(page)}
+                        className={`min-w-10 rounded-lg px-3 py-2 text-sm font-medium transition ${
+                          page === safePrioritasPage
+                            ? "bg-primary text-white"
+                            : "border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPrioritasPage((page) => Math.min(totalPrioritasPages, page + 1))}
+                  disabled={safePrioritasPage === totalPrioritasPages}
+                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                >
+                  Berikutnya
+                </button>
+              </div>
+            </div>
           </div>
         ) : filteredDaftarPrioritas && filteredDaftarPrioritas.length === 0 ? (
           <InfoCard message="Tidak ada data yang sesuai dengan filter yang dipilih." />
