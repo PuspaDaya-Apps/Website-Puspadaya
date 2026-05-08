@@ -2,15 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { TokenManager } from '@/app/api/utils/TokenManager';
-import { logoutUser } from '@/app/api/login/loginApi';
-import { useRouter } from 'next/navigation';
+import { logoutUser, redirectAfterLogout } from '@/app/api/login/loginApi';
 
 /**
  * Session Timeout Warning Component
  * Shows warning modal before session expires
  */
 export default function SessionTimeoutWarning() {
-  const router = useRouter();
   const [showWarning, setShowWarning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isListening, setIsListening] = useState(false);
@@ -120,7 +118,7 @@ export default function SessionTimeoutWarning() {
     
     // Show message and redirect
     alert('Sesi Anda telah berakhir. Silakan login kembali.');
-    router.push('/auth/signin');
+    redirectAfterLogout();
   };
 
   const handleStayLoggedIn = () => {
@@ -130,7 +128,7 @@ export default function SessionTimeoutWarning() {
   const handleLogout = () => {
     setShowWarning(false);
     logoutUser();
-    router.push('/auth/signin');
+    redirectAfterLogout();
   };
 
   if (!showWarning || !isListening) {

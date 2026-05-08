@@ -4,6 +4,8 @@ import { Messages } from '@/components/Handleerror/message/messages';
 import { TokenManager } from '../utils/TokenManager';
 import { retryAxiosRequest } from '../utils/retry';
 
+export const LOGOUT_REDIRECT_URL = 'https://puspadaya-id.netlify.app/';
+
 export const loginUser = async (username: string, password: string): Promise<string> => {
     if (!username || !password) {
         throw new Error(Messages.VALIDATION_ERROR);
@@ -98,4 +100,12 @@ export const logoutUser = (): void => {
     
     // Dispatch logout event for any listeners
     window.dispatchEvent(new CustomEvent('auth:logout'));
+};
+
+export const redirectAfterLogout = (): void => {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    window.location.href = LOGOUT_REDIRECT_URL;
 };

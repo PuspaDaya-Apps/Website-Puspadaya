@@ -6,6 +6,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { TokenManager } from './TokenManager';
 import { apiCircuitBreaker, retryAxiosRequest } from './retry';
+import { LOGOUT_REDIRECT_URL } from '../login/loginApi';
 
 // Store reference to refresh token function (will be set by app)
 let refreshTokenCallback: (() => Promise<string | null>) | null = null;
@@ -88,7 +89,7 @@ const errorInterceptor = async (error: AxiosError): Promise<any> => {
       
       // Redirect to login after a short delay
       setTimeout(() => {
-        window.location.href = '/auth/signin';
+        window.location.href = LOGOUT_REDIRECT_URL;
       }, 1000);
       
       return Promise.reject(new Error('Session expired'));
@@ -110,7 +111,7 @@ const errorInterceptor = async (error: AxiosError): Promise<any> => {
         TokenManager.clearToken();
         window.dispatchEvent(new CustomEvent('auth:logout'));
         setTimeout(() => {
-          window.location.href = '/auth/signin';
+          window.location.href = LOGOUT_REDIRECT_URL;
         }, 1000);
         return Promise.reject(refreshError);
       }
@@ -119,7 +120,7 @@ const errorInterceptor = async (error: AxiosError): Promise<any> => {
       TokenManager.clearToken();
       window.dispatchEvent(new CustomEvent('auth:logout'));
       setTimeout(() => {
-        window.location.href = '/auth/signin';
+        window.location.href = LOGOUT_REDIRECT_URL;
       }, 1000);
       return Promise.reject(new Error('Session expired'));
     }

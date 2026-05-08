@@ -3,6 +3,7 @@ import { IconSettings, IconUser, IconLogout } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { logoutUser, redirectAfterLogout } from "@/app/api/login/loginApi";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -14,9 +15,8 @@ const DropdownUser = () => {
 
   // Menggunakan useCallback untuk memastikan referensi fungsi tetap konsisten
   const handleLogout = useCallback(() => {
-    sessionStorage.clear();
-    localStorage.clear();
-    window.location.href = "/auth/signin";
+    logoutUser();
+    redirectAfterLogout();
   }, []);
 
   const roleImageMap: { [key: string]: string } = {
