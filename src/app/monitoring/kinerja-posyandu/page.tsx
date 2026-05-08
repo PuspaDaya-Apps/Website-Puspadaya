@@ -30,6 +30,11 @@ import {
   KinerjaPerPosyanduData,
 } from "@/types/kepala-desa";
 import { createPosyanduDetailToken } from "@/utils/posyanduDetailToken";
+import {
+  buildPageStateCacheKey,
+  readPageStateCache,
+  writePageStateCache,
+} from "@/utils/pageStateCache";
 
 interface CurrentUserLocation {
   kabupaten_kota?: {
@@ -40,11 +45,78 @@ interface CurrentUserLocation {
   };
 }
 
+const getCurrentUserLocation = (): Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> => {
+  if (typeof window === "undefined") {
+    return {};
+  }
+
+  try {
+    const rawCurrentUser = localStorage.getItem("current_user");
+
+    if (!rawCurrentUser) {
+      return {};
+    }
+
+    const currentUser = JSON.parse(rawCurrentUser) as CurrentUserLocation;
+
+    return {
+      kabupatenKota: currentUser?.kabupaten_kota?.nama_kabupaten_kota,
+      desa: currentUser?.desa_kelurahan?.nama_desa_kelurahan,
+    };
+  } catch (error) {
+    console.warn("Gagal membaca current_user dari localStorage:", error);
+    return {};
+  }
+};
+
+interface KinerjaPosyanduPageSnapshot {
+  activeTab: "ranking" | "detail";
+  selectedPosyandu: string | null;
+  detailTab: "overview" | "balita" | "kader" | "kinerja";
+  ringkasanData: {
+    total_posyandu: number;
+    rata_rata_skor: number;
+    maksimal_skor: number;
+    kategori_posyandu: {
+      sangat_baik: number;
+      baik: number;
+      cukup: number;
+      kurang: number;
+    };
+  } | null;
+  trenData: TrenDataPosyanduItem[] | null;
+  detailOverviewData: DetailPosyanduOverviewData | null;
+  detailKinerjaData: DetailPosyanduKinerjaData | null;
+  detailBalitaData: DetailPosyanduBalitaKhususData | null;
+  detailKaderData: DetailPosyanduKaderData | null;
+  detailRingkasanData: DetailPosyanduRingkasanData | null;
+  kinerjaPerPosyanduData: KinerjaPerPosyanduData | null;
+  perhatianKhususData: KinerjaPosyanduPerhatianKhususItem[] | null;
+  perhatianKhususPage: number;
+  detailBalitaPage: number;
+}
+
 const KinerjaPosyanduPage: React.FC = () => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"ranking" | "detail">("ranking");
-  const [selectedPosyandu, setSelectedPosyandu] = useState<string | null>(null);
-  const [detailTab, setDetailTab] = useState<"overview" | "balita" | "kader" | "kinerja">("overview");
+  const [userLocation, setUserLocation] = useState<Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa">>(() => getCurrentUserLocation());
+  const currentDate = new Date();
+  const currentBulan = currentDate.getMonth() + 1;
+  const currentTahun = currentDate.getFullYear();
+  const pageCacheKey = useMemo(
+    () =>
+      buildPageStateCacheKey(
+        "monitoring-kinerja-posyandu",
+        `${currentBulan}-${currentTahun}-${userLocation.kabupatenKota ?? ""}-${userLocation.desa ?? ""}`
+      ),
+    [currentBulan, currentTahun, userLocation]
+  );
+  const cachedPageState = useMemo(
+    () => readPageStateCache<KinerjaPosyanduPageSnapshot>(pageCacheKey),
+    [pageCacheKey]
+  );
+  const [activeTab, setActiveTab] = useState<"ranking" | "detail">(cachedPageState?.data.activeTab ?? "ranking");
+  const [selectedPosyandu, setSelectedPosyandu] = useState<string | null>(cachedPageState?.data.selectedPosyandu ?? null);
+  const [detailTab, setDetailTab] = useState<"overview" | "balita" | "kader" | "kinerja">(cachedPageState?.data.detailTab ?? "overview");
   const [ringkasanData, setRingkasanData] = useState<{
     total_posyandu: number;
     rata_rata_skor: number;
@@ -55,24 +127,20 @@ const KinerjaPosyanduPage: React.FC = () => {
       cukup: number;
       kurang: number;
     };
-  } | null>(null);
-  const [trenData, setTrenData] = useState<TrenDataPosyanduItem[] | null>(null);
-  const [detailOverviewData, setDetailOverviewData] = useState<DetailPosyanduOverviewData | null>(null);
-  const [detailKinerjaData, setDetailKinerjaData] = useState<DetailPosyanduKinerjaData | null>(null);
-  const [detailBalitaData, setDetailBalitaData] = useState<DetailPosyanduBalitaKhususData | null>(null);
-  const [detailKaderData, setDetailKaderData] = useState<DetailPosyanduKaderData | null>(null);
-  const [detailRingkasanData, setDetailRingkasanData] = useState<DetailPosyanduRingkasanData | null>(null);
-  const [kinerjaPerPosyanduData, setKinerjaPerPosyanduData] = useState<KinerjaPerPosyanduData | null>(null);
+  } | null>(cachedPageState?.data.ringkasanData ?? null);
+  const [trenData, setTrenData] = useState<TrenDataPosyanduItem[] | null>(cachedPageState?.data.trenData ?? null);
+  const [detailOverviewData, setDetailOverviewData] = useState<DetailPosyanduOverviewData | null>(cachedPageState?.data.detailOverviewData ?? null);
+  const [detailKinerjaData, setDetailKinerjaData] = useState<DetailPosyanduKinerjaData | null>(cachedPageState?.data.detailKinerjaData ?? null);
+  const [detailBalitaData, setDetailBalitaData] = useState<DetailPosyanduBalitaKhususData | null>(cachedPageState?.data.detailBalitaData ?? null);
+  const [detailKaderData, setDetailKaderData] = useState<DetailPosyanduKaderData | null>(cachedPageState?.data.detailKaderData ?? null);
+  const [detailRingkasanData, setDetailRingkasanData] = useState<DetailPosyanduRingkasanData | null>(cachedPageState?.data.detailRingkasanData ?? null);
+  const [kinerjaPerPosyanduData, setKinerjaPerPosyanduData] = useState<KinerjaPerPosyanduData | null>(cachedPageState?.data.kinerjaPerPosyanduData ?? null);
   const [kinerjaPerPosyanduLoading, setKinerjaPerPosyanduLoading] = useState(false);
-  const [perhatianKhususData, setPerhatianKhususData] = useState<KinerjaPosyanduPerhatianKhususItem[] | null>(null);
-  const [perhatianKhususLoading, setPerhatianKhususLoading] = useState(true);
-  const [perhatianKhususPage, setPerhatianKhususPage] = useState(1);
-  const [detailBalitaPage, setDetailBalitaPage] = useState(1);
+  const [perhatianKhususData, setPerhatianKhususData] = useState<KinerjaPosyanduPerhatianKhususItem[] | null>(cachedPageState?.data.perhatianKhususData ?? null);
+  const [perhatianKhususLoading, setPerhatianKhususLoading] = useState(!cachedPageState?.data.perhatianKhususData);
+  const [perhatianKhususPage, setPerhatianKhususPage] = useState(cachedPageState?.data.perhatianKhususPage ?? 1);
+  const [detailBalitaPage, setDetailBalitaPage] = useState(cachedPageState?.data.detailBalitaPage ?? 1);
   const [refreshTick, setRefreshTick] = useState(0);
-  const [userLocation, setUserLocation] = useState<Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa">>({});
-  const currentDate = new Date();
-  const currentBulan = currentDate.getMonth() + 1;
-  const currentTahun = currentDate.getFullYear();
   const perhatianKhususItemsPerPage = 4;
   const detailBalitaLimit = 10;
   const zeroTrendMonths = useMemo(
@@ -93,34 +161,6 @@ const KinerjaPosyanduPage: React.FC = () => {
       </div>
     </div>
   );
-
-  const getCurrentUserLocation = (): Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> => {
-    if (typeof window === "undefined") {
-      return {};
-    }
-
-    try {
-      const rawCurrentUser = localStorage.getItem("current_user");
-
-      if (!rawCurrentUser) {
-        return {};
-      }
-
-      const currentUser = JSON.parse(rawCurrentUser) as CurrentUserLocation;
-
-      return {
-        kabupatenKota: currentUser?.kabupaten_kota?.nama_kabupaten_kota,
-        desa: currentUser?.desa_kelurahan?.nama_desa_kelurahan,
-      };
-    } catch (error) {
-      console.warn("Gagal membaca current_user dari localStorage:", error);
-      return {};
-    }
-  };
-
-  useEffect(() => {
-    setUserLocation(getCurrentUserLocation());
-  }, []);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -757,6 +797,41 @@ const KinerjaPosyanduPage: React.FC = () => {
     };
   }, [selectedPosyanduApiId, currentBulan, currentTahun, detailBalitaPage, refreshTick]);
 
+  useEffect(() => {
+    writePageStateCache(pageCacheKey, {
+      activeTab,
+      selectedPosyandu,
+      detailTab,
+      ringkasanData,
+      trenData,
+      detailOverviewData,
+      detailKinerjaData,
+      detailBalitaData,
+      detailKaderData,
+      detailRingkasanData,
+      kinerjaPerPosyanduData,
+      perhatianKhususData,
+      perhatianKhususPage,
+      detailBalitaPage,
+    });
+  }, [
+    pageCacheKey,
+    activeTab,
+    selectedPosyandu,
+    detailTab,
+    ringkasanData,
+    trenData,
+    detailOverviewData,
+    detailKinerjaData,
+    detailBalitaData,
+    detailKaderData,
+    detailRingkasanData,
+    kinerjaPerPosyanduData,
+    perhatianKhususData,
+    perhatianKhususPage,
+    detailBalitaPage,
+  ]);
+
   return (
     <div className="space-y-6 p-4 sm:p-6">
       {/* Header */}
@@ -897,7 +972,7 @@ const KinerjaPosyanduPage: React.FC = () => {
             {/* Bottom 3 */}
             <div>
               <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <h3 className="flex items-center gap-2 text-xl font-bold text-red-600 dark:text-red-400">
+                <h3 className="flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-gray-200">
                   Perlu Perhatian Khusus
                 </h3>
                 {!perhatianKhususLoading && perhatianKhususList.length > 4 && (
@@ -908,7 +983,7 @@ const KinerjaPosyanduPage: React.FC = () => {
               </div>
 
               {perhatianKhususLoading ? (
-                <div className="rounded-xl border border-dashed border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+                <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-800/40 dark:text-gray-300">
                   Memuat data perhatian khusus...
                 </div>
               ) : perhatianKhususList.length > 0 ? (
@@ -926,11 +1001,11 @@ const KinerjaPosyanduPage: React.FC = () => {
                             openPosyanduDetail(String(posyandu.id_posyandu));
                           }
                         }}
-                        className="cursor-pointer rounded-xl border border-red-200 bg-red-50 p-4 shadow-sm transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-300 dark:border-red-800 dark:bg-red-900/20 dark:focus:ring-red-700"
+                        className="cursor-pointer rounded-xl border border-gray-200 bg-gray-50 p-4 shadow-sm transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-300 dark:border-gray-700 dark:bg-gray-800/40 dark:focus:ring-gray-600"
                       >
                               <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                                 <div className="flex items-center gap-3 min-w-0">
-                                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-200 text-sm font-bold text-red-700 dark:bg-red-800 dark:text-red-300">
+                                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-700 dark:bg-gray-700 dark:text-gray-200">
                                     {posyandu.rank}
                                   </div>
                                   <div className="min-w-0">
@@ -940,10 +1015,10 @@ const KinerjaPosyanduPage: React.FC = () => {
                                 </div>
 
                                 <div className="flex flex-col items-start gap-1 sm:items-end">
-                                  <p className="text-2xl font-bold leading-none text-red-600 dark:text-red-400">
+                                  <p className="text-2xl font-bold leading-none text-gray-700 dark:text-gray-200">
                                     {posyandu.skor}
                                   </p>
-                                  <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-red-700 shadow-sm dark:bg-gray-800 dark:text-red-300">
+                                  <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-700 shadow-sm dark:bg-gray-700 dark:text-gray-200">
                                     {posyandu.kategori}
                                   </span>
                                 </div>
@@ -959,18 +1034,18 @@ const KinerjaPosyanduPage: React.FC = () => {
                           type="button"
                           onClick={() => setPerhatianKhususPage((page) => Math.max(1, page - 1))}
                           disabled={perhatianKhususPage === 1}
-                          className="rounded-lg border border-red-300 px-3 py-1.5 font-medium text-red-700 transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-800 dark:text-red-300"
+                          className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300"
                         >
                           Sebelumnya
                         </button>
-                        <span className="rounded-lg bg-red-100 px-3 py-1.5 font-medium text-red-700 dark:bg-red-900/30 dark:text-red-300">
+                        <span className="rounded-lg bg-gray-100 px-3 py-1.5 font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
                           Halaman {perhatianKhususPage} dari {perhatianKhususTotalPages}
                         </span>
                         <button
                           type="button"
                           onClick={() => setPerhatianKhususPage((page) => Math.min(perhatianKhususTotalPages, page + 1))}
                           disabled={perhatianKhususPage === perhatianKhususTotalPages}
-                          className="rounded-lg border border-red-300 px-3 py-1.5 font-medium text-red-700 transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-800 dark:text-red-300"
+                          className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300"
                         >
                           Berikutnya
                         </button>
@@ -1073,27 +1148,26 @@ const KinerjaPosyanduPage: React.FC = () => {
             <div className="space-y-6">
               {/* Posyandu Selector */}
               {detailPosyanduTabs.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {detailPosyanduTabs.map((posyandu) => (
-                    <button
-                      key={posyandu.id}
-                      onClick={() => {
-                        setSelectedPosyandu(posyandu.detailId);
-                        setActiveTab("detail");
-                        setDetailTab("overview");
-                      }}
-                      className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                        selectedPosyandu === posyandu.detailId
-                          ? "bg-primary text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                      }`}
-                    >
-                      {posyandu.nama_posyandu}
-                      {posyandu.skor_kinerja < 60 && (
-                        <span className="ml-2 rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">!</span>
-                      )}
-                    </button>
-                  ))}
+                <div className="overflow-x-auto pb-2">
+                  <div className="flex min-w-max gap-2">
+                    {detailPosyanduTabs.map((posyandu) => (
+                      <button
+                        key={posyandu.id}
+                        onClick={() => {
+                          setSelectedPosyandu(posyandu.detailId);
+                          setActiveTab("detail");
+                          setDetailTab("overview");
+                        }}
+                        className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition ${
+                          selectedPosyandu === posyandu.detailId
+                            ? "bg-primary text-white"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                        }`}
+                      >
+                        {posyandu.nama_posyandu}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <ErrorCard

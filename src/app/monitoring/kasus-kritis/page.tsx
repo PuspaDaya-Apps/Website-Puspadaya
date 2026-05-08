@@ -1,12 +1,26 @@
-"use client";
-import React, { useEffect, useMemo, useState } from "react";
+ "use client";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { fetchDataKasusKritis, fetchDataKasusKritisBalita, fetchDetailDataKasusKritis, type DashboardKepalaDesaQueryParams } from "@/app/api/dashboard-kinerja-kepala-desa";
 import { KinerjaPosyanduKasusKritisData, KinerjaPosyanduKasusKritisDaftarPrioritasItem, KinerjaPosyanduDetailKasusKritisData, TrenDataPosyanduItem } from "@/types/kepala-desa";
 import { fetchTrenDataPosyandu } from "@/app/api/dashboard-kepala-desa";
+import { buildPageStateCacheKey, readPageStateCache, writePageStateCache } from "@/utils/pageStateCache";
 
 interface CurrentUserLocation {
   kabupaten_kota?: { nama_kabupaten_kota?: string };
   desa_kelurahan?: { nama_desa_kelurahan?: string };
+}
+
+interface KasusKritisPageSnapshot {
+  filterPosyanduId: string;
+  filterStatusGizi: string;
+  filterStatusPrioritas: string;
+  searchTerm: string;
+  currentPosyanduPage: number;
+  currentPrioritasPage: number;
+  posyanduOptions: TrenDataPosyanduItem[];
+  apiData: KinerjaPosyanduKasusKritisData | null;
+  daftarPrioritasData: KinerjaPosyanduKasusKritisDaftarPrioritasItem[] | null;
+  selectedDetailData: KinerjaPosyanduDetailKasusKritisData | null;
 }
 
 type PosyanduCaseSummary = {
@@ -33,6 +47,10 @@ const InfoCard = ({ message }: { message: string }) => (
 );
 
 const getLocation = (): Pick<DashboardKepalaDesaQueryParams, "kabupatenKota" | "desa"> => {
+  if (typeof window === "undefined") {
+    return {};
+  }
+
   try {
     const raw = localStorage.getItem("current_user");
     if (!raw) return {};
@@ -54,18 +72,30 @@ const KasusKritisPage: React.FC = () => {
   const [currentPosyanduPage, setCurrentPosyanduPage] = useState(1);
   const [currentPrioritasPage, setCurrentPrioritasPage] = useState(1);
   const [refreshTick, setRefreshTick] = useState(0);
-  const [posyanduOptions, setPosyanduOptions] = useState<TrenDataPosyanduItem[]>([]);
-  const [apiData, setApiData] = useState<KinerjaPosyanduKasusKritisData | null>(null);
-  const [apiLoading, setApiLoading] = useState(true);
-  const [daftarPrioritasData, setDaftarPrioritasData] = useState<KinerjaPosyanduKasusKritisDaftarPrioritasItem[] | null>(null);
-  const [daftarPrioritasLoading, setDaftarPrioritasLoading] = useState(true);
-  const [showDetailModal, setShowDetailModal] = useState(false);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [selectedDetailData, setSelectedDetailData] = useState<KinerjaPosyanduDetailKasusKritisData | null>(null);
-
   const currentDate = new Date();
   const currentBulan = currentDate.getMonth() + 1;
   const currentTahun = currentDate.getFullYear();
+  const pageCacheKey = useMemo(
+    () =>
+      buildPageStateCacheKey(
+        "monitoring-kasus-kritis",
+        `${currentBulan}-${currentTahun}-${filterPosyanduId}-${filterStatusGizi}-${filterStatusPrioritas}`
+      ),
+    [currentBulan, currentTahun, filterPosyanduId, filterStatusGizi, filterStatusPrioritas]
+  );
+  const cachedPageState = useMemo(
+    () => readPageStateCache<KasusKritisPageSnapshot>(pageCacheKey),
+    [pageCacheKey]
+  );
+  const [posyanduOptions, setPosyanduOptions] = useState<TrenDataPosyanduItem[]>(cachedPageState?.data.posyanduOptions ?? []);
+  const [apiData, setApiData] = useState<KinerjaPosyanduKasusKritisData | null>(cachedPageState?.data.apiData ?? null);
+  const [apiLoading, setApiLoading] = useState(!cachedPageState?.data.apiData);
+  const [daftarPrioritasData, setDaftarPrioritasData] = useState<KinerjaPosyanduKasusKritisDaftarPrioritasItem[] | null>(cachedPageState?.data.daftarPrioritasData ?? null);
+  const [daftarPrioritasLoading, setDaftarPrioritasLoading] = useState(!cachedPageState?.data.daftarPrioritasData);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [selectedDetailData, setSelectedDetailData] = useState<KinerjaPosyanduDetailKasusKritisData | null>(cachedPageState?.data.selectedDetailData ?? null);
+  const hasHydratedCacheRef = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -154,6 +184,54 @@ const KasusKritisPage: React.FC = () => {
 
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const snapshot = cachedPageState?.data;
+    if (!snapshot || hasHydratedCacheRef.current) {
+      return;
+    }
+
+    hasHydratedCacheRef.current = true;
+    setFilterPosyanduId(snapshot.filterPosyanduId);
+    setFilterStatusGizi(snapshot.filterStatusGizi);
+    setFilterStatusPrioritas(snapshot.filterStatusPrioritas);
+    setSearchTerm(snapshot.searchTerm);
+    setCurrentPosyanduPage(snapshot.currentPosyanduPage);
+    setCurrentPrioritasPage(snapshot.currentPrioritasPage);
+    setPosyanduOptions(snapshot.posyanduOptions ?? []);
+    setApiData(snapshot.apiData ?? null);
+    setDaftarPrioritasData(snapshot.daftarPrioritasData ?? null);
+    setSelectedDetailData(snapshot.selectedDetailData ?? null);
+    setApiLoading(snapshot.apiData == null);
+    setDaftarPrioritasLoading(snapshot.daftarPrioritasData == null);
+  }, [cachedPageState]);
+
+  useEffect(() => {
+    writePageStateCache<KasusKritisPageSnapshot>(pageCacheKey, {
+      filterPosyanduId,
+      filterStatusGizi,
+      filterStatusPrioritas,
+      searchTerm,
+      currentPosyanduPage,
+      currentPrioritasPage,
+      posyanduOptions,
+      apiData,
+      daftarPrioritasData,
+      selectedDetailData,
+    });
+  }, [
+    pageCacheKey,
+    filterPosyanduId,
+    filterStatusGizi,
+    filterStatusPrioritas,
+    searchTerm,
+    currentPosyanduPage,
+    currentPrioritasPage,
+    posyanduOptions,
+    apiData,
+    daftarPrioritasData,
+    selectedDetailData,
+  ]);
 
   const getDisplayStatusColor = (status: string) => {
     switch (status) {

@@ -17,31 +17,46 @@ import {
   DetailPosyanduRingkasanData,
 } from "@/types/kepala-desa";
 import { resolvePosyanduDetailToken } from "@/utils/posyanduDetailToken";
+import {
+  mergePosyanduDetailPageCache,
+  readPosyanduDetailPageCache,
+} from "@/utils/posyanduDetailPageCache";
 
 const PosyanduDetailPage: React.FC = () => {
   const params = useParams();
   const detailToken = params.id as string;
+  const cachedPageState = useMemo(
+    () =>
+      readPosyanduDetailPageCache<
+        DetailPosyanduOverviewData,
+        DetailPosyanduRingkasanData,
+        DetailPosyanduBalitaKhususData,
+        DetailPosyanduKaderData,
+        DetailPosyanduKinerjaData
+      >(detailToken),
+    [detailToken]
+  );
 
   const [activeTab, setActiveTab] = useState<"overview" | "balita" | "kader" | "kinerja">("overview");
-  const [detailContext, setDetailContext] = useState<{ idPosyandu: string; bulan: number; tahun: number } | null>(null);
-  const [overviewData, setOverviewData] = useState<DetailPosyanduOverviewData | null>(null);
-  const [overviewLoading, setOverviewLoading] = useState(true);
+  const [detailContext, setDetailContext] = useState<{ idPosyandu: string; bulan: number; tahun: number } | null>(cachedPageState?.detailContext ?? null);
+  const [overviewData, setOverviewData] = useState<DetailPosyanduOverviewData | null>(cachedPageState?.overviewData ?? null);
+  const [overviewLoading, setOverviewLoading] = useState(!cachedPageState?.overviewData);
   const [overviewError, setOverviewError] = useState<string | null>(null);
-  const [ringkasanData, setRingkasanData] = useState<DetailPosyanduRingkasanData | null>(null);
-  const [ringkasanLoading, setRingkasanLoading] = useState(true);
+  const [ringkasanData, setRingkasanData] = useState<DetailPosyanduRingkasanData | null>(cachedPageState?.ringkasanData ?? null);
+  const [ringkasanLoading, setRingkasanLoading] = useState(!cachedPageState?.ringkasanData);
   const [ringkasanError, setRingkasanError] = useState<string | null>(null);
-  const [balitaData, setBalitaData] = useState<DetailPosyanduBalitaKhususData | null>(null);
-  const [balitaLoading, setBalitaLoading] = useState(true);
+  const [balitaData, setBalitaData] = useState<DetailPosyanduBalitaKhususData | null>(cachedPageState?.balitaData ?? null);
+  const [balitaLoading, setBalitaLoading] = useState(!cachedPageState?.balitaData);
   const [balitaError, setBalitaError] = useState<string | null>(null);
-  const [balitaPage, setBalitaPage] = useState(1);
+  const [balitaPage, setBalitaPage] = useState(cachedPageState?.balitaPage ?? 1);
   const balitaLimit = 5;
-  const [kaderData, setKaderData] = useState<DetailPosyanduKaderData | null>(null);
-  const [kaderLoading, setKaderLoading] = useState(true);
+  const [kaderData, setKaderData] = useState<DetailPosyanduKaderData | null>(cachedPageState?.kaderData ?? null);
+  const [kaderLoading, setKaderLoading] = useState(!cachedPageState?.kaderData);
   const [kaderError, setKaderError] = useState<string | null>(null);
-  const [kaderPage, setKaderPage] = useState(1);
+  const [kaderPage, setKaderPage] = useState(cachedPageState?.kaderPage ?? 1);
   const kaderLimit = 6;
-  const [kinerjaData, setKinerjaData] = useState<DetailPosyanduKinerjaData | null>(null);
-  const [kinerjaLoading, setKinerjaLoading] = useState(true);
+  const [kinerjaData, setKinerjaData] = useState<DetailPosyanduKinerjaData | null>(cachedPageState?.kinerjaData ?? null);
+  const [kinerjaLoading, setKinerjaLoading] = useState(!cachedPageState?.kinerjaData);
   const [kinerjaError, setKinerjaError] = useState<string | null>(null);
   const [refreshTick, setRefreshTick] = useState(0);
 
@@ -49,21 +64,25 @@ const PosyanduDetailPage: React.FC = () => {
     const resolved = resolvePosyanduDetailToken(detailToken);
 
     if (resolved) {
-      setOverviewData(null);
-      setRingkasanData(null);
-      setBalitaData(null);
-      setKaderData(null);
-      setKinerjaData(null);
-      setOverviewLoading(true);
-      setRingkasanLoading(true);
-      setBalitaLoading(true);
-      setKaderLoading(true);
-      setKinerjaLoading(true);
       setDetailContext({
         idPosyandu: resolved.idPosyandu,
         bulan: resolved.bulan,
         tahun: resolved.tahun,
       });
+
+      if (!cachedPageState) {
+        setOverviewData(null);
+        setRingkasanData(null);
+        setBalitaData(null);
+        setKaderData(null);
+        setKinerjaData(null);
+        setOverviewLoading(true);
+        setRingkasanLoading(true);
+        setBalitaLoading(true);
+        setKaderLoading(true);
+        setKinerjaLoading(true);
+      }
+
       return;
     }
 
@@ -78,7 +97,7 @@ const PosyanduDetailPage: React.FC = () => {
     setBalitaLoading(false);
     setKaderLoading(false);
     setKinerjaLoading(false);
-  }, [detailToken]);
+  }, [detailToken, cachedPageState]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -115,6 +134,17 @@ const PosyanduDetailPage: React.FC = () => {
       if (result.successCode === 200 && result.data) {
         setOverviewData(result.data);
         setOverviewError(null);
+        mergePosyanduDetailPageCache(detailToken, {
+          detailContext,
+          activeTab,
+          balitaPage,
+          kaderPage,
+          overviewData: result.data,
+          ringkasanData,
+          balitaData,
+          kaderData,
+          kinerjaData,
+        });
       } else if (!hasExistingData) {
         setOverviewError("Gagal memuat overview posyandu");
       }
@@ -144,6 +174,17 @@ const PosyanduDetailPage: React.FC = () => {
       if (result.successCode === 200 && result.data) {
         setRingkasanData(result.data);
         setRingkasanError(null);
+        mergePosyanduDetailPageCache(detailToken, {
+          detailContext,
+          activeTab,
+          balitaPage,
+          kaderPage,
+          overviewData,
+          ringkasanData: result.data,
+          balitaData,
+          kaderData,
+          kinerjaData,
+        });
       } else if (!hasExistingData) {
         setRingkasanError("Gagal memuat ringkasan posyandu");
       }
@@ -175,6 +216,17 @@ const PosyanduDetailPage: React.FC = () => {
       if (result.successCode === 200 && result.data) {
         setBalitaData(result.data);
         setBalitaError(null);
+        mergePosyanduDetailPageCache(detailToken, {
+          detailContext,
+          activeTab,
+          balitaPage,
+          kaderPage,
+          overviewData,
+          ringkasanData,
+          balitaData: result.data,
+          kaderData,
+          kinerjaData,
+        });
       } else if (!hasExistingData) {
         setBalitaError("Gagal memuat data balita khusus");
       }
@@ -204,6 +256,17 @@ const PosyanduDetailPage: React.FC = () => {
       if (result.successCode === 200 && result.data) {
         setKaderData(result.data);
         setKaderError(null);
+        mergePosyanduDetailPageCache(detailToken, {
+          detailContext,
+          activeTab,
+          balitaPage,
+          kaderPage,
+          overviewData,
+          ringkasanData,
+          balitaData,
+          kaderData: result.data,
+          kinerjaData,
+        });
       } else if (!hasExistingData) {
         setKaderError("Gagal memuat data kader");
       }
@@ -233,6 +296,17 @@ const PosyanduDetailPage: React.FC = () => {
       if (result.successCode === 200 && result.data) {
         setKinerjaData(result.data);
         setKinerjaError(null);
+        mergePosyanduDetailPageCache(detailToken, {
+          detailContext,
+          activeTab,
+          balitaPage,
+          kaderPage,
+          overviewData,
+          ringkasanData,
+          balitaData,
+          kaderData,
+          kinerjaData: result.data,
+        });
       } else if (!hasExistingData) {
         setKinerjaError("Gagal memuat data kinerja");
       }
