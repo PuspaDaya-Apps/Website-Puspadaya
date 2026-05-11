@@ -2,6 +2,7 @@ import { APIEndpoints } from '@/app/config/route/apiEndpoints';
 import { buildApiCacheKey, isApiCacheFresh, readApiCache, writeApiCache } from '@/app/api/cache';
 import { Messages } from '@/components/Handleerror/message/messages';
 import { handleError } from '@/components/Handleerror/server/errorHandler';
+import { normalizePosyanduNames } from '@/utils/posyanduName';
 import axios from 'axios';
 
 export interface FetchResult<T> {
@@ -99,9 +100,11 @@ async function fetchDashboardKinerjaKepalaDesa<T>(
 
   const cacheKey = buildApiCacheKey(CACHE_NAMESPACE, endpoint, params);
   const cached = readApiCache<T>(cacheKey);
+  const normalizeCachedData = (data: T | null): T | null =>
+    data === null ? null : normalizePosyanduNames(data);
 
   if (cached && isApiCacheFresh(cached.cachedAt, CACHE_MAX_AGE_MS)) {
-    return { successCode: 200, data: cached.data };
+    return { successCode: 200, data: normalizeCachedData(cached.data) };
   }
 
   const existingRequest = inFlightRequests.get(cacheKey);
@@ -115,7 +118,7 @@ async function fetchDashboardKinerjaKepalaDesa<T>(
 
       if (!accessToken) {
         if (cached?.data) {
-          return { successCode: 200, data: cached.data };
+          return { successCode: 200, data: normalizeCachedData(cached.data) };
         }
 
         return { successCode: 401, data: null };
@@ -127,7 +130,7 @@ async function fetchDashboardKinerjaKepalaDesa<T>(
 
       sessionStorage.removeItem(Messages.ERROR);
 
-      const data = (response.data?.data ?? response.data ?? null) as T | null;
+      const data = normalizePosyanduNames((response.data?.data ?? response.data ?? null) as T | null);
       if (data !== null) {
         writeApiCache(cacheKey, data);
       }
@@ -141,7 +144,7 @@ async function fetchDashboardKinerjaKepalaDesa<T>(
       console.error('Error fetching data:', message);
 
       if (cached?.data) {
-        return { successCode: 200, data: cached.data };
+        return { successCode: 200, data: normalizeCachedData(cached.data) };
       }
 
       return { successCode: status, data: null };

@@ -5,5 +5,5 @@ import { DashboardKepalaDesaQueryParams, FetchResult, getDashboardKepalaDesa } f
 export const fetchTrenDataPosyandu = (
   params: DashboardKepalaDesaQueryParams
 ): Promise<FetchResult<TrenDataPosyanduData>> => {
-  return getDashboardKepalaDesa<TrenDataPosyanduData>(APIEndpoints.TREND_DATA_POSYANDU, params);
+  return getDashboardKepalaDesa<TrenDataPosyanduData>(APIEndpoints.TREND_DATA_POSYANDU, params, ['nama']);
 };

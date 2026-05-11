@@ -2,6 +2,7 @@ import { APIEndpoints } from '@/app/config/route/apiEndpoints';
 import { buildApiCacheKey, isApiCacheFresh, readApiCache, writeApiCache } from '@/app/api/cache';
 import { Messages } from '@/components/Handleerror/message/messages';
 import { handleError } from '@/components/Handleerror/server/errorHandler';
+import { normalizePosyanduNames } from '@/utils/posyanduName';
 import axios from 'axios';
 
 export interface FetchResult<T> {
@@ -61,9 +62,12 @@ async function fetchDetailDashboardKepalaDesa<T>(
 
   const cacheKey = buildApiCacheKey(CACHE_NAMESPACE, endpoint, { idPosyandu, routePath, params });
   const cached = readApiCache<T>(cacheKey);
+  const extraPosyanduNameKeys = routePath === 'ringkasan' ? ['nama'] : [];
+  const normalizeCachedData = (data: T | null): T | null =>
+    data === null ? null : normalizePosyanduNames(data, extraPosyanduNameKeys);
 
   if (cached && isApiCacheFresh(cached.cachedAt, CACHE_MAX_AGE_MS)) {
-    return { successCode: 200, data: cached.data };
+    return { successCode: 200, data: normalizeCachedData(cached.data) };
   }
 
   const existingRequest = inFlightRequests.get(cacheKey);
@@ -77,7 +81,7 @@ async function fetchDetailDashboardKepalaDesa<T>(
 
       if (!accessToken) {
         if (cached?.data) {
-          return { successCode: 200, data: cached.data };
+          return { successCode: 200, data: normalizeCachedData(cached.data) };
         }
 
         return { successCode: 401, data: null };
@@ -89,7 +93,10 @@ async function fetchDetailDashboardKepalaDesa<T>(
 
       sessionStorage.removeItem(Messages.ERROR);
 
-      const data = (response.data?.data ?? response.data ?? null) as T | null;
+      const data = normalizePosyanduNames(
+        (response.data?.data ?? response.data ?? null) as T | null,
+        extraPosyanduNameKeys
+      );
       if (data !== null) {
         writeApiCache(cacheKey, data);
       }
@@ -103,7 +110,7 @@ async function fetchDetailDashboardKepalaDesa<T>(
       console.error('Error fetching detail dashboard kepala desa:', message);
 
       if (cached?.data) {
-        return { successCode: 200, data: cached.data };
+        return { successCode: 200, data: normalizeCachedData(cached.data) };
       }
 
       return { successCode: status, data: null };

@@ -2,6 +2,7 @@ import { APIEndpoints } from '@/app/config/route/apiEndpoints';
 import { buildApiCacheKey, isApiCacheFresh, readApiCache, writeApiCache } from '@/app/api/cache';
 import { Messages } from '@/components/Handleerror/message/messages';
 import { handleError } from '@/components/Handleerror/server/errorHandler';
+import { normalizePosyanduNames } from '@/utils/posyanduName';
 import axios from 'axios';
 
 export interface FetchResult<T> {
@@ -84,7 +85,8 @@ const buildDashboardKepalaDesaUrl = (endpoint: string, params: DashboardKepalaDe
 
 async function fetchDashboardKepalaDesa<T>(
   endpoint: string,
-  params: DashboardKepalaDesaQueryParams
+  params: DashboardKepalaDesaQueryParams,
+  extraPosyanduNameKeys: readonly string[] = []
 ): Promise<FetchResult<T>> {
   if (typeof window === 'undefined') {
     return { successCode: 500, data: null };
@@ -92,9 +94,11 @@ async function fetchDashboardKepalaDesa<T>(
 
   const cacheKey = buildApiCacheKey(CACHE_NAMESPACE, endpoint, params);
   const cached = readApiCache<T>(cacheKey);
+  const normalizeCachedData = (data: T | null): T | null =>
+    data === null ? null : normalizePosyanduNames(data, extraPosyanduNameKeys);
 
   if (cached && isApiCacheFresh(cached.cachedAt, CACHE_MAX_AGE_MS)) {
-    return { successCode: 200, data: cached.data };
+    return { successCode: 200, data: normalizeCachedData(cached.data) };
   }
 
   const existingRequest = inFlightRequests.get(cacheKey);
@@ -108,7 +112,7 @@ async function fetchDashboardKepalaDesa<T>(
 
       if (!accessToken) {
         if (cached?.data) {
-          return { successCode: 200, data: cached.data };
+          return { successCode: 200, data: normalizeCachedData(cached.data) };
         }
 
         return { successCode: 401, data: null };
@@ -120,7 +124,10 @@ async function fetchDashboardKepalaDesa<T>(
 
       sessionStorage.removeItem(Messages.ERROR);
 
-      const data = (response.data?.data ?? response.data ?? null) as T | null;
+      const data = normalizePosyanduNames(
+        (response.data?.data ?? response.data ?? null) as T | null,
+        extraPosyanduNameKeys
+      );
       if (data !== null) {
         writeApiCache(cacheKey, data);
       }
@@ -134,7 +141,7 @@ async function fetchDashboardKepalaDesa<T>(
       console.error('Error fetching data:', message);
 
       if (cached?.data) {
-        return { successCode: 200, data: cached.data };
+        return { successCode: 200, data: normalizeCachedData(cached.data) };
       }
 
       return { successCode: status, data: null };
@@ -149,9 +156,10 @@ async function fetchDashboardKepalaDesa<T>(
 
 export function getDashboardKepalaDesa<T>(
   endpoint: string,
-  params: DashboardKepalaDesaQueryParams
+  params: DashboardKepalaDesaQueryParams,
+  extraPosyanduNameKeys: readonly string[] = []
 ): Promise<FetchResult<T>> {
-  return fetchDashboardKepalaDesa<T>(endpoint, params);
+  return fetchDashboardKepalaDesa<T>(endpoint, params, extraPosyanduNameKeys);
 }
 
 export { APIEndpoints };

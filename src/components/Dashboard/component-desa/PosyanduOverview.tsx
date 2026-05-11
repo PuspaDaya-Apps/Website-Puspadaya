@@ -278,9 +278,9 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
                   <h3 className="font-semibold text-dark transition-colors group-hover:text-primary dark:text-white">
                     {posyandu.nama_posyandu}
                   </h3>
-                  <span className="rounded-full bg-gray-100 px-2 py-1 text-[11px] font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+                  {/* <span className="rounded-full bg-gray-100 px-2 py-1 text-[11px] font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">
                     Rank #{posyandu.ranking}
-                  </span>
+                  </span> */}
                 </div>
               </div>
 
@@ -319,22 +319,22 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
                   </div>
                   <span className="font-medium text-purple-600 dark:text-purple-400">{posyandu.total_kader}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500 dark:text-gray-400">Skor</span>
                   <span className="font-semibold text-dark dark:text-white">{posyandu.skor_kinerja}</span>
-                </div>
-                <div className="flex items-center justify-between">
+                </div> */}
+                {/* <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500 dark:text-gray-400">Kategori</span>
                   <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${getRankingBadgeColor(posyandu.kategori_kinerja)}`}>
                     {posyandu.kategori_kinerja}
                   </span>
-                </div>
+                </div> */}
               </div>
 
               {/* Progress Bar Kehadiran */}
               <div className="mt-3">
                 <div className="mb-1 flex justify-between text-xs">
-                  <span className="text-gray-600 dark:text-gray-400">Kehadiran</span>
+                  <span className="text-gray-600 dark:text-gray-400">Persentase Kehadiran</span>
                   <span className="font-medium text-dark dark:text-white">
                     {posyandu.persentase_kehadiran}%
                   </span>
