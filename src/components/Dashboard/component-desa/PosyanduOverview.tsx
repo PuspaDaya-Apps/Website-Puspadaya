@@ -334,7 +334,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
               {/* Progress Bar Kehadiran */}
               <div className="mt-3">
                 <div className="mb-1 flex justify-between text-xs">
-                  <span className="text-gray-600 dark:text-gray-400">Persentase Kehadiran</span>
+                  <span className="text-gray-600 dark:text-gray-400">Kehadiran Anak</span>
                   <span className="font-medium text-dark dark:text-white">
                     {posyandu.persentase_kehadiran}%
                   </span>
