@@ -107,7 +107,7 @@ const PosyanduDetailPage: React.FC = () => {
   useEffect(() => {
     const timer = window.setInterval(() => {
       setRefreshTick((value) => value + 1);
-    }, 5000);
+    }, 30000);
 
     return () => window.clearInterval(timer);
   }, []);
@@ -343,18 +343,18 @@ const PosyanduDetailPage: React.FC = () => {
         setKehadiranError(null);
       } else {
         const dummyAnak = [
-          { id: 1, nama: "Andika Pratama", nik: "320101140120001", ibu: "Siti Nurhaliza", kategori_kemiskinan: "A" },
-          { id: 2, nama: "Bunga Citra", nik: "320101150220002", ibu: "Dewi Sartika", kategori_kemiskinan: "A" },
-          { id: 3, nama: "Cahyo Saputra", nik: "320101160320003", ibu: "Ratna Sari", kategori_kemiskinan: "A" },
-          { id: 4, nama: "Dewi Lestari", nik: "320101170420004", ibu: "Aisyah", kategori_kemiskinan: "B" },
-          { id: 5, nama: "Eko Prasetyo", nik: "320101180520005", ibu: "Maya Indah", kategori_kemiskinan: "B" },
-          { id: 6, nama: "Fitri Handayani", nik: "320101190620006", ibu: "Kartini", kategori_kemiskinan: "B" },
-          { id: 7, nama: "Gilang Ramadan", nik: "320101200720007", ibu: "Fatimah", kategori_kemiskinan: "B" },
-          { id: 8, nama: "Hesti Purwanti", nik: "320101210820008", ibu: "Sri Wahyuni", kategori_kemiskinan: "B" },
-          { id: 9, nama: "Irfan Maulana", nik: "320101220920009", ibu: "Nurul Hidayah", kategori_kemiskinan: "C" },
-          { id: 10, nama: "Joko Susilo", nik: "320101231020010", ibu: "Wati Susanti", kategori_kemiskinan: "C" },
-          { id: 11, nama: "Kartika Sari", nik: "320101241120011", ibu: "Indah Permata", kategori_kemiskinan: "C" },
-          { id: 12, nama: "Lukman Hakim", nik: "320101251220012", ibu: "Hasanah", kategori_kemiskinan: "C" },
+          { id: 1, nama: "Andika Pratama", nik: "320101140120001", ibu: "Siti Nurhaliza", kategori: "BAPPEDA" },
+          { id: 2, nama: "Bunga Citra", nik: "320101150220002", ibu: "Dewi Sartika", kategori: "BAPPEDA" },
+          { id: 3, nama: "Cahyo Saputra", nik: "320101160320003", ibu: "Ratna Sari", kategori: "BAPPEDA" },
+          { id: 4, nama: "Dewi Lestari", nik: "320101170420004", ibu: "Aisyah", kategori: "DINSOS" },
+          { id: 5, nama: "Eko Prasetyo", nik: "320101180520005", ibu: "Maya Indah", kategori: "DINSOS" },
+          { id: 6, nama: "Fitri Handayani", nik: "320101190620006", ibu: "Kartini", kategori: "DINSOS" },
+          { id: 7, nama: "Gilang Ramadan", nik: "320101200720007", ibu: "Fatimah", kategori: "DINSOS" },
+          { id: 8, nama: "Hesti Purwanti", nik: "320101210820008", ibu: "Sri Wahyuni", kategori: "DINSOS" },
+          { id: 9, nama: "Irfan Maulana", nik: "320101220920009", ibu: "Nurul Hidayah", kategori: "DESA" },
+          { id: 10, nama: "Joko Susilo", nik: "320101231020010", ibu: "Wati Susanti", kategori: "DESA" },
+          { id: 11, nama: "Kartika Sari", nik: "320101241120011", ibu: "Indah Permata", kategori: "DESA" },
+          { id: 12, nama: "Lukman Hakim", nik: "320101251220012", ibu: "Hasanah", kategori: "DESA" },
         ];
 
         const bulanList = ["jan", "feb", "mar", "apr", "mei", "jun", "jul", "agt", "sep", "okt", "nov", "des"] as const;
@@ -362,16 +362,16 @@ const PosyanduDetailPage: React.FC = () => {
         setKehadiranData({
           periode: { tahun: Number(detailContext.tahun) },
           ringkasan_kehadiran: [
-            { kategori: "Miskin A", total: 3, hadir: 2, persentase: 66.67 },
-            { kategori: "Miskin B", total: 5, hadir: 4, persentase: 80 },
-            { kategori: "Miskin C", total: 4, hadir: 3, persentase: 75 },
+            { kategori: "Kurang Mampu BAPPEDA", total: 3, hadir: 2, persentase: 66.67 },
+            { kategori: "Kurang Mampu Dinsos", total: 5, hadir: 4, persentase: 80 },
+            { kategori: "Kurang Mampu Desa", total: 4, hadir: 3, persentase: 75 },
           ],
           daftar_anak: dummyAnak.map((anak, idx) => ({
             id: anak.id,
             nama: anak.nama,
             nik: anak.nik,
             ibu: anak.ibu,
-            kategori_kemiskinan: anak.kategori_kemiskinan,
+            kategori_kemiskinan: anak.kategori,
             absensi: Object.fromEntries(
               bulanList.map((bln, i) => [bln, (idx + i) % 3 !== 0])
             ) as Record<typeof bulanList[number], boolean>,
@@ -1107,17 +1107,17 @@ const PosyanduDetailPage: React.FC = () => {
               </div>
             ) : kehadiranData ? (
               <>
-                {/* Ringkasan Kehadiran per Kemiskinan */}
+                {/* Ringkasan Kehadiran per Kategori Kurang Mampu */}
                 <div>
                   <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-                    Kehadiran Berdasarkan Status Kemiskinan
+                    Kehadiran Balita Kurang Mampu
                   </h3>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
                     {kehadiranData.ringkasan_kehadiran.map((item) => {
                       const colorMap: Record<string, { bg: string; text: string; fill: string }> = {
-                        "Miskin A": { bg: "bg-red-50 dark:bg-red-900/20", text: "text-red-600 dark:text-red-400", fill: "#ef4444" },
-                        "Miskin B": { bg: "bg-yellow-50 dark:bg-yellow-900/20", text: "text-yellow-600 dark:text-yellow-400", fill: "#eab308" },
-                        "Miskin C": { bg: "bg-green-50 dark:bg-green-900/20", text: "text-green-600 dark:text-green-400", fill: "#22c55e" },
+                        "Kurang Mampu BAPPEDA": { bg: "bg-red-50 dark:bg-red-900/20", text: "text-red-600 dark:text-red-400", fill: "#ef4444" },
+                        "Kurang Mampu Dinsos": { bg: "bg-yellow-50 dark:bg-yellow-900/20", text: "text-yellow-600 dark:text-yellow-400", fill: "#eab308" },
+                        "Kurang Mampu Desa": { bg: "bg-green-50 dark:bg-green-900/20", text: "text-green-600 dark:text-green-400", fill: "#22c55e" },
                       };
                       const colors = colorMap[item.kategori] ?? { bg: "bg-gray-50 dark:bg-gray-800", text: "text-gray-600 dark:text-gray-400", fill: "#6b7280" };
 
@@ -1131,13 +1131,22 @@ const PosyanduDetailPage: React.FC = () => {
                           <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
                             <div className="h-full rounded-full transition-all" style={{ width: `${item.persentase}%`, backgroundColor: colors.fill }} />
                           </div>
-                          <div className="mt-2 flex justify-between text-sm text-gray-600 dark:text-gray-400">
-                            <span>Hadir: {item.hadir}</span>
-                            <span>Total: {item.total}</span>
-                          </div>
                         </div>
                       );
                     })}
+
+                    {/* Card Total Balita Kurang Mampu */}
+                    <div className="rounded-lg bg-blue-50 p-5 dark:bg-blue-900/20">
+                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                        Jumlah Balita Kurang Mampu
+                      </p>
+                      <div className="mt-3 flex items-baseline gap-2">
+                        <span className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+                          {kehadiranData.ringkasan_kehadiran.reduce((sum, item) => sum + item.total, 0)}
+                        </span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">total</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1175,10 +1184,15 @@ const PosyanduDetailPage: React.FC = () => {
                           </tr>
                         ) : (
                           kehadiranData.daftar_anak.map((anak) => {
+                            const kategoriLabel: Record<string, string> = {
+                              "BAPPEDA": "KM BAPPEDA",
+                              "DINSOS": "KM Dinsos",
+                              "DESA": "KM Desa",
+                            };
                             const kategoriColor: Record<string, string> = {
-                              "A": "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-                              "B": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-                              "C": "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+                              "BAPPEDA": "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+                              "DINSOS": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+                              "DESA": "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
                             };
 
                             return (
@@ -1191,7 +1205,7 @@ const PosyanduDetailPage: React.FC = () => {
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-3">
                                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${kategoriColor[anak.kategori_kemiskinan] ?? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"}`}>
-                                    Miskin {anak.kategori_kemiskinan}
+                                    {kategoriLabel[anak.kategori_kemiskinan] ?? anak.kategori_kemiskinan}
                                   </span>
                                 </td>
                                 {(["jan","feb","mar","apr","mei","jun","jul","agt","sep","okt","nov","des"] as const).map((bln) => (

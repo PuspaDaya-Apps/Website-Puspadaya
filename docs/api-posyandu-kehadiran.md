@@ -1,4 +1,4 @@
-# API Endpoint: Kehadiran per Status Kemiskinan
+# API Endpoint: Kehadiran Balita Kurang Mampu
 
 **Endpoint:** `GET /api/posyandu/kepaladesa/{id_posyandu}/kehadiran`
 
@@ -21,19 +21,19 @@
     },
     "ringkasan_kehadiran": [
       {
-        "kategori": "Miskin A",
+        "kategori": "Kurang Mampu BAPPEDA",
         "total": 20,
         "hadir": 15,
         "persentase": 75
       },
       {
-        "kategori": "Miskin B",
+        "kategori": "Kurang Mampu Dinsos",
         "total": 30,
         "hadir": 20,
         "persentase": 66.67
       },
       {
-        "kategori": "Miskin C",
+        "kategori": "Kurang Mampu Desa",
         "total": 25,
         "hadir": 22,
         "persentase": 88
@@ -45,7 +45,7 @@
         "nama": "Andika Pratama",
         "nik": "1234567890123456",
         "ibu": "Siti Nurhaliza",
-        "kategori_kemiskinan": "A",
+        "kategori_kemiskinan": "BAPPEDA",
         "absensi": {
           "jan": true,
           "feb": true,
@@ -72,10 +72,10 @@
 
 ```typescript
 // ========================================
-// Ringkasan per kategori kemiskinan
+// Ringkasan per kategori kurang mampu
 // ========================================
 interface DetailPosyanduKehadiranKemiskinanItem {
-  kategori: string;    // "Miskin A" | "Miskin B" | "Miskin C"
+  kategori: string;    // "Kurang Mampu BAPPEDA" | "Kurang Mampu Dinsos" | "Kurang Mampu Desa"
   total: number;       // total anak dalam kategori ini
   hadir: number;       // jumlah anak yang hadir
   persentase: number;  // persentase kehadiran (0-100)
@@ -92,7 +92,7 @@ interface DetailPosyanduAnakKehadiranItem {
   nama: string;                // Nama lengkap anak
   nik: string;                 // NIK anak
   ibu: string;                 // Nama ibu
-  kategori_kemiskinan: string; // "A" | "B" | "C"
+  kategori_kemiskinan: string; // "BAPPEDA" | "DINSOS" | "DESA"
   absensi: Record<BulanKehadiran, boolean>;
   // true  = hadir
   // false = tidak hadir
@@ -116,11 +116,11 @@ interface DetailPosyanduKehadiranData {
 
 ### 1. `ringkasan_kehadiran[]`
 
-Array statistik kehadiran per kategori kemiskinan.
+Array statistik kehadiran per kategori kurang mampu.
 
 | Field | Tipe | Contoh | Keterangan |
 |-------|------|--------|------------|
-| `kategori` | string | `"Miskin A"` | Label kategori (A/B/C). Ditampilkan di card UI. |
+| `kategori` | string | `"Kurang Mampu BAPPEDA"` | Label kategori. Ditampilkan di card UI. |
 | `total` | number | `20` | Total anak dalam kategori ini |
 | `hadir` | number | `15` | Jumlah anak yang hadir pada bulan aktif |
 | `persentase` | number | `75` | Persentase kehadiran. Ditampilkan di progress bar. Boleh desimal. |
@@ -135,7 +135,7 @@ Array daftar anak dengan absensi bulanan.
 | `nama` | string | `"Andika Pratama"` | Nama lengkap anak |
 | `nik` | string | `"1234567890123456"` | NIK (opsional, bisa string kosong) |
 | `ibu` | string | `"Siti Nurhaliza"` | Nama ibu |
-| `kategori_kemiskinan` | string | `"A"` | Kode kategori: `"A"`, `"B"`, atau `"C"` |
+| `kategori_kemiskinan` | string | `"BAPPEDA"` | Kode institusi: `"BAPPEDA"`, `"DINSOS"`, atau `"DESA"` |
 | `absensi` | object | `{ "jan": true, ... }` | Objek absensi 12 bulan. Key = kode bulan (3 huruf), Value = `true` (hadir) / `false` (tidak hadir). **Semua 12 field wajib ada.** |
 
 ### Kode Bulan (`BulanKehadiran`)
@@ -157,11 +157,12 @@ Array daftar anak dengan absensi bulanan.
 
 ### Ketentuan
 
-1.  **Kategori kemiskinan** — Frontend mendukung 3 kategori: `"Miskin A"`, `"Miskin B"`, `"Miskin C"`. Jika ada kategori lain, akan tampil dengan warna default (abu-abu).
-2.  **`persentase`** — Nilai 0-100. Ditampilkan langsung tanpa transformasi. Boleh desimal.
-3.  **`absensi`** — Semua 12 bulan wajib diisi. Jika anak belum terdaftar di bulan tertentu, kirimkan `false`.
-4.  **Method** — `GET`
-5.  **Auth** — Membutuhkan Bearer token (sama seperti endpoint posyandu lainnya).
+1.  **Kategori kurang mampu** — Frontend mendukung 3 kategori: `"Kurang Mampu BAPPEDA"`, `"Kurang Mampu Dinsos"`, `"Kurang Mampu Desa"`. Jika ada kategori lain, akan tampil dengan warna default (abu-abu).
+2.  **Kode `kategori_kemiskinan`** — Gunakan kode institusi: `"BAPPEDA"`, `"DINSOS"`, `"DESA"`. Frontend akan menampilkan label "KM BAPPEDA" / "KM Dinsos" / "KM Desa" di tabel.
+3.  **`persentase`** — Nilai 0-100. Ditampilkan langsung tanpa transformasi. Boleh desimal.
+4.  **`absensi`** — Semua 12 bulan wajib diisi. Jika anak belum terdaftar di bulan tertentu, kirimkan `false`.
+5.  **Method** — `GET`
+6.  **Auth** — Membutuhkan Bearer token (sama seperti endpoint posyandu lainnya).
 
 ---
 
