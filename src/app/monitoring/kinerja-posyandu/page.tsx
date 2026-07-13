@@ -403,67 +403,50 @@ const KinerjaPosyanduPage: React.FC = () => {
       (item) => item.id === selectedPosyanduApiId || item.id === selectedPosyanduResolvedId || item.nama_posyandu === selectedPosyanduResolvedName
     );
 
-    // Calculate stats
-    const stats = overviewStats
-      ? {
-          total_balita: overviewStats.total_balita,
-          total_ibu_hamil: detailRingkasanData?.ringkasan?.total_ibu_hamil ?? selectedListItem?.total_ibu_hamil ?? 0,
-          total_kader: detailRingkasanData?.ringkasan?.total_kader ?? selectedListItem?.total_kader ?? 0,
-          kehadiran_balita: overviewStats.kehadiran_balita,
-          kehadiran_ibu_hamil: detailRingkasanData?.ringkasan?.hadir_ibu_hamil ?? selectedListItem?.kehadiran_ibu_hamil_bulan_ini ?? 0,
-          persentase_kehadiran: overviewStats.persentase_kehadiran,
-          status_stunting: overviewStats.status_stunting,
-          status_gizi_buruk: overviewStats.status_gizi_buruk,
-          normal: overviewStats.normal,
-        }
-      : detailRingkasanData?.ringkasan
-        ? (() => {
-          const ringkasan = detailRingkasanData.ringkasan;
-          const totalBalita = ringkasan.total_balita || 0;
+    // Calculate stats - ringkasan API is the primary source
+    const stats = detailRingkasanData?.ringkasan
+      ? (() => {
+        const ringkasan = detailRingkasanData.ringkasan;
+        const totalBalita = ringkasan.total_balita || 0;
 
-          return {
-            total_balita: ringkasan.total_balita,
-            total_ibu_hamil: ringkasan.total_ibu_hamil,
-            total_kader: ringkasan.total_kader,
-            kehadiran_balita: ringkasan.hadir_balita,
-            kehadiran_ibu_hamil: ringkasan.hadir_ibu_hamil,
-            persentase_kehadiran: totalBalita > 0 ? Math.round((ringkasan.hadir_balita / totalBalita) * 100) : 0,
-            status_stunting: ringkasan.stunting,
-            status_gizi_buruk: ringkasan.gizi_buruk,
-            normal: ringkasan.normal,
-          };
-        })()
-      : selectedListItem
+        return {
+          total_balita: ringkasan.total_balita,
+          total_ibu_hamil: ringkasan.total_ibu_hamil,
+          total_kader: ringkasan.total_kader,
+          kehadiran_balita: ringkasan.hadir_balita,
+          kehadiran_ibu_hamil: ringkasan.hadir_ibu_hamil,
+          persentase_kehadiran: totalBalita > 0 ? Math.round((ringkasan.hadir_balita / totalBalita) * 100) : 0,
+          status_stunting: ringkasan.stunting,
+          status_gizi_buruk: ringkasan.gizi_buruk,
+          normal: ringkasan.normal,
+        };
+      })()
+      : overviewStats
         ? {
-            total_balita: selectedListItem.total_balita,
-            total_ibu_hamil: selectedListItem.total_ibu_hamil,
-            total_kader: selectedListItem.total_kader,
-            kehadiran_balita: selectedListItem.kehadiran_balita_bulan_ini,
-            kehadiran_ibu_hamil: selectedListItem.kehadiran_ibu_hamil_bulan_ini,
-            persentase_kehadiran: selectedListItem.persentase_kehadiran,
-            status_stunting: selectedListItem.status_stunting,
-            status_gizi_buruk: selectedListItem.status_gizi_buruk,
-            normal: Math.max(
-              0,
-              selectedListItem.total_balita - selectedListItem.status_stunting - selectedListItem.status_gizi_buruk
-            ),
+            total_balita: overviewStats.total_balita,
+            total_ibu_hamil: 0,
+            total_kader: 0,
+            kehadiran_balita: overviewStats.kehadiran_balita,
+            kehadiran_ibu_hamil: 0,
+            persentase_kehadiran: overviewStats.persentase_kehadiran,
+            status_stunting: overviewStats.status_stunting,
+            status_gizi_buruk: overviewStats.status_gizi_buruk,
+            normal: overviewStats.normal,
           }
-        : detailRingkasanData?.ringkasan
+        : selectedListItem
           ? {
-              total_balita: detailRingkasanData.ringkasan.total_balita,
-              total_ibu_hamil: detailRingkasanData.ringkasan.total_ibu_hamil,
-              total_kader: detailRingkasanData.ringkasan.total_kader,
-              kehadiran_balita: detailRingkasanData.ringkasan.hadir_balita,
-              kehadiran_ibu_hamil: detailRingkasanData.ringkasan.hadir_ibu_hamil,
-              persentase_kehadiran:
-                detailRingkasanData.ringkasan.total_balita > 0
-                  ? Math.round(
-                      (detailRingkasanData.ringkasan.hadir_balita / detailRingkasanData.ringkasan.total_balita) * 100
-                    )
-                  : 0,
-              status_stunting: detailRingkasanData.ringkasan.stunting,
-              status_gizi_buruk: detailRingkasanData.ringkasan.gizi_buruk,
-              normal: detailRingkasanData.ringkasan.normal,
+              total_balita: selectedListItem.total_balita,
+              total_ibu_hamil: selectedListItem.total_ibu_hamil,
+              total_kader: selectedListItem.total_kader,
+              kehadiran_balita: selectedListItem.kehadiran_balita_bulan_ini,
+              kehadiran_ibu_hamil: selectedListItem.kehadiran_ibu_hamil_bulan_ini,
+              persentase_kehadiran: selectedListItem.persentase_kehadiran,
+              status_stunting: selectedListItem.status_stunting,
+              status_gizi_buruk: selectedListItem.status_gizi_buruk,
+              normal: Math.max(
+                0,
+                selectedListItem.total_balita - selectedListItem.status_stunting - selectedListItem.status_gizi_buruk
+              ),
             }
           : {
               total_balita: 0,

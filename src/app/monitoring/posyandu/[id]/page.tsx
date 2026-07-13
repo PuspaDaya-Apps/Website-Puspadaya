@@ -384,33 +384,15 @@ const PosyanduDetailPage: React.FC = () => {
   const kinerja = kinerjaData?.kinerja;
   const kinerjaTren = kinerja?.tren_kehadiran_6_bulan ?? [];
 
-  // Calculate stats
+  // Calculate stats - ringkasan API is the primary source
   const stats = useMemo(() => {
-    if (overviewData) {
-      const totalBalita = overviewData.status_gizi_balita.reduce((sum, item) => sum + item.jumlah, 0);
-      const getStatusJumlah = (match: string) =>
-        overviewData.status_gizi_balita.find((item) => item.status.toLowerCase().includes(match))?.jumlah ?? 0;
-
-      return {
-        total_balita: balitaData?.pagination?.total_data ?? totalBalita,
-        total_ibu_hamil: ringkasanData?.ringkasan?.total_ibu_hamil ?? 0,
-        total_kader: kaderData?.kader?.length ?? ringkasanData?.ringkasan?.total_kader ?? 0,
-        kehadiran_balita: overviewData.tingkat_kehadiran.hadir,
-        kehadiran_ibu_hamil: ringkasanData?.ringkasan?.hadir_ibu_hamil ?? 0,
-        persentase_kehadiran: overviewData.tingkat_kehadiran.persentase,
-        status_stunting: getStatusJumlah("stunting"),
-        status_gizi_buruk: getStatusJumlah("buruk"),
-        normal: getStatusJumlah("normal"),
-      };
-    }
-
     if (ringkasanData?.ringkasan) {
       const ringkasan = ringkasanData.ringkasan;
 
       return {
-        total_balita: balitaData?.pagination?.total_data ?? ringkasan.total_balita,
+        total_balita: ringkasan.total_balita,
         total_ibu_hamil: ringkasan.total_ibu_hamil,
-        total_kader: kaderData?.kader?.length ?? ringkasan.total_kader,
+        total_kader: ringkasan.total_kader,
         kehadiran_balita: ringkasan.hadir_balita,
         kehadiran_ibu_hamil: ringkasan.hadir_ibu_hamil,
         persentase_kehadiran: ringkasan.total_balita > 0
@@ -419,6 +401,24 @@ const PosyanduDetailPage: React.FC = () => {
         status_stunting: ringkasan.stunting,
         status_gizi_buruk: ringkasan.gizi_buruk,
         normal: ringkasan.normal,
+      };
+    }
+
+    if (overviewData) {
+      const totalBalita = overviewData.status_gizi_balita.reduce((sum, item) => sum + item.jumlah, 0);
+      const getStatusJumlah = (match: string) =>
+        overviewData.status_gizi_balita.find((item) => item.status.toLowerCase().includes(match))?.jumlah ?? 0;
+
+      return {
+        total_balita: balitaData?.pagination?.total_data ?? totalBalita,
+        total_ibu_hamil: 0,
+        total_kader: kaderData?.kader?.length ?? 0,
+        kehadiran_balita: overviewData.tingkat_kehadiran.hadir,
+        kehadiran_ibu_hamil: 0,
+        persentase_kehadiran: overviewData.tingkat_kehadiran.persentase,
+        status_stunting: getStatusJumlah("stunting"),
+        status_gizi_buruk: getStatusJumlah("buruk"),
+        normal: getStatusJumlah("normal"),
       };
     }
 
@@ -433,7 +433,7 @@ const PosyanduDetailPage: React.FC = () => {
       status_gizi_buruk: 0,
       normal: 0,
     };
-  }, [balitaData, kaderData, overviewData, ringkasanData]);
+  }, [ringkasanData, overviewData, balitaData, kaderData]);
 
   const overviewKasusKritis =
     overviewData?.kasus_kritis?.map((item) => ({
