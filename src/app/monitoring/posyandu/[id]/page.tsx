@@ -1148,6 +1148,14 @@ const PosyanduDetailPage: React.FC = () => {
                         </span>
                         <span className="text-sm text-gray-500 dark:text-gray-400">total</span>
                       </div>
+                      <div className="mt-2 flex gap-4 text-sm">
+                        <span className="text-emerald-600 dark:text-emerald-400">
+                          Hadir: {kehadiranData.ringkasan_kehadiran.reduce((sum, item) => sum + item.hadir, 0)}
+                        </span>
+                        <span className="text-red-600 dark:text-red-400">
+                          Tidak Hadir: {kehadiranData.ringkasan_kehadiran.reduce((sum, item) => sum + (item.total - item.hadir), 0)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
