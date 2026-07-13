@@ -75,18 +75,15 @@ async function fetchAllKaderData(): Promise<KaderPDFData> {
 // ─── COLOR PALETTE ───────────────────────────────────────────
 type RGB = [number, number, number];
 
-// Primary palette — high contrast, professional
-const navy: RGB = [15, 32, 75]; // cover utama — gelap pekat
-const blue: RGB = [37, 99, 235]; // aksen biru cerah
+// Primary palette — pink, biru, oranye: ceria & hangat untuk ibu-ibu kader
+const navy: RGB = [15, 32, 75]; // cover utama — biru gelap
+const blue: RGB = [37, 99, 235]; // biru cerah — profil & aksen utama
 const blueLight: RGB = [219, 234, 254]; // background biru muda
-const teal: RGB = [13, 148, 136]; // hijau teal — kehadiran
-const tealLight: RGB = [204, 251, 241]; // background teal muda
-const rose: RGB = [190, 18, 60]; // merah rose — kuesioner
-const roseLight: RGB = [255, 228, 230]; // background rose muda
-const slate: RGB = [51, 65, 85]; // abu gelap — durasi
-const slateLight: RGB = [241, 245, 249]; // background slate muda
-const amber: RGB = [217, 119, 6]; // kuning amber — aksen warning
-const amberLight: RGB = [254, 243, 199]; // background amber muda
+const orange: RGB = [234, 88, 12]; // oranye — kehadiran & durasi
+const orangeLight: RGB = [255, 237, 213]; // background oranye muda
+const pink: RGB = [219, 39, 119]; // pink — ibu hamil & kuesioner
+const pinkLight: RGB = [252, 231, 243]; // background pink muda
+const neutralLight: RGB = [241, 245, 249]; // background netral untuk kartu
 
 const txtDark: RGB = [15, 23, 42]; // teks utama — hampir hitam
 const txtMuted: RGB = [100, 116, 139]; // teks sekunder
@@ -422,14 +419,14 @@ export async function downloadKaderPDF(): Promise<void> {
 
   const tocItems: [string, string, RGB][] = [
     ["01", "Profil Kader", blue],
-    ["02", "Statistik Kehadiran & Beban Kerja", teal],
-    ["03", "Grafik Kehadiran Bulanan", teal],
-    ["04", "Kuesioner Ibu Hamil", rose],
-    ["05", "Durasi Kerja & Jarak Tempuh", slate],
+    ["02", "Statistik Kehadiran & Beban Kerja", orange],
+    ["03", "Grafik Kehadiran Bulanan", orange],
+    ["04", "Kuesioner Ibu Hamil", pink],
+    ["05", "Durasi Kerja & Jarak Tempuh", blue],
   ];
 
   for (const [no, title, color] of tocItems) {
-    roundRect(doc, m, y - 4, cw, 12, 2, slateLight);
+    roundRect(doc, m, y - 4, cw, 12, 2, neutralLight);
     // Number badge
     iconBadge(doc, m + 8, y + 2, 4, no, color);
     // Title
@@ -484,7 +481,7 @@ export async function downloadKaderPDF(): Promise<void> {
   }
 
   // --- 2. STATISTIK KEHADIRAN & BEBAN KERJA ---
-  y = sectionHeader(doc, "2.  Statistik Kehadiran & Beban Kerja", teal, pw, m, y);
+  y = sectionHeader(doc, "2.  Statistik Kehadiran & Beban Kerja", orange, pw, m, y);
 
   if (data.statistik) {
     const balita = data.statistik.total_anak_diukur_bulan_ini;
@@ -494,8 +491,8 @@ export async function downloadKaderPDF(): Promise<void> {
     // ── 3 stat cards in a row ──
     const cardW2 = (cw - 8) / 3;
     const cardH2 = 32;
-    statCard(doc, m, y, cardW2, cardH2, String(balita), "Balita Diukur", teal, tealLight);
-    statCard(doc, m + cardW2 + 4, y, cardW2, cardH2, String(ibuHamil), "Ibu Hamil Diukur", rose, roseLight);
+    statCard(doc, m, y, cardW2, cardH2, String(balita), "Balita Diukur", orange, orangeLight);
+    statCard(doc, m + cardW2 + 4, y, cardW2, cardH2, String(ibuHamil), "Ibu Hamil Diukur", pink, pinkLight);
     statCard(doc, m + (cardW2 + 4) * 2, y, cardW2, cardH2, String(skor), "Skor Beban Kerja", blue, blueLight);
     y += cardH2 + 12;
 
@@ -507,7 +504,7 @@ export async function downloadKaderPDF(): Promise<void> {
     const kategori =
       skor >= 80 ? "Tinggi" : skor >= 60 ? "Sedang" : "Rendah";
     const skorColor: RGB =
-      skor >= 80 ? rose : skor >= 60 ? amber : teal;
+      skor >= 80 ? pink : skor >= 60 ? orange : blue;
 
     donutChart(doc, donutCx, donutCy, 18, skor, skorColor, "poin");
     text(doc, txtDark);
@@ -516,7 +513,7 @@ export async function downloadKaderPDF(): Promise<void> {
     doc.text("Beban Kerja", donutCx, donutCy + 26, { align: "center" });
     // Kategori badge
     const katColor: RGB =
-      skor >= 80 ? roseLight : skor >= 60 ? amberLight : tealLight;
+      skor >= 80 ? pinkLight : skor >= 60 ? orangeLight : blueLight;
     roundRect(doc, donutCx - 14, donutCy + 29, 28, 8, 2, katColor);
     text(doc, skorColor);
     doc.setFont("helvetica", "bold");
@@ -526,8 +523,8 @@ export async function downloadKaderPDF(): Promise<void> {
     // Bar chart on the right
     const barX = m + 70;
     barChart(doc, barX, y + 6, cw - 70, [
-      { label: "Balita Diukur", value: balita, color: teal },
-      { label: "Ibu Hamil Diukur", value: ibuHamil, color: rose },
+      { label: "Balita Diukur", value: balita, color: orange },
+      { label: "Ibu Hamil Diukur", value: ibuHamil, color: pink },
       { label: "Skor Beban Kerja", value: skor, color: blue },
     ]);
 
@@ -537,8 +534,9 @@ export async function downloadKaderPDF(): Promise<void> {
   // ════════════════════════════════════════════
   // 3. GRAFIK KEHADIRAN BULANAN
   // ════════════════════════════════════════════
-  checkPage(70);
-  y = sectionHeader(doc, "3.  Grafik Kehadiran Bulanan", teal, pw, m, y);
+  doc.addPage();
+  y = 22;
+  y = sectionHeader(doc, "3.  Grafik Kehadiran Bulanan", orange, pw, m, y);
 
   if (data.aktivitas) {
     const balitaH = data.aktivitas.jumlah_kehadiran_balita;
@@ -546,8 +544,8 @@ export async function downloadKaderPDF(): Promise<void> {
 
     // Side by side stat cards
     const hw = (cw - 6) / 2;
-    statCard(doc, m, y, hw, 28, String(balitaH), "Kehadiran Balita", teal, tealLight);
-    statCard(doc, m + hw + 6, y, hw, 28, String(ibuH), "Kehadiran Ibu Hamil", rose, roseLight);
+    statCard(doc, m, y, hw, 28, String(balitaH), "Kehadiran Balita", orange, orangeLight);
+    statCard(doc, m + hw + 6, y, hw, 28, String(ibuH), "Kehadiran Ibu Hamil", pink, pinkLight);
     y += 36;
 
     // Visual comparison bar
@@ -565,24 +563,24 @@ export async function downloadKaderPDF(): Promise<void> {
     const barBalita = (balitaH / total) * barFullW;
 
     // Stacked bar
-    fill(doc, teal);
+    fill(doc, orange);
     doc.roundedRect(m, y, barFullW, 10, 3, 3, "F");
-    fill(doc, rose);
+    fill(doc, pink);
     doc.roundedRect(m + barBalita, y, barFullW - barBalita, 10, 0, 0, "F");
     // Fix right corner
     if (barBalita < barFullW - 3) {
-      fill(doc, rose);
+      fill(doc, pink);
       doc.roundedRect(m + barBalita, y, barFullW - barBalita, 10, 3, 3, "F");
-      fill(doc, teal);
+      fill(doc, orange);
       doc.roundedRect(m, y, barBalita + 3, 10, 3, 3, "F");
       // Overlap fix
-      fill(doc, teal);
+      fill(doc, orange);
       doc.rect(m + barBalita - 1, y, 4, 10, "F");
     }
 
     // Legend
     y += 16;
-    fill(doc, teal);
+    fill(doc, orange);
     doc.circle(m + 3, y, 2.5, "F");
     text(doc, txtDark);
     doc.setFont("helvetica", "normal");
@@ -593,7 +591,7 @@ export async function downloadKaderPDF(): Promise<void> {
       y + 1.5
     );
 
-    fill(doc, rose);
+    fill(doc, pink);
     doc.circle(m + 60, y, 2.5, "F");
     doc.text(
       `Ibu Hamil: ${ibuH} (${ibuPct.toFixed(0)}%)`,
@@ -630,12 +628,12 @@ export async function downloadKaderPDF(): Promise<void> {
           cw,
           kategoris.length * 6 + 10,
           3,
-          slateLight,
+          neutralLight,
           [219, 234, 254]
         );
 
         // Title with icon
-        iconBadge(doc, m + 6, y + 3, 3, "▸", teal);
+        iconBadge(doc, m + 6, y + 3, 3, ">", orange);
         text(doc, navy);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9.5);
@@ -668,7 +666,7 @@ export async function downloadKaderPDF(): Promise<void> {
     y = sectionHeader(
       doc,
       `4.  Kuesioner Ibu Hamil — ${data.kuesionerIbuHamil.nama}`,
-      rose,
+      pink,
       pw,
       m,
       y
@@ -679,8 +677,8 @@ export async function downloadKaderPDF(): Promise<void> {
 
       // Session header card
       const tgl = new Date(sesi.tanggal_pengisian).toLocaleDateString("id-ID");
-      roundRect(doc, m, y - 3, cw, 10, 2, roseLight);
-      text(doc, rose);
+      roundRect(doc, m, y - 3, cw, 10, 2, pinkLight);
+      text(doc, pink);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9.5);
       doc.text(`${sesi.kuisioner.nama_kuisioner}`, m + 5, y + 3.5);
@@ -699,7 +697,7 @@ export async function downloadKaderPDF(): Promise<void> {
         ]),
         theme: "striped",
         headStyles: {
-          fillColor: rose,
+          fillColor: pink,
           textColor: white,
           fontSize: 9.5,
           fontStyle: "bold",
@@ -711,7 +709,7 @@ export async function downloadKaderPDF(): Promise<void> {
           lineColor: [252, 231, 243],
           lineWidth: 0.2,
         },
-        alternateRowStyles: { fillColor: roseLight },
+        alternateRowStyles: { fillColor: pinkLight },
         columnStyles: {
           0: { fontStyle: "bold", cellWidth: 95 },
           1: { cellWidth: 75 },
@@ -726,7 +724,7 @@ export async function downloadKaderPDF(): Promise<void> {
   // 5. DURASI KERJA & JARAK TEMPUH
   // ════════════════════════════════════════════
   checkPage(70);
-  y = sectionHeader(doc, "5.  Durasi Kerja & Jarak Tempuh", slate, pw, m, y);
+  y = sectionHeader(doc, "5.  Durasi Kerja & Jarak Tempuh", blue, pw, m, y);
 
   if (data.durasi) {
     // 3 stat cards
@@ -739,8 +737,8 @@ export async function downloadKaderPDF(): Promise<void> {
       32,
       `${data.durasi.durasi_kerja_posyandu}`,
       "Jam Kerja Posyandu",
-      slate,
-      slateLight
+      blue,
+      blueLight
     );
     statCard(
       doc,
@@ -750,8 +748,8 @@ export async function downloadKaderPDF(): Promise<void> {
       32,
       `${data.durasi.durasi_kunjungan_rumah}`,
       "Jam Kunjungan Rumah",
-      teal,
-      tealLight
+      orange,
+      orangeLight
     );
     statCard(
       doc,
@@ -761,8 +759,8 @@ export async function downloadKaderPDF(): Promise<void> {
       32,
       `${data.durasi.jarak_total_kunjungan_rumah}`,
       "Km Jarak Tempuh",
-      amber,
-      amberLight
+      pink,
+      pinkLight
     );
     y += 40;
 
@@ -778,17 +776,17 @@ export async function downloadKaderPDF(): Promise<void> {
       {
         label: "Kerja Posyandu",
         value: data.durasi.durasi_kerja_posyandu,
-        color: slate,
+        color: blue,
       },
       {
         label: "Kunjungan Rumah",
         value: data.durasi.durasi_kunjungan_rumah,
-        color: teal,
+        color: orange,
       },
       {
         label: "Jarak (km)",
         value: data.durasi.jarak_total_kunjungan_rumah,
-        color: amber,
+        color: pink,
       },
     ]);
     y += 56;
@@ -837,7 +835,7 @@ export async function downloadKaderPDF(): Promise<void> {
   text(doc, blue);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
-  doc.text("oleh Dashboard Posyandu", pw / 2, clY + 52, { align: "center" });
+  doc.text("oleh Aplikasi Puspadaya", pw / 2, clY + 52, { align: "center" });
 
   text(doc, txtMuted);
   doc.setFontSize(9);
