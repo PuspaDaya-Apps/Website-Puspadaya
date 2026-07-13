@@ -50,6 +50,8 @@ const PosyanduDetailPage: React.FC = () => {
   const [kehadiranData, setKehadiranData] = useState<DetailPosyanduKehadiranData | null>(null);
   const [kehadiranLoading, setKehadiranLoading] = useState(false);
   const [kehadiranError, setKehadiranError] = useState<string | null>(null);
+  const [kehadiranPage, setKehadiranPage] = useState(1);
+  const [kehadiranLimit, setKehadiranLimit] = useState(10);
   const [balitaData, setBalitaData] = useState<DetailPosyanduBalitaKhususData | null>(cachedPageState?.balitaData ?? null);
   const [balitaLoading, setBalitaLoading] = useState(!cachedPageState?.balitaData);
   const [balitaError, setBalitaError] = useState<string | null>(null);
@@ -1152,80 +1154,127 @@ const PosyanduDetailPage: React.FC = () => {
 
                 {/* Tabel Anak */}
                 <div>
-                  <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-                    Daftar Kehadiran Anak per Bulan
-                  </h3>
-                  <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-                    <table className="min-w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-                          <th className="sticky left-0 z-10 whitespace-nowrap bg-gray-50 px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                            Nama Anak
-                          </th>
-                          <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                            Ibu
-                          </th>
-                          <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                            Kategori
-                          </th>
-                          {(["jan","feb","mar","apr","mei","jun","jul","agt","sep","okt","nov","des"] as const).map((bln) => (
-                            <th key={bln} className="whitespace-nowrap px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                              {bln.charAt(0).toUpperCase() + bln.slice(1, 3)}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                        {kehadiranData.daftar_anak.length === 0 ? (
-                          <tr>
-                            <td colSpan={15} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                              Tidak ada data anak.
-                            </td>
-                          </tr>
-                        ) : (
-                          kehadiranData.daftar_anak.map((anak) => {
-                            const kategoriLabel: Record<string, string> = {
-                              "BAPPEDA": "KM BAPPEDA",
-                              "DINSOS": "KM Dinsos",
-                              "DESA": "KM Desa",
-                            };
-                            const kategoriColor: Record<string, string> = {
-                              "BAPPEDA": "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-                              "DINSOS": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-                              "DESA": "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-                            };
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-dark dark:text-white">
+                      Daftar Kehadiran Anak per Bulan
+                    </h3>
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                      <span>Tampil</span>
+                      <select
+                        value={kehadiranLimit}
+                        onChange={(e) => { setKehadiranLimit(Number(e.target.value)); setKehadiranPage(1); }}
+                        className="rounded-lg border border-gray-300 bg-white px-2 py-1 text-sm text-dark focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                      >
+                        {[10, 20, 30, 50, 100].map((n) => (
+                          <option key={n} value={n}>{n}</option>
+                        ))}
+                      </select>
+                      <span>baris</span>
+                    </div>
+                  </div>
 
-                            return (
-                              <tr key={anak.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                                <td className="sticky left-0 z-10 whitespace-nowrap bg-white px-3 py-3 font-medium text-dark dark:bg-gray-dark dark:text-white">
-                                  {anak.nama}
-                                </td>
-                                <td className="whitespace-nowrap px-3 py-3 text-gray-600 dark:text-gray-300">
-                                  {anak.ibu}
-                                </td>
-                                <td className="whitespace-nowrap px-3 py-3">
-                                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${kategoriColor[anak.kategori_kemiskinan] ?? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"}`}>
-                                    {kategoriLabel[anak.kategori_kemiskinan] ?? anak.kategori_kemiskinan}
-                                  </span>
-                                </td>
-                                {(["jan","feb","mar","apr","mei","jun","jul","agt","sep","okt","nov","des"] as const).map((bln) => (
-                                  <td key={bln} className="whitespace-nowrap px-3 py-3 text-center">
-                                    <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
-                                      anak.absensi[bln]
-                                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                        : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                                    }`}>
-                                      {anak.absensi[bln] ? "H" : "TH"}
-                                    </span>
-                                  </td>
+                  {(() => {
+                    const totalData = kehadiranData.daftar_anak.length;
+                    const totalPage = Math.max(1, Math.ceil(totalData / kehadiranLimit));
+                    const currentPage = Math.min(kehadiranPage, totalPage);
+                    const start = (currentPage - 1) * kehadiranLimit;
+                    const visibleRows = kehadiranData.daftar_anak.slice(start, start + kehadiranLimit);
+
+                    const bulanList = ["jan","feb","mar","apr","mei","jun","jul","agt","sep","okt","nov","des"] as const;
+
+                    const getPageButtons = () => {
+                      if (totalPage <= 5) return Array.from({ length: totalPage }, (_, i) => i + 1);
+                      const s = Math.max(1, currentPage - 2);
+                      const e = Math.min(totalPage, s + 4);
+                      return Array.from({ length: e - Math.max(1, e - 4) + 1 }, (_, i) => Math.max(1, e - 4) + i);
+                    };
+
+                    return (
+                      <>
+                        <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                          <table className="min-w-full text-sm">
+                            <thead>
+                              <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                                <th className="sticky left-0 z-10 whitespace-nowrap bg-gray-50 px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:bg-gray-800 dark:text-gray-400">Nama Anak</th>
+                                <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Ibu</th>
+                                <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Kategori</th>
+                                {bulanList.map((bln) => (
+                                  <th key={bln} className="whitespace-nowrap px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                    {bln.charAt(0).toUpperCase() + bln.slice(1, 3)}
+                                  </th>
                                 ))}
                               </tr>
-                            );
-                          })
+                            </thead>
+                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                              {visibleRows.length === 0 ? (
+                                <tr>
+                                  <td colSpan={15} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">Tidak ada data anak.</td>
+                                </tr>
+                              ) : (
+                                visibleRows.map((anak) => {
+                                  const kategoriLabel: Record<string, string> = { "BAPPEDA": "KM BAPPEDA", "DINSOS": "KM Dinsos", "DESA": "KM Desa" };
+                                  const kategoriColor: Record<string, string> = { "BAPPEDA": "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400", "DINSOS": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400", "DESA": "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" };
+
+                                  return (
+                                    <tr key={anak.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                      <td className="sticky left-0 z-10 whitespace-nowrap bg-white px-3 py-3 font-medium text-dark dark:bg-gray-dark dark:text-white">{anak.nama}</td>
+                                      <td className="whitespace-nowrap px-3 py-3 text-gray-600 dark:text-gray-300">{anak.ibu}</td>
+                                      <td className="whitespace-nowrap px-3 py-3">
+                                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${kategoriColor[anak.kategori_kemiskinan] ?? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"}`}>
+                                          {kategoriLabel[anak.kategori_kemiskinan] ?? anak.kategori_kemiskinan}
+                                        </span>
+                                      </td>
+                                      {bulanList.map((bln) => (
+                                        <td key={bln} className="whitespace-nowrap px-3 py-3 text-center">
+                                          <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${anak.absensi[bln] ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
+                                            {anak.absensi[bln] ? "H" : "TH"}
+                                          </span>
+                                        </td>
+                                      ))}
+                                    </tr>
+                                  );
+                                })
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        {totalData > kehadiranLimit && (
+                          <div className="mt-4 flex flex-col items-center gap-3 text-center text-sm text-gray-600 dark:text-gray-400">
+                            <div>Menampilkan {visibleRows.length} dari {totalData} anak</div>
+                            <div className="flex flex-wrap items-center justify-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setKehadiranPage((p) => Math.max(1, p - 1))}
+                                disabled={currentPage <= 1}
+                                className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-dark transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-white"
+                              >
+                                Sebelumnya
+                              </button>
+                              {getPageButtons().map((pageNumber) => (
+                                <button
+                                  key={pageNumber}
+                                  type="button"
+                                  onClick={() => setKehadiranPage(pageNumber)}
+                                  className={`min-w-10 rounded-lg border px-3 py-1.5 font-medium transition ${pageNumber === currentPage ? "border-primary bg-primary text-white" : "border-gray-300 text-dark hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800"}`}
+                                >
+                                  {pageNumber}
+                                </button>
+                              ))}
+                              <button
+                                type="button"
+                                onClick={() => setKehadiranPage((p) => Math.min(totalPage, p + 1))}
+                                disabled={currentPage >= totalPage}
+                                className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-dark transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-white"
+                              >
+                                Berikutnya
+                              </button>
+                            </div>
+                          </div>
                         )}
-                      </tbody>
-                    </table>
-                  </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </>
             ) : null}
