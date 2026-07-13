@@ -90,10 +90,35 @@ const txtMuted: RGB = [100, 116, 139]; // teks sekunder
 const white: RGB = [255, 255, 255];
 const bgPage: RGB = [248, 250, 252]; // background halaman
 
+// Palet logo Puspadaya — dipakai khusus di cover & closing page saja,
+// terpisah dari palet isi dokumen di atas.
+const logoPink: RGB = [236, 72, 153];
+const logoOrange: RGB = [245, 166, 61];
+const coverBg: RGB = [45, 20, 80]; // ungu gelap — background cover & closing
+const LOGO_URL = "/images/logo/logo-puspa.png";
+const LOGO_ASPECT = 3011 / 4006; // height / width asli logo
+
 // Helper shortcuts
 const fill = (d: jsPDF, c: RGB) => d.setFillColor(c[0], c[1], c[2]);
 const text = (d: jsPDF, c: RGB) => d.setTextColor(c[0], c[1], c[2]);
 const draw = (d: jsPDF, c: RGB) => d.setDrawColor(c[0], c[1], c[2]);
+
+/** Fetch logo dari /public dan ubah ke data URL untuk doc.addImage. */
+async function loadLogoDataUrl(): Promise<string | null> {
+  try {
+    const res = await fetch(LOGO_URL);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
 
 // ─── DRAWING HELPERS ─────────────────────────────────────────
 
@@ -315,81 +340,101 @@ export async function downloadKaderPDF(): Promise<void> {
     }
   };
 
+  const logoDataUrl = await loadLogoDataUrl();
+
   // ════════════════════════════════════════════
   // COVER PAGE — High contrast redesign
   // ════════════════════════════════════════════
 
-  // Full page navy background
-  fill(doc, navy);
+  // Full page dark purple background — selaras dengan logo Puspadaya
+  fill(doc, coverBg);
   doc.rect(0, 0, pw, ph, "F");
 
-  // Decorative geometric shapes (subtle)
+  // Decorative geometric shapes (subtle) — variasi warna logo
   doc.setGState(new (doc as any).GState({ opacity: 0.06 }));
-  fill(doc, white);
+  fill(doc, logoPink);
   doc.circle(pw + 20, -20, 100, "F");
+  fill(doc, logoOrange);
   doc.circle(-30, ph + 10, 80, "F");
+  fill(doc, white);
   doc.rect(pw - 60, ph - 120, 80, 80, "F");
   doc.setGState(new (doc as any).GState({ opacity: 1 }));
 
   // Top accent stripe
-  fill(doc, blue);
+  fill(doc, logoPink);
   doc.rect(0, 0, pw, 4, "F");
 
   // Central content area — white card on dark bg for max contrast
   const cardX = 25;
   const cardY = 65;
   const cardW = pw - 50;
-  const cardH = 100;
+  const cardH = 120;
   roundRect(doc, cardX, cardY, cardW, cardH, 5, white);
 
-  // Blue accent bar inside card top
-  fill(doc, blue);
+  // Pink accent bar inside card top
+  fill(doc, logoPink);
   doc.roundedRect(cardX, cardY, cardW, 5, 5, 5, "F");
   fill(doc, white);
   doc.rect(cardX, cardY + 3, cardW, 4, "F");
 
+  // Logo Puspadaya — di atas judul, center horizontal
+  const coverLogoW = 28;
+  const coverLogoH = coverLogoW * LOGO_ASPECT;
+  const coverLogoY = cardY + 12;
+  if (logoDataUrl) {
+    doc.addImage(
+      logoDataUrl,
+      "PNG",
+      pw / 2 - coverLogoW / 2,
+      coverLogoY,
+      coverLogoW,
+      coverLogoH
+    );
+  }
+
   // Title on the white card — dark text for contrast
+  const titleY = coverLogoY + coverLogoH + 13;
   text(doc, navy);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(28);
-  doc.text("LAPORAN KINERJA", pw / 2, cardY + 30, { align: "center" });
+  doc.text("LAPORAN KINERJA", pw / 2, titleY, { align: "center" });
   doc.setFontSize(20);
-  text(doc, blue);
-  doc.text("KADER POSYANDU", pw / 2, cardY + 42, { align: "center" });
+  text(doc, logoPink);
+  doc.text("KADER POSYANDU", pw / 2, titleY + 12, { align: "center" });
 
   // Divider line
-  draw(doc, [219, 234, 254]);
+  draw(doc, [252, 231, 243]);
   doc.setLineWidth(0.5);
-  doc.line(cardX + 30, cardY + 50, cardX + cardW - 30, cardY + 50);
+  doc.line(cardX + 30, titleY + 20, cardX + cardW - 30, titleY + 20);
 
   // Kader name & role on card
   text(doc, txtDark);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
-  doc.text(data.profil?.nama_kader ?? "Kader", pw / 2, cardY + 64, {
+  doc.text(data.profil?.nama_kader ?? "Kader", pw / 2, titleY + 34, {
     align: "center",
   });
   text(doc, txtMuted);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
-  doc.text(data.profil?.nama_role ?? "", pw / 2, cardY + 73, {
+  doc.text(data.profil?.nama_role ?? "", pw / 2, titleY + 43, {
     align: "center",
   });
 
   // Periode badge on card
-  roundRect(doc, pw / 2 - 30, cardY + 80, 60, 10, 3, blueLight);
-  text(doc, blue);
+  roundRect(doc, pw / 2 - 30, titleY + 50, 60, 10, 3, [252, 231, 243]);
+  text(doc, logoPink);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.text(periodeText, pw / 2, cardY + 87, { align: "center" });
+  doc.text(periodeText, pw / 2, titleY + 57, { align: "center" });
 
-  // Bottom info on dark background — white text
-  text(doc, [180, 199, 231]);
+  // Bottom info on dark background — light pink/purple text
+  text(doc, [200, 170, 220]);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.text(`Dicetak: ${dicetakText}`, pw / 2, ph - 40, { align: "center" });
 
-  text(doc, [120, 150, 200]);
+  text(doc, [200, 170, 220]);
   doc.setFontSize(8);
   doc.text(
     "Dokumen Resmi — Dashboard Posyandu",
@@ -399,7 +444,7 @@ export async function downloadKaderPDF(): Promise<void> {
   );
 
   // Bottom accent stripe
-  fill(doc, blue);
+  fill(doc, logoPink);
   doc.rect(0, ph - 4, pw, 4, "F");
 
   // ════════════════════════════════════════════
@@ -797,52 +842,73 @@ export async function downloadKaderPDF(): Promise<void> {
   // ════════════════════════════════════════════
   doc.addPage();
 
-  // Full navy background
-  fill(doc, navy);
+  // Full dark purple background — sama seperti cover
+  fill(doc, coverBg);
   doc.rect(0, 0, pw, ph, "F");
 
-  // Decorative circles
+  // Decorative circles — variasi warna logo
   doc.setGState(new (doc as any).GState({ opacity: 0.05 }));
-  fill(doc, white);
+  fill(doc, logoPink);
   doc.circle(pw - 30, 40, 60, "F");
+  fill(doc, logoOrange);
   doc.circle(30, ph - 50, 50, "F");
   doc.setGState(new (doc as any).GState({ opacity: 1 }));
 
   // Top accent
-  fill(doc, blue);
+  fill(doc, logoPink);
   doc.rect(0, 0, pw, 4, "F");
 
   // Central white card
   const clX = 30;
-  const clY = ph / 2 - 40;
+  const clH = 92;
+  const clY = ph / 2 - clH / 2;
   const clW = pw - 60;
-  const clH = 80;
   roundRect(doc, clX, clY, clW, clH, 5, white);
 
-  // Blue top bar
-  fill(doc, blue);
+  // Pink top bar
+  fill(doc, logoPink);
   doc.roundedRect(clX, clY, clW, 4, 5, 5, "F");
   fill(doc, white);
   doc.rect(clX, clY + 2, clW, 4, "F");
 
+  // Logo Puspadaya — di atas teks penutup, center horizontal
+  const closeLogoW = 25;
+  const closeLogoH = closeLogoW * LOGO_ASPECT;
+  const closeLogoY = clY + 10;
+  if (logoDataUrl) {
+    doc.addImage(
+      logoDataUrl,
+      "PNG",
+      pw / 2 - closeLogoW / 2,
+      closeLogoY,
+      closeLogoW,
+      closeLogoH
+    );
+  }
+
   // Closing text
+  const closeTitleY = closeLogoY + closeLogoH + 10;
   text(doc, navy);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
-  doc.text("LAPORAN INI DIBUAT", pw / 2, clY + 28, { align: "center" });
-  doc.text("SECARA OTOMATIS", pw / 2, clY + 38, { align: "center" });
+  doc.text("LAPORAN INI DIBUAT", pw / 2, closeTitleY, { align: "center" });
+  doc.text("SECARA OTOMATIS", pw / 2, closeTitleY + 10, { align: "center" });
 
-  text(doc, blue);
+  text(doc, logoPink);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
-  doc.text("oleh Aplikasi Puspadaya", pw / 2, clY + 52, { align: "center" });
+  doc.text("oleh Aplikasi Puspadaya", pw / 2, closeTitleY + 24, {
+    align: "center",
+  });
 
   text(doc, txtMuted);
   doc.setFontSize(9);
-  doc.text(`Dicetak: ${dicetakText}`, pw / 2, clY + 64, { align: "center" });
+  doc.text(`Dicetak: ${dicetakText}`, pw / 2, closeTitleY + 36, {
+    align: "center",
+  });
 
   // Bottom accent
-  fill(doc, blue);
+  fill(doc, logoPink);
   doc.rect(0, ph - 4, pw, 4, "F");
 
   // ════════════════════════════════════════════
