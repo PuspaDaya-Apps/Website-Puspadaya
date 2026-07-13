@@ -362,7 +362,7 @@ const PosyanduDetailPage: React.FC = () => {
         const bulanList = ["jan", "feb", "mar", "apr", "mei", "jun", "jul", "agt", "sep", "okt", "nov", "des"] as const;
 
         setKehadiranData({
-          periode: { tahun: Number(detailContext.tahun) },
+          periode: { tahun: Number(detailContext.tahun), posyandu_name: ringkasanData?.posyandu?.nama ?? "Posyandu" },
           ringkasan_kehadiran: [
             { kategori: "Kurang Mampu BAPPEDA", total: 3, hadir: 2, persentase: 66.67 },
             { kategori: "Kurang Mampu Dinsos", total: 5, hadir: 4, persentase: 80 },
@@ -1115,7 +1115,7 @@ const PosyanduDetailPage: React.FC = () => {
                     Kehadiran Balita Kurang Mampu
                   </h3>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-                    {kehadiranData.ringkasan_kehadiran.map((item) => {
+                    {kehadiranData.ringkasan_kehadiran.filter((i) => i.kategori !== "Total Data Anak Kurang Mampu").map((item) => {
                       const colorMap: Record<string, { bg: string; text: string; fill: string }> = {
                         "Kurang Mampu BAPPEDA": { bg: "bg-red-50 dark:bg-red-900/20", text: "text-red-600 dark:text-red-400", fill: "#ef4444" },
                         "Kurang Mampu Dinsos": { bg: "bg-yellow-50 dark:bg-yellow-900/20", text: "text-yellow-600 dark:text-yellow-400", fill: "#eab308" },
@@ -1138,25 +1138,38 @@ const PosyanduDetailPage: React.FC = () => {
                     })}
 
                     {/* Card Total Balita Kurang Mampu */}
-                    <div className="rounded-lg bg-blue-50 p-5 dark:bg-blue-900/20">
-                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                        Jumlah Balita Kurang Mampu
-                      </p>
-                      <div className="mt-3 flex items-baseline gap-2">
-                        <span className="text-4xl font-bold text-blue-600 dark:text-blue-400">
-                          {kehadiranData.ringkasan_kehadiran.reduce((sum, item) => sum + item.total, 0)}
-                        </span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">total</span>
-                      </div>
-                      <div className="mt-2 flex gap-4 text-sm">
-                        <span className="text-emerald-600 dark:text-emerald-400">
-                          Hadir: {kehadiranData.ringkasan_kehadiran.reduce((sum, item) => sum + item.hadir, 0)}
-                        </span>
-                        <span className="text-red-600 dark:text-red-400">
-                          Tidak Hadir: {kehadiranData.ringkasan_kehadiran.reduce((sum, item) => sum + (item.total - item.hadir), 0)}
-                        </span>
-                      </div>
-                    </div>
+                    {(() => {
+                      const items = kehadiranData.ringkasan_kehadiran.filter((i) => i.kategori !== "Total Data Anak Kurang Mampu");
+                      const totalAll = items.reduce((s, i) => s + i.total, 0);
+                      const hadirAll = items.reduce((s, i) => s + i.hadir, 0);
+                      const pctAll = totalAll > 0 ? Math.round((hadirAll / totalAll) * 100) : 0;
+
+                      return (
+                        <div className="rounded-lg bg-blue-50 p-5 dark:bg-blue-900/20">
+                          <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                            Jumlah Balita Kurang Mampu
+                          </p>
+                          <div className="mt-3 flex items-baseline gap-2">
+                            <span className="text-4xl font-bold text-blue-600 dark:text-blue-400">{pctAll}%</span>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">hadir</span>
+                          </div>
+                          <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                            <div className="h-full rounded-full bg-blue-500 transition-all" style={{ width: `${pctAll}%` }} />
+                          </div>
+                          <div className="mt-2 flex gap-4 text-sm">
+                            <span className="font-medium text-blue-600 dark:text-blue-400">
+                              Total: {totalAll}
+                            </span>
+                            <span className="text-emerald-600 dark:text-emerald-400">
+                              Hadir: {hadirAll}
+                            </span>
+                            <span className="text-red-600 dark:text-red-400">
+                              Tidak Hadir: {items.reduce((s, i) => s + (i.tidak_hadir ?? i.total - i.hadir), 0)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
 

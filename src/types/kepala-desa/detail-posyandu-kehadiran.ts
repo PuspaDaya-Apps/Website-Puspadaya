@@ -4,6 +4,7 @@ export interface DetailPosyanduKehadiranKemiskinanItem {
   kategori: string;
   total: number;
   hadir: number;
+  tidak_hadir?: number;
   persentase: number;
 }
 
@@ -19,7 +20,7 @@ export interface DetailPosyanduAnakKehadiranItem {
 }
 
 export interface DetailPosyanduKehadiranData {
-  periode: Pick<Periode, 'tahun'>;
+  periode: Pick<Periode, 'tahun'> & { posyandu_name: string };
   ringkasan_kehadiran: DetailPosyanduKehadiranKemiskinanItem[];
   daftar_anak: DetailPosyanduAnakKehadiranItem[];
 }
