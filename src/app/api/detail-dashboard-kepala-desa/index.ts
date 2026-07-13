@@ -7,3 +7,4 @@ export { fetchDetailPosyanduKader } from './kader';
 export { fetchDetailPosyanduKinerja } from './kinerja';
 export { fetchKinerjaPerPosyandu } from './kinerja-per-posyandu';
 export { fetchDetailPosyanduBalitaAll } from './balita-all';
+export { fetchDetailPosyanduKehadiran } from './kehadiran';

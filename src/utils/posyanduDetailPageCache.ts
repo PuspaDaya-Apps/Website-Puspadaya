@@ -6,7 +6,7 @@ export interface PosyanduDetailPageCacheEntry<TOverview, TRingkasan, TBalita, TK
     bulan: number;
     tahun: number;
   };
-  activeTab?: "overview" | "balita" | "kader" | "kinerja";
+  activeTab?: "overview" | "balita" | "kader" | "kinerja" | "kehadiran";
   balitaPage?: number;
   kaderPage?: number;
   overviewData: TOverview | null;

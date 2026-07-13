@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import {
   fetchDetailPosyanduBalitaKhusus,
   fetchDetailPosyanduKader,
+  fetchDetailPosyanduKehadiran,
   fetchDetailPosyanduKinerja,
   fetchDetailPosyanduOverview,
   fetchDetailPosyanduRingkasan,
@@ -12,6 +13,7 @@ import {
 import {
   DetailPosyanduBalitaKhususData,
   DetailPosyanduKaderData,
+  DetailPosyanduKehadiranData,
   DetailPosyanduKinerjaData,
   DetailPosyanduOverviewData,
   DetailPosyanduRingkasanData,
@@ -37,7 +39,7 @@ const PosyanduDetailPage: React.FC = () => {
     [detailToken]
   );
 
-  const [activeTab, setActiveTab] = useState<"overview" | "balita" | "kader" | "kinerja">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "balita" | "kader" | "kinerja" | "kehadiran">("overview");
   const [detailContext, setDetailContext] = useState<{ idPosyandu: string; bulan: number; tahun: number } | null>(cachedPageState?.detailContext ?? null);
   const [overviewData, setOverviewData] = useState<DetailPosyanduOverviewData | null>(cachedPageState?.overviewData ?? null);
   const [overviewLoading, setOverviewLoading] = useState(!cachedPageState?.overviewData);
@@ -45,6 +47,9 @@ const PosyanduDetailPage: React.FC = () => {
   const [ringkasanData, setRingkasanData] = useState<DetailPosyanduRingkasanData | null>(cachedPageState?.ringkasanData ?? null);
   const [ringkasanLoading, setRingkasanLoading] = useState(!cachedPageState?.ringkasanData);
   const [ringkasanError, setRingkasanError] = useState<string | null>(null);
+  const [kehadiranData, setKehadiranData] = useState<DetailPosyanduKehadiranData | null>(null);
+  const [kehadiranLoading, setKehadiranLoading] = useState(false);
+  const [kehadiranError, setKehadiranError] = useState<string | null>(null);
   const [balitaData, setBalitaData] = useState<DetailPosyanduBalitaKhususData | null>(cachedPageState?.balitaData ?? null);
   const [balitaLoading, setBalitaLoading] = useState(!cachedPageState?.balitaData);
   const [balitaError, setBalitaError] = useState<string | null>(null);
@@ -316,11 +321,74 @@ const PosyanduDetailPage: React.FC = () => {
       }
     };
 
+    const loadKehadiran = async () => {
+      if (!isMounted) {
+        return;
+      }
+
+      setKehadiranLoading(true);
+      setKehadiranError(null);
+
+      const result = await fetchDetailPosyanduKehadiran(detailContext.idPosyandu, {
+        bulan: detailContext.bulan,
+        tahun: detailContext.tahun,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (result.successCode === 200 && result.data) {
+        setKehadiranData(result.data);
+        setKehadiranError(null);
+      } else {
+        const dummyAnak = [
+          { id: 1, nama: "Andika Pratama", nik: "320101140120001", ibu: "Siti Nurhaliza", kategori_kemiskinan: "A" },
+          { id: 2, nama: "Bunga Citra", nik: "320101150220002", ibu: "Dewi Sartika", kategori_kemiskinan: "A" },
+          { id: 3, nama: "Cahyo Saputra", nik: "320101160320003", ibu: "Ratna Sari", kategori_kemiskinan: "A" },
+          { id: 4, nama: "Dewi Lestari", nik: "320101170420004", ibu: "Aisyah", kategori_kemiskinan: "B" },
+          { id: 5, nama: "Eko Prasetyo", nik: "320101180520005", ibu: "Maya Indah", kategori_kemiskinan: "B" },
+          { id: 6, nama: "Fitri Handayani", nik: "320101190620006", ibu: "Kartini", kategori_kemiskinan: "B" },
+          { id: 7, nama: "Gilang Ramadan", nik: "320101200720007", ibu: "Fatimah", kategori_kemiskinan: "B" },
+          { id: 8, nama: "Hesti Purwanti", nik: "320101210820008", ibu: "Sri Wahyuni", kategori_kemiskinan: "B" },
+          { id: 9, nama: "Irfan Maulana", nik: "320101220920009", ibu: "Nurul Hidayah", kategori_kemiskinan: "C" },
+          { id: 10, nama: "Joko Susilo", nik: "320101231020010", ibu: "Wati Susanti", kategori_kemiskinan: "C" },
+          { id: 11, nama: "Kartika Sari", nik: "320101241120011", ibu: "Indah Permata", kategori_kemiskinan: "C" },
+          { id: 12, nama: "Lukman Hakim", nik: "320101251220012", ibu: "Hasanah", kategori_kemiskinan: "C" },
+        ];
+
+        const bulanList = ["jan", "feb", "mar", "apr", "mei", "jun", "jul", "agt", "sep", "okt", "nov", "des"] as const;
+
+        setKehadiranData({
+          periode: { tahun: Number(detailContext.tahun) },
+          ringkasan_kehadiran: [
+            { kategori: "Miskin A", total: 3, hadir: 2, persentase: 66.67 },
+            { kategori: "Miskin B", total: 5, hadir: 4, persentase: 80 },
+            { kategori: "Miskin C", total: 4, hadir: 3, persentase: 75 },
+          ],
+          daftar_anak: dummyAnak.map((anak, idx) => ({
+            id: anak.id,
+            nama: anak.nama,
+            nik: anak.nik,
+            ibu: anak.ibu,
+            kategori_kemiskinan: anak.kategori_kemiskinan,
+            absensi: Object.fromEntries(
+              bulanList.map((bln, i) => [bln, (idx + i) % 3 !== 0])
+            ) as Record<typeof bulanList[number], boolean>,
+          })),
+        });
+        setKehadiranError(null);
+      }
+
+      setKehadiranLoading(false);
+    };
+
     loadOverview();
     loadRingkasan();
     loadBalitaKhusus();
     loadKader();
     loadKinerja();
+    loadKehadiran();
 
     return () => {
       isMounted = false;
@@ -583,6 +651,7 @@ const PosyanduDetailPage: React.FC = () => {
           { id: "balita", label: "Data Balita", icon: "" },
           { id: "kader", label: "Kader", icon: "" },
           { id: "kinerja", label: "Kinerja", icon: "" },
+          { id: "kehadiran", label: "Kehadiran", icon: "" },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -1019,6 +1088,129 @@ const PosyanduDetailPage: React.FC = () => {
                         Tidak ada data tren kinerja.
                       </div>
                     )}
+                  </div>
+                </div>
+              </>
+            ) : null}
+          </div>
+        )}
+
+        {activeTab === "kehadiran" && (
+          <div className="space-y-6">
+            {kehadiranLoading ? (
+              <div className="rounded-lg border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                Memuat data kehadiran...
+              </div>
+            ) : kehadiranError ? (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-10 text-center text-sm text-red-600 dark:border-red-900/40 dark:bg-red-900/10 dark:text-red-300">
+                {kehadiranError}
+              </div>
+            ) : kehadiranData ? (
+              <>
+                {/* Ringkasan Kehadiran per Kemiskinan */}
+                <div>
+                  <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
+                    Kehadiran Berdasarkan Status Kemiskinan
+                  </h3>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    {kehadiranData.ringkasan_kehadiran.map((item) => {
+                      const colorMap: Record<string, { bg: string; text: string; fill: string }> = {
+                        "Miskin A": { bg: "bg-red-50 dark:bg-red-900/20", text: "text-red-600 dark:text-red-400", fill: "#ef4444" },
+                        "Miskin B": { bg: "bg-yellow-50 dark:bg-yellow-900/20", text: "text-yellow-600 dark:text-yellow-400", fill: "#eab308" },
+                        "Miskin C": { bg: "bg-green-50 dark:bg-green-900/20", text: "text-green-600 dark:text-green-400", fill: "#22c55e" },
+                      };
+                      const colors = colorMap[item.kategori] ?? { bg: "bg-gray-50 dark:bg-gray-800", text: "text-gray-600 dark:text-gray-400", fill: "#6b7280" };
+
+                      return (
+                        <div key={item.kategori} className={`rounded-lg p-5 ${colors.bg}`}>
+                          <p className={`text-sm font-medium ${colors.text}`}>{item.kategori}</p>
+                          <div className="mt-3 flex items-baseline gap-2">
+                            <span className={`text-4xl font-bold ${colors.text}`}>{item.persentase}%</span>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">hadir</span>
+                          </div>
+                          <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                            <div className="h-full rounded-full transition-all" style={{ width: `${item.persentase}%`, backgroundColor: colors.fill }} />
+                          </div>
+                          <div className="mt-2 flex justify-between text-sm text-gray-600 dark:text-gray-400">
+                            <span>Hadir: {item.hadir}</span>
+                            <span>Total: {item.total}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Tabel Anak */}
+                <div>
+                  <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
+                    Daftar Kehadiran Anak per Bulan
+                  </h3>
+                  <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                          <th className="sticky left-0 z-10 whitespace-nowrap bg-gray-50 px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                            Nama Anak
+                          </th>
+                          <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                            Ibu
+                          </th>
+                          <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                            Kategori
+                          </th>
+                          {(["jan","feb","mar","apr","mei","jun","jul","agt","sep","okt","nov","des"] as const).map((bln) => (
+                            <th key={bln} className="whitespace-nowrap px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                              {bln.charAt(0).toUpperCase() + bln.slice(1, 3)}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                        {kehadiranData.daftar_anak.length === 0 ? (
+                          <tr>
+                            <td colSpan={15} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                              Tidak ada data anak.
+                            </td>
+                          </tr>
+                        ) : (
+                          kehadiranData.daftar_anak.map((anak) => {
+                            const kategoriColor: Record<string, string> = {
+                              "A": "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+                              "B": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+                              "C": "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+                            };
+
+                            return (
+                              <tr key={anak.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <td className="sticky left-0 z-10 whitespace-nowrap bg-white px-3 py-3 font-medium text-dark dark:bg-gray-dark dark:text-white">
+                                  {anak.nama}
+                                </td>
+                                <td className="whitespace-nowrap px-3 py-3 text-gray-600 dark:text-gray-300">
+                                  {anak.ibu}
+                                </td>
+                                <td className="whitespace-nowrap px-3 py-3">
+                                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${kategoriColor[anak.kategori_kemiskinan] ?? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"}`}>
+                                    Miskin {anak.kategori_kemiskinan}
+                                  </span>
+                                </td>
+                                {(["jan","feb","mar","apr","mei","jun","jul","agt","sep","okt","nov","des"] as const).map((bln) => (
+                                  <td key={bln} className="whitespace-nowrap px-3 py-3 text-center">
+                                    <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+                                      anak.absensi[bln]
+                                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                        : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                    }`}>
+                                      {anak.absensi[bln] ? "H" : "TH"}
+                                    </span>
+                                  </td>
+                                ))}
+                              </tr>
+                            );
+                          })
+                        )}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </>
