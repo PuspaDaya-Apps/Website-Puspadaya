@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { loginUser } from "@/app/api/login/loginApi";
 
 export default function SigninWithPassword() {
@@ -9,22 +8,30 @@ export default function SigninWithPassword() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) {
+      return;
+    }
+
     setError("");
-    
+    setIsSubmitting(true);
+
     try {
+      // loginUser hanya selesai setelah TokenManager.saveToken() menulis cookie
+      // `token` lewat document.cookie (sinkron), jadi cookie sudah ada sebelum
+      // navigasi di bawah -- middleware pasti melihatnya di request pertama.
       await loginUser(username, password);
-      
-      // Small delay to ensure token is fully saved
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Force reload to ensure middleware picks up the cookie
-      window.location.href = '/';
+
+      // replace(): halaman login tidak perlu tertinggal di history, supaya
+      // tombol Back tidak mengembalikan user ke form setelah berhasil login.
+      window.location.replace('/');
+      // Biarkan tombol tetap disabled sampai halaman baru mengambil alih.
     } catch (err: any) {
       setError(err.message || 'Login gagal. Silakan coba lagi.');
+      setIsSubmitting(false);
     }
   };
 
@@ -58,6 +65,7 @@ export default function SigninWithPassword() {
             placeholder="Enter your username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            disabled={isSubmitting}
             className="w-full rounded-lg border p-3 transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white sm:p-4"
             autoCapitalize="off"
             autoCorrect="off"
@@ -81,6 +89,7 @@ export default function SigninWithPassword() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isSubmitting}
               placeholder="Enter your password"
               className="w-full rounded-lg border p-3 transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white sm:p-4"
             />
@@ -127,9 +136,17 @@ export default function SigninWithPassword() {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:from-blue-600 hover:to-blue-700 sm:py-4 sm:text-lg"
+          disabled={isSubmitting}
+          aria-busy={isSubmitting}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:from-blue-600 hover:to-blue-700 disabled:cursor-not-allowed disabled:opacity-70 sm:py-4 sm:text-lg"
         >
-          Login
+          {isSubmitting && (
+            <span
+              aria-hidden="true"
+              className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"
+            />
+          )}
+          {isSubmitting ? "Memproses..." : "Login"}
         </button>
 
         {/* Link to Sign Up or Forgot Password */}

@@ -62,9 +62,14 @@ class TokenManagerClass {
         sessionStorage.setItem('nama_lengkap', tokenData.namaLengkap);
       }
 
-      // Save to cookies (for middleware) - 7 days
+      // Save to cookies (for middleware) - 7 days.
+      // `Secure` hanya dipasang di HTTPS: browser menolak cookie Secure yang
+      // di-set dari origin http (mis. http://<ip-lan>:3000, atau Safari di
+      // http://localhost). Kalau cookie ditolak, middleware tidak pernah
+      // melihat `token` dan user dikembalikan terus ke halaman login.
       const cookieExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-      document.cookie = `token=${tokenData.accessToken}; path=/; expires=${cookieExpiry.toUTCString()}; SameSite=Strict; Secure`;
+      const isSecureOrigin = window.location.protocol === 'https:';
+      document.cookie = `token=${tokenData.accessToken}; path=/; expires=${cookieExpiry.toUTCString()}; SameSite=Strict${isSecureOrigin ? '; Secure' : ''}`;
 
       // Start auto-refresh
       this.startAutoRefresh();

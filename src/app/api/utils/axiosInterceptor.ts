@@ -71,6 +71,7 @@ const errorInterceptor = async (error: AxiosError): Promise<any> => {
   const originalRequest = error.config as InternalAxiosRequestConfig & {
     _retry?: boolean;
     _retryCount?: number;
+    skipRetry?: boolean;
   };
 
   // Handle network errors or other issues
@@ -126,10 +127,13 @@ const errorInterceptor = async (error: AxiosError): Promise<any> => {
     }
   }
 
-  // Handle 5xx Server Errors with retry
-  if (error.response && error.response.status >= 500) {
+  // Handle 5xx Server Errors with retry.
+  // skipRetry opts a caller out: callers that already wrap the request in
+  // retryAxiosRequest/withRetry manage their own backoff, and retrying here too
+  // would multiply the two backoffs together instead of adding them.
+  if (error.response && error.response.status >= 500 && !originalRequest?.skipRetry) {
     originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
-    
+
     if (originalRequest._retryCount <= 3) {
       // console.log(`⚠️ Server error ${error.response.status}. Retry ${originalRequest._retryCount}/3`);
       

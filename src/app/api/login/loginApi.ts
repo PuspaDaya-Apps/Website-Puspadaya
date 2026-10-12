@@ -6,15 +6,21 @@ import { retryAxiosRequest } from '../utils/retry';
 
 export const LOGOUT_REDIRECT_URL = 'https://puspadaya-id.netlify.app/';
 
+// Batas tunggu pengambilan profil (CURRENT) saat login. Login sudah sah begitu
+// token tersimpan, jadi panggilan ini dibatasi agar tidak menahan redirect.
+const CURRENT_USER_TIMEOUT_MS = 4000;
+
 export const loginUser = async (username: string, password: string): Promise<string> => {
     if (!username || !password) {
         throw new Error(Messages.VALIDATION_ERROR);
     }
 
     try {
-        // Use retry logic for login request
-        const response = await retryAxiosRequest(() => 
-            axios.post(APIEndpoints.AUTHENTICATION, { username, password }),
+        // Use retry logic for login request.
+        // skipRetry: the global axios interceptor must NOT also retry 5xx here,
+        // otherwise its backoff (1s/2s/4s) stacks inside every attempt below.
+        const response = await retryAxiosRequest(() =>
+            axios.post(APIEndpoints.AUTHENTICATION, { username, password }, { skipRetry: true } as any),
             { maxRetries: 2, initialDelay: 500 }
         );
 
@@ -38,16 +44,18 @@ export const loginUser = async (username: string, password: string): Promise<str
                     namaLengkap: namaLengkap,
                 });
 
-                // 🔹 Panggil API CURRENT setelah login berhasil dengan retry
+                // 🔹 Panggil API CURRENT setelah login berhasil.
+                // Tidak boleh di-retry: ini bukan syarat login. Semua pembaca
+                // 'current_user' sudah punya fallback kalau datanya belum ada,
+                // jadi login tidak boleh menunggu lama di sini.
                 try {
-                    const currentResponse = await retryAxiosRequest(() => 
-                        axios.get(APIEndpoints.CURRENT, {
-                            headers: {
-                                Authorization: `Bearer ${data.access_token}`,
-                            },
-                        }),
-                        { maxRetries: 3, initialDelay: 1000 }
-                    );
+                    const currentResponse = await axios.get(APIEndpoints.CURRENT, {
+                        headers: {
+                            Authorization: `Bearer ${data.access_token}`,
+                        },
+                        timeout: CURRENT_USER_TIMEOUT_MS,
+                        skipRetry: true,
+                    } as any);
 
                     if (currentResponse.status === 200) {
                         const currentData = currentResponse.data?.data || currentResponse.data;

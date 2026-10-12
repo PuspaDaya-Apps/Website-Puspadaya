@@ -25,12 +25,14 @@ export default function RootLayout({
   const [appInitialized, setAppInitialized] = useState(false);
 
   useEffect(() => {
-    // Initialize app (axios interceptors, token management)
+    // Initialize app (axios interceptors, token management).
+    // Sinkron, jadi interceptor sudah terpasang sebelum children di-render.
     initializeApp();
     setAppInitialized(true);
-    
-    // Show loader for 1 second
-    setTimeout(() => setLoading(false), 1000);
+
+    // Loader hanya menutupi inisialisasi di atas; tidak ada lagi jeda buatan
+    // 1 detik yang sebelumnya ikut menahan dashboard setiap kali halaman dibuka.
+    setLoading(false);
   }, []);
 
   return (
