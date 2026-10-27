@@ -130,7 +130,6 @@ export interface DashboardSummary {
   status_gizi_trend: StatusGiziTrendData[]; // Tren status gizi balita
   ibu_hamil_beresiko_trend: IbuHamilBeresikoTrendData[]; // Tren ibu hamil berisiko
   // Data agregat kader (seperti DashboardAnggotaKader)
-  kehadiran_kompetensi: KehadiranKompetensi; // Kehadiran per kompetensi
   durasi_jarak_agregat: DurasiJarakAgregat; // Durasi & jarak agregat tim
   beban_kerja_tim: BebanKerjaTimSummary; // Summary beban kerja tim
 }
@@ -212,24 +211,6 @@ export interface KaderDistribution {
   role: string;
   beban_kerja: number;
   status: "aktif" | "non_aktif";
-}
-
-// Kompetensi Kehadiran Types
-export interface KompetensiItem {
-  kompetensi: string;
-  jumlah: number;
-  aktivitas_kader?: string[]; // Optional: untuk ibu hamil
-}
-
-export interface KehadiranKompetensi {
-  balita: {
-    total_hadir: number;
-    detail: KompetensiItem[];
-  };
-  ibu_hamil: {
-    total_hadir: number;
-    detail: KompetensiItem[];
-  };
 }
 
 // Agregat Durasi & Jarak untuk Tim Kader
