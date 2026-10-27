@@ -14,16 +14,6 @@ import {
   LabelList,
 } from "recharts";
 
-export interface SKDNData {
-  S: number;
-  K: number;
-  D: number;
-  N: number;
-  total: number;
-  persentase_kenaikan_bb: number;
-  persentase_kenaikan_bb_sesuai_kbm?: number;
-}
-
 interface SKDNBarChartProps {
   bulan: number;
   tahun: number;
