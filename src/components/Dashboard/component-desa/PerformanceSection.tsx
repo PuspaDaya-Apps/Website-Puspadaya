@@ -1,11 +1,6 @@
 "use client";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useStatistikDataDesa } from "@/hooks/dashboard";
-import {
-  MonthlyTrendData,
-  StatusGiziTrendData,
-  IbuHamilBeresikoTrendData,
-} from "@/types/dashboard-kepala-desa";
 import { StatistikDataDesaData } from "@/types/kepala-desa";
 import {
   LineChart,
@@ -19,9 +14,6 @@ import {
 } from "recharts";
 
 interface PerformanceSectionProps {
-  trendData: MonthlyTrendData[];
-  statusGiziTrend: StatusGiziTrendData[];
-  ibuHamilBeresikoTrend: IbuHamilBeresikoTrendData[];
   bulan: number;
   tahun: number;
   bulanLabel?: string;
@@ -46,6 +38,24 @@ type IbuHamilKekPoint = {
   kek: number;
 };
 
+const NAMA_BULAN = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
+];
+
+const indexBulan = (nama: string): number =>
+  NAMA_BULAN.findIndex((item) => item.toLowerCase() === nama.trim().toLowerCase());
+
 const PerformanceSection: React.FC<PerformanceSectionProps> = ({
   bulan,
   tahun,
@@ -56,39 +66,65 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
   const isLoading = isPending;
   const errorMessage = isError ? "Gagal memuat data tren performa" : null;
 
+  // API selalu mengirim 12 bulan penuh. Untuk tahun yang sedang berjalan,
+  // bulan yang belum terjadi dibuang supaya grafik tidak menarik garis ke nol
+  // sampai Desember. Tahun lampau tetap ditampilkan penuh karena datanya sudah
+  // lengkap.
+  const jumlahBulanTampil = useMemo(() => {
+    const sekarang = new Date();
+
+    if (tahun !== sekarang.getFullYear()) {
+      return NAMA_BULAN.length;
+    }
+
+    return sekarang.getMonth() + 1;
+  }, [tahun]);
+
+  const sampaiBulanBerjalan = useCallback(
+    <T extends { bulan: string }>(rows: T[]): T[] =>
+      rows.filter((row) => {
+        const index = indexBulan(row.bulan);
+
+        // Nama bulan yang tidak dikenali dibiarkan lewat, supaya data tidak
+        // hilang diam-diam kalau format dari API berubah.
+        return index === -1 || index < jumlahBulanTampil;
+      }),
+    [jumlahBulanTampil]
+  );
+
   const combinedTrendData = useMemo<CombinedTrendPoint[]>(() => {
     const apiBalita = apiData?.tren?.kehadiran_balita?.data ?? [];
     const apiIbu = apiData?.tren?.kehadiran_ibu_hamil?.data ?? [];
 
     const ibuMap = new Map(apiIbu.map((item) => [item.bulan, item.jumlah]));
 
-    return apiBalita.map((item) => ({
+    return sampaiBulanBerjalan(apiBalita).map((item) => ({
       name: item.bulan,
       balita: item.jumlah ?? 0,
       ibuHamil: ibuMap.get(item.bulan) ?? 0,
     }));
-  }, [apiData]);
+  }, [apiData, sampaiBulanBerjalan]);
 
   const statusGiziChartData = useMemo<StatusGiziPoint[]>(() => {
     const apiStatusGizi = apiData?.tren?.status_gizi_balita?.data ?? [];
 
-    return apiStatusGizi.map((item) => ({
+    return sampaiBulanBerjalan(apiStatusGizi).map((item) => ({
       name: item.bulan,
       stuntingPendek: item.stunting_pendek ?? 0,
       stuntingSangatPendek: item.sangat_pendek ?? 0,
       wasting: item.wasting ?? 0,
       underweight: item.underweight ?? 0,
     }));
-  }, [apiData]);
+  }, [apiData, sampaiBulanBerjalan]);
 
   const ibuHamilBeresikoChartData = useMemo<IbuHamilKekPoint[]>(() => {
     const apiKek = apiData?.tren?.ibu_hamil_kek?.data ?? [];
 
-    return apiKek.map((item) => ({
+    return sampaiBulanBerjalan(apiKek).map((item) => ({
       name: item.bulan,
       kek: item.jumlah ?? 0,
     }));
-  }, [apiData]);
+  }, [apiData, sampaiBulanBerjalan]);
 
   const latestBalita = apiData?.tren?.kehadiran_balita?.hari_ini ?? 0;
   const latestIbuHamil = apiData?.tren?.kehadiran_ibu_hamil?.hari_ini ?? 0;
@@ -104,6 +140,10 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
   const totalStatusGizi = apiData?.tren?.status_gizi_balita?.hari_ini ?? 0;
 
   const periodeLabel = bulanLabel ? `${bulanLabel} ${tahun}` : `bulan ${bulan} ${tahun}`;
+  const rentangBulanLabel =
+    jumlahBulanTampil === 1
+      ? `${NAMA_BULAN[0]} ${tahun}`
+      : `Januari–${NAMA_BULAN[jumlahBulanTampil - 1]} ${tahun}`;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -161,7 +201,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
               </div>
               <div>
                 <h3 className="text-lg font-bold text-dark dark:text-white">Tren Kehadiran Balita</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Data 12 bulan terakhir</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{rentangBulanLabel}</p>
               </div>
             </div>
             <div className="text-right">
@@ -213,7 +253,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
               </div>
               <div>
                 <h3 className="text-lg font-bold text-dark dark:text-white">Tren Kehadiran Ibu Hamil</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Data 12 bulan terakhir</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{rentangBulanLabel}</p>
               </div>
             </div>
             <div className="text-right">
@@ -265,7 +305,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
               </div>
               <div>
                 <h3 className="text-lg font-bold text-dark dark:text-white">Tren Status Gizi Balita</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Data 12 bulan terakhir</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{rentangBulanLabel}</p>
               </div>
             </div>
             <div className="text-right">
@@ -299,7 +339,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
                   type="monotone"
                   dataKey="stuntingPendek"
                   name="Stunting Pendek"
-                  stroke="#ef4444"
+                  stroke="#EAB308"
                   strokeWidth={3}
                   dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
                   activeDot={{ r: 7, strokeWidth: 0 }}
@@ -308,7 +348,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
                   type="monotone"
                   dataKey="stuntingSangatPendek"
                   name="Sangat Pendek"
-                  stroke="#f97316"
+                  stroke="#EF4444"
                   strokeWidth={3}
                   dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
                   activeDot={{ r: 7, strokeWidth: 0 }}
@@ -317,7 +357,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
                   type="monotone"
                   dataKey="wasting"
                   name="Wasting"
-                  stroke="#eab308"
+                  stroke="#3B82F6"
                   strokeWidth={3}
                   dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
                   activeDot={{ r: 7, strokeWidth: 0 }}
@@ -326,7 +366,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
                   type="monotone"
                   dataKey="underweight"
                   name="Underweight"
-                  stroke="#d97706"
+                  stroke="#22C55E"
                   strokeWidth={3}
                   dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
                   activeDot={{ r: 7, strokeWidth: 0 }}
@@ -346,7 +386,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
               </div>
               <div>
                 <h3 className="text-lg font-bold text-dark dark:text-white">Tren Ibu Hamil KEK</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Data 12 bulan terakhir</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{rentangBulanLabel}</p>
               </div>
             </div>
             <div className="text-right">
@@ -366,6 +406,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
                   tickLine={{ stroke: "#e5e7eb" }}
                 />
                 <YAxis
+                  allowDecimals={false}
                   tick={{ fontSize: 12, fill: "#6b7280" }}
                   axisLine={{ stroke: "#e5e7eb" }}
                   tickLine={{ stroke: "#e5e7eb" }}

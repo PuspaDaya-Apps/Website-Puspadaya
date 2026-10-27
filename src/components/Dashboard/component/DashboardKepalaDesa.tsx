@@ -4,11 +4,8 @@ import { PosyanduItem, DashboardSummary as DashboardSummaryType } from "@/types/
 import {
   posyanduListData,
   dashboardSummaryData,
-  monthlyTrendData,
   posyanduPerformanceData,
   kaderWorkloadData,
-  statusGiziTrendData,
-  ibuHamilBeresikoTrendData,
 } from "@/data/dummy-dashboard-kepala-desa";
 import { useSeniorMode } from "@/contexts/SeniorModeContext";
 
@@ -178,9 +175,6 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 3: PERFORMANCE & TRENDS */}
       <PerformanceSection
-        trendData={monthlyTrendData}
-        statusGiziTrend={statusGiziTrendData}
-        ibuHamilBeresikoTrend={ibuHamilBeresikoTrendData}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
