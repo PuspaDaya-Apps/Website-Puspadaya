@@ -1,27 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { KaderProfileData, KaderProfileResponse } from "@/types/data-25/statistikbebankerja";
-import { StatistikJenisPekerjaan } from "@/app/api/dashboatrd-new/statistikjenispekerjaan";
+import React from "react";
+import { useKaderProfil } from "@/hooks/dashboard";
 
 
 const KaderCard: React.FC = () => {
-    const [kader, setKader] = useState<KaderProfileData | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-
-    useEffect(() => {
-        const fetchKader = async () => {
-            setLoading(true);
-            const response = await StatistikJenisPekerjaan(); // useCache is true by default
-            if (response.successCode === 200 && response.data) {
-                setKader(response.data);
-            } else {
-                setKader(null);
-            }
-            setLoading(false);
-        };
-
-        fetchKader();
-    }, []);
+    const { data, isPending: loading } = useKaderProfil();
+    const kader = data ?? null;
 
     if (loading) {
         return (

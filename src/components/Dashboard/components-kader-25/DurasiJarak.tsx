@@ -1,7 +1,7 @@
 // /components/DurasiJarak/DurasiJarak.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
     ResponsiveContainer,
     BarChart,
@@ -13,42 +13,13 @@ import {
     Cell,
     LabelList,
 } from "recharts";
-import { StatistikJarakTempuh } from "@/app/api/dashboatrd-new/statistikjaraktempuh";
-import { BebanKerjaData } from "@/types/data-25/statistikbebankerja";
+import { useKaderJarakTempuh } from "@/hooks/dashboard";
 
 
 const DurasiJarak: React.FC = () => {
-    const [data, setData] = useState<BebanKerjaData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [errorMessage, setErrorMessage] = useState("");
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await StatistikJarakTempuh();
-                if (response.successCode === 200 && response.data) {
-                    setData(response.data);
-                } else {
-                    // Jika API gagal, tetapkan data default daripada menampilkan error
-                    setData({
-                        durasi_kerja_posyandu: 0,
-                        durasi_kunjungan_rumah: 0,
-                        jarak_total_kunjungan_rumah: 0
-                    });
-                }
-            } catch (error) {
-                // Tangani error tanpa menampilkan di console
-                setData({
-                    durasi_kerja_posyandu: 0,
-                    durasi_kunjungan_rumah: 0,
-                    jarak_total_kunjungan_rumah: 0
-                });
-            }
-            setLoading(false);
-        };
-
-        fetchData();
-    }, []);
+    // Saat API gagal data tetap undefined dan pembacaan di bawah jatuh ke 0 --
+    // perilakunya sama seperti data default sebelumnya.
+    const { data, isPending: loading } = useKaderJarakTempuh();
 
     if (loading) {
         return (

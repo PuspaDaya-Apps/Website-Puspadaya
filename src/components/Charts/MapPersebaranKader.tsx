@@ -4,7 +4,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Dropdown } from "primereact/dropdown";
 import { DesaKader, PersebaranKaderResponse } from "@/types/dashborad";
-import { mapPersebaranKader } from "@/app/api/statistik-maps/mapPersebaranKader";
+import { useMapPersebaranKader } from "@/hooks/dashboard";
 
 interface Wilayah {
   name: string;
@@ -20,39 +20,15 @@ const MapPersebaranKader: React.FC = () => {
     { name: "Maluku Tengah", code: "MT" },
   ];
 
-  const [dataMaps, setDataMaps] = useState<DesaKader[] | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-useEffect(() => {
-    const fetchStuntingData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await mapPersebaranKader();
-        // console.log("API Response:", result);
-        
-        if (result.data) {
-          const response = result.data as PersebaranKaderResponse;
-          if (response.data?.data && Array.isArray(response.data.data)) {
-            setDataMaps(response.data.data);
-            // setMessage(response.message);
-          } else {
-            setError("Invalid data structure received from API");
-          }
-        } else {
-          setError(result.error || "Failed to fetch data");
-        }
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError("Error while fetching data");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStuntingData();
-  }, []);
+  const { data: kaderRows, isPending: loading, error: fetchError } = useMapPersebaranKader();
+  const dataMaps: DesaKader[] | null = kaderRows ?? null;
+  // Kegagalan memuat GeoJSON peta tetap punya state sendiri; kegagalan API
+  // sekarang datang dari query.
+  const [mapError, setMapError] = useState<string | null>(null);
+  const error: string | null = fetchError ? fetchError.message : mapError;
+  // `message` dari API memang tidak pernah ditampilkan (lihat riwayat kode),
+  // jadi nilainya dipertahankan kosong agar banner-nya tetap tidak muncul.
+  const message: string | null = null;
 
 
   const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
@@ -218,7 +194,7 @@ useEffect(() => {
           }
         } catch (error) {
           console.error("Error loading GeoJSON:", error);
-          setError("Gagal memuat data peta");
+          setMapError("Gagal memuat data peta");
         }
       };
 

@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { fetchDurasiKerjaPosyandu } from "@/app/api/dashboard-kepala-desa";
+import React, { useMemo } from "react";
+import { useDurasiKerjaPosyandu } from "@/hooks/dashboard";
 import { DurasiKerjaPosyanduData } from "@/types/kepala-desa";
 import {
   ResponsiveContainer,
@@ -25,7 +25,6 @@ interface DurasiJarakAgregatProps {
   bulan?: number;
   tahun?: number;
   bulanLabel?: string;
-  refreshSignal?: number;
 }
 
 const zeroMonths = [
@@ -47,55 +46,21 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
   bulan,
   tahun,
   bulanLabel,
-  refreshSignal,
 }) => {
   const hasPeriodFilter = bulan != null && tahun != null;
-  const [apiData, setApiData] = useState<DurasiKerjaPosyanduData | null>(null);
-  const [isLoading, setIsLoading] = useState(hasPeriodFilter);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!hasPeriodFilter) {
-      setApiData(null);
-      setIsLoading(false);
-      setErrorMessage(null);
-      return;
-    }
-
-    let isMounted = true;
-
-    const loadData = async () => {
-      const hasExistingData = apiData !== null;
-
-      if (!hasExistingData) {
-        setIsLoading(true);
-        setErrorMessage(null);
-      }
-
-      const result = await fetchDurasiKerjaPosyandu({ bulan, tahun });
-
-      if (!isMounted) {
-        return;
-      }
-
-      if (result.successCode === 200 && result.data) {
-        setApiData(result.data);
-        setErrorMessage(null);
-      } else if (!hasExistingData) {
-        setErrorMessage("Gagal memuat durasi kerja posyandu");
-      }
-
-      if (!hasExistingData) {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [bulan, tahun, hasPeriodFilter, refreshSignal]);
+  // bulan/tahun opsional di props; nilai 0 hanya pengisi saat query dimatikan.
+  const {
+    data: durasiKerja,
+    isPending,
+    isError,
+  } = useDurasiKerjaPosyandu(
+    { bulan: bulan ?? 0, tahun: tahun ?? 0 },
+    { enabled: hasPeriodFilter }
+  );
+  const apiData: DurasiKerjaPosyanduData | null = hasPeriodFilter ? durasiKerja ?? null : null;
+  // Tanpa filter periode query tidak pernah jalan, jadi jangan tampilkan loading.
+  const isLoading = hasPeriodFilter && isPending;
+  const errorMessage = isError ? "Gagal memuat durasi kerja posyandu" : null;
 
   const displayRingkasan = {
     total_durasi_kerja_posyandu: apiData?.ringkasan?.kerja_posyandu_jam ?? 0,

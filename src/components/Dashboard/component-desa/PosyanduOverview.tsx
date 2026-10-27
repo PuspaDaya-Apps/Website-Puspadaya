@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { fetchTrenDataPosyandu } from "@/app/api/dashboard-kepala-desa";
+import { useTrenDataPosyandu } from "@/hooks/dashboard";
 import { PosyanduItem } from "@/types/dashboard-kepala-desa";
 import { TrenDataPosyanduItem } from "@/types/kepala-desa";
 import { createPosyanduDetailToken } from "@/utils/posyanduDetailToken";
@@ -14,7 +14,6 @@ interface PosyanduOverviewProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
-  refreshSignal?: number;
 }
 
 const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
@@ -24,53 +23,18 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
   bulan,
   tahun,
   bulanLabel,
-  refreshSignal,
 }) => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
-  const [trenData, setTrenData] = useState<TrenDataPosyanduItem[] | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const itemsPerPage = 12;
   const normalizedSearchTerm = searchTerm.trim().toLowerCase();
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadTrenData = async () => {
-      const hasExistingData = trenData !== null;
-
-      if (!hasExistingData) {
-        setIsLoading(true);
-        setErrorMessage(null);
-      }
-
-      const result = await fetchTrenDataPosyandu({ bulan, tahun });
-
-      if (!isMounted) {
-        return;
-      }
-
-      if (result.successCode === 200 && result.data) {
-        setTrenData(result.data.posyandu ?? []);
-        setErrorMessage(null);
-      } else if (!hasExistingData) {
-        setErrorMessage("Gagal memuat tren data posyandu");
-      }
-
-      if (!hasExistingData) {
-        setIsLoading(false);
-      }
-    };
-
-    loadTrenData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [bulan, tahun, refreshSignal]);
+  const { data: trenPosyandu, isPending, isError } = useTrenDataPosyandu({ bulan, tahun });
+  const trenData: TrenDataPosyanduItem[] | null = trenPosyandu?.posyandu ?? null;
+  const isLoading = isPending;
+  const errorMessage = isError ? "Gagal memuat tren data posyandu" : null;
 
   const mergedPosyanduList = useMemo(() => {
     return (

@@ -4,7 +4,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Dropdown } from "primereact/dropdown";
 import { DesaData, MapPersebaranResponse } from "@/types/dashborad";
-import { mapStunting } from "@/app/api/statistik-maps/mapStunting";
+import { useMapStunting } from "@/hooks/dashboard";
 
 interface Wilayah {
   name: string;
@@ -20,25 +20,8 @@ const PetaPersebaranAnakStunting: React.FC = () => {
     { name: "Maluku Tengah", code: "MT" },
   ];
 
-  const [dataMap, setDataMap] = useState<DesaData[] | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const fetchStuntingData = async () => {
-      setLoading(true);
-      const result = await mapStunting();
-      if (result.data) {
-        const response = result.data as MapPersebaranResponse;
-        setDataMap(response.data);
-        setMessage(response.message);
-      } else {
-        console.warn("Gagal mengambil data, kode:", result.successCode);
-      }
-      setLoading(false);
-    };
-    fetchStuntingData();
-  }, []);
+  const { data: stuntingResponse } = useMapStunting();
+  const dataMap: DesaData[] | null = stuntingResponse?.data ?? null;
 
   const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
   const role: string = sessionStorage.getItem("user_role") ?? "";

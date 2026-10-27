@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { fetchLogAktivitasKader } from "@/app/api/dashboard-kepala-desa";
+import React, { useMemo } from "react";
+import { useLogAktivitasKader } from "@/hooks/dashboard";
 import { RecentActivity as RecentActivityType } from "@/types/dashboard-kepala-desa";
 import { LogAktivitasKaderData } from "@/types/kepala-desa";
 
@@ -8,53 +8,16 @@ interface RecentActivityTableProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
-  refreshSignal?: number;
 }
 
 const RecentActivityTable: React.FC<RecentActivityTableProps> = ({
   bulan,
   tahun,
-  refreshSignal,
 }) => {
-  const [apiData, setApiData] = useState<LogAktivitasKaderData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadData = async () => {
-      const hasExistingData = apiData !== null;
-
-      if (!hasExistingData) {
-        setIsLoading(true);
-        setErrorMessage(null);
-      }
-
-      const result = await fetchLogAktivitasKader({ bulan, tahun });
-
-      if (!isMounted) {
-        return;
-      }
-
-      if (result.successCode === 200 && result.data) {
-        setApiData(result.data);
-        setErrorMessage(null);
-      } else if (!hasExistingData) {
-        setErrorMessage("Gagal memuat data aktivitas terbaru");
-      }
-
-      if (!hasExistingData) {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [bulan, tahun, refreshSignal]);
+  const { data: logAktivitas, isPending, isError } = useLogAktivitasKader({ bulan, tahun });
+  const apiData: LogAktivitasKaderData | null = logAktivitas ?? null;
+  const isLoading = isPending;
+  const errorMessage = isError ? "Gagal memuat data aktivitas terbaru" : null;
 
   const activities = useMemo<RecentActivityType[]>(() => {
     const apiActivities = apiData?.aktivitas ?? [];

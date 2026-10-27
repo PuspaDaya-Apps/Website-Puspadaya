@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { fetchStatistikDataDesa } from "@/app/api/dashboard-kepala-desa";
+import React, { useMemo } from "react";
+import { useStatistikDataDesa } from "@/hooks/dashboard";
 import {
   MonthlyTrendData,
   StatusGiziTrendData,
@@ -25,7 +25,6 @@ interface PerformanceSectionProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
-  refreshSignal?: number;
 }
 
 type CombinedTrendPoint = {
@@ -51,47 +50,11 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
   bulan,
   tahun,
   bulanLabel,
-  refreshSignal,
 }) => {
-  const [apiData, setApiData] = useState<StatistikDataDesaData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadData = async () => {
-      const hasExistingData = apiData !== null;
-
-      if (!hasExistingData) {
-        setIsLoading(true);
-        setErrorMessage(null);
-      }
-
-      const result = await fetchStatistikDataDesa({ bulan, tahun });
-
-      if (!isMounted) {
-        return;
-      }
-
-      if (result.successCode === 200 && result.data) {
-        setApiData(result.data);
-        setErrorMessage(null);
-      } else if (!hasExistingData) {
-        setErrorMessage("Gagal memuat data tren performa");
-      }
-
-      if (!hasExistingData) {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [bulan, tahun, refreshSignal]);
+  const { data: statistikDataDesa, isPending, isError } = useStatistikDataDesa({ bulan, tahun });
+  const apiData: StatistikDataDesaData | null = statistikDataDesa ?? null;
+  const isLoading = isPending;
+  const errorMessage = isError ? "Gagal memuat data tren performa" : null;
 
   const combinedTrendData = useMemo<CombinedTrendPoint[]>(() => {
     const apiBalita = apiData?.tren?.kehadiran_balita?.data ?? [];

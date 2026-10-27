@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { loginUser } from "@/app/api/login/loginApi";
+import { prefetchDashboardData } from "@/lib/react-query/prefetchDashboard";
 
 export default function SigninWithPassword() {
   const [showPassword, setShowPassword] = useState(false);
@@ -24,6 +25,11 @@ export default function SigninWithPassword() {
       // `token` lewat document.cookie (sinkron), jadi cookie sudah ada sebelum
       // navigasi di bawah -- middleware pasti melihatnya di request pertama.
       await loginUser(username, password);
+
+      // Data dashboard diambil lebih awal lalu disimpan ke cache React Query,
+      // jadi dashboard terbuka tanpa menunggu request lagi. Ada batas waktu di
+      // dalamnya supaya login tidak ikut tertahan kalau API lambat.
+      await prefetchDashboardData(sessionStorage.getItem('user_role') ?? '');
 
       // replace(): halaman login tidak perlu tertinggal di history, supaya
       // tombol Back tidak mengembalikan user ke form setelah berhasil login.

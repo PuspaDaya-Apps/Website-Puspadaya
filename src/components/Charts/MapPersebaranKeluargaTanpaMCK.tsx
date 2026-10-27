@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { Dropdown } from "primereact/dropdown";
 import { Desa, PersebaranAnakResponse, PersebaranMCK } from "@/types/dashborad";
 import { mapPersebaranAnak } from "@/app/api/statistik-maps/mapPersebaranAnak";
-import { mapPersebaranMCK } from "@/app/api/statistik-maps/mapPersebaranMCK";
+import { useMapPersebaranMck } from "@/hooks/dashboard";
 
 interface Wilayah {
   name: string;
@@ -27,31 +27,11 @@ const MapPersebaranKeluargaTanpaMCK: React.FC = () => {
     { name: "Maluku Tengah", code: "MT" },
   ];
 
-  const [dataMap, setDataMap] = useState<Desa[] | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { data: persebaranMck } = useMapPersebaranMck();
+  const dataMap: Desa[] | null = persebaranMck?.data ?? null;
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
   const [geoJSONLayer, setGeoJSONLayer] = useState<L.GeoJSON | null>(null);
-
-   useEffect(() => {
-    const fetchStuntingData = async () => {
-      setLoading(true);
-      const result = await mapPersebaranMCK();
-
-      if (result.data) {
-        const response = result.data as PersebaranMCK;
-        setDataMap(response.data);
-        setMessage(response.message);
-      } else {
-        console.warn("Gagal mengambil data, kode:", result.successCode);
-      }
-
-      setLoading(false);
-    };
-
-    fetchStuntingData();
-  }, []);
 
   const provinsi: string = sessionStorage.getItem("nama_provinsi") ?? "";
   const role: string = sessionStorage.getItem("user_role") ?? "";

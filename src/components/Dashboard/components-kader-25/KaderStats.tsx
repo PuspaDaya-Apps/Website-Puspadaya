@@ -1,36 +1,16 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { KaderStatisticsData } from "@/types/data-25/statistikbebankerja";
-import { Statistikbebankerja } from "@/app/api/dashboatrd-new/statistikbebankerja";
+import React from "react";
+import { useKaderBebanKerja } from "@/hooks/dashboard";
 
 const KaderStats: React.FC = () => {
-  const [data, setData] = useState<KaderStatisticsData | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Nilai null tetap aman: pembacaan di bawah sudah memakai `?? 0`.
+  const { data, isPending: loading } = useKaderBebanKerja();
 
   const getBebanKerjaLabel = (score: number) => {
     if (score >= 80) return "Beban kerja tinggi";
     if (score >= 60) return "Beban kerja sedang";
     return "Beban kerja rendah";
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await Statistikbebankerja(); // useCache is true by default
-      if (result.data) {
-        setData(result.data);
-      } else {
-        // Jika data null, tetapkan default 0
-        setData({
-          total_anak_diukur_bulan_ini: 0,
-          total_ibu_hamil_diukur_bulan_ini: 0,
-          skor_beban_kerja_bulan_ini: 0,
-        });
-      }
-      setLoading(false);
-    };
-
-    fetchData();
-  }, []);
 
   if (loading) return <p className="text-gray-500">Memuat data...</p>;
 

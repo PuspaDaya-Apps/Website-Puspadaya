@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { fetchStatistikSkdn } from "@/app/api/dashboard-kepala-desa";
+import React, { useMemo } from "react";
+import { useStatistikSkdn } from "@/hooks/dashboard";
 import { StatistikSkdnData } from "@/types/kepala-desa";
 import {
   ResponsiveContainer,
@@ -29,54 +29,17 @@ interface SKDNBarChartProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
-  refreshSignal?: number;
 }
 
 const SKDNBarChart: React.FC<SKDNBarChartProps> = ({
   bulan,
   tahun,
   bulanLabel,
-  refreshSignal,
 }) => {
-  const [apiData, setApiData] = useState<StatistikSkdnData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadData = async () => {
-      const hasExistingData = apiData !== null;
-
-      if (!hasExistingData) {
-        setIsLoading(true);
-        setErrorMessage(null);
-      }
-
-      const result = await fetchStatistikSkdn({ bulan, tahun });
-
-      if (!isMounted) {
-        return;
-      }
-
-      if (result.successCode === 200 && result.data) {
-        setApiData(result.data);
-        setErrorMessage(null);
-      } else if (!hasExistingData) {
-        setErrorMessage("Gagal memuat statistik SKDN");
-      }
-
-      if (!hasExistingData) {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [bulan, tahun, refreshSignal]);
+  const { data: statistikSkdn, isPending, isError } = useStatistikSkdn({ bulan, tahun });
+  const apiData: StatistikSkdnData | null = statistikSkdn ?? null;
+  const isLoading = isPending;
+  const errorMessage = isError ? "Gagal memuat statistik SKDN" : null;
 
   const displayData = useMemo(() => {
     const jumlah = apiData?.skdn.jumlah;

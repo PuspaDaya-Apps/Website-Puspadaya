@@ -8,12 +8,10 @@ import "@/css/satoshi.css";
 import "@/css/style.css";
 import React, { useEffect, useState } from "react";
 import Loader from "@/components/common/Loader";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
 import { SeniorModeProvider } from "@/contexts/SeniorModeContext";
 import SessionTimeoutWarning from "@/components/SessionTimeoutWarning";
 import { initializeApp } from "@/app/api/utils/initializeApp";
-
-const queryClient = new QueryClient();
 
 export default function RootLayout({
   children,
@@ -36,7 +34,7 @@ export default function RootLayout({
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <ReactQueryProvider>
       <SeniorModeProvider>
         <html lang="en">
           <head>
@@ -61,6 +59,6 @@ export default function RootLayout({
           </body>
         </html>
       </SeniorModeProvider>
-    </QueryClientProvider>
+    </ReactQueryProvider>
   );
 }

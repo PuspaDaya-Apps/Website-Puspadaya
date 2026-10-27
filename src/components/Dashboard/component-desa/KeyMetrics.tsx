@@ -1,13 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { fetchInformasiDataDesa } from "@/app/api/dashboard-kepala-desa";
-import { InformasiDataDesaData } from "@/types/kepala-desa";
+import React from "react";
+import { useInformasiDataDesa } from "@/hooks/dashboard";
 
 interface KeyMetricsProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
-  refreshSignal?: number;
 }
 
 interface MetricCardProps {
@@ -22,47 +20,11 @@ interface MetricCardProps {
   };
 }
 
-const KeyMetrics: React.FC<KeyMetricsProps> = ({ bulan, tahun, bulanLabel, refreshSignal }) => {
-  const [data, setData] = useState<InformasiDataDesaData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadData = async () => {
-      const hasExistingData = data !== null;
-
-      if (!hasExistingData) {
-        setIsLoading(true);
-        setErrorMessage(null);
-      }
-
-      const result = await fetchInformasiDataDesa({ bulan, tahun });
-
-      if (!isMounted) {
-        return;
-      }
-
-      if (result.successCode === 200 && result.data) {
-        setData(result.data);
-        setErrorMessage(null);
-      } else if (!hasExistingData) {
-        setData(null);
-        setErrorMessage("Gagal memuat informasi data desa");
-      }
-
-      if (!hasExistingData) {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [bulan, tahun, refreshSignal]);
+const KeyMetrics: React.FC<KeyMetricsProps> = ({ bulan, tahun, bulanLabel }) => {
+  const { data: informasiDataDesa, isPending, isError } = useInformasiDataDesa({ bulan, tahun });
+  const data = informasiDataDesa ?? null;
+  const isLoading = isPending;
+  const errorMessage = isError ? "Gagal memuat informasi data desa" : null;
 
   const MetricCard: React.FC<MetricCardProps> = ({
     title,

@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { fetchAnakCakupanDilayani } from "@/app/api/dashboard-kepala-desa";
+import React, { useMemo } from "react";
+import { useAnakCakupanDilayani } from "@/hooks/dashboard";
 import { DashboardSummary as DashboardSummaryType } from "@/types/dashboard-kepala-desa";
 import { AnakCakupanDilayaniData } from "@/types/kepala-desa";
 
@@ -9,49 +9,13 @@ interface AdditionalMetricsProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
-  refreshSignal?: number;
 }
 
-const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ bulan, tahun, bulanLabel, refreshSignal }) => {
-  const [apiData, setApiData] = useState<AnakCakupanDilayaniData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadData = async () => {
-      const hasExistingData = apiData !== null;
-
-      if (!hasExistingData) {
-        setIsLoading(true);
-        setErrorMessage(null);
-      }
-
-      const result = await fetchAnakCakupanDilayani({ bulan, tahun });
-
-      if (!isMounted) {
-        return;
-      }
-
-      if (result.successCode === 200 && result.data) {
-        setApiData(result.data);
-        setErrorMessage(null);
-      } else if (!hasExistingData) {
-        setErrorMessage("Gagal memuat data cakupan layanan anak");
-      }
-
-      if (!hasExistingData) {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [bulan, tahun, refreshSignal]);
+const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ bulan, tahun, bulanLabel }) => {
+  const { data: anakCakupan, isPending, isError } = useAnakCakupanDilayani({ bulan, tahun });
+  const apiData: AnakCakupanDilayaniData | null = anakCakupan ?? null;
+  const isLoading = isPending;
+  const errorMessage = isError ? "Gagal memuat data cakupan layanan anak" : null;
 
   const displayData = useMemo(() => ({
     baduta_0_23_months: apiData?.anak_berdasarkan_usia.baduta ?? 0,

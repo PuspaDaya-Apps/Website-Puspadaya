@@ -1,81 +1,53 @@
-import React, { useState, useEffect } from "react";
-import { Databalita } from "@/app/api/dashboatrd-new/databalita";
+import React, { useState, useEffect, useMemo } from "react";
 import BalitaDropdown from "../components-rapor-25/BalitaDropdown";
 import IdentitasBalitaSection from "../components-rapor-25/IdentitasBalitaSection";
 import DataAyahSection from "../components-rapor-25/DataAyahSection";
 import PengukuranBalitaSection from "../components-rapor-25/PengukuranBalitaSection";
 import DataIbuSection from "../components-rapor-25/DataIbuSection";
 import PengukuranIbuHamilTable from "../components-rapor-25/PengukuranIbuHamilTable";
-import { Statistikraportbalita } from "@/app/api/dashboatrd-new/statistikraportbalita";
-import { RaporResponse } from "@/types/data-25/RaporResponse";
+import { useDaftarBalita, useRaporBalita } from "@/hooks/dashboard";
 
 
 
 const ChartRaporBaby: React.FC = () => {
-  const [balitaListAPI, setBalitaListAPI] = useState<any[]>([]);
-  const [filteredBalita, setFilteredBalita] = useState<any[]>([]);
   const [selectedBalita, setSelectedBalita] = useState<any | null>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
-  const [rapor, setRapor] = useState<RaporResponse | null>(null);
-  const [loading, setLoading] = useState(false);
+  // ✨ List balita dari cache React Query
+  const { data: daftarBalita } = useDaftarBalita();
 
+  const balitaListAPI = useMemo<any[]>(
+    () =>
+      (daftarBalita ?? []).map((item) => ({
+        id: item.id,
+        nama_anak: item.nama_anak,
+        tanggal_lahir: item.tanggal_lahir,
+        jenis_kelamin: item.jenis_kelamin,
+      })),
+    [daftarBalita]
+  );
 
-
-  // ✨ Fetch list balita
+  // ✨ Pilih balita pertama begitu daftarnya tersedia
   useEffect(() => {
-    const fetchData = async () => {
-      const { data, successCode } = await Databalita();
+    if (!selectedBalita && balitaListAPI.length > 0) {
+      setSelectedBalita(balitaListAPI[0]);
+    }
+  }, [balitaListAPI, selectedBalita]);
 
-      if (successCode === 200 && data) {
-        const mapped = data.map((item) => ({
-          id: item.id,
-          nama_anak: item.nama_anak,
-          tanggal_lahir: item.tanggal_lahir,
-          jenis_kelamin: item.jenis_kelamin,
-        }));
-
-
-        setBalitaListAPI(mapped);
-        setFilteredBalita(mapped);
-
-        if (mapped.length > 0) setSelectedBalita(mapped[0]);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // ✨ Ketika selectedBalita berubah → fetch rapor
-  useEffect(() => {
-    if (!selectedBalita?.id) return;
-
-    const loadRapor = async () => {
-      setLoading(true);
-      const result = await Statistikraportbalita(selectedBalita.id);
-
-      if (result.successCode === 200 && result.data) {
-        setRapor(result.data);
-      }
-
-      setLoading(false);
-    };
-
-    loadRapor();
-  }, [selectedBalita]);
+  // ✨ Rapor mengikuti balita yang dipilih; tiap balita punya cache sendiri
+  const { data: rapor = null, isFetching: loading } = useRaporBalita(selectedBalita?.id);
 
   // ✨ Filter search
-  useEffect(() => {
+  const filteredBalita = useMemo(() => {
     if (searchTerm === "") {
-      setFilteredBalita(balitaListAPI);
-    } else {
-      const filtered = balitaListAPI.filter((balita) =>
-        balita.nama_anak?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredBalita(filtered);
+      return balitaListAPI;
     }
+
+    return balitaListAPI.filter((balita) =>
+      balita.nama_anak?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   }, [searchTerm, balitaListAPI]);
 
 

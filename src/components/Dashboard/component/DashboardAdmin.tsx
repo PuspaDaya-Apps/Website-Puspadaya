@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { statistikDashboard } from "@/app/api/statistik/statistik";
+import { useStatistikDashboard } from "@/hooks/dashboard";
 import dynamic from "next/dynamic";
 import TrendSection from "../card-components/TrendSection";
 import NutritionStatusSection from "../card-components/NutritionStatusSection";
@@ -20,9 +20,9 @@ const MapPersebaranKader = dynamic(() => import("@/components/Charts/MapPersebar
 const MapPersebaranKeluargaTanpaMCK = dynamic(() => import("@/components/Charts/MapPersebaranKeluargaTanpaMCK"), { ssr: false });
 
 const DashboardAdmin = () => {
-  const [datadash, setData] = useState<any | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  // Data dashboard dibaca dari cache React Query: cukup satu kali fetch, lalu
+  // dipakai ulang saat komponen mount lagi atau user pindah halaman.
+  const { data: datadash = null } = useStatistikDashboard();
   const [items, setItems] = useState([]);
   const [hasMore, setHasMore] = useState(true);
 
@@ -45,26 +45,6 @@ const DashboardAdmin = () => {
     year: "numeric",
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      const result = await statistikDashboard();
-
-      // console.log("Fetched Data:", result);
-
-      if (result.successCode === 200 && result.data) {
-        setData(result.data);
-        setError(null);
-      } else {
-        setData(null);
-        setError("Error fetching data. Please try again.");
-      }
-
-      setLoading(false);
-    };
-
-    fetchData();
-  }, []);
 
 const fetchMoreData = () => {
   if (items.length >= 1000) { 

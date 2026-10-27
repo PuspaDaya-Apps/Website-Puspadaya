@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { fetchImunisasiKependudukan } from "@/app/api/dashboard-kepala-desa";
+import React, { useState, useMemo } from "react";
+import { useImunisasiKependudukan } from "@/hooks/dashboard";
 import { ImunisasiKependudukanData } from "@/types/kepala-desa";
 import { PosyanduItem, DashboardSummary } from "@/types/dashboard-kepala-desa";
 import RecentActivityTable from "./RecentActivityTable";
@@ -10,7 +10,6 @@ interface ExpandableDataSectionProps {
   bulan: number;
   tahun: number;
   bulanLabel?: string;
-  refreshSignal?: number;
 }
 
 interface SectionProps {
@@ -58,53 +57,12 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
   bulan,
   tahun,
   bulanLabel,
-  refreshSignal,
 }) => {
   const [activeTab, setActiveTab] = useState<"imunisasi" | "kependudukan">("imunisasi");
-  const [apiData, setApiData] = useState<ImunisasiKependudukanData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadData = async () => {
-      const hasExistingData = apiData !== null;
-
-      if (!hasExistingData) {
-        setIsLoading(true);
-        setErrorMessage(null);
-      }
-
-      const result = await fetchImunisasiKependudukan({ bulan, tahun });
-
-      if (!isMounted) {
-        return;
-      }
-
-      const hasImunisasiError = !(result.successCode === 200 && result.data);
-
-      if (!hasImunisasiError && result.data) {
-        setApiData(result.data);
-      }
-
-      if (hasImunisasiError && !hasExistingData) {
-        setErrorMessage("Gagal memuat data imunisasi dan kependudukan");
-      } else if (!hasImunisasiError) {
-        setErrorMessage(null);
-      }
-
-      if (!hasExistingData) {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [bulan, tahun, refreshSignal]);
+  const { data: imunisasiKependudukan, isPending, isError } = useImunisasiKependudukan({ bulan, tahun });
+  const apiData: ImunisasiKependudukanData | null = imunisasiKependudukan ?? null;
+  const isLoading = isPending;
+  const errorMessage = isError ? "Gagal memuat data imunisasi dan kependudukan" : null;
 
   const displayData = useMemo(
     () => ({
@@ -344,7 +302,7 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
           }
           defaultOpen={false}
         >
-          <RecentActivityTable bulan={bulan} tahun={tahun} bulanLabel={bulanLabel} refreshSignal={refreshSignal} />
+          <RecentActivityTable bulan={bulan} tahun={tahun} bulanLabel={bulanLabel} />
         </ExpandableSection>
       </div>
     </div>

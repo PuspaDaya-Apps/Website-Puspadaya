@@ -1,41 +1,22 @@
 "use client";
-import { currentUser } from "@/app/api/user/currentUser";
-import React, { useEffect, useState } from "react";
+import { useCurrentUser } from "@/hooks/dashboard";
+import React from "react";
 
 
 interface PageHeaderProps { }
 
 const PageHeader: React.FC<PageHeaderProps> = () => {
-  const [title, setTitle] = useState("Dashboard");
-  const [periode, setPeriode] = useState("");
-  const [posyanduNama, setPosyanduNama] = useState("");
-  const [posyanduAlamat, setPosyanduAlamat] = useState("");
+  const title = "Dashboard";
+  const { data } = useCurrentUser();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const now = new Date();
-        const bulan = now.toLocaleString("id-ID", { month: "long" });
-        const tahun = now.getFullYear();
-        setPeriode(`${bulan} ${tahun}`);
+  const now = new Date();
+  const periode = `${now.toLocaleString("id-ID", { month: "long" })} ${now.getFullYear()}`;
 
-        const res = await currentUser();
-        if (res.successCode === 200 && res.data) {
-          const user = res.data as any; // tipe bisa disesuaikan
-
-          const posyandu = user.posyandu?.nama_posyandu || "-";
-          setPosyanduNama(posyandu);
-
-          const alamat = `${user.dusun?.nama_dusun || "-"}, ${user.kecamatan?.nama_kecamatan || "-"}, ${user.kabupaten_kota?.nama_kabupaten_kota || "-"}`;
-          setPosyanduAlamat(alamat);
-        }
-      } catch (error) {
-        console.error("Gagal mengambil data header:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const user = data as any; // tipe bisa disesuaikan
+  const posyanduNama = user ? user.posyandu?.nama_posyandu || "-" : "";
+  const posyanduAlamat = user
+    ? `${user.dusun?.nama_dusun || "-"}, ${user.kecamatan?.nama_kecamatan || "-"}, ${user.kabupaten_kota?.nama_kabupaten_kota || "-"}`
+    : "";
 
 
   return (

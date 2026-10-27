@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
     ResponsiveContainer,
     BarChart,
@@ -11,40 +11,12 @@ import {
     Cell,
     LabelList,
 } from "recharts";
-import { MonthlyActivityData } from "@/types/data-25/statistikbebankerja";
-import { StatistikBulanan } from "@/app/api/dashboatrd-new/statistikbulanan";
+import { useKaderStatistikBulanan } from "@/hooks/dashboard";
 
 const KehadiranGrafik: React.FC = () => {
-    const [data, setData] = useState<MonthlyActivityData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [errorMessage, setErrorMessage] = useState("");
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await StatistikBulanan();
-                if (response.successCode === 200 && response.data) {
-                    setData(response.data);
-                } else {
-                    // Jika API gagal, tetapkan data default daripada menampilkan error
-                    setData({
-                        jumlah_kehadiran_balita: 0,
-                        jumlah_kehadiran_ibu_hamil: 0,
-                        jenis_pekerjaan: []
-                    });
-                }
-            } catch (error) {
-                // Tangani error tanpa menampilkan di console
-                setData({
-                    jumlah_kehadiran_balita: 0,
-                    jumlah_kehadiran_ibu_hamil: 0,
-                    jenis_pekerjaan: []
-                });
-            }
-            setLoading(false);
-        };
-        fetchData();
-    }, []);
+    // Saat API gagal data tetap undefined dan pembacaan di bawah jatuh ke 0 --
+    // perilakunya sama seperti data default sebelumnya.
+    const { data, isPending: loading } = useKaderStatistikBulanan();
 
     if (loading) {
         return (
