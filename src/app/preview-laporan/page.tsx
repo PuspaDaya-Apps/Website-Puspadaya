@@ -3,14 +3,6 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TokenManager } from "@/app/api/utils/TokenManager";
 import {
-  DashboardSummary,
-  CriticalChild,
-  PosyanduItem,
-  PosyanduPerformance,
-  MonthlyTrendData,
-  KaderWorkload,
-} from "@/types/dashboard-kepala-desa";
-import {
   useAllKaderDesa,
   useAnakCakupanDilayani,
   useDataKasusKritis,
