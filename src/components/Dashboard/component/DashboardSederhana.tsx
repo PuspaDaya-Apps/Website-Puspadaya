@@ -1,22 +1,84 @@
 "use client";
 import React from "react";
-import { DashboardSummary, PosyanduItem, KaderWorkload } from "@/types/dashboard-kepala-desa";
+import {
+  useAllKaderDesa,
+  useAnakCakupanDilayani,
+  useInformasiDataDesa,
+  useSkorBebanKerjaTim,
+  useStatistikSkdn,
+  useTrenDataPosyandu,
+} from "@/hooks/dashboard";
 import { useSeniorMode } from "@/contexts/SeniorModeContext";
 
 interface DashboardSederhanaProps {
-  summary: DashboardSummary;
-  posyanduList: PosyanduItem[];
-  highWorkloadKader: KaderWorkload[];
   onPrintReport: () => void;
 }
 
 const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
-  summary,
-  posyanduList,
-  highWorkloadKader,
   onPrintReport,
 }) => {
   const { isSeniorMode, fontSize, highContrast } = useSeniorMode();
+
+  // Mode Senior tidak menampilkan filter periode, jadi datanya selalu bulan
+  // berjalan.
+  const now = new Date();
+  const periodeParams = { bulan: now.getMonth() + 1, tahun: now.getFullYear() };
+
+  const informasiQuery = useInformasiDataDesa(periodeParams);
+  const cakupanQuery = useAnakCakupanDilayani(periodeParams);
+  const skdnQuery = useStatistikSkdn(periodeParams);
+  const trenPosyanduQuery = useTrenDataPosyandu(periodeParams);
+  const bebanKerjaQuery = useSkorBebanKerjaTim(periodeParams);
+
+  // Daftar kader dirakit per posyandu (belum ada endpoint tingkat desa).
+  // Sengaja TIDAK ikut gate loading utama supaya dashboard tidak menunggu
+  // sejumlah request sekaligus; bagian ini punya pesan loading sendiri.
+  const posyanduRefs = (trenPosyanduQuery.data?.posyandu ?? [])
+    .filter((item) => Boolean(item?.id))
+    .map((item) => ({ id: item.id as string, nama: item.nama }));
+  const kaderQuery = useAllKaderDesa(posyanduRefs, periodeParams);
+
+  const isLoading = [
+    informasiQuery,
+    cakupanQuery,
+    skdnQuery,
+    trenPosyanduQuery,
+    bebanKerjaQuery,
+  ].some((query) => query.isPending);
+
+  const informasi = informasiQuery.data ?? null;
+  const cakupan = cakupanQuery.data ?? null;
+  const skdn = skdnQuery.data?.skdn ?? null;
+  const daftarPosyandu = trenPosyanduQuery.data?.posyandu ?? [];
+  const bebanKerja = bebanKerjaQuery.data?.kader ?? null;
+
+  const totalPosyandu = informasi?.ringkasan?.total_posyandu ?? 0;
+  const totalBalita = informasi?.ringkasan?.total_balita ?? 0;
+  const badutaBerkunjung = cakupan?.anak_berdasarkan_usia?.baduta ?? 0;
+
+  const kasusStunting =
+    (informasi?.kasus_gizi?.stunting_pendek ?? 0) +
+    (informasi?.kasus_gizi?.stunting_sangat_pendek ?? 0);
+  const kasusGiziBuruk = informasi?.kasus_gizi?.wasting ?? 0;
+  const prevalensiStunting =
+    totalBalita > 0 ? Math.round((kasusStunting / totalBalita) * 1000) / 10 : 0;
+
+  const rataRataKehadiran =
+    daftarPosyandu.length > 0
+      ? Math.round(
+          daftarPosyandu.reduce((total, item) => total + (item?.kehadiran ?? 0), 0) /
+            daftarPosyandu.length,
+        )
+      : 0;
+
+  const kaderBebanTertinggi = [...kaderQuery.data]
+    .sort((a, b) => (b?.skor_kinerja ?? 0) - (a?.skor_kinerja ?? 0))
+    .slice(0, 3);
+
+  const jumlahKaderBebanTinggi =
+    bebanKerja?.distribusi_beban_kerja?.detail?.find(
+      (item) => (item?.kategori ?? "").toLowerCase() === "tinggi",
+    )?.jumlah ?? 0;
 
   // Font size classes based on setting
   const getFontSize = (size: "small" | "medium" | "large" | "xlarge") => {
@@ -52,6 +114,27 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
     return color;
   };
 
+  // Placeholder dibuat besar dan sederhana karena dipakai user senior.
+  if (isLoading) {
+    return (
+      <div className="space-y-6 p-4">
+        <div
+          className={`rounded-xl p-10 text-center shadow-md ${
+            highContrast ? "border-4 border-black bg-white" : "bg-white"
+          }`}
+        >
+          <div className="mx-auto mb-6 h-16 w-16 animate-spin rounded-full border-8 border-blue-200 border-t-blue-600" />
+          <p className={`${getFontSize("large")} font-bold text-black`}>
+            Sedang memuat data...
+          </p>
+          <p className={`${getFontSize("small")} mt-3 text-gray-700`}>
+            Mohon tunggu sebentar.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`space-y-6 p-4 ${isSeniorMode ? "bg-white" : ""}`}>
       {/* Header */}
@@ -76,10 +159,12 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
               Total Posyandu
             </p>
             <p className={`${getFontSize("xlarge")} font-bold text-blue-600 mt-2`}>
-              {summary.total_posyandu}
+              {totalPosyandu}
             </p>
+            {/* TODO: definisi "aktif" perlu disepakati -- tidak ada field
+                posyandu aktif di endpoint mana pun, jadi jangan menebak angka. */}
             <p className={`${getFontSize("small")} text-blue-700 mt-1`}>
-              {summary.posyandu_aktif} aktif
+              - aktif
             </p>
           </div>
 
@@ -89,10 +174,10 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
               Total Balita
             </p>
             <p className={`${getFontSize("xlarge")} font-bold text-green-600 mt-2`}>
-              {summary.total_balita}
+              {totalBalita}
             </p>
             <p className={`${getFontSize("small")} text-green-700 mt-1`}>
-              {summary.baduta_0_23_months} berkunjung
+              {badutaBerkunjung} berkunjung
             </p>
           </div>
 
@@ -102,7 +187,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
               Rata-rata Kehadiran
             </p>
             <p className={`${getFontSize("xlarge")} font-bold text-purple-600 mt-2`}>
-              {summary.rata_rata_kehadiran}%
+              {rataRataKehadiran}%
             </p>
             <p className={`${getFontSize("small")} text-purple-700 mt-1`}>
               dari total balita
@@ -115,10 +200,10 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
               Kasus Stunting
             </p>
             <p className={`${getFontSize("xlarge")} font-bold text-red-600 mt-2`}>
-              {summary.kasus_stunting}
+              {kasusStunting}
             </p>
             <p className={`${getFontSize("small")} text-red-700 mt-1`}>
-              {summary.stunting_prevalence.prevalensi_persentase}% dari balita
+              {prevalensiStunting}% dari balita
             </p>
           </div>
 
@@ -128,7 +213,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
               Gizi Buruk
             </p>
             <p className={`${getFontSize("xlarge")} font-bold text-orange-600 mt-2`}>
-              {summary.kasus_gizi_buruk}
+              {kasusGiziBuruk}
             </p>
             <p className={`${getFontSize("small")} text-orange-700 mt-1`}>
               perlu tindakan
@@ -138,38 +223,56 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
       </div>
 
       {/* KADER DENGAN BEBAN TINGGI */}
-      {highWorkloadKader.length > 0 && (
+      {jumlahKaderBebanTinggi > 0 && (
         <div className={`${highContrast ? "bg-white border-4 border-orange-600" : "bg-white"} rounded-xl p-6 shadow-md`}>
           <h2 className={`${getFontSize("large")} font-bold text-black mb-4`}>
-            {highWorkloadKader.length} Kader Dengan Beban Kerja Tinggi
+            {jumlahKaderBebanTinggi} Kader Dengan Beban Kerja Tinggi
           </h2>
-          <div className="space-y-3">
-            {highWorkloadKader.slice(0, 3).map((kader) => (
-              <div key={kader.id} className="rounded-lg bg-orange-50 p-4 border-2 border-orange-300">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className={`${getFontSize("medium")} font-bold text-black`}>
-                      {kader.nama_kader}
-                    </p>
-                    <p className={`${getFontSize("small")} text-gray-700`}>
-                      {kader.posyandu_nama}
-                    </p>
-                    <p className={`${getFontSize("small")} text-gray-700`}>
-                      {kader.total_balita_dibina} balita • {kader.total_ibu_hamil_dibina} ibu hamil
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`${getFontSize("large")} font-bold text-red-600`}>
-                      Skor: {kader.skor_beban_kerja}
-                    </p>
-                    <p className={`${getFontSize("small")} text-gray-600`}>
-                      {kader.durasi_kerja_posyandu + kader.durasi_kunjungan_rumah} jam/minggu
-                    </p>
+          {kaderQuery.isLoading ? (
+            <div className="rounded-lg bg-orange-50 p-4 border-2 border-orange-300">
+              <p className={`${getFontSize("medium")} text-black`}>
+                Memuat data kader...
+              </p>
+            </div>
+          ) : kaderBebanTertinggi.length === 0 ? (
+            <div className="rounded-lg bg-orange-50 p-4 border-2 border-orange-300">
+              <p className={`${getFontSize("medium")} text-black`}>
+                Belum ada data kader
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {kaderBebanTertinggi.map((kader, index) => (
+                <div
+                  key={kader?.id_kader ?? index}
+                  className="rounded-lg bg-orange-50 p-4 border-2 border-orange-300"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className={`${getFontSize("medium")} font-bold text-black`}>
+                        {kader?.nama ?? "-"}
+                      </p>
+                      <p className={`${getFontSize("small")} text-gray-700`}>
+                        {kader?.posyandu_nama ?? "-"}
+                      </p>
+                      <p className={`${getFontSize("small")} text-gray-700`}>
+                        {kader?.jumlah_balita_didampingi ?? 0} balita •{" "}
+                        {kader?.jumlah_ibu_hamil_didampingi ?? 0} ibu hamil
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className={`${getFontSize("large")} font-bold text-red-600`}>
+                        Skor: {kader?.skor_kinerja ?? 0}
+                      </p>
+                      <p className={`${getFontSize("small")} text-gray-600`}>
+                        {kader?.status_kinerja ?? "-"}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -179,26 +282,27 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
           Statistik Gizi Balita (SKDN)
         </h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {/* Urutan mengikuti standar SKDN nasional: S -> K -> D -> N */}
           <div className="rounded-lg bg-blue-50 p-4 text-center border-2 border-blue-300">
-            <p className={`${getFontSize("small")} text-blue-800`}>Balita Baru</p>
-            <p className={`${getFontSize("xlarge")} font-bold text-blue-600`}>{summary.skdn_data.N}</p>
-          </div>
-          <div className="rounded-lg bg-green-50 p-4 text-center border-2 border-green-300">
-            <p className={`${getFontSize("small")} text-green-800`}>Naik BB</p>
-            <p className={`${getFontSize("xlarge")} font-bold text-green-600`}>{summary.skdn_data.D}</p>
+            <p className={`${getFontSize("small")} text-blue-800`}>Sasaran Balita (S)</p>
+            <p className={`${getFontSize("xlarge")} font-bold text-blue-600`}>{skdn?.jumlah?.sasaran_balita ?? 0}</p>
           </div>
           <div className="rounded-lg bg-yellow-50 p-4 text-center border-2 border-yellow-300">
-            <p className={`${getFontSize("small")} text-yellow-800`}>Tidak Naik BB</p>
-            <p className={`${getFontSize("xlarge")} font-bold text-yellow-600`}>{summary.skdn_data.K}</p>
+            <p className={`${getFontSize("small")} text-yellow-800`}>Balita Berkunjung (K)</p>
+            <p className={`${getFontSize("xlarge")} font-bold text-yellow-600`}>{skdn?.jumlah?.kunjungan ?? 0}</p>
+          </div>
+          <div className="rounded-lg bg-green-50 p-4 text-center border-2 border-green-300">
+            <p className={`${getFontSize("small")} text-green-800`}>Balita Ditimbang (D)</p>
+            <p className={`${getFontSize("xlarge")} font-bold text-green-600`}>{skdn?.jumlah?.ditimbang ?? 0}</p>
           </div>
           <div className="rounded-lg bg-red-50 p-4 text-center border-2 border-red-300">
-            <p className={`${getFontSize("small")} text-red-800`}>Tidak Hadir</p>
-            <p className={`${getFontSize("xlarge")} font-bold text-red-600`}>{summary.skdn_data.S}</p>
+            <p className={`${getFontSize("small")} text-red-800`}>Balita Naik BB (N)</p>
+            <p className={`${getFontSize("xlarge")} font-bold text-red-600`}>{skdn?.jumlah?.naik_bb ?? 0}</p>
           </div>
         </div>
         <div className={`mt-4 rounded-lg p-4 ${highContrast ? "bg-green-50 border-2 border-green-600" : "bg-green-50"}`}>
           <p className={`${getFontSize("medium")} font-bold text-green-800`}>
-            ✅ Kenaikan Berat Badan Sesuai: {summary.skdn_data.persentase_kenaikan_bb}%
+            ✅ Kenaikan Berat Badan Sesuai: {skdn?.indikator?.kenaikan_bb_persen ?? 0}%
           </p>
         </div>
       </div>

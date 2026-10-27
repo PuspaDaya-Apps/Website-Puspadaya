@@ -30,6 +30,8 @@ export const queryKeys = {
     jarakTempuh: () => ['kader', 'jarak-tempuh'] as const,
     daftarBalita: () => ['kader', 'daftar-balita'] as const,
     raporBalita: (id: string) => ['kader', 'rapor-balita', id] as const,
+    perPosyandu: (idPosyandu: string, p: DashboardPeriod) =>
+      ['kader', 'per-posyandu', idPosyandu, period(p)] as const,
   },
 
   kinerja: {

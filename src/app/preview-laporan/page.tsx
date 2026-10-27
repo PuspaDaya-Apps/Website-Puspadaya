@@ -11,22 +11,20 @@ import {
   KaderWorkload,
 } from "@/types/dashboard-kepala-desa";
 import {
+  useAllKaderDesa,
   useAnakCakupanDilayani,
   useDataKasusKritis,
   useDurasiKerjaPosyandu,
   useImunisasiKependudukan,
   useInformasiDataDesa,
   useKinerjaRingkasan,
+  useSkorBebanKerjaTim,
   useStatistikDataDesa,
   useStatistikSkdn,
   useTrenDataPosyandu,
 } from "@/hooks/dashboard";
-// TODO: butuh endpoint baru -- dua blok masih memakai data dummy:
-// (1) kehadiran per kompetensi, (2) ringkasan beban kerja tim & tabel kader.
-import {
-  dashboardSummaryData,
-  kaderWorkloadData,
-} from "@/data/dummy-dashboard-kepala-desa";
+// Seluruh angka di laporan ini sudah dari API. Satu-satunya yang masih
+// menunggu backend: tren imunisasi bulanan (lihat TODO di dalam file).
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 const T = {
@@ -736,6 +734,16 @@ const PreviewLaporanPage: React.FC = () => {
   const cakupanQuery = useAnakCakupanDilayani(periodeParams, queryOptions);
   const kependudukanQuery = useImunisasiKependudukan(periodeParams, queryOptions);
   const kasusKritisQuery = useDataKasusKritis(periodeParams, queryOptions);
+  const bebanKerjaQuery = useSkorBebanKerjaTim(periodeParams, queryOptions);
+
+  // Daftar kader dirakit per posyandu; id-nya diambil dari hasil tren-data.
+  // Posyandu tanpa id dilewati karena endpoint detail butuh id.
+  const posyanduRefs = (trenPosyanduQuery.data?.posyandu ?? [])
+    .filter((item) => Boolean(item?.id))
+    .map((item) => ({ id: item.id as string, nama: item.nama }));
+  const kaderQuery = useAllKaderDesa(posyanduRefs, periodeParams, {
+    enabled: isAuthorized,
+  });
 
   const dataQueries = [
     informasiQuery,
@@ -747,9 +755,12 @@ const PreviewLaporanPage: React.FC = () => {
     cakupanQuery,
     kependudukanQuery,
     kasusKritisQuery,
+    bebanKerjaQuery,
   ];
-  const isDataLoading = dataQueries.some((query) => query.isPending);
-  const hasDataError = dataQueries.some((query) => query.isError);
+  const isDataLoading =
+    dataQueries.some((query) => query.isPending) || kaderQuery.isLoading;
+  const hasDataError =
+    dataQueries.some((query) => query.isError) || kaderQuery.isError;
 
   // Hook 1: Cek token dan setup client
   useEffect(() => {
@@ -1040,19 +1051,40 @@ const PreviewLaporanPage: React.FC = () => {
   const jumlahPrioritasSangatTinggi =
     kasusKritisApi?.ringkasan?.prioritas?.sangat_tinggi ?? 0;
 
-  // ── BLOK D & F — TODO: butuh endpoint baru ────────────────────────────────
-  // Belum ada API kader tingkat desa maupun kehadiran per kompetensi, jadi dua
-  // bagian ini masih memakai data dummy. Lihat laporan audit untuk detail
-  // endpoint yang diminta ke backend.
-  const kehadiranKomp = dashboardSummaryData.kehadiran_kompetensi;
-  const bebanKerjaTim = dashboardSummaryData.beban_kerja_tim;
+  // ── BLOK D — daftar kader (gabungan dari seluruh posyandu) ───────────────
+  const daftarKader = [...kaderQuery.data].sort(
+    (a, b) => (b?.skor_kinerja ?? 0) - (a?.skor_kinerja ?? 0),
+  );
+
+  // Status dari API berkapital ("Rendah"), jadi dinormalisasi dulu.
+  const warnaStatusKinerja = (status: string) => {
+    const key = (status ?? "").trim().toLowerCase();
+
+    if (key === "tinggi") return T.red;
+    if (key === "sedang") return T.amber;
+    return T.emerald;
+  };
+
+  // ── Ringkasan beban kerja tim ─────────────────────────────────────────────
+  const bebanKerjaApi = bebanKerjaQuery.data?.kader ?? null;
+
+  // Kategori dari API lowercase ('tinggi'), jadi dinormalisasi sebelum dicocokkan.
+  const jumlahPerKategori = (kategori: string) =>
+    bebanKerjaApi?.distribusi_beban_kerja?.detail?.find(
+      (item) => (item?.kategori ?? "").trim().toLowerCase() === kategori,
+    )?.jumlah ?? 0;
+
   const wlCat = {
-    tinggi: kaderWorkloadData.filter((k) => k.kategori_beban === "Tinggi")
-      .length,
-    sedang: kaderWorkloadData.filter((k) => k.kategori_beban === "Sedang")
-      .length,
-    rendah: kaderWorkloadData.filter((k) => k.kategori_beban === "Rendah")
-      .length,
+    tinggi: jumlahPerKategori("tinggi"),
+    sedang: jumlahPerKategori("sedang"),
+    rendah: jumlahPerKategori("rendah"),
+  };
+
+  const bebanKerjaTim = {
+    total_kader: bebanKerjaApi?.ringkasan?.total_kader ?? 0,
+    skor_beban_rata_rata: bebanKerjaApi?.ringkasan?.rata_rata_skor ?? 0,
+    skor_beban_tertinggi: bebanKerjaApi?.ringkasan?.skor_tertinggi ?? 0,
+    skor_beban_terendah: bebanKerjaApi?.ringkasan?.skor_terendah ?? 0,
   };
   // Kategori bisa datang sebagai "Sangat Baik" (tren-data) atau "sangat_baik"
   // (ringkasan kinerja), jadi dinormalisasi dulu sebelum dibandingkan.
@@ -2048,12 +2080,7 @@ const PreviewLaporanPage: React.FC = () => {
                         lineHeight: 1,
                       }}
                     >
-                      {Math.round(
-                        kaderWorkloadData.reduce(
-                          (s, k) => s + k.skor_beban_kerja,
-                          0,
-                        ) / kaderWorkloadData.length,
-                      )}
+                      {Math.round(bebanKerjaTim.skor_beban_rata_rata)}
                     </div>
                     <div style={{ fontSize: 8.5, color: T.textSub }}>
                       dari 100
@@ -2074,7 +2101,8 @@ const PreviewLaporanPage: React.FC = () => {
                     "Nama Kader",
                     "Posyandu",
                     "Balita",
-                    "Skor Beban",
+                    "Ibu Hamil",
+                    "Skor Kinerja",
                     "Status",
                   ].map((h) => (
                     <th
@@ -2099,16 +2127,23 @@ const PreviewLaporanPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {/* TODO: butuh endpoint baru -- daftar kader tingkat desa masih dummy */}
-                {[...kaderWorkloadData]
-                  .sort((a, b) => b.skor_beban_kerja - a.skor_beban_kerja)
-                  .map((k, i) => {
-                    const col =
-                      k.kategori_beban === "Tinggi"
-                        ? T.red
-                        : k.kategori_beban === "Sedang"
-                          ? T.amber
-                          : T.emerald;
+                {daftarKader.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      style={{
+                        padding: "14px 9px",
+                        textAlign: "center",
+                        fontSize: 10,
+                        color: T.textSub,
+                      }}
+                    >
+                      Belum ada data kader untuk periode ini.
+                    </td>
+                  </tr>
+                ) : (
+                  daftarKader.map((k, i) => {
+                    const col = warnaStatusKinerja(k?.status_kinerja ?? "");
                     return (
                       <tr key={i} style={{ borderBottom: `1px solid #F8FAFC` }}>
                         <td
@@ -2118,7 +2153,7 @@ const PreviewLaporanPage: React.FC = () => {
                             fontWeight: 600,
                           }}
                         >
-                          {k.nama_kader}
+                          {k?.nama ?? "-"}
                         </td>
                         <td
                           style={{
@@ -2127,7 +2162,7 @@ const PreviewLaporanPage: React.FC = () => {
                             color: T.textSub,
                           }}
                         >
-                          {k.posyandu_nama}
+                          {k?.posyandu_nama ?? "-"}
                         </td>
                         <td
                           style={{
@@ -2137,7 +2172,17 @@ const PreviewLaporanPage: React.FC = () => {
                             textAlign: "center",
                           }}
                         >
-                          {k.total_balita_dibina}
+                          {k?.jumlah_balita_didampingi ?? 0}
+                        </td>
+                        <td
+                          style={{
+                            padding: "5px 9px",
+                            fontSize: 10.5,
+                            fontWeight: 700,
+                            textAlign: "center",
+                          }}
+                        >
+                          {k?.jumlah_ibu_hamil_didampingi ?? 0}
                         </td>
                         <td style={{ padding: "5px 9px", textAlign: "center" }}>
                           <div
@@ -2160,7 +2205,7 @@ const PreviewLaporanPage: React.FC = () => {
                               <div
                                 style={{
                                   height: "100%",
-                                  width: `${k.skor_beban_kerja}%`,
+                                  width: `${k?.skor_kinerja ?? 0}%`,
                                   background: col,
                                   borderRadius: 2,
                                 }}
@@ -2173,16 +2218,17 @@ const PreviewLaporanPage: React.FC = () => {
                                 color: col,
                               }}
                             >
-                              {k.skor_beban_kerja}
+                              {k?.skor_kinerja ?? 0}
                             </span>
                           </div>
                         </td>
                         <td style={{ padding: "5px 9px", textAlign: "center" }}>
-                          <Tag label={k.kategori_beban} color={col} />
+                          <Tag label={k?.status_kinerja ?? "-"} color={col} />
                         </td>
                       </tr>
                     );
-                  })}
+                  })
+                )}
               </tbody>
             </table>
           </Card>
@@ -2323,183 +2369,11 @@ const PreviewLaporanPage: React.FC = () => {
         {/* ══ PAGE 3 — KEHADIRAN + DURASI + USIA ════════════════ */}
         <div className="a4-page">
           <PageHeader
-            title="Kehadiran Per Kompetensi, Durasi Kerja & Usia"
+            title="Durasi Kerja Kader & Sebaran Usia"
             page={3}
             total={TOTAL_PAGES}
             date={currentDate}
           />
-
-          <div
-            className="no-break"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 11,
-              marginBottom: 13,
-            }}
-          >
-            <Card>
-              <SectionHeader
-                title="Kehadiran Balita Per Kompetensi"
-                color="#3B82F6"
-                icon="👶"
-              />
-              {/* TODO: butuh endpoint baru -- kehadiran per kompetensi masih dummy */}
-              {kehadiranKomp.balita.detail.map((item: any, idx: number) => (
-                <div
-                  key={idx}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 9,
-                    marginBottom: 8,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 22,
-                      height: 22,
-                      borderRadius: 5,
-                      background: "#3B82F6",
-                      color: "#fff",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 9.5,
-                      fontWeight: 800,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {idx + 1}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: 2,
-                      }}
-                    >
-                      <span style={{ fontSize: 10.5, fontWeight: 600 }}>
-                        {item.kompetensi}
-                      </span>
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 800,
-                          color: "#3B82F6",
-                        }}
-                      >
-                        {item.jumlah}
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        height: 4,
-                        borderRadius: 2,
-                        background: "#DBEAFE",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <div
-                        style={{
-                          height: "100%",
-                          width: `${(item.jumlah / Math.max(...kehadiranKomp.balita.detail.map((d: any) => d.jumlah))) * 100}%`,
-                          background: "#3B82F6",
-                          borderRadius: 2,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </Card>
-            <Card>
-              <SectionHeader
-                title="Kehadiran Ibu Hamil Per Kompetensi"
-                color={T.pink}
-                icon="🤰"
-              />
-              {/* TODO: butuh endpoint baru -- kehadiran per kompetensi masih dummy */}
-              {kehadiranKomp.ibu_hamil.detail.map((item: any, idx: number) => (
-                <div
-                  key={idx}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: 9,
-                    marginBottom: 9,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 22,
-                      height: 22,
-                      borderRadius: 5,
-                      background: T.pink,
-                      color: "#fff",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 9.5,
-                      fontWeight: 800,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {idx + 1}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: 2,
-                      }}
-                    >
-                      <div>
-                        <span style={{ fontSize: 10.5, fontWeight: 600 }}>
-                          {item.kompetensi}
-                        </span>
-                        {item.aktivitas_kader && (
-                          <p
-                            style={{
-                              fontSize: 8,
-                              color: T.textSub,
-                              marginTop: 1,
-                            }}
-                          >
-                            {item.aktivitas_kader.slice(0, 2).join(", ")}
-                          </p>
-                        )}
-                      </div>
-                      <span
-                        style={{ fontSize: 12, fontWeight: 800, color: T.pink }}
-                      >
-                        {item.jumlah}
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        height: 4,
-                        borderRadius: 2,
-                        background: "#FCE7F3",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <div
-                        style={{
-                          height: "100%",
-                          width: `${(item.jumlah / Math.max(...kehadiranKomp.ibu_hamil.detail.map((d: any) => d.jumlah))) * 100}%`,
-                          background: T.pink,
-                          borderRadius: 2,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </Card>
-          </div>
 
           <div
             className="no-break"

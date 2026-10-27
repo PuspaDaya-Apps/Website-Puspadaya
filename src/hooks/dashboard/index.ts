@@ -19,6 +19,8 @@ export {
   useKaderStatistikBulanan,
   useRaporBalita,
 } from './useKaderQueries';
+export { useAllKaderDesa } from './useAllKaderDesa';
+export type { KaderDesaItem, PosyanduRef } from './useAllKaderDesa';
 export {
   useDataKasusKritis,
   useKinerjaPerhatianKhusus,

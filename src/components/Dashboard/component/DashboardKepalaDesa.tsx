@@ -1,11 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { PosyanduItem } from "@/types/dashboard-kepala-desa";
-import {
-  posyanduListData,
-  dashboardSummaryData,
-  kaderWorkloadData,
-} from "@/data/dummy-dashboard-kepala-desa";
 import { useSeniorMode } from "@/contexts/SeniorModeContext";
 
 // New hierarchical components
@@ -40,9 +35,6 @@ const DashboardKepalaDesa: React.FC = () => {
   const tahunSekarang = new Date().getFullYear();
   const daftarTahun = [tahunSekarang, tahunSekarang - 1, tahunSekarang - 2];
 
-  // Filter high workload kader
-  const highWorkloadKader = kaderWorkloadData.filter((k) => k.kategori_beban === "Tinggi");
-
   // Print report function - Open in new tab
   const handlePrintReport = () => {
     window.open("/preview-laporan", "_blank");
@@ -58,12 +50,7 @@ const DashboardKepalaDesa: React.FC = () => {
     return (
       <>
         <AccessibilityControls onPrint={handleShowPDFPreview} />
-        <DashboardSederhana
-          summary={dashboardSummaryData}
-          posyanduList={posyanduListData}
-          highWorkloadKader={highWorkloadKader}
-          onPrintReport={handlePrintReport}
-        />
+        <DashboardSederhana onPrintReport={handlePrintReport} />
       </>
     );
   }
