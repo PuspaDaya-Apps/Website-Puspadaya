@@ -7,7 +7,6 @@ import { LogAktivitasKaderData } from "@/types/kepala-desa";
 interface RecentActivityTableProps {
   bulan: number;
   tahun: number;
-  bulanLabel?: string;
 }
 
 const RecentActivityTable: React.FC<RecentActivityTableProps> = ({

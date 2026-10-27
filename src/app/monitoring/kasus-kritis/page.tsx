@@ -774,7 +774,7 @@ const KasusKritisPage: React.FC = () => {
             <div className="mb-6 flex items-start justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-dark dark:text-white">
-                  {detailLoading ? "Memuat..." : (selectedDetailData?.anak.nama || "Detail Anak")}
+                  {detailLoading ? "Memuat..." : (selectedDetailData?.anak?.nama || "Detail Anak")}
                 </h2>
                 {selectedDetailData && (
                   <p className="text-gray-600 dark:text-gray-400">ID: {selectedDetailData.anak.id_anak || "-"}</p>

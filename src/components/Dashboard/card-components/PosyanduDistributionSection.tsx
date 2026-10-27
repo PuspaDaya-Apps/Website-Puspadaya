@@ -64,11 +64,11 @@ const PosyanduDistributionSection: React.FC<DashboardSectionProps> = ({
                 data={[
                     {
                     name: "Banyuwangi",
-                    value: datadash?.persentase_posyandu.banyuwangi_rate ?? 0,
+                    value: datadash?.persentase_posyandu?.banyuwangi_rate ?? 0,
                   },
                   {
                     name: "Maluku Tengah",
-                    value: datadash?.persentase_posyandu.maluku_rate ?? 0,
+                    value: datadash?.persentase_posyandu?.maluku_rate ?? 0,
                   },
                 ]}
                 label={["Banyuwangi", "Maluku Tengah"]}

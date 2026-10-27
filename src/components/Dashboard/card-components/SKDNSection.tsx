@@ -22,13 +22,13 @@ const SKDNSection: React.FC<DashboardSectionProps> = ({ isLoading, datadash, mon
           <CountingCard
             icon={svgIconTingkatpartisispasi}
             isMeningkat={true}
-            jumlah={datadash?.perhitungan_skdn.D_S.jumlah ?? "0"}
+            jumlah={datadash?.perhitungan_skdn?.D_S?.jumlah ?? "0"}
             peningkatan={
-              datadash?.perhitungan_skdn.D_S.rate == `null`
+              datadash?.perhitungan_skdn?.D_S?.rate == `null`
                 ? `${datadash.perhitungan_skdn.D_S.rate}%`
                 : "-"
             }
-            subtitle={datadash?.perhitungan_skdn.D_S.status ?? ""}
+            subtitle={datadash?.perhitungan_skdn?.D_S?.status ?? ""}
             title="Tingkat Partisipasi Posyandu"
             title_secound={`Aktif ${monthYear}`}
             color={"#EBF3FE"}
@@ -41,13 +41,13 @@ const SKDNSection: React.FC<DashboardSectionProps> = ({ isLoading, datadash, mon
           <CountingCard
             icon={svgIxonJangankauan}
             isMeningkat={true}
-            jumlah={datadash?.perhitungan_skdn.K_S.jumlah ?? "0"}
+            jumlah={datadash?.perhitungan_skdn?.K_S?.jumlah ?? "0"}
             peningkatan={
-              datadash?.perhitungan_skdn.K_S.rate == `null`
+              datadash?.perhitungan_skdn?.K_S?.rate == `null`
                 ? `${datadash.perhitungan_skdn.K_S.rate}%`
                 : "-"
             }
-            subtitle={datadash?.perhitungan_skdn.K_S.status ?? ""}
+            subtitle={datadash?.perhitungan_skdn?.K_S?.status ?? ""}
             title="Jangkauan Posyandu terhadap Balita KMS"
             title_secound={`Aktif ${monthYear}`}
             color={"#EBF3FE"}

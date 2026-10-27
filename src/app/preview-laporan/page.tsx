@@ -11,12 +11,21 @@ import {
   KaderWorkload,
 } from "@/types/dashboard-kepala-desa";
 import {
-  posyanduListData,
+  useAnakCakupanDilayani,
+  useDataKasusKritis,
+  useDurasiKerjaPosyandu,
+  useImunisasiKependudukan,
+  useInformasiDataDesa,
+  useKinerjaRingkasan,
+  useStatistikDataDesa,
+  useStatistikSkdn,
+  useTrenDataPosyandu,
+} from "@/hooks/dashboard";
+// TODO: butuh endpoint baru -- dua blok masih memakai data dummy:
+// (1) kehadiran per kompetensi, (2) ringkasan beban kerja tim & tabel kader.
+import {
   dashboardSummaryData,
-  monthlyTrendData,
-  posyanduPerformanceData,
   kaderWorkloadData,
-  criticalChildrenData,
 } from "@/data/dummy-dashboard-kepala-desa";
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────
@@ -41,6 +50,24 @@ const T = {
 };
 
 // ─── Tiny reusable components ─────────────────────────────────────────────────
+const NAMA_BULAN = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
+];
+
+const indexBulan = (nama: string): number =>
+  NAMA_BULAN.findIndex((item) => item.toLowerCase() === nama.trim().toLowerCase());
+
 const Tag: React.FC<{ label: string; color: string }> = ({ label, color }) => (
   <span
     style={{
@@ -213,11 +240,35 @@ const LineChart: React.FC<{
     PR = 10;
   const cW = W - PL - PR,
     cH = H - PB - PT;
-  const maxV = Math.max(
-    ...data.flatMap((d) => [d.balita, d.ibu_hamil, d.imunisasi]),
-  );
+
+  // Seri imunisasi baru digambar kalau ada nilainya; selama endpoint tren
+  // imunisasi bulanan belum tersedia, nilainya 0 dan serinya disembunyikan.
+  const series = [
+    { key: "balita" as const, color: "#3B82F6", label: "Balita" },
+    { key: "ibu_hamil" as const, color: "#EC4899", label: "Ibu Hamil" },
+    { key: "imunisasi" as const, color: "#10B981", label: "Imunisasi" },
+  ].filter((s) => s.key !== "imunisasi" || data.some((d) => d.imunisasi > 0));
+
+  if (data.length === 0) {
+    return (
+      <div
+        style={{
+          height: 120,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: T.textSub,
+          fontSize: 10.5,
+        }}
+      >
+        Data tren belum tersedia untuk periode ini.
+      </div>
+    );
+  }
+
+  const maxV = Math.max(0, ...data.flatMap((d) => series.map((s) => d[s.key])));
   const yMax = Math.ceil(maxV / 50) * 50 + 50;
-  const xStep = cW / (data.length - 1);
+  const xStep = data.length > 1 ? cW / (data.length - 1) : 0;
 
   const pts = (key: "balita" | "ibu_hamil" | "imunisasi") =>
     data.map(
@@ -235,11 +286,6 @@ const LineChart: React.FC<{
   const areaPath = (points: [number, number][]) =>
     `${linePath(points)} L${points[points.length - 1][0].toFixed(1)},${(PT + cH).toFixed(1)} L${points[0][0].toFixed(1)},${(PT + cH).toFixed(1)} Z`;
 
-  const series = [
-    { key: "balita" as const, color: "#3B82F6", label: "Balita" },
-    { key: "ibu_hamil" as const, color: "#EC4899", label: "Ibu Hamil" },
-    { key: "imunisasi" as const, color: "#10B981", label: "Imunisasi" },
-  ];
 
   return (
     <svg
@@ -675,6 +721,36 @@ const PreviewLaporanPage: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
 
+  // Halaman ini dibuka di tab baru tanpa parameter, jadi periodenya mengikuti
+  // bulan berjalan -- sama dengan nilai awal filter di dashboard.
+  const now = new Date();
+  const periodeParams = { bulan: now.getMonth() + 1, tahun: now.getFullYear() };
+  const queryOptions = { enabled: isAuthorized };
+
+  const informasiQuery = useInformasiDataDesa(periodeParams, queryOptions);
+  const kinerjaQuery = useKinerjaRingkasan(periodeParams, queryOptions);
+  const trenPosyanduQuery = useTrenDataPosyandu(periodeParams, queryOptions);
+  const statistikQuery = useStatistikDataDesa(periodeParams, queryOptions);
+  const skdnQuery = useStatistikSkdn(periodeParams, queryOptions);
+  const durasiQuery = useDurasiKerjaPosyandu(periodeParams, queryOptions);
+  const cakupanQuery = useAnakCakupanDilayani(periodeParams, queryOptions);
+  const kependudukanQuery = useImunisasiKependudukan(periodeParams, queryOptions);
+  const kasusKritisQuery = useDataKasusKritis(periodeParams, queryOptions);
+
+  const dataQueries = [
+    informasiQuery,
+    kinerjaQuery,
+    trenPosyanduQuery,
+    statistikQuery,
+    skdnQuery,
+    durasiQuery,
+    cakupanQuery,
+    kependudukanQuery,
+    kasusKritisQuery,
+  ];
+  const isDataLoading = dataQueries.some((query) => query.isPending);
+  const hasDataError = dataQueries.some((query) => query.isError);
+
   // Hook 1: Cek token dan setup client
   useEffect(() => {
     // Cek token menggunakan TokenManager (bukan localStorage langsung)
@@ -707,19 +783,80 @@ const PreviewLaporanPage: React.FC = () => {
     setIsAuthorized(true);
   }, [router]);
 
-  // Hook 2: Auto print setelah halaman siap
+  // Hook 2: Auto print setelah halaman siap. Menunggu seluruh data API selesai
+  // supaya laporan tidak tercetak dalam keadaan kosong, dan dibatalkan kalau
+  // ada permintaan yang gagal.
   useEffect(() => {
-    if (isClient && isAuthorized) {
+    if (isClient && isAuthorized && !isDataLoading && !hasDataError) {
       const t = setTimeout(() => {
         window.print();
       }, 1200);
       return () => clearTimeout(t);
     }
-  }, [isClient, isAuthorized]);
+  }, [isClient, isAuthorized, isDataLoading, hasDataError]);
 
   // Early return setelah semua hooks
   if (!isClient || !isAuthorized) {
     return null;
+  }
+
+  if (isDataLoading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          minHeight: "100vh",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          gap: 14,
+          fontFamily: "system-ui, sans-serif",
+        }}
+      >
+        <div
+          style={{
+            width: 42,
+            height: 42,
+            borderRadius: "50%",
+            border: `3px solid ${T.navy}22`,
+            borderTopColor: T.navy,
+            animation: "spin 0.8s linear infinite",
+          }}
+        />
+        <p style={{ color: T.navy, fontSize: 14, fontWeight: 600 }}>
+          Menyiapkan laporan...
+        </p>
+        <style>{"@keyframes spin{to{transform:rotate(360deg)}}"}</style>
+      </div>
+    );
+  }
+
+  if (hasDataError) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          minHeight: "100vh",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          gap: 10,
+          padding: 24,
+          textAlign: "center",
+          fontFamily: "system-ui, sans-serif",
+        }}
+      >
+        <span style={{ fontSize: 34 }}>⚠️</span>
+        <h1 style={{ color: T.navy, fontSize: 18, fontWeight: 800 }}>
+          Gagal memuat data laporan
+        </h1>
+        <p style={{ color: T.textSub, fontSize: 13, maxWidth: 420, lineHeight: 1.6 }}>
+          Sebagian data tidak berhasil diambil dari server, jadi laporan tidak
+          dicetak otomatis agar tidak ada angka yang kosong. Silakan tutup tab
+          ini dan coba cetak ulang dari dashboard.
+        </p>
+      </div>
+    );
   }
 
   const currentDate = new Date().toLocaleDateString("id-ID", {
@@ -729,24 +866,186 @@ const PreviewLaporanPage: React.FC = () => {
   });
   const currentYear = new Date().getFullYear();
 
-  const totalPosyandu = posyanduListData.length;
-  const totalKader = kaderWorkloadData.length;
-  const avgScore = Math.round(
-    posyanduPerformanceData.reduce((s, p) => s + p.skor_kinerja, 0) /
-      posyanduPerformanceData.length,
-  );
-  const totalBalita = monthlyTrendData[monthlyTrendData.length - 1].balita;
+  const informasi = informasiQuery.data ?? null;
+  const kinerja = kinerjaQuery.data ?? null;
+  const trenPosyandu = trenPosyanduQuery.data?.posyandu ?? [];
+  const statistik = statistikQuery.data ?? null;
+  const skdnApi = skdnQuery.data ?? null;
+  const durasiApi = durasiQuery.data ?? null;
+  const cakupan = cakupanQuery.data ?? null;
+  const kependudukanApi = kependudukanQuery.data ?? null;
+  const kasusKritisApi = kasusKritisQuery.data ?? null;
+
+  // ── BLOK A — ringkasan utama ──────────────────────────────────────────────
+  const totalPosyandu = informasi?.ringkasan?.total_posyandu ?? 0;
+  const totalKader = informasi?.ringkasan?.total_kader ?? 0;
+  const totalBalita = informasi?.ringkasan?.total_balita ?? 0;
+  const totalKasusKritis = kasusKritisApi?.ringkasan?.total_kasus ?? 0;
+
+  // ── BLOK B — kinerja posyandu ─────────────────────────────────────────────
+  const avgScore = Math.round(kinerja?.rata_rata_skor ?? 0);
 
   const perfCat = {
-    sangatBaik: posyanduPerformanceData.filter(
-      (p) => p.kategori === "Sangat Baik",
-    ).length,
-    baik: posyanduPerformanceData.filter((p) => p.kategori === "Baik").length,
-    cukup: posyanduPerformanceData.filter((p) => p.kategori === "Cukup").length,
-    kurang: posyanduPerformanceData.filter((p) => p.kategori === "Kurang")
-      .length,
+    sangatBaik: kinerja?.kategori_posyandu?.sangat_baik ?? 0,
+    baik: kinerja?.kategori_posyandu?.baik ?? 0,
+    cukup: kinerja?.kategori_posyandu?.cukup ?? 0,
+    kurang: kinerja?.kategori_posyandu?.kurang ?? 0,
   };
 
+  const posyanduPerformanceList = trenPosyandu.map((item) => ({
+    nama_posyandu: item.nama,
+    kategori: item.kategori ?? "-",
+    skor_kinerja: item.skor ?? 0,
+  }));
+
+  const top5 = [...posyanduPerformanceList]
+    .sort((a, b) => b.skor_kinerja - a.skor_kinerja)
+    .slice(0, 5);
+  const bottom5 = [...posyanduPerformanceList]
+    .sort((a, b) => a.skor_kinerja - b.skor_kinerja)
+    .slice(0, 5);
+
+  // ── BLOK C — tren bulanan ─────────────────────────────────────────────────
+  // API mengirim 12 bulan penuh; bulan yang belum terjadi dibuang supaya grafik
+  // tidak menarik garis ke nol sampai Desember.
+  const jumlahBulanTampil =
+    periodeParams.tahun === now.getFullYear() ? now.getMonth() + 1 : NAMA_BULAN.length;
+  const sampaiBulanBerjalan = <T extends { bulan: string }>(rows: T[]): T[] =>
+    rows.filter((row) => {
+      const index = indexBulan(row.bulan);
+      return index === -1 || index < jumlahBulanTampil;
+    });
+
+  const trenBalita = sampaiBulanBerjalan(statistik?.tren?.kehadiran_balita?.data ?? []);
+  const trenIbuHamil = statistik?.tren?.kehadiran_ibu_hamil?.data ?? [];
+  const trenIbuHamilMap = new Map(trenIbuHamil.map((item) => [item.bulan, item.jumlah]));
+
+  const chartData = trenBalita.map((item) => ({
+    label: item.bulan.slice(0, 3),
+    balita: item.jumlah ?? 0,
+    ibu_hamil: trenIbuHamilMap.get(item.bulan) ?? 0,
+    // TODO: butuh endpoint tren imunisasi bulanan. Selama 0, seri imunisasi
+    // tidak digambar oleh LineChart.
+    imunisasi: 0,
+  }));
+
+  const trenJudul =
+    chartData.length > 0
+      ? `Tren Kunjungan ${chartData.length} Bulan (${trenBalita[0].bulan} – ${
+          trenBalita[trenBalita.length - 1].bulan
+        } ${periodeParams.tahun})`
+      : "Tren Kunjungan Bulanan";
+
+  const bulanTerakhir = trenBalita[trenBalita.length - 1] ?? null;
+  const bulanSebelumnya = trenBalita[trenBalita.length - 2] ?? null;
+  const labelBulanTerakhir = bulanTerakhir ? bulanTerakhir.bulan.slice(0, 3) : "-";
+
+  // ── BLOK E — SKDN ─────────────────────────────────────────────────────────
+  const skdn = {
+    S: skdnApi?.skdn?.jumlah?.sasaran_balita ?? 0,
+    K: skdnApi?.skdn?.jumlah?.kunjungan ?? 0,
+    D: skdnApi?.skdn?.jumlah?.ditimbang ?? 0,
+    N: skdnApi?.skdn?.jumlah?.naik_bb ?? 0,
+    total: skdnApi?.skdn?.jumlah?.sasaran_balita ?? 0,
+    persentase_kenaikan_bb: skdnApi?.skdn?.indikator?.kenaikan_bb_persen ?? 0,
+  };
+
+  // ── BLOK G — durasi & jarak ───────────────────────────────────────────────
+  // API hanya mengirim total, jadi rata-rata per kader dihitung di sini.
+  const perKader = (value: number) =>
+    totalKader > 0 ? Math.round((value / totalKader) * 10) / 10 : 0;
+  const totalDurasiPosyandu = durasiApi?.ringkasan?.kerja_posyandu_jam ?? 0;
+  const totalDurasiKunjungan = durasiApi?.ringkasan?.kunjungan_rumah_jam ?? 0;
+  const totalJarak = durasiApi?.ringkasan?.jarak_tempuh_km ?? 0;
+  const durasiJarak = {
+    total_durasi_kerja_posyandu: totalDurasiPosyandu,
+    total_durasi_kunjungan_rumah: totalDurasiKunjungan,
+    total_jarak_kunjungan_rumah: totalJarak,
+    rata_rata_durasi_posyandu: perKader(totalDurasiPosyandu),
+    rata_rata_durasi_kunjungan: perKader(totalDurasiKunjungan),
+    rata_rata_jarak: perKader(totalJarak),
+  };
+
+  // ── BLOK I — kependudukan ─────────────────────────────────────────────────
+  const kependudukan = {
+    baduta_0_23_months: cakupan?.anak_berdasarkan_usia?.baduta ?? 0,
+    balita_24_59_months: cakupan?.anak_berdasarkan_usia?.balita ?? 0,
+    pra_sekolah_60_72_months: cakupan?.anak_berdasarkan_usia?.pra_sekolah ?? 0,
+    women_post_fertile: cakupan?.keluarga_berencana?.wanita_pasca_subur ?? 0,
+    pregnant_women_under_energized: cakupan?.kesehatan_ibu_bayi?.ibu_hamil_kek ?? 0,
+    high_risk_pregnant_women: cakupan?.kesehatan_ibu_bayi?.ibu_hamil_risiko_tinggi ?? 0,
+    breastfeeding_mothers: cakupan?.kesehatan_ibu_bayi?.ibu_menyusui ?? 0,
+    kb_acceptors: cakupan?.keluarga_berencana?.akseptor_kb ?? 0,
+    pregnant_women_with_insurance: cakupan?.keluarga_berencana?.ibu_hamil_asuransi ?? 0,
+    // Field opsional di response, jadi tetap perlu fallback.
+    children_under_5_with_insurance:
+      kependudukanApi?.kependudukan?.balita_asuransi?.balita_0_59_bulan_asuransi ?? 0,
+  };
+
+  // ── BLOK J — imunisasi ────────────────────────────────────────────────────
+  // API memakai nama `cakupan_persen`; dipetakan ke `cakupan_persentase` agar
+  // bagian render di bawah tidak perlu berubah.
+  const imunisasiDetail = cakupan?.imunisasi?.detail;
+  const imunisasi = {
+    bcg: imunisasiDetail?.bcg ?? 0,
+    dpt_1: imunisasiDetail?.dpt_1 ?? 0,
+    dpt_2: imunisasiDetail?.dpt_2 ?? 0,
+    dpt_3: imunisasiDetail?.dpt_3 ?? 0,
+    polio_1: imunisasiDetail?.polio_1 ?? 0,
+    polio_2: imunisasiDetail?.polio_2 ?? 0,
+    polio_3: imunisasiDetail?.polio_3 ?? 0,
+    polio_4: imunisasiDetail?.polio_4 ?? 0,
+    hepatitis: imunisasiDetail?.hepatitis ?? 0,
+    campak: imunisasiDetail?.campak ?? 0,
+    total_imunisasi: cakupan?.imunisasi?.total ?? 0,
+    cakupan_persentase: cakupan?.imunisasi?.cakupan_persen ?? 0,
+  };
+
+  // ── BLOK K — prevalensi gizi ──────────────────────────────────────────────
+  // API hanya mengirim jumlah kasus, persentasenya dihitung di sini.
+  const prevalensi = (jumlah: number) => ({
+    jumlah,
+    prevalensi_persentase:
+      totalBalita > 0 ? Math.round((jumlah / totalBalita) * 1000) / 10 : 0,
+    total_balita: totalBalita,
+  });
+  const stunting = prevalensi(
+    (informasi?.kasus_gizi?.stunting_pendek ?? 0) +
+      (informasi?.kasus_gizi?.stunting_sangat_pendek ?? 0),
+  );
+  const wasting = prevalensi(informasi?.kasus_gizi?.wasting ?? 0);
+  const underweight = prevalensi(informasi?.kasus_gizi?.underweight ?? 0);
+
+  // ── BLOK L — kasus kritis ─────────────────────────────────────────────────
+  // Response memakai satu array `status`, sedangkan tabel menampilkan status
+  // gizi dan stunting sebagai dua kolom terpisah -- jadi dipisah di sini.
+  const kasusKritisRows = (kasusKritisApi?.daftar_prioritas ?? []).map((item) => {
+    const status = item.status ?? [];
+    const adaStunting = status.some((label) => label.toLowerCase().includes("stunting"));
+    const statusGizi =
+      status.find((label) => !label.toLowerCase().includes("stunting")) ?? "-";
+
+    return {
+      nama_anak: item.anak?.nama ?? "-",
+      nama_ibu: item.anak?.ibu ?? "-",
+      posyandu_nama: item.lokasi?.posyandu ?? "-",
+      usia_bulan: item.anak?.usia_bulan ?? 0,
+      status_gizi: statusGizi,
+      status_stunting: adaStunting ? "Stunting" : "-",
+      prioritas: item.prioritas ?? "-",
+    };
+  });
+  const jumlahGiziBuruk = kasusKritisApi?.ringkasan?.wasting ?? 0;
+  const jumlahStuntingKritis = kasusKritisApi?.ringkasan?.stunting ?? 0;
+  const jumlahPrioritasSangatTinggi =
+    kasusKritisApi?.ringkasan?.prioritas?.sangat_tinggi ?? 0;
+
+  // ── BLOK D & F — TODO: butuh endpoint baru ────────────────────────────────
+  // Belum ada API kader tingkat desa maupun kehadiran per kompetensi, jadi dua
+  // bagian ini masih memakai data dummy. Lihat laporan audit untuk detail
+  // endpoint yang diminta ke backend.
+  const kehadiranKomp = dashboardSummaryData.kehadiran_kompetensi;
+  const bebanKerjaTim = dashboardSummaryData.beban_kerja_tim;
   const wlCat = {
     tinggi: kaderWorkloadData.filter((k) => k.kategori_beban === "Tinggi")
       .length,
@@ -755,37 +1054,16 @@ const PreviewLaporanPage: React.FC = () => {
     rendah: kaderWorkloadData.filter((k) => k.kategori_beban === "Rendah")
       .length,
   };
+  // Kategori bisa datang sebagai "Sangat Baik" (tren-data) atau "sangat_baik"
+  // (ringkasan kinerja), jadi dinormalisasi dulu sebelum dibandingkan.
+  const catColor = (k: string) => {
+    const key = k.trim().toLowerCase().replace(/[\s-]+/g, "_");
 
-  const top5 = [...posyanduPerformanceData]
-    .sort((a, b) => b.skor_kinerja - a.skor_kinerja)
-    .slice(0, 5);
-  const bottom5 = [...posyanduPerformanceData]
-    .sort((a, b) => a.skor_kinerja - b.skor_kinerja)
-    .slice(0, 5);
-
-  const skdn = dashboardSummaryData.skdn_data;
-  const kehadiranKomp = dashboardSummaryData.kehadiran_kompetensi;
-  const durasiJarak = dashboardSummaryData.durasi_jarak_agregat;
-  const bebanKerjaTim = dashboardSummaryData.beban_kerja_tim;
-  const imunisasi = dashboardSummaryData.infant_immunization_coverage;
-  const stunting = dashboardSummaryData.stunting_prevalence;
-  const wasting = dashboardSummaryData.wasting_prevalence;
-  const underweight = dashboardSummaryData.underweight_prevalence;
-
-  const chartData = monthlyTrendData.map((m) => ({
-    label: m.bulan.slice(0, 3),
-    balita: m.balita,
-    ibu_hamil: m.ibu_hamil,
-    imunisasi: m.imunisasi,
-  }));
-  const catColor = (k: string) =>
-    k === "Sangat Baik"
-      ? T.emerald
-      : k === "Baik"
-        ? T.accent
-        : k === "Cukup"
-          ? T.amber
-          : T.red;
+    if (key === "sangat_baik") return T.emerald;
+    if (key === "baik") return T.accent;
+    if (key === "cukup") return T.amber;
+    return T.red;
+  };
 
   const imuColors: Record<string, string> = {
     bcg: "#3B82F6",
@@ -1157,9 +1435,9 @@ const PreviewLaporanPage: React.FC = () => {
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 13, margin: "36px 0" }}>
       {[
         { icon: "🏥", v: totalPosyandu, u: "Posyandu" },
-        { icon: "👶", v: totalBalita, u: "Balita (Feb)" },
+        { icon: "👶", v: totalBalita, u: "Balita Terdaftar" },
         { icon: "👩‍⚕️", v: totalKader, u: "Kader Aktif" },
-        { icon: "⚠️", v: criticalChildrenData.length, u: "Kasus Kritis" },
+        { icon: "⚠️", v: totalKasusKritis, u: "Kasus Kritis" },
       ].map((k, i) => (
         <div key={i} style={{
           background: "rgba(255,255,255,0.20)",
@@ -1245,7 +1523,7 @@ const PreviewLaporanPage: React.FC = () => {
               {
                 label: "Balita Terdaftar",
                 value: totalBalita,
-                unit: "anak (Feb)",
+                unit: "anak terdaftar",
                 color: T.emerald,
                 bg: "#ECFDF5",
                 icon: "👶",
@@ -1260,7 +1538,7 @@ const PreviewLaporanPage: React.FC = () => {
               },
               {
                 label: "Kasus Kritis",
-                value: criticalChildrenData.length,
+                value: totalKasusKritis,
                 unit: "butuh intervensi",
                 color: T.red,
                 bg: "#FEF2F2",
@@ -1390,7 +1668,7 @@ const PreviewLaporanPage: React.FC = () => {
             </Card>
             <Card>
               <SectionHeader title="Skor Kinerja Per Posyandu" icon="📈" />
-              {posyanduPerformanceData.map((p, i) => {
+              {posyanduPerformanceList.map((p, i) => {
                 const col = catColor(p.kategori);
                 return (
                   <div key={i} style={{ marginBottom: 6 }}>
@@ -1454,7 +1732,7 @@ const PreviewLaporanPage: React.FC = () => {
 
           <Card noBreak>
             <SectionHeader
-              title="Tren Kunjungan 6 Bulan (Sep 2024 – Feb 2025)"
+              title={trenJudul}
               icon="📉"
             />
             <LineChart data={chartData} />
@@ -1468,26 +1746,35 @@ const PreviewLaporanPage: React.FC = () => {
             >
               {[
                 {
-                  l: "Balita (Feb)",
-                  v: monthlyTrendData[5].balita,
-                  p: monthlyTrendData[4].balita,
+                  l: `Balita (${labelBulanTerakhir})`,
+                  v: bulanTerakhir?.jumlah ?? 0,
+                  p: bulanSebelumnya?.jumlah ?? 0,
                   c: "#3B82F6",
+                  unavailable: false,
                 },
                 {
-                  l: "Ibu Hamil (Feb)",
-                  v: monthlyTrendData[5].ibu_hamil,
-                  p: monthlyTrendData[4].ibu_hamil,
+                  l: `Ibu Hamil (${labelBulanTerakhir})`,
+                  v: bulanTerakhir
+                    ? trenIbuHamilMap.get(bulanTerakhir.bulan) ?? 0
+                    : 0,
+                  p: bulanSebelumnya
+                    ? trenIbuHamilMap.get(bulanSebelumnya.bulan) ?? 0
+                    : 0,
                   c: "#EC4899",
+                  unavailable: false,
                 },
                 {
-                  l: "Imunisasi (Feb)",
-                  v: monthlyTrendData[5].imunisasi ?? 0,
-                  p: monthlyTrendData[4].imunisasi ?? 0,
+                  // TODO: butuh endpoint tren imunisasi bulanan.
+                  l: "Imunisasi (bulanan)",
+                  v: 0,
+                  p: 0,
                   c: "#10B981",
+                  unavailable: true,
                 },
               ].map((s, i) => {
                 const ch = s.v - s.p;
-                const pct = Math.round((ch / s.p) * 100);
+                // Bulan pembanding bisa 0 atau belum ada; hindari Infinity/NaN.
+                const pct = s.p > 0 ? Math.round((ch / s.p) * 100) : 0;
                 return (
                   <div
                     key={i}
@@ -1507,33 +1794,48 @@ const PreviewLaporanPage: React.FC = () => {
                     >
                       {s.l}
                     </p>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "baseline",
-                        gap: 5,
-                        marginTop: 2,
-                      }}
-                    >
-                      <span
-                        style={{ fontSize: 19, fontWeight: 800, color: s.c }}
-                      >
-                        {s.v}
-                      </span>
-                      <span
+                    {s.unavailable ? (
+                      <p
                         style={{
-                          fontSize: 9.5,
-                          color: ch >= 0 ? T.emerald : T.red,
-                          fontWeight: 700,
+                          fontSize: 10,
+                          color: T.textSub,
+                          fontWeight: 600,
+                          marginTop: 6,
                         }}
                       >
-                        {ch >= 0 ? "▲" : "▼"}
-                        {Math.abs(pct)}%
-                      </span>
-                    </div>
-                    <p style={{ fontSize: 8.5, color: T.textSub }}>
-                      vs bln lalu: {s.p}
-                    </p>
+                        Data belum tersedia
+                      </p>
+                    ) : (
+                      <>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "baseline",
+                            gap: 5,
+                            marginTop: 2,
+                          }}
+                        >
+                          <span
+                            style={{ fontSize: 19, fontWeight: 800, color: s.c }}
+                          >
+                            {s.v}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: 9.5,
+                              color: ch >= 0 ? T.emerald : T.red,
+                              fontWeight: 700,
+                            }}
+                          >
+                            {ch >= 0 ? "▲" : "▼"}
+                            {Math.abs(pct)}%
+                          </span>
+                        </div>
+                        <p style={{ fontSize: 8.5, color: T.textSub }}>
+                          vs bln lalu: {s.p}
+                        </p>
+                      </>
+                    )}
                   </div>
                 );
               })}
@@ -1797,6 +2099,7 @@ const PreviewLaporanPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
+                {/* TODO: butuh endpoint baru -- daftar kader tingkat desa masih dummy */}
                 {[...kaderWorkloadData]
                   .sort((a, b) => b.skor_beban_kerja - a.skor_beban_kerja)
                   .map((k, i) => {
@@ -2041,6 +2344,7 @@ const PreviewLaporanPage: React.FC = () => {
                 color="#3B82F6"
                 icon="👶"
               />
+              {/* TODO: butuh endpoint baru -- kehadiran per kompetensi masih dummy */}
               {kehadiranKomp.balita.detail.map((item: any, idx: number) => (
                 <div
                   key={idx}
@@ -2116,6 +2420,7 @@ const PreviewLaporanPage: React.FC = () => {
                 color={T.pink}
                 icon="🤰"
               />
+              {/* TODO: butuh endpoint baru -- kehadiran per kompetensi masih dummy */}
               {kehadiranKomp.ibu_hamil.detail.map((item: any, idx: number) => (
                 <div
                   key={idx}
@@ -2379,21 +2684,21 @@ const PreviewLaporanPage: React.FC = () => {
                 {
                   lbl: "Baduta (0–23 Bulan)",
                   sub: "Bayi bawah 2 tahun",
-                  val: dashboardSummaryData.baduta_0_23_months,
+                  val: kependudukan.baduta_0_23_months,
                   color: T.emerald,
                   bg: "#ECFDF5",
                 },
                 {
                   lbl: "Balita (24–59 Bulan)",
                   sub: "Balita 2-5 tahun",
-                  val: dashboardSummaryData.balita_24_59_months,
+                  val: kependudukan.balita_24_59_months,
                   color: T.purple,
                   bg: "#F5F3FF",
                 },
                 {
                   lbl: "Pra Sekolah (60–72 Bulan)",
                   sub: "Anak pra sekolah",
-                  val: dashboardSummaryData.pra_sekolah_60_72_months,
+                  val: kependudukan.pra_sekolah_60_72_months,
                   color: "#3B82F6",
                   bg: "#EFF6FF",
                 },
@@ -2467,28 +2772,28 @@ const PreviewLaporanPage: React.FC = () => {
                 {
                   lbl: "Wanita Pasca Subur",
                   sub: "> 49 tahun",
-                  val: dashboardSummaryData.women_post_fertile,
+                  val: kependudukan.women_post_fertile,
                   color: T.pink,
                   bg: "#FDF2F8",
                 },
                 {
                   lbl: "Ibu Hamil KEK",
                   sub: "Kurang Energi Kronis",
-                  val: dashboardSummaryData.pregnant_women_under_energized,
+                  val: kependudukan.pregnant_women_under_energized,
                   color: T.red,
                   bg: "#FEF2F2",
                 },
                 {
                   lbl: "Ibu Hamil Risiko Tinggi",
                   sub: "Perlu perhatian khusus",
-                  val: dashboardSummaryData.high_risk_pregnant_women,
+                  val: kependudukan.high_risk_pregnant_women,
                   color: T.orange,
                   bg: "#FFF7ED",
                 },
                 {
                   lbl: "Ibu Menyusui",
                   sub: "ASI Eksklusif",
-                  val: dashboardSummaryData.breastfeeding_mothers,
+                  val: kependudukan.breastfeeding_mothers,
                   color: T.emerald,
                   bg: "#ECFDF5",
                 },
@@ -2542,21 +2847,21 @@ const PreviewLaporanPage: React.FC = () => {
                 {
                   lbl: "Penerima KB",
                   sub: "Jumlah akseptor",
-                  val: dashboardSummaryData.kb_acceptors,
+                  val: kependudukan.kb_acceptors,
                   color: "#3B82F6",
                   bg: "#EFF6FF",
                 },
                 {
                   lbl: "Ibu Hamil dengan Asuransi",
                   sub: "Jaminan kesehatan",
-                  val: dashboardSummaryData.pregnant_women_with_insurance,
+                  val: kependudukan.pregnant_women_with_insurance,
                   color: T.emerald,
                   bg: "#ECFDF5",
                 },
                 {
                   lbl: "Balita dengan Asuransi",
                   sub: "0–59 bulan",
-                  val: dashboardSummaryData.children_under_5_with_insurance,
+                  val: kependudukan.children_under_5_with_insurance,
                   color: T.purple,
                   bg: "#F5F3FF",
                 },
@@ -2850,7 +3155,7 @@ const PreviewLaporanPage: React.FC = () => {
           >
             <span style={{ fontSize: 18, flexShrink: 0 }}>🚨</span>
             <p style={{ fontSize: 10, color: "#7F1D1D", lineHeight: 1.6 }}>
-              Terdapat <strong>{criticalChildrenData.length} anak</strong> yang
+              Terdapat <strong>{totalKasusKritis} anak</strong> yang
               teridentifikasi mengalami masalah gizi serius dan/atau stunting.
               Data ini menjadi dasar program{" "}
               <strong>Pemberian Makanan Tambahan (PMT)</strong> dan{" "}
@@ -2904,7 +3209,22 @@ const PreviewLaporanPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {criticalChildrenData.map((child: any, idx: number) => (
+                {kasusKritisRows.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      style={{
+                        padding: "14px 10px",
+                        textAlign: "center",
+                        fontSize: 10,
+                        color: T.textSub,
+                      }}
+                    >
+                      Tidak ada kasus kritis pada periode ini.
+                    </td>
+                  </tr>
+                ) : (
+                  kasusKritisRows.map((child, idx) => (
                   <tr
                     key={idx}
                     style={{
@@ -2985,7 +3305,8 @@ const PreviewLaporanPage: React.FC = () => {
                       />
                     </td>
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </Card>
@@ -3016,19 +3337,19 @@ const PreviewLaporanPage: React.FC = () => {
                 icon: "💊",
                 title: "Intervensi Gizi",
                 color: T.red,
-                desc: `${criticalChildrenData.filter((c: any) => c.status_gizi === "Gizi Buruk").length} anak gizi buruk perlu PMT intensif dan monitoring mingguan oleh kader dan bidan desa.`,
+                desc: `${jumlahGiziBuruk} anak gizi buruk perlu PMT intensif dan monitoring mingguan oleh kader dan bidan desa.`,
               },
               {
                 icon: "📏",
                 title: "Program Anti-Stunting",
                 color: T.orange,
-                desc: `${criticalChildrenData.filter((c: any) => c.status_stunting === "Stunting").length} kasus stunting perlu koordinasi Puskesmas untuk terapi tumbuh kembang dan suplementasi.`,
+                desc: `${jumlahStuntingKritis} kasus stunting perlu koordinasi Puskesmas untuk terapi tumbuh kembang dan suplementasi.`,
               },
               {
                 icon: "🏠",
                 title: "Kunjungan Rumah",
                 color: T.amber,
-                desc: `Prioritaskan ${criticalChildrenData.filter((c: any) => c.prioritas === "Sangat Tinggi").length} kasus Sangat Tinggi dalam 7 hari ke depan.`,
+                desc: `Prioritaskan ${jumlahPrioritasSangatTinggi} kasus Sangat Tinggi dalam 7 hari ke depan.`,
               },
             ].map((a, i) => (
               <div

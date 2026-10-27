@@ -14,14 +14,6 @@ import {
 } from "recharts";
 
 interface DurasiJarakAgregatProps {
-  durasiJarak: {
-    total_durasi_kerja_posyandu: number;
-    total_durasi_kunjungan_rumah: number;
-    total_jarak_kunjungan_rumah: number;
-    rata_rata_durasi_posyandu: number;
-    rata_rata_durasi_kunjungan: number;
-    rata_rata_jarak: number;
-  };
   bulan?: number;
   tahun?: number;
   bulanLabel?: string;
@@ -73,7 +65,7 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
   const isPeriodDataReady = !hasPeriodFilter || !!apiData;
 
   const durationData = useMemo(() => {
-    const tren = apiData?.tren.durasi_kerja;
+    const tren = apiData?.tren?.durasi_kerja;
 
     if (tren && tren.length > 0) {
       return tren.map((item) => ({
@@ -91,7 +83,7 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
   }, [apiData]);
 
   const distanceData = useMemo(() => {
-    const tren = apiData?.tren.jarak_tempuh;
+    const tren = apiData?.tren?.jarak_tempuh;
 
     if (tren && tren.length > 0) {
       return tren.map((item) => ({
@@ -126,6 +118,16 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
       </div>
     );
   };
+
+  // Selama data belum ada, jangan render konten -- angkanya akan
+  // tampil sebagai 0 dan terbaca sebagai data asli.
+  if (isLoading) {
+    return (
+      <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+        Memuat durasi kerja posyandu...
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
@@ -173,11 +175,7 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-          Memuat durasi kerja posyandu...
-        </div>
-      ) : errorMessage ? (
+      {errorMessage ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
           {errorMessage}
         </div>

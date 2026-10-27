@@ -22,13 +22,13 @@ const AttendanceSection: React.FC<DashboardSectionProps> = ({ isLoading, datadas
           <CountingCard
             icon={svgIconAnakHadir}
             isMeningkat={true}
-            jumlah={datadash?.jumlah_anak_hadir.jumlah ?? "0"}
+            jumlah={datadash?.jumlah_anak_hadir?.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak_hadir.rate == `null`
+              datadash?.jumlah_anak_hadir?.rate == `null`
                 ? `${datadash.jumlah_anak_hadir.rate}%`
                 : "-"
             }
-            subtitle={datadash?.jumlah_anak_hadir.status ?? ""}
+            subtitle={datadash?.jumlah_anak_hadir?.status ?? ""}
             title="Jumlah Anak Hadir"
             title_secound={`Aktif ${monthYear}`}
             color={"#EBF3FE"}
@@ -41,13 +41,13 @@ const AttendanceSection: React.FC<DashboardSectionProps> = ({ isLoading, datadas
           <CountingCard
             icon={svgIconAnaklulus}
             isMeningkat={true}
-            jumlah={datadash?.jumlah_anak_lulus.jumlah ?? "0"}
+            jumlah={datadash?.jumlah_anak_lulus?.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak_lulus.rate == `null`
+              datadash?.jumlah_anak_lulus?.rate == `null`
                 ? `${datadash.jumlah_anak_lulus.rate}%`
                 : "-"
             }
-            subtitle={datadash?.jumlah_anak_lulus.status ?? ""}
+            subtitle={datadash?.jumlah_anak_lulus?.status ?? ""}
             title="Jumlah Anak Lulus"
             title_secound={`Aktif ${monthYear}`}
             color={"#EBF3FE"}

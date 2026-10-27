@@ -1,10 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import { PosyanduItem, DashboardSummary as DashboardSummaryType } from "@/types/dashboard-kepala-desa";
+import { PosyanduItem } from "@/types/dashboard-kepala-desa";
 import {
   posyanduListData,
   dashboardSummaryData,
-  posyanduPerformanceData,
   kaderWorkloadData,
 } from "@/data/dummy-dashboard-kepala-desa";
 import { useSeniorMode } from "@/contexts/SeniorModeContext";
@@ -27,7 +26,7 @@ const DashboardKepalaDesa: React.FC = () => {
   const [selectedPosyandu, setSelectedPosyandu] = useState<PosyanduItem | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [filterTahun, setFilterTahun] = useState<number>(new Date().getFullYear());
-  const [totalPosyandu, setTotalPosyandu] = useState<number>(posyanduListData.length);
+  const [totalPosyandu, setTotalPosyandu] = useState<number>(0);
 
   const { isSeniorMode } = useSeniorMode();
 
@@ -40,12 +39,6 @@ const DashboardKepalaDesa: React.FC = () => {
   // Daftar tahun (tahun sekarang dan 2 tahun sebelumnya)
   const tahunSekarang = new Date().getFullYear();
   const daftarTahun = [tahunSekarang, tahunSekarang - 1, tahunSekarang - 2];
-
-  // Filter underperforming posyandu (kategori "Kurang" or "Cukup")
-  const underperformingPosyandu = posyanduPerformanceData
-    .filter((p) => p.kategori === "Kurang" || p.kategori === "Cukup")
-    .map((p) => posyanduListData.find((pos) => pos.id === p.posyandu_id)!)
-    .filter(Boolean);
 
   // Filter high workload kader
   const highWorkloadKader = kaderWorkloadData.filter((k) => k.kategori_beban === "Tinggi");
@@ -134,7 +127,6 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 3: POSYANDU OVERVIEW - Daftar Posyandu */}
       <PosyanduOverview
-        posyanduList={posyanduListData}
         selectedPosyandu={selectedPosyandu}
         onSelectPosyandu={setSelectedPosyandu}
         onTotalPosyanduChange={setTotalPosyandu}
@@ -182,7 +174,6 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 3: ADDITIONAL METRICS - Data Kependudukan, Balita & Imunisasi */}
       <AdditionalMetrics
-        summary={dashboardSummaryData}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
@@ -190,7 +181,6 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 3: SKDN BAR CHART */}
       <SKDNBarChart
-        skdnData={dashboardSummaryData.skdn_data}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
@@ -198,7 +188,6 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 3: DURASI DAN JARAK AGREGAT - KADER */}
       <DurasiJarakAgregat
-        durasiJarak={dashboardSummaryData.durasi_jarak_agregat}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
@@ -213,7 +202,6 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 4: EXPANDABLE DATA SECTIONS */}
       <ExpandableDataSection
-        summary={dashboardSummaryData}
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}

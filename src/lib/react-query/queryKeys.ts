@@ -32,6 +32,14 @@ export const queryKeys = {
     raporBalita: (id: string) => ['kader', 'rapor-balita', id] as const,
   },
 
+  kinerja: {
+    ringkasan: (p: DashboardPeriod) => ['kinerja-kepala-desa', 'ringkasan', period(p)] as const,
+    perhatianKhusus: (p: DashboardPeriod) =>
+      ['kinerja-kepala-desa', 'perhatian-khusus', period(p)] as const,
+    dataKasusKritis: (p: DashboardPeriod) =>
+      ['kinerja-kepala-desa', 'data-kasus-kritis', period(p)] as const,
+  },
+
   wilayah: {
     kabupaten: () => ['wilayah', 'kabupaten'] as const,
     kecamatan: () => ['wilayah', 'kecamatan'] as const,

@@ -164,6 +164,16 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
     return null;
   };
 
+  // Selama data belum ada, jangan render konten -- angkanya akan
+  // tampil sebagai 0 dan terbaca sebagai data asli.
+  if (isLoading) {
+    return (
+      <div className="mb-6 rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+        Memuat data tren performa...
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">
       <div className="mb-6 flex items-center gap-3">
@@ -180,11 +190,7 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="mb-6 rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-          Memuat data tren performa...
-        </div>
-      ) : errorMessage ? (
+      {errorMessage ? (
         <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
           {errorMessage}
         </div>

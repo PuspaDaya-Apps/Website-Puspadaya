@@ -20,6 +20,11 @@ export {
   useRaporBalita,
 } from './useKaderQueries';
 export {
+  useDataKasusKritis,
+  useKinerjaPerhatianKhusus,
+  useKinerjaRingkasan,
+} from './useKinerjaQueries';
+export {
   useDesaKelurahanWilayah,
   useKabupatenWilayah,
   useKecamatanWilayah,

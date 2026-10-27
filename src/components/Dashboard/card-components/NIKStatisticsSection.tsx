@@ -32,14 +32,14 @@ const NIKStatisticsSection: React.FC<DashboardSectionProps> = ({ isLoading, data
             <CountingCardDesa
               icon={SvgIconVillage}
               isMeningkat={true}
-              jumlah={datadash?.jumlah_desa.jumlah ?? "0"}
-              jumlah_keluarga={datadash?.keluarga_tanpa_mck.jumlah ?? "0"}
+              jumlah={datadash?.jumlah_desa?.jumlah ?? "0"}
+              jumlah_keluarga={datadash?.keluarga_tanpa_mck?.jumlah ?? "0"}
               peningkatan={
-                datadash?.jumlah_desa.rate == `null`
+                datadash?.jumlah_desa?.rate == `null`
                   ? `${datadash.jumlah_desa.rate}%`
                   : "-"
               }
-              subtitle={datadash?.jumlah_desa.status ?? ""}
+              subtitle={datadash?.jumlah_desa?.status ?? ""}
               title="Jumlah Desa"
               title_secound={`Aktif ${monthYear}`}
               color={"#EBF3FE"}
@@ -56,11 +56,11 @@ const NIKStatisticsSection: React.FC<DashboardSectionProps> = ({ isLoading, data
               isMeningkat={true}
               jumlah={datadash?.keluarga_tanpa_mck?.jumlah ?? "0"}
               peningkatan={
-                datadash?.keluarga_tanpa_mck.rate == `null`
+                datadash?.keluarga_tanpa_mck?.rate == `null`
                   ? `${datadash.keluarga_tanpa_mck.rate}%`
                   : "-"
               }
-              subtitle={datadash?.keluarga_tanpa_mck.status ?? ""}
+              subtitle={datadash?.keluarga_tanpa_mck?.status ?? ""}
               title="Jumlah Keluarga Tanpa MCK"
               title_secound={`Aktif ${monthYear}`}
               color={"#EBF3FE"}
@@ -77,11 +77,11 @@ const NIKStatisticsSection: React.FC<DashboardSectionProps> = ({ isLoading, data
             isMeningkat={true}
             jumlah={datadash?.jumlah_orang_tua_tidak_punya_kk?.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_orang_tua_tidak_punya_kk.rate == `null`
+              datadash?.jumlah_orang_tua_tidak_punya_kk?.rate == `null`
                 ? `${datadash.jumlah_orang_tua_tidak_punya_kk.rate}%`
                 : "-"
             }
-            subtitle={datadash?.jumlah_orang_tua_tidak_punya_kk.status ?? ""}
+            subtitle={datadash?.jumlah_orang_tua_tidak_punya_kk?.status ?? ""}
             title="Jumlah Orang Tua Tidak Memiliki Kartu Keluarga"
             title_secound={`Aktif ${monthYear}`}
             color={"#EBF3FE"}

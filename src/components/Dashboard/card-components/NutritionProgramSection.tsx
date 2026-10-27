@@ -22,13 +22,13 @@ const NutritionProgramSection: React.FC<DashboardSectionProps> = ({ isLoading, d
           <CountingCard
             icon={svgIconAsieklusif}
             isMeningkat={true}
-            jumlah={datadash?.jumlah_anak_asi_ekslusif.jumlah ?? "0"}
+            jumlah={datadash?.jumlah_anak_asi_ekslusif?.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak_asi_ekslusif.rate == `null`
+              datadash?.jumlah_anak_asi_ekslusif?.rate == `null`
                 ? `${datadash.jumlah_anak_asi_ekslusif.rate}%`
                 : "-"
             }
-            subtitle={datadash?.jumlah_anak_asi_ekslusif.status ?? ""}
+            subtitle={datadash?.jumlah_anak_asi_ekslusif?.status ?? ""}
             title="Jumlah Anak Asi Eklusif"
             title_secound={`Aktif ${monthYear}`}
             color={"#EBF3FE"}
@@ -41,13 +41,13 @@ const NutritionProgramSection: React.FC<DashboardSectionProps> = ({ isLoading, d
           <CountingCard
             icon={svgIconMpasi}
             isMeningkat={true}
-            jumlah={datadash?.jumlah_anak_mpasi.jumlah ?? "0"}
+            jumlah={datadash?.jumlah_anak_mpasi?.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak_mpasi.rate == `null`
+              datadash?.jumlah_anak_mpasi?.rate == `null`
                 ? `${datadash.jumlah_anak_mpasi.rate}%`
                 : "-"
             }
-            subtitle={datadash?.jumlah_anak_mpasi.status ?? ""}
+            subtitle={datadash?.jumlah_anak_mpasi?.status ?? ""}
             title="Jumlah Anak Mpasi"
             title_secound={`Aktif ${monthYear}`}
             color={"#EBF3FE"}

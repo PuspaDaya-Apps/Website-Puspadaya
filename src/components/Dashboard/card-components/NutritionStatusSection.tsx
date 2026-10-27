@@ -22,13 +22,13 @@ const NutritionStatusSection: React.FC<DashboardSectionProps> = ({ isLoading, da
           <CountingCard
             icon={svgUnderweight}
             isMeningkat={false}
-            jumlah={datadash?.jumlah_anak_underweight.jumlah ?? "0"}
+            jumlah={datadash?.jumlah_anak_underweight?.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak_underweight.rate == `null`
+              datadash?.jumlah_anak_underweight?.rate == `null`
                 ? `${datadash.jumlah_anak_underweight.rate}%`
                 : "-"
             }
-            subtitle={datadash?.jumlah_anak_underweight.status ?? ""}
+            subtitle={datadash?.jumlah_anak_underweight?.status ?? ""}
             title="Jumlah Anak Underweight"
             title_secound={`Aktif ${monthYear}`}
             color={"#EBF3FE"}
@@ -41,13 +41,13 @@ const NutritionStatusSection: React.FC<DashboardSectionProps> = ({ isLoading, da
           <CountingCard
             icon={svgWasting}
             isMeningkat={false}
-            jumlah={datadash?.jumlah_anak_wasting.jumlah ?? "0"}
+            jumlah={datadash?.jumlah_anak_wasting?.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak_wasting.rate == `null`
+              datadash?.jumlah_anak_wasting?.rate == `null`
                 ? `${datadash.jumlah_anak_wasting.rate}%`
                 : "-"
             }
-            subtitle={datadash?.jumlah_anak_wasting.status ?? ""}
+            subtitle={datadash?.jumlah_anak_wasting?.status ?? ""}
             title="Jumlah Anak Wasting"
             title_secound={`Aktif ${monthYear}`}
             color={"#EBF3FE"}

@@ -7,7 +7,6 @@ import { TrenDataPosyanduItem } from "@/types/kepala-desa";
 import { createPosyanduDetailToken } from "@/utils/posyanduDetailToken";
 
 interface PosyanduOverviewProps {
-  posyanduList: PosyanduItem[];
   selectedPosyandu: PosyanduItem | null;
   onSelectPosyandu: (posyandu: PosyanduItem) => void;
   onTotalPosyanduChange?: (total: number) => void;
@@ -121,6 +120,16 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
     router.push(`/monitoring/posyandu/${token}`);
   };
 
+  // Selama data belum ada, jangan render konten -- angkanya akan
+  // tampil sebagai 0 dan terbaca sebagai data asli.
+  if (isLoading) {
+    return (
+      <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+        Memuat tren data posyandu...
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
       {/* Header */}
@@ -207,11 +216,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-          Memuat tren data posyandu...
-        </div>
-      ) : errorMessage ? (
+      {errorMessage ? (
         <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
           {errorMessage}
         </div>

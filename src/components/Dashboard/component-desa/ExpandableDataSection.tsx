@@ -2,11 +2,9 @@
 import React, { useState, useMemo } from "react";
 import { useImunisasiKependudukan } from "@/hooks/dashboard";
 import { ImunisasiKependudukanData } from "@/types/kepala-desa";
-import { PosyanduItem, DashboardSummary } from "@/types/dashboard-kepala-desa";
 import RecentActivityTable from "./RecentActivityTable";
 
 interface ExpandableDataSectionProps {
-  summary: DashboardSummary;
   bulan: number;
   tahun: number;
   bulanLabel?: string;
@@ -53,7 +51,6 @@ const ExpandableSection: React.FC<SectionProps> = ({
 };
 
 const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
-  summary,
   bulan,
   tahun,
   bulanLabel,
@@ -66,36 +63,36 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
 
   const displayData = useMemo(
     () => ({
-      cakupan_persen: apiData?.imunisasi.cakupan_persen ?? 0,
-      total_imunisasi: apiData?.imunisasi.total_imunisasi ?? 0,
+      cakupan_persen: apiData?.imunisasi?.cakupan_persen ?? 0,
+      total_imunisasi: apiData?.imunisasi?.total_imunisasi ?? 0,
       imunisasi: {
-        bcg: apiData?.imunisasi.detail.bcg ?? 0,
-        dpt_1: apiData?.imunisasi.detail.dpt_1 ?? 0,
-        dpt_2: apiData?.imunisasi.detail.dpt_2 ?? 0,
-        dpt_3: apiData?.imunisasi.detail.dpt_3 ?? 0,
-        polio_1: apiData?.imunisasi.detail.polio_1 ?? 0,
-        polio_2: apiData?.imunisasi.detail.polio_2 ?? 0,
-        polio_3: apiData?.imunisasi.detail.polio_3 ?? 0,
-        polio_4: apiData?.imunisasi.detail.polio_4 ?? 0,
-        hepatitis: apiData?.imunisasi.detail.hepatitis ?? 0,
-        campak: apiData?.imunisasi.detail.campak ?? 0,
+        bcg: apiData?.imunisasi?.detail?.bcg ?? 0,
+        dpt_1: apiData?.imunisasi?.detail?.dpt_1 ?? 0,
+        dpt_2: apiData?.imunisasi?.detail?.dpt_2 ?? 0,
+        dpt_3: apiData?.imunisasi?.detail?.dpt_3 ?? 0,
+        polio_1: apiData?.imunisasi?.detail?.polio_1 ?? 0,
+        polio_2: apiData?.imunisasi?.detail?.polio_2 ?? 0,
+        polio_3: apiData?.imunisasi?.detail?.polio_3 ?? 0,
+        polio_4: apiData?.imunisasi?.detail?.polio_4 ?? 0,
+        hepatitis: apiData?.imunisasi?.detail?.hepatitis ?? 0,
+        campak: apiData?.imunisasi?.detail?.campak ?? 0,
       },
       kependudukan: {
-        baduta_0_23_months: apiData?.kependudukan.anak.baduta_0_23_bulan ?? 0,
-        balita_24_59_months: apiData?.kependudukan.anak.balita_24_59_bulan ?? 0,
-        pra_sekolah_60_72_months: apiData?.kependudukan.anak.pra_sekolah_60_72_bulan ?? 0,
-        women_post_fertile: apiData?.kependudukan.ibu.wanita_pasca_subur ?? 0,
-        pregnant_women_under_energized: apiData?.kependudukan.ibu.ibu_hamil_kek ?? 0,
-        high_risk_pregnant_women: apiData?.kependudukan.ibu.ibu_hamil_risiko_tinggi ?? 0,
-        breastfeeding_mothers: apiData?.kependudukan.ibu.ibu_menyusui ?? 0,
-        newborn_count: apiData?.kependudukan.bayi.bayi_baru_lahir ?? 0,
-        pregnant_women_with_insurance: apiData?.kependudukan.ibu.ibu_hamil_asuransi ?? 0,
-        infant_with_insurance: apiData?.kependudukan.bayi.bayi_0_12_bulan_asuransi ?? 0,
+        baduta_0_23_months: apiData?.kependudukan?.anak?.baduta_0_23_bulan ?? 0,
+        balita_24_59_months: apiData?.kependudukan?.anak?.balita_24_59_bulan ?? 0,
+        pra_sekolah_60_72_months: apiData?.kependudukan?.anak?.pra_sekolah_60_72_bulan ?? 0,
+        women_post_fertile: apiData?.kependudukan?.ibu?.wanita_pasca_subur ?? 0,
+        pregnant_women_under_energized: apiData?.kependudukan?.ibu?.ibu_hamil_kek ?? 0,
+        high_risk_pregnant_women: apiData?.kependudukan?.ibu?.ibu_hamil_risiko_tinggi ?? 0,
+        breastfeeding_mothers: apiData?.kependudukan?.ibu?.ibu_menyusui ?? 0,
+        newborn_count: apiData?.kependudukan?.bayi?.bayi_baru_lahir ?? 0,
+        pregnant_women_with_insurance: apiData?.kependudukan?.ibu?.ibu_hamil_asuransi ?? 0,
+        infant_with_insurance: apiData?.kependudukan?.bayi?.bayi_0_12_bulan_asuransi ?? 0,
         children_under_5_with_insurance:
-          apiData?.kependudukan.balita_asuransi.balita_13_59_bulan_asuransi ??
-          apiData?.kependudukan.balita_asuransi.balita_0_59_bulan_asuransi ??
+          apiData?.kependudukan?.balita_asuransi?.balita_13_59_bulan_asuransi ??
+          apiData?.kependudukan?.balita_asuransi?.balita_0_59_bulan_asuransi ??
           0,
-        kb_acceptors: apiData?.kependudukan.kesehatan_reproduksi.akseptor_kb ?? 0,
+        kb_acceptors: apiData?.kependudukan?.kesehatan_reproduksi?.akseptor_kb ?? 0,
       },
     }),
     [apiData]
@@ -105,6 +102,16 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
     if (!total) return 0;
     return (value / total) * 100;
   };
+
+  // Selama data belum ada, jangan render konten -- angkanya akan
+  // tampil sebagai 0 dan terbaca sebagai data asli.
+  if (isLoading) {
+    return (
+      <div className="mb-6 rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+        Memuat data imunisasi dan kependudukan...
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">
@@ -123,11 +130,7 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="mb-6 rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-          Memuat data imunisasi dan kependudukan...
-        </div>
-      ) : errorMessage ? (
+      {errorMessage ? (
         <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
           {errorMessage}
         </div>
@@ -302,7 +305,7 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
           }
           defaultOpen={false}
         >
-          <RecentActivityTable bulan={bulan} tahun={tahun} bulanLabel={bulanLabel} />
+          <RecentActivityTable bulan={bulan} tahun={tahun} />
         </ExpandableSection>
       </div>
     </div>

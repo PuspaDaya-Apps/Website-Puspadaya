@@ -45,6 +45,16 @@ const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({
 
   const periodeLabel = bulanLabel ? `${bulanLabel} ${tahun}` : `bulan ${bulan} ${tahun}`;
 
+  // Selama data belum ada, jangan render konten -- angkanya akan
+  // tampil sebagai 0 dan terbaca sebagai data asli.
+  if (isLoading) {
+    return (
+      <div className="mb-6 rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+        Memuat skor beban kerja tim...
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-lg shadow-gray-200/50 transition-all duration-300 hover:shadow-xl dark:border-gray-700 dark:bg-gray-dark dark:shadow-none">
       <div className="mb-6 flex items-start gap-4">
@@ -63,11 +73,7 @@ const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="mb-6 rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-          Memuat skor beban kerja tim...
-        </div>
-      ) : errorMessage ? (
+      {errorMessage ? (
         <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
           {errorMessage}
         </div>

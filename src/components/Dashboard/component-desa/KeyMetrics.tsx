@@ -234,6 +234,16 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ bulan, tahun, bulanLabel }) => 
     },
   ];
 
+  // Selama data belum ada, jangan render konten -- angkanya akan
+  // tampil sebagai 0 dan terbaca sebagai data asli.
+  if (isLoading) {
+    return (
+      <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+        Memuat informasi data desa...
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">
       {/* Header */}
@@ -256,11 +266,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ bulan, tahun, bulanLabel }) => 
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-          Memuat informasi data desa...
-        </div>
-      ) : errorMessage ? (
+      {errorMessage ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
           {errorMessage}
         </div>

@@ -22,13 +22,13 @@ const TrendSection: React.FC<DashboardSectionProps> = ({ isLoading, datadash, mo
           <CountingCard
             icon={SvgIconBayi}
             isMeningkat={true}
-            jumlah= {datadash?.jumlah_anak.jumlah ?? "0"}
+            jumlah= {datadash?.jumlah_anak?.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak.rate == `null`
+              datadash?.jumlah_anak?.rate == `null`
                 ? `${datadash.jumlah_anak.rate}%`
                 : "-"
             }
-            subtitle={datadash?.jumlah_anak.status ?? ""}
+            subtitle={datadash?.jumlah_anak?.status ?? ""}
             title="Jumlah Anak Keseluruhan"
             title_secound={`Aktif ${monthYear}`}
             color={"#EBF3FE"}
@@ -41,13 +41,13 @@ const TrendSection: React.FC<DashboardSectionProps> = ({ isLoading, datadash, mo
           <CountingCard
             icon={svgStunting}
             isMeningkat={false}
-            jumlah={datadash?.jumlah_anak_stunting.jumlah ?? "0"}
+            jumlah={datadash?.jumlah_anak_stunting?.jumlah ?? "0"}
             peningkatan={
-              datadash?.jumlah_anak_stunting.rate == `null`
+              datadash?.jumlah_anak_stunting?.rate == `null`
                 ? `${datadash.jumlah_anak_stunting.rate}%`
                 : "-"
             }
-            subtitle={datadash?.jumlah_anak_stunting.status ?? ""}
+            subtitle={datadash?.jumlah_anak_stunting?.status ?? ""}
             title="Jumlah Anak Stunting"
             title_secound={`Aktif ${monthYear}`}
             color={"#EBF3FE"}

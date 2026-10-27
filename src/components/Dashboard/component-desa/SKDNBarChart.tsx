@@ -25,7 +25,6 @@ export interface SKDNData {
 }
 
 interface SKDNBarChartProps {
-  skdnData: SKDNData;
   bulan: number;
   tahun: number;
   bulanLabel?: string;
@@ -42,8 +41,8 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({
   const errorMessage = isError ? "Gagal memuat statistik SKDN" : null;
 
   const displayData = useMemo(() => {
-    const jumlah = apiData?.skdn.jumlah;
-    const indikator = apiData?.skdn.indikator;
+    const jumlah = apiData?.skdn?.jumlah;
+    const indikator = apiData?.skdn?.indikator;
 
     return {
       S: jumlah?.sasaran_balita ?? 0,
@@ -105,6 +104,16 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({
   const title = bulanLabel
     ? `Statistik SKDN - ${bulanLabel} ${tahun}`
     : `Statistik SKDN - bulan ${bulan} ${tahun}`;
+
+  // Selama data belum ada, jangan render konten -- angkanya akan
+  // tampil sebagai 0 dan terbaca sebagai data asli.
+  if (isLoading) {
+    return (
+      <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+        Memuat statistik SKDN...
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
@@ -183,11 +192,7 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-          Memuat statistik SKDN...
-        </div>
-      ) : errorMessage ? (
+      {errorMessage ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
           {errorMessage}
         </div>

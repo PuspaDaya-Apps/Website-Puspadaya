@@ -1,11 +1,9 @@
 "use client";
 import React, { useMemo } from "react";
 import { useAnakCakupanDilayani } from "@/hooks/dashboard";
-import { DashboardSummary as DashboardSummaryType } from "@/types/dashboard-kepala-desa";
 import { AnakCakupanDilayaniData } from "@/types/kepala-desa";
 
 interface AdditionalMetricsProps {
-  summary: DashboardSummaryType;
   bulan: number;
   tahun: number;
   bulanLabel?: string;
@@ -18,29 +16,29 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ bulan, tahun, bul
   const errorMessage = isError ? "Gagal memuat data cakupan layanan anak" : null;
 
   const displayData = useMemo(() => ({
-    baduta_0_23_months: apiData?.anak_berdasarkan_usia.baduta ?? 0,
-    balita_24_59_months: apiData?.anak_berdasarkan_usia.balita ?? 0,
-    pra_sekolah_60_72_months: apiData?.anak_berdasarkan_usia.pra_sekolah ?? 0,
-    pregnant_women_under_energized: apiData?.kesehatan_ibu_bayi.ibu_hamil_kek ?? 0,
-    high_risk_pregnant_women: apiData?.kesehatan_ibu_bayi.ibu_hamil_risiko_tinggi ?? 0,
-    breastfeeding_mothers: apiData?.kesehatan_ibu_bayi.ibu_menyusui ?? 0,
-    newborn_count: apiData?.kesehatan_ibu_bayi.bayi_baru_lahir ?? 0,
-    women_post_fertile: apiData?.keluarga_berencana.wanita_pasca_subur ?? 0,
-    kb_acceptors: apiData?.keluarga_berencana.akseptor_kb ?? 0,
-    pregnant_women_with_insurance: apiData?.keluarga_berencana.ibu_hamil_asuransi ?? 0,
+    baduta_0_23_months: apiData?.anak_berdasarkan_usia?.baduta ?? 0,
+    balita_24_59_months: apiData?.anak_berdasarkan_usia?.balita ?? 0,
+    pra_sekolah_60_72_months: apiData?.anak_berdasarkan_usia?.pra_sekolah ?? 0,
+    pregnant_women_under_energized: apiData?.kesehatan_ibu_bayi?.ibu_hamil_kek ?? 0,
+    high_risk_pregnant_women: apiData?.kesehatan_ibu_bayi?.ibu_hamil_risiko_tinggi ?? 0,
+    breastfeeding_mothers: apiData?.kesehatan_ibu_bayi?.ibu_menyusui ?? 0,
+    newborn_count: apiData?.kesehatan_ibu_bayi?.bayi_baru_lahir ?? 0,
+    women_post_fertile: apiData?.keluarga_berencana?.wanita_pasca_subur ?? 0,
+    kb_acceptors: apiData?.keluarga_berencana?.akseptor_kb ?? 0,
+    pregnant_women_with_insurance: apiData?.keluarga_berencana?.ibu_hamil_asuransi ?? 0,
     infant_immunization_coverage: {
-      total_imunisasi: apiData?.imunisasi.total ?? 0,
-      cakupan_persentase: apiData?.imunisasi.cakupan_persen ?? 0,
-      bcg: apiData?.imunisasi.detail.bcg ?? 0,
-      dpt_1: apiData?.imunisasi.detail.dpt_1 ?? 0,
-      dpt_2: apiData?.imunisasi.detail.dpt_2 ?? 0,
-      dpt_3: apiData?.imunisasi.detail.dpt_3 ?? 0,
-      polio_1: apiData?.imunisasi.detail.polio_1 ?? 0,
-      polio_2: apiData?.imunisasi.detail.polio_2 ?? 0,
-      polio_3: apiData?.imunisasi.detail.polio_3 ?? 0,
-      polio_4: apiData?.imunisasi.detail.polio_4 ?? 0,
-      hepatitis: apiData?.imunisasi.detail.hepatitis ?? 0,
-      campak: apiData?.imunisasi.detail.campak ?? 0,
+      total_imunisasi: apiData?.imunisasi?.total ?? 0,
+      cakupan_persentase: apiData?.imunisasi?.cakupan_persen ?? 0,
+      bcg: apiData?.imunisasi?.detail?.bcg ?? 0,
+      dpt_1: apiData?.imunisasi?.detail?.dpt_1 ?? 0,
+      dpt_2: apiData?.imunisasi?.detail?.dpt_2 ?? 0,
+      dpt_3: apiData?.imunisasi?.detail?.dpt_3 ?? 0,
+      polio_1: apiData?.imunisasi?.detail?.polio_1 ?? 0,
+      polio_2: apiData?.imunisasi?.detail?.polio_2 ?? 0,
+      polio_3: apiData?.imunisasi?.detail?.polio_3 ?? 0,
+      polio_4: apiData?.imunisasi?.detail?.polio_4 ?? 0,
+      hepatitis: apiData?.imunisasi?.detail?.hepatitis ?? 0,
+      campak: apiData?.imunisasi?.detail?.campak ?? 0,
     },
   }), [apiData]);
 
@@ -51,13 +49,19 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ bulan, tahun, bul
     return (value / total) * 100;
   };
 
+  // Selama data belum ada, jangan render konten -- angkanya akan
+  // tampil sebagai 0 dan terbaca sebagai data asli.
+  if (isLoading) {
+    return (
+      <div className="rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+        Memuat data cakupan layanan anak...
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {isLoading ? (
-        <div className="rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-          Memuat data cakupan layanan anak...
-        </div>
-      ) : errorMessage ? (
+      {errorMessage ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
           {errorMessage}
         </div>
