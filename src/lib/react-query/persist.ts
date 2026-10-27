@@ -44,9 +44,10 @@ export const flushQueryCache = (client: QueryClient): void => {
   }
 };
 
-// Login memakai window.location.replace(), jadi cache di memori ikut hilang.
-// Cache dibaca kembali di sini supaya hasil prefetch saat login tetap terpakai
-// dan refresh halaman tidak memicu fetch ulang.
+// Login memakai navigasi client-side, jadi cache di memori sudah bertahan
+// sampai dashboard. Pemulihan di sini untuk kasus yang tetap memuat ulang
+// halaman -- refresh manual (F5) atau membuka URL langsung -- supaya tidak
+// memicu fetch ulang.
 export const restoreQueryCache = (client: QueryClient): void => {
   if (!isBrowser()) {
     return;

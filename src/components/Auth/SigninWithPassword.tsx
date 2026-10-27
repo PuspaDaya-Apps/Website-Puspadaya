@@ -1,10 +1,15 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { loginUser } from "@/app/api/login/loginApi";
 import { prefetchDashboardData } from "@/lib/react-query/prefetchDashboard";
 
+// Batas tunggu prefetch sebelum navigasi tetap dilanjutkan.
+const PREFETCH_MAX_WAIT_MS = 3000;
+
 export default function SigninWithPassword() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -26,14 +31,25 @@ export default function SigninWithPassword() {
       // navigasi di bawah -- middleware pasti melihatnya di request pertama.
       await loginUser(username, password);
 
-      // Data dashboard diambil lebih awal lalu disimpan ke cache React Query,
-      // jadi dashboard terbuka tanpa menunggu request lagi. Ada batas waktu di
-      // dalamnya supaya login tidak ikut tertahan kalau API lambat.
-      await prefetchDashboardData(sessionStorage.getItem('user_role') ?? '');
+      // Mengisi cache sebelum pindah halaman. Ini dibolehkan menahan navigasi
+      // karena router.replace() di bawah adalah navigasi client-side: cache di
+      // memori tetap hidup, jadi hasil prefetch benar-benar terpakai.
+      // Dibatasi 3 detik supaya login tidak tertahan kalau API lambat --
+      // setelah itu navigasi jalan dan dashboard menampilkan loading biasa.
+      const prefetchTimeout = new Promise<void>((resolve) => {
+        window.setTimeout(resolve, PREFETCH_MAX_WAIT_MS);
+      });
+
+      await Promise.race([
+        prefetchDashboardData(sessionStorage.getItem('user_role') ?? ''),
+        prefetchTimeout,
+      ]);
 
       // replace(): halaman login tidak perlu tertinggal di history, supaya
       // tombol Back tidak mengembalikan user ke form setelah berhasil login.
-      window.location.replace('/');
+      // Navigasi client-side -- tanpa reload, sehingga cache React Query yang
+      // baru terisi di atas tidak ikut hancur.
+      router.replace('/');
       // Biarkan tombol tetap disabled sampai halaman baru mengambil alih.
     } catch (err: any) {
       setError(err.message || 'Login gagal. Silakan coba lagi.');

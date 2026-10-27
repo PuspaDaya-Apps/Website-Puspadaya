@@ -22,11 +22,6 @@ import { flushQueryCache } from './persist';
 import { getQueryClient } from './queryClient';
 import { DashboardPeriod, queryKeys } from './queryKeys';
 
-// Login tidak boleh tertahan lama hanya karena prefetch. Setelah batas ini
-// tercapai, navigasi tetap jalan dan sisa permintaan diselesaikan oleh hook di
-// dashboard seperti biasa.
-const PREFETCH_TIMEOUT_MS = 2500;
-
 type PrefetchTask = () => Promise<unknown>;
 
 const buildTasks = (client: QueryClient, normalizedRole: string): PrefetchTask[] => {
@@ -147,8 +142,13 @@ const buildTasks = (client: QueryClient, normalizedRole: string): PrefetchTask[]
   return tasks;
 };
 
-// Dipanggil setelah login berhasil dan sebelum pindah ke dashboard, supaya
-// dashboard dibuka dengan data yang sudah ada di cache.
+// Dipanggil setelah login berhasil dan sebelum router.replace(), supaya
+// dashboard dibuka dengan cache yang sudah terisi. Pemanggilnya membatasi
+// waktu tunggu (lihat PREFETCH_MAX_WAIT_MS di SigninWithPassword) agar login
+// tidak tertahan kalau API lambat; sisa request yang belum selesai tetap jalan
+// karena navigasinya client-side.
+//
+// Catatan: fungsi ini tidak pernah reject (Promise.allSettled).
 export const prefetchDashboardData = async (role: string): Promise<void> => {
   if (typeof window === 'undefined') {
     return;
@@ -157,14 +157,9 @@ export const prefetchDashboardData = async (role: string): Promise<void> => {
   const client = getQueryClient();
   const tasks = buildTasks(client, role.trim().toLowerCase());
 
-  const allSettled = Promise.allSettled(tasks.map((task) => task()));
-  const timeout = new Promise<void>((resolve) => {
-    window.setTimeout(resolve, PREFETCH_TIMEOUT_MS);
-  });
+  await Promise.allSettled(tasks.map((task) => task()));
 
-  await Promise.race([allSettled, timeout]);
-
-  // Login berpindah halaman dengan location.replace(), jadi cache harus sudah
-  // tertulis sebelum navigasi -- tidak ada waktu untuk penulisan debounced.
+  // Tulis cache ke sessionStorage begitu semuanya selesai, supaya hasilnya
+  // masih terpakai kalau prefetch sempat tuntas sebelum halaman berpindah.
   flushQueryCache(client);
 };
