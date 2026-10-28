@@ -5,6 +5,7 @@
 
 'use client';
 
+import axios from 'axios';
 import { setupAxiosInterceptors, setRefreshTokenCallback } from '@/app/api/utils/axiosInterceptor';
 import { TokenManager } from '@/app/api/utils/TokenManager';
 import { refreshToken } from '@/app/api/token/refreshToken'; // We'll create this
@@ -14,6 +15,9 @@ import { refreshToken } from '@/app/api/token/refreshToken'; // We'll create thi
  * Call this once in your root layout or app entry point
  */
 export const initializeApp = () => {
+  // Global timeout: request tidak boleh menggantung tanpa batas.
+  axios.defaults.timeout = 15_000;
+
   // Setup axios interceptors
   setupAxiosInterceptors();
 

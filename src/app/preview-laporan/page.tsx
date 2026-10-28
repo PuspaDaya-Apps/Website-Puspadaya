@@ -749,8 +749,7 @@ const PreviewLaporanPage: React.FC = () => {
     kasusKritisQuery,
     bebanKerjaQuery,
   ];
-  const isDataLoading =
-    dataQueries.some((query) => query.isPending) || kaderQuery.isLoading;
+  const isDataLoading = dataQueries.some((query) => query.isPending);
   const hasDataError =
     dataQueries.some((query) => query.isError) || kaderQuery.isError;
 

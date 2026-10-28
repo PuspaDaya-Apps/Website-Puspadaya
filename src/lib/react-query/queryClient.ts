@@ -14,7 +14,7 @@ export const createQueryClient = (): QueryClient =>
         gcTime: DASHBOARD_GC_TIME_MS,
         refetchOnWindowFocus: false,
         refetchOnMount: false,
-        retry: 1,
+        retry: 0,
       },
     },
   });

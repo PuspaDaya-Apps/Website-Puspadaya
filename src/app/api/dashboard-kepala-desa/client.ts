@@ -1,5 +1,5 @@
 import { APIEndpoints } from '@/app/config/route/apiEndpoints';
-import { buildApiCacheKey, isApiCacheFresh, readApiCache, writeApiCache } from '@/app/api/cache';
+import { buildApiCacheKey, isApiCacheFresh, readApiCache } from '@/app/api/cache';
 import { Messages } from '@/components/Handleerror/message/messages';
 import { handleError } from '@/components/Handleerror/server/errorHandler';
 import { normalizePosyanduNames } from '@/utils/posyanduName';
@@ -129,7 +129,7 @@ async function fetchDashboardKepalaDesa<T>(
         extraPosyanduNameKeys
       );
       if (data !== null) {
-        writeApiCache(cacheKey, data);
+        // writeApiCache(cacheKey, data);
       }
 
       return {

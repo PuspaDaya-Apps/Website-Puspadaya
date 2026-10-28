@@ -134,11 +134,11 @@ const errorInterceptor = async (error: AxiosError): Promise<any> => {
   if (error.response && error.response.status >= 500 && !originalRequest?.skipRetry) {
     originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
 
-    if (originalRequest._retryCount <= 3) {
-      // console.log(`⚠️ Server error ${error.response.status}. Retry ${originalRequest._retryCount}/3`);
+    if (originalRequest._retryCount <= 1) {
+      // console.log(`⚠️ Server error ${error.response.status}. Retry ${originalRequest._retryCount}/1`);
       
-      // Exponential backoff: 1s, 2s, 4s
-      const delay = Math.pow(2, originalRequest._retryCount - 1) * 1000;
+      // Single retry: 1s
+      const delay = 1000;
       await new Promise(resolve => setTimeout(resolve, delay));
       
       return axios(originalRequest);
