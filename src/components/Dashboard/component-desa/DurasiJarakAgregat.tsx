@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useDurasiKerjaPosyandu } from "@/hooks/dashboard";
 import { DurasiKerjaPosyanduData } from "@/types/kepala-desa";
 import {
@@ -34,6 +34,32 @@ const zeroMonths = [
   "Des",
 ];
 
+const NAMA_BULAN = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
+];
+
+const indexBulan = (nama: string): number => {
+  const normalized = nama.trim().toLowerCase();
+  const fullIndex = NAMA_BULAN.findIndex((item) => item.toLowerCase() === normalized);
+
+  if (fullIndex !== -1) {
+    return fullIndex;
+  }
+
+  return zeroMonths.findIndex((item) => item.toLowerCase() === normalized);
+};
+
 const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
   bulan,
   tahun,
@@ -64,39 +90,61 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
   };
   const isPeriodDataReady = !hasPeriodFilter || !!apiData;
 
+  // API mengirim tren 12 bulan penuh. Sembunyikan bulan yang belum terjadi
+  // supaya grafik hanya tampil sampai bulan aktif.
+  const jumlahBulanTampil = useMemo(() => {
+    if (!hasPeriodFilter || bulan == null) {
+      return zeroMonths.length;
+    }
+
+    return Math.min(Math.max(bulan, 1), zeroMonths.length);
+  }, [hasPeriodFilter, bulan]);
+
+  const sampaiBulanAktif = useCallback(
+    <T extends { bulan: string }>(rows: T[]): T[] =>
+      rows.filter((row) => {
+        const index = indexBulan(row.bulan);
+
+        // Nama bulan yang tidak dikenali dibiarkan lewat, supaya data tidak
+        // hilang diam-diam kalau format dari API berubah.
+        return index === -1 || index < jumlahBulanTampil;
+      }),
+    [jumlahBulanTampil]
+  );
+
   const durationData = useMemo(() => {
     const tren = apiData?.tren?.durasi_kerja;
 
     if (tren && tren.length > 0) {
-      return tren.map((item) => ({
+      return sampaiBulanAktif(tren).map((item) => ({
         bulan: item.bulan,
         kerjaPosyandu: item.kerja_posyandu,
         kunjunganRumah: item.kunjungan_rumah,
       }));
     }
 
-    return zeroMonths.map((bulan) => ({
+    return zeroMonths.slice(0, jumlahBulanTampil).map((bulan) => ({
       bulan,
       kerjaPosyandu: 0,
       kunjunganRumah: 0,
     }));
-  }, [apiData]);
+  }, [apiData, sampaiBulanAktif, jumlahBulanTampil]);
 
   const distanceData = useMemo(() => {
     const tren = apiData?.tren?.jarak_tempuh;
 
     if (tren && tren.length > 0) {
-      return tren.map((item) => ({
+      return sampaiBulanAktif(tren).map((item) => ({
         bulan: item.bulan,
         jarak: item.km,
       }));
     }
 
-    return zeroMonths.map((bulan) => ({
+    return zeroMonths.slice(0, jumlahBulanTampil).map((bulan) => ({
       bulan,
       jarak: 0,
     }));
-  }, [apiData]);
+  }, [apiData, sampaiBulanAktif, jumlahBulanTampil]);
 
   const customTooltip = ({ active, payload, label, unit }: any) => {
     if (!active || !payload || !payload.length) {
