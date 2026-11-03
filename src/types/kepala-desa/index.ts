@@ -16,5 +16,6 @@ export * from './detail-posyandu-kader';
 export * from './detail-posyandu-kinerja';
 export * from './detail-posyandu-kinerja-per-posyandu';
 export * from './detail-posyandu-balita-all';
+export * from './detail-posyandu-ibu-hamil';
 export * from './kinerja-kepala-desa';
 export * from './detail-posyandu-kehadiran';

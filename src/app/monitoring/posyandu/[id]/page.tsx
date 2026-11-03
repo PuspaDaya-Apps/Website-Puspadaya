@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   fetchDetailPosyanduBalitaKhusus,
+  fetchDetailPosyanduIbuHamil,
   fetchDetailPosyanduKader,
   fetchDetailPosyanduKehadiran,
   fetchDetailPosyanduKinerja,
@@ -12,6 +13,7 @@ import {
 } from "@/app/api/detail-dashboard-kepala-desa";
 import {
   DetailPosyanduBalitaKhususData,
+  DetailPosyanduIbuHamilData,
   DetailPosyanduKaderData,
   DetailPosyanduKehadiranData,
   DetailPosyanduKinerjaData,
@@ -39,7 +41,7 @@ const PosyanduDetailPage: React.FC = () => {
     [detailToken]
   );
 
-  const [activeTab, setActiveTab] = useState<"overview" | "balita" | "kader" | "kinerja" | "kehadiran">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "balita" | "ibu-hamil" | "kader" | "kinerja" | "kehadiran">("overview");
   const [detailContext, setDetailContext] = useState<{ idPosyandu: string; bulan: number; tahun: number } | null>(cachedPageState?.detailContext ?? null);
   const [overviewData, setOverviewData] = useState<DetailPosyanduOverviewData | null>(cachedPageState?.overviewData ?? null);
   const [overviewLoading, setOverviewLoading] = useState(!cachedPageState?.overviewData);
@@ -57,6 +59,12 @@ const PosyanduDetailPage: React.FC = () => {
   const [balitaError, setBalitaError] = useState<string | null>(null);
   const [balitaPage, setBalitaPage] = useState(cachedPageState?.balitaPage ?? 1);
   const balitaLimit = 5;
+  const [ibuHamilData, setIbuHamilData] = useState<DetailPosyanduIbuHamilData | null>(null);
+  const [ibuHamilLoading, setIbuHamilLoading] = useState(false);
+  const [ibuHamilError, setIbuHamilError] = useState<string | null>(null);
+  const [ibuHamilPage, setIbuHamilPage] = useState(1);
+  const [ibuHamilSearchTerm, setIbuHamilSearchTerm] = useState("");
+  const ibuHamilLimit = 10;
   const [kaderData, setKaderData] = useState<DetailPosyanduKaderData | null>(cachedPageState?.kaderData ?? null);
   const [kaderLoading, setKaderLoading] = useState(!cachedPageState?.kaderData);
   const [kaderError, setKaderError] = useState<string | null>(null);
@@ -243,6 +251,56 @@ const PosyanduDetailPage: React.FC = () => {
       }
     };
 
+    const loadIbuHamil = async () => {
+      // API tidak punya parameter search, jadi seluruh baris posyandu ini
+      // diambil sekali (per halaman API) lalu pencarian + pagination
+      // dilakukan di client.
+      const pageSize = 100;
+
+      setIbuHamilLoading(true);
+      setIbuHamilError(null);
+
+      const first = await fetchDetailPosyanduIbuHamil(detailContext.idPosyandu, {
+        bulan: detailContext.bulan,
+        tahun: detailContext.tahun,
+        page: 1,
+        limit: pageSize,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (first.successCode !== 200 || !first.data) {
+        setIbuHamilError("Gagal memuat data ibu hamil");
+        setIbuHamilLoading(false);
+        return;
+      }
+
+      let rows = first.data.ibu_hamil ?? [];
+      const totalPage = first.data.pagination?.total_page ?? 1;
+
+      for (let page = 2; page <= totalPage; page += 1) {
+        const next = await fetchDetailPosyanduIbuHamil(detailContext.idPosyandu, {
+          bulan: detailContext.bulan,
+          tahun: detailContext.tahun,
+          page,
+          limit: pageSize,
+        });
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (next.successCode === 200 && next.data) {
+          rows = rows.concat(next.data.ibu_hamil ?? []);
+        }
+      }
+
+      setIbuHamilData({ ...first.data, ibu_hamil: rows });
+      setIbuHamilLoading(false);
+    };
+
     const loadKader = async () => {
       const hasExistingData = kaderData !== null;
 
@@ -388,6 +446,7 @@ const PosyanduDetailPage: React.FC = () => {
     loadOverview();
     loadRingkasan();
     loadBalitaKhusus();
+    loadIbuHamil();
     loadKader();
     loadKinerja();
     loadKehadiran();
@@ -400,6 +459,10 @@ const PosyanduDetailPage: React.FC = () => {
   useEffect(() => {
     setKaderPage(1);
   }, [detailContext?.idPosyandu, detailContext?.bulan, detailContext?.tahun]);
+
+  useEffect(() => {
+    setIbuHamilPage(1);
+  }, [detailContext?.idPosyandu, detailContext?.bulan, detailContext?.tahun, ibuHamilSearchTerm]);
 
   const apiPosyandu = ringkasanData?.posyandu;
 
@@ -564,6 +627,33 @@ const PosyanduDetailPage: React.FC = () => {
     return Array.from({ length: end - start + 1 }, (_, index) => start + index);
   }, [balitaPagination]);
 
+  const ibuHamilRows = ibuHamilData?.ibu_hamil ?? [];
+  const normalizedIbuHamilSearch = ibuHamilSearchTerm.trim().toLowerCase();
+  const filteredIbuHamilRows = ibuHamilRows.filter(
+    (ibuHamil) =>
+      ibuHamil.nama.toLowerCase().includes(normalizedIbuHamilSearch) ||
+      ibuHamil.status.toLowerCase().includes(normalizedIbuHamilSearch)
+  );
+  const ibuHamilTotalPages = Math.max(1, Math.ceil(filteredIbuHamilRows.length / ibuHamilLimit));
+  const ibuHamilCurrentPage = Math.min(ibuHamilPage, ibuHamilTotalPages);
+  const ibuHamilVisibleRows = filteredIbuHamilRows.slice(
+    (ibuHamilCurrentPage - 1) * ibuHamilLimit,
+    ibuHamilCurrentPage * ibuHamilLimit
+  );
+  const ibuHamilPageButtons = useMemo(() => {
+    const totalPage = ibuHamilTotalPages;
+    const currentPage = ibuHamilCurrentPage;
+
+    if (totalPage <= 5) {
+      return Array.from({ length: totalPage }, (_, index) => index + 1);
+    }
+
+    const start = Math.max(1, currentPage - 2);
+    const end = Math.min(totalPage, start + 4);
+
+    return Array.from({ length: end - Math.max(1, end - 4) + 1 }, (_, index) => Math.max(1, end - 4) + index);
+  }, [ibuHamilTotalPages, ibuHamilCurrentPage]);
+
   return (
     <div className="space-y-6 p-4 sm:p-6">
       {/* Header */}
@@ -651,6 +741,7 @@ const PosyanduDetailPage: React.FC = () => {
         {[
           { id: "overview", label: "Overview", icon: "" },
           { id: "balita", label: "Data Balita", icon: "" },
+          { id: "ibu-hamil", label: "Data Ibu Hamil", icon: "" },
           { id: "kader", label: "Kader", icon: "" },
           { id: "kinerja", label: "Kinerja", icon: "" },
           { id: "kehadiran", label: "Kehadiran", icon: "" },
@@ -899,6 +990,158 @@ const PosyanduDetailPage: React.FC = () => {
                   </button>
                 </div>
               </div>
+            )}
+          </div>
+        )}
+
+        {/* Ibu Hamil Tab */}
+        {activeTab === "ibu-hamil" && (
+          <div className="space-y-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <h3 className="text-lg font-semibold text-dark dark:text-white">
+                Data Ibu Hamil dengan Risiko KEK
+              </h3>
+              {!ibuHamilLoading && !ibuHamilError && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {filteredIbuHamilRows.length} ibu hamil
+                </p>
+              )}
+            </div>
+
+            {!ibuHamilLoading && !ibuHamilError && ibuHamilRows.length > 0 && (
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Cari nama ibu hamil atau status..."
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pl-10 text-dark outline-none focus:border-primary dark:border-gray-600 dark:bg-gray-dark dark:text-white dark:focus:border-primary"
+                  value={ibuHamilSearchTerm}
+                  onChange={(event) => setIbuHamilSearchTerm(event.target.value)}
+                />
+                {ibuHamilSearchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setIbuHamilSearchTerm("")}
+                    className="absolute right-3 top-2 rounded-md px-2 py-1 text-xs font-medium text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    aria-label="Hapus pencarian ibu hamil"
+                  >
+                    Hapus
+                  </button>
+                )}
+                <svg
+                  className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            )}
+
+            {ibuHamilLoading ? (
+              <div className="rounded-lg border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                Memuat data ibu hamil...
+              </div>
+            ) : ibuHamilError ? (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-10 text-center text-sm text-red-600 dark:border-red-900/40 dark:bg-red-900/10 dark:text-red-300">
+                {ibuHamilError}
+              </div>
+            ) : ibuHamilRows.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                Tidak ada data ibu hamil pada periode ini.
+              </div>
+            ) : filteredIbuHamilRows.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                Tidak ada ibu hamil yang cocok dengan pencarian.
+              </div>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200 dark:border-gray-700">
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Nama</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Usia</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Usia Kehamilan</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">BB/TB</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">LiLA</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                      {ibuHamilVisibleRows.map((ibuHamil) => (
+                        <tr key={ibuHamil.id_ibu_hamil} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                          <td className="px-4 py-3 font-medium text-dark dark:text-white">{ibuHamil.nama}</td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{ibuHamil.usia}</td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{ibuHamil.usia_kehamilan}</td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                            {ibuHamil.berat_badan}kg / {ibuHamil.tinggi_badan}cm
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                            <div>
+                              {ibuHamil.lila} {ibuHamil.indikator_kek?.satuan ?? "cm"}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              Ambang batas {ibuHamil.indikator_kek?.ambang_batas} {ibuHamil.indikator_kek?.satuan ?? "cm"}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`rounded-full px-2 py-1 text-xs font-medium ${
+                                ibuHamil.indikator_kek?.is_kek
+                                  ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                                  : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
+                              }`}
+                            >
+                              {ibuHamil.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="flex flex-col items-center gap-3 text-center text-sm text-gray-600 dark:text-gray-400">
+                  <div>
+                    Menampilkan {ibuHamilVisibleRows.length} dari {filteredIbuHamilRows.length} ibu hamil
+                  </div>
+                  {ibuHamilTotalPages > 1 && (
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIbuHamilPage((page) => Math.max(1, page - 1))}
+                        disabled={ibuHamilCurrentPage <= 1}
+                        className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-dark transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-white"
+                      >
+                        Sebelumnya
+                      </button>
+                      {ibuHamilPageButtons.map((pageNumber) => (
+                        <button
+                          key={pageNumber}
+                          type="button"
+                          onClick={() => setIbuHamilPage(pageNumber)}
+                          className={`min-w-10 rounded-lg border px-3 py-1.5 font-medium transition ${
+                            pageNumber === ibuHamilCurrentPage
+                              ? "border-primary bg-primary text-white"
+                              : "border-gray-300 text-dark hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800"
+                          }`}
+                        >
+                          {pageNumber}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setIbuHamilPage((page) => Math.min(ibuHamilTotalPages, page + 1))}
+                        disabled={ibuHamilCurrentPage >= ibuHamilTotalPages}
+                        className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-dark transition disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-white"
+                      >
+                        Berikutnya
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         )}
