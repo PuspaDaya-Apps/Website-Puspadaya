@@ -91,14 +91,32 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
   const isPeriodDataReady = !hasPeriodFilter || !!apiData;
 
   // API mengirim tren 12 bulan penuh. Sembunyikan bulan yang belum terjadi
-  // supaya grafik hanya tampil sampai bulan aktif.
+  // supaya grafik hanya tampil sampai bulan aktif. Batasnya diambil dari bulan
+  // kalender, bukan cuma bulan filter: memilih Desember di bulan November tidak
+  // boleh menggambar Desember. Saat bulannya benar-benar tiba, batas ini maju
+  // sendiri tanpa perlu ubah kode.
   const jumlahBulanTampil = useMemo(() => {
-    if (!hasPeriodFilter || bulan == null) {
-      return zeroMonths.length;
+    const totalBulan = zeroMonths.length;
+
+    if (!hasPeriodFilter || bulan == null || tahun == null) {
+      return totalBulan;
     }
 
-    return Math.min(Math.max(bulan, 1), zeroMonths.length);
-  }, [hasPeriodFilter, bulan]);
+    const sekarang = new Date();
+    const tahunSekarang = sekarang.getFullYear();
+
+    // Tahun lampau sudah lengkap; tahun yang belum datang belum punya data.
+    const batasKalender =
+      tahun < tahunSekarang
+        ? totalBulan
+        : tahun > tahunSekarang
+          ? 0
+          : sekarang.getMonth() + 1;
+
+    const batasFilter = Math.min(Math.max(bulan, 1), totalBulan);
+
+    return Math.min(batasFilter, batasKalender);
+  }, [hasPeriodFilter, bulan, tahun]);
 
   const sampaiBulanAktif = useCallback(
     <T extends { bulan: string }>(rows: T[]): T[] =>
