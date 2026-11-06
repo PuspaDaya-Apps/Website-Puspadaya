@@ -25,9 +25,8 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({
   tahun,
   bulanLabel,
 }) => {
-  const { data: statistikSkdn, isPending, isError } = useStatistikSkdn({ bulan, tahun });
+  const { data: statistikSkdn, isError } = useStatistikSkdn({ bulan, tahun });
   const apiData: StatistikSkdnData | null = statistikSkdn ?? null;
-  const isLoading = isPending;
   const errorMessage = isError ? "Gagal memuat statistik SKDN" : null;
 
   const displayData = useMemo(() => {
@@ -95,15 +94,6 @@ const SKDNBarChart: React.FC<SKDNBarChartProps> = ({
     ? `Statistik SKDN - ${bulanLabel} ${tahun}`
     : `Statistik SKDN - bulan ${bulan} ${tahun}`;
 
-  // Selama data belum ada, jangan render konten -- angkanya akan
-  // tampil sebagai 0 dan terbaca sebagai data asli.
-  if (isLoading) {
-    return (
-      <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-        Memuat statistik SKDN...
-      </div>
-    );
-  }
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">

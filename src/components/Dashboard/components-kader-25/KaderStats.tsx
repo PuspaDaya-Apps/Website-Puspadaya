@@ -4,15 +4,13 @@ import { useKaderBebanKerja } from "@/hooks/dashboard";
 
 const KaderStats: React.FC = () => {
   // Nilai null tetap aman: pembacaan di bawah sudah memakai `?? 0`.
-  const { data, isPending: loading } = useKaderBebanKerja();
+  const { data } = useKaderBebanKerja();
 
   const getBebanKerjaLabel = (score: number) => {
     if (score >= 80) return "Beban kerja tinggi";
     if (score >= 60) return "Beban kerja sedang";
     return "Beban kerja rendah";
   };
-
-  if (loading) return <p className="text-gray-500">Memuat data...</p>;
 
   // Pastikan semua data aman (null === 0)
   const totalBalita = data?.total_anak_diukur_bulan_ini ?? 0;

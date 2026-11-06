@@ -10,9 +10,8 @@ interface AdditionalMetricsProps {
 }
 
 const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ bulan, tahun, bulanLabel }) => {
-  const { data: anakCakupan, isPending, isError } = useAnakCakupanDilayani({ bulan, tahun });
+  const { data: anakCakupan, isError } = useAnakCakupanDilayani({ bulan, tahun });
   const apiData: AnakCakupanDilayaniData | null = anakCakupan ?? null;
-  const isLoading = isPending;
   const errorMessage = isError ? "Gagal memuat data cakupan layanan anak" : null;
 
   const displayData = useMemo(() => ({
@@ -49,15 +48,6 @@ const AdditionalMetrics: React.FC<AdditionalMetricsProps> = ({ bulan, tahun, bul
     return (value / total) * 100;
   };
 
-  // Selama data belum ada, jangan render konten -- angkanya akan
-  // tampil sebagai 0 dan terbaca sebagai data asli.
-  if (isLoading) {
-    return (
-      <div className="rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-        Memuat data cakupan layanan anak...
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">

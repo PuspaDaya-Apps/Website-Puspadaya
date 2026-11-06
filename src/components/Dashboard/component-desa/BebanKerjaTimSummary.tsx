@@ -14,9 +14,8 @@ const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({
   tahun,
   bulanLabel,
 }) => {
-  const { data: skorBebanKerja, isPending, isError } = useSkorBebanKerjaTim({ bulan, tahun });
+  const { data: skorBebanKerja, isError } = useSkorBebanKerjaTim({ bulan, tahun });
   const apiData: SkorBebanKerjaTimData | null = skorBebanKerja ?? null;
-  const isLoading = isPending;
   const errorMessage = isError ? "Gagal memuat skor beban kerja tim" : null;
 
   const ringkasan = apiData?.kader?.ringkasan;
@@ -45,15 +44,6 @@ const BebanKerjaTimSummary: React.FC<BebanKerjaTimSummaryProps> = ({
 
   const periodeLabel = bulanLabel ? `${bulanLabel} ${tahun}` : `bulan ${bulan} ${tahun}`;
 
-  // Selama data belum ada, jangan render konten -- angkanya akan
-  // tampil sebagai 0 dan terbaca sebagai data asli.
-  if (isLoading) {
-    return (
-      <div className="mb-6 rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-        Memuat skor beban kerja tim...
-      </div>
-    );
-  }
 
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-lg shadow-gray-200/50 transition-all duration-300 hover:shadow-xl dark:border-gray-700 dark:bg-gray-dark dark:shadow-none">

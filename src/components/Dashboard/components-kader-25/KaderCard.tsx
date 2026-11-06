@@ -4,16 +4,9 @@ import { useKaderProfil } from "@/hooks/dashboard";
 
 
 const KaderCard: React.FC = () => {
-    const { data, isPending: loading } = useKaderProfil();
+    const { data } = useKaderProfil();
     const kader = data ?? null;
 
-    if (loading) {
-        return (
-            <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark text-center">
-                <p className="text-gray-600 dark:text-gray-300">Memuat data kader...</p>
-            </div>
-        );
-    }
 
     if (!kader) {
         return (

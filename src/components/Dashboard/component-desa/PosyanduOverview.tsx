@@ -120,15 +120,6 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
     router.push(`/monitoring/posyandu/${token}`);
   };
 
-  // Selama data belum ada, jangan render konten -- angkanya akan
-  // tampil sebagai 0 dan terbaca sebagai data asli.
-  if (isLoading) {
-    return (
-      <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-        Memuat tren data posyandu...
-      </div>
-    );
-  }
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">

@@ -1,7 +1,19 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { PosyanduItem } from "@/types/dashboard-kepala-desa";
 import { useSeniorMode } from "@/contexts/SeniorModeContext";
+import {
+  useAnakCakupanDilayani,
+  useDurasiKerjaPosyandu,
+  useImunisasiKependudukan,
+  useInformasiDataDesa,
+  useLogAktivitasKader,
+  useSkorBebanKerjaTim,
+  useStatistikDataDesa,
+  useStatistikSkdn,
+  useTrenDataPosyandu,
+} from "@/hooks/dashboard";
+import DashboardLoader from "../DashboardLoader";
 
 // New hierarchical components
 import KeyMetrics from "../component-desa/KeyMetrics";
@@ -25,6 +37,29 @@ const DashboardKepalaDesa: React.FC = () => {
   const [totalPosyandu, setTotalPosyandu] = useState<number>(0);
 
   const { isSeniorMode } = useSeniorMode();
+
+  const periode = useMemo(
+    () => ({ bulan: selectedMonth, tahun: filterTahun }),
+    [selectedMonth, filterTahun]
+  );
+
+  // Semua query di bawah ini sudah dipanggil juga oleh komponen anak dengan
+  // queryKey yang sama, jadi React Query men-dedupe-nya: tidak ada request
+  // tambahan, hanya satu tempat untuk menahan tampilan sampai semuanya siap.
+  // Mode senior punya dashboard sendiri, jadi query di sini dimatikan.
+  const periodeOptions = { enabled: !isSeniorMode };
+  const dashboardQueries = [
+    useInformasiDataDesa(periode, periodeOptions),
+    useTrenDataPosyandu(periode, periodeOptions),
+    useStatistikDataDesa(periode, periodeOptions),
+    useAnakCakupanDilayani(periode, periodeOptions),
+    useStatistikSkdn(periode, periodeOptions),
+    useDurasiKerjaPosyandu(periode, periodeOptions),
+    useSkorBebanKerjaTim(periode, periodeOptions),
+    useImunisasiKependudukan(periode, periodeOptions),
+    useLogAktivitasKader(periode, periodeOptions),
+  ];
+  const isDashboardLoading = dashboardQueries.some((query) => query.isPending);
 
   // Daftar bulan
   const daftarBulan = [
@@ -99,13 +134,25 @@ const DashboardKepalaDesa: React.FC = () => {
               ))}
             </select>
 
-            <div className="rounded-lg bg-primary px-4 py-2 text-sm text-white">
-              <span className="font-medium">{totalPosyandu} Posyandu</span>
-            </div>
+            {/* Jumlahnya baru diisi PosyanduOverview setelah data masuk, jadi
+                selama loading badge ini disembunyikan daripada menampilkan 0
+                yang terbaca sebagai angka asli. */}
+            {!isDashboardLoading && (
+              <div className="rounded-lg bg-primary px-4 py-2 text-sm text-white">
+                <span className="font-medium">{totalPosyandu} Posyandu</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
+      {/* Satu loading untuk seluruh isi dashboard. Header dan filter periode di
+          atas sengaja tetap tampil supaya user bisa ganti periode lagi tanpa
+          menunggu request selesai. */}
+      {isDashboardLoading ? (
+        <DashboardLoader />
+      ) : (
+        <>
       {/* LEVEL 2: KEY METRICS - Indikator Kunci */}
       <KeyMetrics
         bulan={selectedMonth}
@@ -201,6 +248,8 @@ const DashboardKepalaDesa: React.FC = () => {
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
       />
+        </>
+      )}
     </div>
   );
 };

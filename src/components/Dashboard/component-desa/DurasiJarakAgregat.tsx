@@ -69,15 +69,12 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
   // bulan/tahun opsional di props; nilai 0 hanya pengisi saat query dimatikan.
   const {
     data: durasiKerja,
-    isPending,
     isError,
   } = useDurasiKerjaPosyandu(
     { bulan: bulan ?? 0, tahun: tahun ?? 0 },
     { enabled: hasPeriodFilter }
   );
   const apiData: DurasiKerjaPosyanduData | null = hasPeriodFilter ? durasiKerja ?? null : null;
-  // Tanpa filter periode query tidak pernah jalan, jadi jangan tampilkan loading.
-  const isLoading = hasPeriodFilter && isPending;
   const errorMessage = isError ? "Gagal memuat durasi kerja posyandu" : null;
 
   const displayRingkasan = {
@@ -88,7 +85,6 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
     rata_rata_durasi_kunjungan: apiData?.ringkasan?.kunjungan_rumah_jam ?? 0,
     rata_rata_jarak: apiData?.ringkasan?.jarak_tempuh_km ?? 0,
   };
-  const isPeriodDataReady = !hasPeriodFilter || !!apiData;
 
   // API mengirim tren 12 bulan penuh. Sembunyikan bulan yang belum terjadi
   // supaya grafik hanya tampil sampai bulan aktif. Batasnya diambil dari bulan
@@ -185,15 +181,6 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
     );
   };
 
-  // Selama data belum ada, jangan render konten -- angkanya akan
-  // tampil sebagai 0 dan terbaca sebagai data asli.
-  if (isLoading) {
-    return (
-      <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-        Memuat durasi kerja posyandu...
-      </div>
-    );
-  }
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-md dark:bg-gray-dark">
@@ -223,19 +210,19 @@ const DurasiJarakAgregat: React.FC<DurasiJarakAgregatProps> = ({
           <div className="text-right">
             <p className="text-xs text-gray-500 dark:text-gray-400">Kerja Posyandu</p>
             <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
-              {isPeriodDataReady ? `${displayRingkasan.total_durasi_kerja_posyandu ?? 0} jam` : "Memuat..."}
+              {`${displayRingkasan.total_durasi_kerja_posyandu ?? 0} jam`}
             </p>
           </div>
           <div className="text-right">
             <p className="text-xs text-gray-500 dark:text-gray-400">Kunjungan Rumah</p>
             <p className="text-lg font-bold text-violet-600 dark:text-violet-400">
-              {isPeriodDataReady ? `${displayRingkasan.total_durasi_kunjungan_rumah ?? 0} jam` : "Memuat..."}
+              {`${displayRingkasan.total_durasi_kunjungan_rumah ?? 0} jam`}
             </p>
           </div>
           <div className="text-right">
             <p className="text-xs text-gray-500 dark:text-gray-400">Jarak Tempuh</p>
             <p className="text-lg font-bold text-pink-600 dark:text-pink-400">
-              {isPeriodDataReady ? `${displayRingkasan.total_jarak_kunjungan_rumah ?? 0} km` : "Memuat..."}
+              {`${displayRingkasan.total_jarak_kunjungan_rumah ?? 0} km`}
             </p>
           </div>
         </div>

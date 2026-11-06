@@ -6,7 +6,6 @@ import { SvgIconLoveOrange } from "@/components/ui/Svg";
 import { DashboardSectionProps } from './types';
 
 const PosyanduDistributionSection: React.FC<DashboardSectionProps> = ({ 
-  isLoading, 
   datadash, 
   monthYear 
 }) => {
@@ -20,60 +19,46 @@ const PosyanduDistributionSection: React.FC<DashboardSectionProps> = ({
   return (
     <>
       <div className="col-span-8">
-        {isLoading.grafikPersebaranPosyandu ? (
-          <div className="h-[400px] bg-gray-100 rounded-lg animate-pulse flex items-center justify-center">
-            Memuat grafik posyandu...
-          </div>
-        ) : (
-           ![ "Ketua Kader"].includes(userRole||"") &&(
-          <GrafikPersebaranPosyandu />
-           )
-        )}
+        { ![ "Ketua Kader"].includes(userRole||"") &&(
+        <GrafikPersebaranPosyandu />
+         )}
       </div>
 
       <div className="col-span-4 flex flex-col justify-between gap-4">
-        {isLoading.countingCard ? (
-          <div className="h-48 bg-gray-100 rounded-lg animate-pulse"></div>
-        ) : (
-          ![ "Ketua Kader"].includes(userRole||"") &&(
-          <CountingCard
-            icon={SvgIconLoveOrange}
-            isMeningkat={true}
-            jumlah={datadash?.jumlah_posyandu?.jumlah || "0"}
-            peningkatan={
-              datadash?.jumlah_posyandu?.rate == `null`
-                ? `${datadash.jumlah_posyandu.rate}%`
-                : "-"
-            }
-            title="Jumlah Posyandu"
-            title_secound=""
-            subtitle={datadash?.jumlah_posyandu?.status || ""}
-            color="#EBF3FE"
-          />
-          )
+        {![ "Ketua Kader"].includes(userRole||"") &&(
+        <CountingCard
+          icon={SvgIconLoveOrange}
+          isMeningkat={true}
+          jumlah={datadash?.jumlah_posyandu?.jumlah || "0"}
+          peningkatan={
+            datadash?.jumlah_posyandu?.rate == `null`
+              ? `${datadash.jumlah_posyandu.rate}%`
+              : "-"
+          }
+          title="Jumlah Posyandu"
+          title_secound=""
+          subtitle={datadash?.jumlah_posyandu?.status || ""}
+          color="#EBF3FE"
+        />
         )}
 
-        {isLoading.countingCard ? (
-          <div className="h-48 bg-gray-100 rounded-lg animate-pulse"></div>
-        ) : (
-          ![ "Ketua Kader"].includes(userRole||"") &&(
-            <PercentageCard
-                title={"Persentase Jumlah Posyandu"}
-                jumlah={100}
-                  color={["#34B53A", "#F39D00"]}
-                data={[
-                    {
-                    name: "Banyuwangi",
-                    value: datadash?.persentase_posyandu?.banyuwangi_rate ?? 0,
-                  },
+        {![ "Ketua Kader"].includes(userRole||"") &&(
+          <PercentageCard
+              title={"Persentase Jumlah Posyandu"}
+              jumlah={100}
+                color={["#34B53A", "#F39D00"]}
+              data={[
                   {
-                    name: "Maluku Tengah",
-                    value: datadash?.persentase_posyandu?.maluku_rate ?? 0,
-                  },
-                ]}
-                label={["Banyuwangi", "Maluku Tengah"]}
-              />
-          )
+                  name: "Banyuwangi",
+                  value: datadash?.persentase_posyandu?.banyuwangi_rate ?? 0,
+                },
+                {
+                  name: "Maluku Tengah",
+                  value: datadash?.persentase_posyandu?.maluku_rate ?? 0,
+                },
+              ]}
+              label={["Banyuwangi", "Maluku Tengah"]}
+            />
         )}
       </div>
     </>

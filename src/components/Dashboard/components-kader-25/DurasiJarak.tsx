@@ -19,17 +19,8 @@ import { useKaderJarakTempuh } from "@/hooks/dashboard";
 const DurasiJarak: React.FC = () => {
     // Saat API gagal data tetap undefined dan pembacaan di bawah jatuh ke 0 --
     // perilakunya sama seperti data default sebelumnya.
-    const { data, isPending: loading } = useKaderJarakTempuh();
+    const { data } = useKaderJarakTempuh();
 
-    if (loading) {
-        return (
-            <div className="rounded-xl bg-white p-6 text-center shadow-md dark:bg-gray-dark">
-                <p className="text-gray-600 dark:text-gray-300">
-                    Memuat data durasi dan jarak tempuh...
-                </p>
-            </div>
-        );
-    }
 
     // 🧮 Handle null → 0
     const durasiPosyandu = data?.durasi_kerja_posyandu ?? 0;

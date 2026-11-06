@@ -44,26 +44,7 @@ export interface DashboardData {
   };
 }
 
-export interface DashboardLoadingStates {
-  grafikTrendStuntingBalita?: boolean;
-  grafikTrendStuntingBanyuwangi?: boolean;
-
-  countingCard?: boolean;
-  mapPersebaranBalitaStunting?: boolean;
-  mapPersebaranBalitaBerdasarkanWilayah?: boolean;
-  mapPersebaranKader?: boolean;
-  mapPersebaranKeluargaTanpaMCK?: boolean;
-}
-
 export interface DashboardSectionProps {
-  isLoading: {
-    grafikTrendStuntingBalita?: boolean;
-    grafikTrendStuntingBanyuwangi?: boolean;
-    countingCard?: boolean;
-    grafikPersebaranPosyandu?: boolean;
-    grafikPersebaranKaderDanTingkatAktivitas?: boolean;
-    countingCardRow?: boolean;
-  };
   datadash: any;
   monthYear: string;
 }

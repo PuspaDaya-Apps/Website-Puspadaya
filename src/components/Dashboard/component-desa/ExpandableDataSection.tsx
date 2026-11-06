@@ -56,9 +56,8 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
   bulanLabel,
 }) => {
   const [activeTab, setActiveTab] = useState<"imunisasi" | "kependudukan">("imunisasi");
-  const { data: imunisasiKependudukan, isPending, isError } = useImunisasiKependudukan({ bulan, tahun });
+  const { data: imunisasiKependudukan, isError } = useImunisasiKependudukan({ bulan, tahun });
   const apiData: ImunisasiKependudukanData | null = imunisasiKependudukan ?? null;
-  const isLoading = isPending;
   const errorMessage = isError ? "Gagal memuat data imunisasi dan kependudukan" : null;
 
   const displayData = useMemo(
@@ -103,15 +102,6 @@ const ExpandableDataSection: React.FC<ExpandableDataSectionProps> = ({
     return (value / total) * 100;
   };
 
-  // Selama data belum ada, jangan render konten -- angkanya akan
-  // tampil sebagai 0 dan terbaca sebagai data asli.
-  if (isLoading) {
-    return (
-      <div className="mb-6 rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-        Memuat data imunisasi dan kependudukan...
-      </div>
-    );
-  }
 
   return (
     <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">

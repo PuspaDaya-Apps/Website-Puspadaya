@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useStatistikDashboard } from "@/hooks/dashboard";
+import DashboardLoader from "../DashboardLoader";
 import dynamic from "next/dynamic";
 import TrendSection from "../card-components/TrendSection";
 import NutritionStatusSection from "../card-components/NutritionStatusSection";
@@ -22,22 +23,10 @@ const MapPersebaranKeluargaTanpaMCK = dynamic(() => import("@/components/Charts/
 const DashboardAdmin = () => {
   // Data dashboard dibaca dari cache React Query: cukup satu kali fetch, lalu
   // dipakai ulang saat komponen mount lagi atau user pindah halaman.
-  const { data: datadash = null } = useStatistikDashboard();
+  const { data: datadash = null, isPending } = useStatistikDashboard();
   const [items, setItems] = useState([]);
   const [hasMore, setHasMore] = useState(true);
 
-  const [isLoading, setIsLoading] = useState({
-    grafikTrendStuntingBalita: true,
-    grafikTrendStuntingBanyuwangi: true,
-    mapPersebaranBalitaStunting: true,
-    mapPersebaranBalitaBerdasarkanWilayah: true,
-    grafikPersebaranPosyandu: true,
-    grafikPersebaranKaderDanTingkatAktivitas: true,
-    mapPersebaranKader: true,
-    mapPersebaranKeluargaTanpaMCK: true,
-    countingCard: true,
-    countingCardRow: true,
-  });
 
   const currentDate = new Date();
   const monthYear = currentDate.toLocaleString("id-ID", {
@@ -57,34 +46,6 @@ const fetchMoreData = () => {
   }, 500);
 };
 
-useEffect(() => {
-  // Mengatur waktu loading yang lebih singkat dan bervariasi
-  const loadingTimeouts = [
-    { key: 'countingCard', delay: 800 },
-    { key: 'countingCardRow', delay: 1000 },
-    { key: 'grafikTrendStuntingBalita', delay: 1200 },
-    { key: 'grafikTrendStuntingBanyuwangi', delay: 1500 },
-    { key: 'mapPersebaranBalitaStunting', delay: 1800 },
-    { key: 'mapPersebaranBalitaBerdasarkanWilayah', delay: 2000 },
-    { key: 'grafikPersebaranPosyandu', delay: 2200 },
-    { key: 'grafikPersebaranKaderDanTingkatAktivitas', delay: 2500 },
-    { key: 'mapPersebaranKader', delay: 2800 },
-    { key: 'mapPersebaranKeluargaTanpaMCK', delay: 3000 }
-  ];
-
-  loadingTimeouts.forEach(({ key, delay }) => {
-    setTimeout(() => {
-      setIsLoading(prev => ({ ...prev, [key]: false }));
-    }, delay);
-  });
-
-  // Membersihkan timeout saat komponen unmount
-  return () => {
-    loadingTimeouts.forEach(({ key, delay }) => {
-      clearTimeout(setTimeout(() => {}, delay));
-    });
-  };
-}, []);
 
   return (
     <div>
@@ -95,6 +56,10 @@ useEffect(() => {
         </p>
       </div>
 
+      {/* Satu loading untuk seluruh isi dashboard. */}
+      {isPending ? (
+        <DashboardLoader />
+      ) : (
       <InfiniteScroll
         dataLength={items.length}
         next={fetchMoreData}
@@ -103,93 +68,69 @@ useEffect(() => {
       >
         <div className="grid grid-cols-12 gap-10">
           <TrendSection
-            isLoading={isLoading}
             datadash={datadash}
             monthYear={monthYear}
           />
 
           <NutritionStatusSection
-            isLoading={isLoading}
             datadash={datadash}
             monthYear={monthYear}
           />
 
           <AttendanceSection
-            isLoading={isLoading}
             datadash={datadash}
             monthYear={monthYear}
           />
 
           <NutritionProgramSection
-            isLoading={isLoading}
             datadash={datadash}
             monthYear={monthYear}
           />
 
           <SKDNSection
-            isLoading={isLoading}
             datadash={datadash}
             monthYear={monthYear}
           />
 
           <NIKStatisticsSection
-            isLoading={isLoading}
             datadash={datadash}
             monthYear={monthYear}
           />
 
           <PregnancyRiskSection
-            isLoading={isLoading}
             datadash={datadash}
             monthYear={monthYear}
           />
 
           <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
-            {isLoading.mapPersebaranBalitaStunting ? (
-              <h4>Loading...</h4>
-            ) : (
-              <MapPersebaranBalitaStunting />
-            )}
+            <MapPersebaranBalitaStunting />
           </div>
 
           <PosyanduDistributionSection
-            isLoading={isLoading}
             datadash={datadash}
             monthYear={monthYear}
           />
 
           <KaderDistributionSection
-            isLoading={isLoading}
             datadash={datadash}
             monthYear={monthYear}
           />
 
           <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
-            {isLoading.mapPersebaranBalitaBerdasarkanWilayah ? (
-              <h4>Loading...</h4>
-            ) : (
-              <MapPersebaranBalitaBerdasarkanWIlayah />
-            )}
+            <MapPersebaranBalitaBerdasarkanWIlayah />
           </div>
 
           <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
-            {isLoading.mapPersebaranKader ? (
-              <h4>Loading...</h4>
-            ) : (
-              <MapPersebaranKader />
-            )}
+            <MapPersebaranKader />
           </div>
 
           <div className="col-span-12 w-full rounded-lg bg-white p-10 shadow-lg">
-            {isLoading.mapPersebaranKeluargaTanpaMCK ? (
-              <h4>Loading...</h4>
-            ) : (
-              <MapPersebaranKeluargaTanpaMCK />
-            )}
+            <MapPersebaranKeluargaTanpaMCK />
           </div>
           
         </div>
       </InfiniteScroll>
+      )}
     </div>
   );
 };

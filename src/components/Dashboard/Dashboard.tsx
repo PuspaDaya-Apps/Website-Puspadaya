@@ -5,13 +5,14 @@ import DashboardDinasKesehatan from "./component/DashboardDinasKesehatan";
 import DashboardDinasSosial from "./component/DashboardDinasSosial";
 import DashboardKepalaDesa from "./component/DashboardKepalaDesa";
 import DashboardTenagaPelaksanaGizi from "./component/DashboardTenagaPelaksanaGizi";
+import DashboardLoader from "./DashboardLoader";
 
 
 const Dashboard = () => {
   const namaRole = sessionStorage.getItem("user_role");
 
   if (!namaRole) {
-    return <p>Loading...</p>;
+    return <DashboardLoader />;
   }
 
   // Normalize role string (handle case sensitivity and variations)

@@ -6,6 +6,7 @@ import PengukuranBalitaSection from "../components-rapor-25/PengukuranBalitaSect
 import DataIbuSection from "../components-rapor-25/DataIbuSection";
 import PengukuranIbuHamilTable from "../components-rapor-25/PengukuranIbuHamilTable";
 import { useDaftarBalita, useRaporBalita } from "@/hooks/dashboard";
+import DashboardLoader from "../DashboardLoader";
 
 
 
@@ -59,8 +60,9 @@ const ChartRaporBaby: React.FC = () => {
   };
 
 
-  if (!selectedBalita) return <div>Loading...</div>;
-  if (loading) return <div>Memuat rapor balita...</div>;
+  // Rapor mengikuti balita yang dipilih user, jadi spinner-nya lokal di
+  // bagian ini saja -- bukan load awal dashboard.
+  if (!selectedBalita || loading) return <DashboardLoader size="md" label="Memuat rapor balita" />;
 
   return (
     <div className="space-y-6 p-6 bg-white rounded-xl shadow-md">

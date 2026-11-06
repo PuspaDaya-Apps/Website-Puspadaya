@@ -1,10 +1,31 @@
+"use client";
 import React, { useState } from "react";
 import DurationDistanceChart from "../dashboard/DurationDistanceChart";
 import RaportBalita from "../dashboard/ChartRaporBaby";
+import DashboardLoader from "../DashboardLoader";
 import { downloadKaderPDF } from "@/utils/generateKaderPDF";
+import {
+  useDaftarBalita,
+  useKaderBebanKerja,
+  useKaderJarakTempuh,
+  useKaderProfil,
+  useKaderStatistikBulanan,
+} from "@/hooks/dashboard";
 
 const DashboardAnggotaKader: React.FC = () => {
   const [loadingPDF, setLoadingPDF] = useState(false);
+
+  // Query yang sama sudah dipanggil komponen anak, jadi React Query
+  // men-dedupe-nya: ini cuma satu tempat untuk menahan tampilan sampai semua
+  // data siap, supaya tidak ada tumpukan loading per card.
+  const dashboardQueries = [
+    useKaderProfil(),
+    useKaderBebanKerja(),
+    useKaderStatistikBulanan(),
+    useKaderJarakTempuh(),
+    useDaftarBalita(),
+  ];
+  const isDashboardLoading = dashboardQueries.some((query) => query.isPending);
 
   const handleDownloadPDF = async () => {
     setLoadingPDF(true);
@@ -48,10 +69,17 @@ const DashboardAnggotaKader: React.FC = () => {
   </button>
 </div>
 
-      <div className="mb-4">
-        <DurationDistanceChart />
-      </div>
-      <RaportBalita />
+      {/* Satu loading untuk seluruh isi dashboard. */}
+      {isDashboardLoading ? (
+        <DashboardLoader />
+      ) : (
+        <>
+          <div className="mb-4">
+            <DurationDistanceChart />
+          </div>
+          <RaportBalita />
+        </>
+      )}
     </div>
   );
 };

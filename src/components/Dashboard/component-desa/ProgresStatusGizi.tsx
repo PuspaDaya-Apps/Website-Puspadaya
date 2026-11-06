@@ -12,6 +12,7 @@ import {
   LabelList,
 } from "recharts";
 import { useBalitaStatusPeriod, useTrenDataPosyandu } from "@/hooks/dashboard";
+import DashboardLoader from "../DashboardLoader";
 
 interface ProgresStatusGiziProps {
   bulan: number;
@@ -285,10 +286,10 @@ const ProgresStatusGizi: React.FC<ProgresStatusGiziProps> = ({ bulan, tahun, bul
           Daftar posyandu belum tersedia untuk periode ini.
         </div>
       ) : isPending ? (
-        <div className="flex flex-col items-center justify-center py-10 text-sm text-gray-500 dark:text-gray-400">
-          <div className="mb-3 h-10 w-10 animate-spin rounded-full border-b-2 border-primary" />
-          <p>Memuat progres status gizi...</p>
-        </div>
+        // Query ini ikut dropdown posyandu/filter di dalam card, bukan load
+        // awal dashboard, jadi spinner-nya lokal supaya dashboard tidak
+        // di-blank ulang tiap ganti pilihan.
+        <DashboardLoader size="md" label="Memuat progres status gizi" />
       ) : isError ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
           <p>Gagal memuat progres status gizi.</p>

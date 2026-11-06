@@ -61,9 +61,8 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
   tahun,
   bulanLabel,
 }) => {
-  const { data: statistikDataDesa, isPending, isError } = useStatistikDataDesa({ bulan, tahun });
+  const { data: statistikDataDesa, isError } = useStatistikDataDesa({ bulan, tahun });
   const apiData: StatistikDataDesaData | null = statistikDataDesa ?? null;
-  const isLoading = isPending;
   const errorMessage = isError ? "Gagal memuat data tren performa" : null;
 
   // API selalu mengirim 12 bulan penuh. Untuk tahun yang sedang berjalan,
@@ -164,15 +163,6 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({
     return null;
   };
 
-  // Selama data belum ada, jangan render konten -- angkanya akan
-  // tampil sebagai 0 dan terbaca sebagai data asli.
-  if (isLoading) {
-    return (
-      <div className="mb-6 rounded-xl border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-        Memuat data tren performa...
-      </div>
-    );
-  }
 
   return (
     <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-gray-dark">

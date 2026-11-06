@@ -16,15 +16,8 @@ import { useKaderStatistikBulanan } from "@/hooks/dashboard";
 const KehadiranGrafik: React.FC = () => {
     // Saat API gagal data tetap undefined dan pembacaan di bawah jatuh ke 0 --
     // perilakunya sama seperti data default sebelumnya.
-    const { data, isPending: loading } = useKaderStatistikBulanan();
+    const { data } = useKaderStatistikBulanan();
 
-    if (loading) {
-        return (
-            <div className="rounded-xl bg-white p-6 text-center shadow-md dark:bg-gray-dark">
-                <p className="text-gray-600 dark:text-gray-300">Memuat data aktivitas...</p>
-            </div>
-        );
-    }
 
     // ✅ Data untuk grafik tetap ditampilkan
     const chartData = [

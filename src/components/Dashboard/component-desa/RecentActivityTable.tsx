@@ -13,9 +13,8 @@ const RecentActivityTable: React.FC<RecentActivityTableProps> = ({
   bulan,
   tahun,
 }) => {
-  const { data: logAktivitas, isPending, isError } = useLogAktivitasKader({ bulan, tahun });
+  const { data: logAktivitas, isError } = useLogAktivitasKader({ bulan, tahun });
   const apiData: LogAktivitasKaderData | null = logAktivitas ?? null;
-  const isLoading = isPending;
   const errorMessage = isError ? "Gagal memuat data aktivitas terbaru" : null;
 
   const activities = useMemo<RecentActivityType[]>(() => {
@@ -144,13 +143,7 @@ const RecentActivityTable: React.FC<RecentActivityTableProps> = ({
         </thead>
 
         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-          {isLoading ? (
-            <tr>
-              <td className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400" colSpan={5}>
-                Memuat data aktivitas terbaru...
-              </td>
-            </tr>
-          ) : errorMessage ? (
+          {errorMessage ? (
             <tr>
               <td className="px-4 py-6 text-sm text-red-700 dark:text-red-300" colSpan={5}>
                 {errorMessage}
