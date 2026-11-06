@@ -3,6 +3,13 @@ export interface DashboardPeriod {
   tahun: number;
 }
 
+// Filter opsional; nilai kosong ikut masuk queryKey sebagai null supaya hasil
+// "semua" dan hasil terfilter tidak saling menimpa di cache.
+export interface BalitaStatusPeriodFilter {
+  jenisKelamin?: string;
+  statusKemiskinan?: string;
+}
+
 const period = ({ bulan, tahun }: DashboardPeriod) => ({ bulan, tahun });
 
 // Satu tempat untuk semua queryKey dashboard, supaya prefetch saat login dan
@@ -21,6 +28,21 @@ export const queryKeys = {
     skorBebanKerjaTim: (p: DashboardPeriod) => ['kepala-desa', 'skor-beban-kerja-tim', period(p)] as const,
     imunisasiKependudukan: (p: DashboardPeriod) => ['kepala-desa', 'imunisasi-kependudukan', period(p)] as const,
     logAktivitasKader: (p: DashboardPeriod) => ['kepala-desa', 'log-aktivitas-kader', period(p)] as const,
+    balitaStatusPeriod: (
+      idPosyandu: string,
+      p: DashboardPeriod,
+      filter?: BalitaStatusPeriodFilter
+    ) =>
+      [
+        'kepala-desa',
+        'balita-status-period',
+        idPosyandu,
+        period(p),
+        {
+          jenisKelamin: filter?.jenisKelamin ?? null,
+          statusKemiskinan: filter?.statusKemiskinan ?? null,
+        },
+      ] as const,
   },
 
   kader: {

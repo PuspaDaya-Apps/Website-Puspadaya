@@ -8,6 +8,7 @@ import KeyMetrics from "../component-desa/KeyMetrics";
 import PosyanduOverview from "../component-desa/PosyanduOverview";
 import PerformanceSection from "../component-desa/PerformanceSection";
 import AdditionalMetrics from "../component-desa/AdditionalMetrics";
+import ProgresStatusGizi from "../component-desa/ProgresStatusGizi";
 import DurasiJarakAgregat from "../component-desa/DurasiJarakAgregat";
 import BebanKerjaTimSummary from "../component-desa/BebanKerjaTimSummary";
 import SKDNBarChart from "../component-desa/SKDNBarChart";
@@ -154,6 +155,13 @@ const DashboardKepalaDesa: React.FC = () => {
 
       {/* LEVEL 3: PERFORMANCE & TRENDS */}
       <PerformanceSection
+        bulan={selectedMonth}
+        tahun={filterTahun}
+        bulanLabel={daftarBulan[selectedMonth - 1]}
+      />
+
+      {/* LEVEL 3: PROGRES STATUS GIZI PER POSYANDU */}
+      <ProgresStatusGizi
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}

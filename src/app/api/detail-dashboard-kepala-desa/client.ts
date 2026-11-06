@@ -15,6 +15,10 @@ export interface DetailDashboardKepalaDesaQueryParams {
   tahun: number | string;
   page?: number;
   limit?: number;
+  // Hanya dipakai endpoint yang mendukungnya (mis. balita-status-period).
+  // Kosong/undefined berarti tanpa filter, bukan filter nilai kosong.
+  jenisKelamin?: string;
+  statusKemiskinan?: string;
 }
 
 const CACHE_NAMESPACE = 'detail-dashboard-kepala-desa';
@@ -43,6 +47,12 @@ const buildDetailDashboardKepalaDesaUrl = (
   }
   if (params.limit != null) {
     query.set('limit', String(params.limit));
+  }
+  if (params.jenisKelamin) {
+    query.set('jenis_kelamin', params.jenisKelamin);
+  }
+  if (params.statusKemiskinan) {
+    query.set('status_kemiskinan', params.statusKemiskinan);
   }
 
   const resolvedEndpoint = endpoint.replace('{id_posyandu}', idPosyandu);

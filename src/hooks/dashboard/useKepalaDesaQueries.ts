@@ -11,8 +11,9 @@ import {
   fetchStatistikSkdn,
   fetchTrenDataPosyandu,
 } from '@/app/api/dashboard-kepala-desa';
+import { fetchDetailPosyanduBalitaStatusPeriod } from '@/app/api/detail-dashboard-kepala-desa';
 import { unwrapFetchResult } from '@/lib/react-query/fetchResult';
-import { DashboardPeriod, queryKeys } from '@/lib/react-query/queryKeys';
+import { BalitaStatusPeriodFilter, DashboardPeriod, queryKeys } from '@/lib/react-query/queryKeys';
 import { DASHBOARD_STALE_TIME_MS } from '@/lib/react-query/queryClient';
 
 interface QueryOptions {
@@ -81,6 +82,28 @@ export const useImunisasiKependudukan = (params: DashboardPeriod, options?: Quer
     queryFn: () => unwrapFetchResult(fetchImunisasiKependudukan(params)),
     staleTime: DASHBOARD_STALE_TIME_MS,
     enabled: options?.enabled ?? true,
+  });
+
+// Tren status gizi 12 bulan untuk satu posyandu. Query dimatikan selama
+// idPosyandu kosong supaya tidak menembak endpoint dengan path param kosong.
+export const useBalitaStatusPeriod = (
+  idPosyandu: string,
+  params: DashboardPeriod,
+  filter?: BalitaStatusPeriodFilter,
+  options?: QueryOptions
+) =>
+  useQuery({
+    queryKey: queryKeys.kepalaDesa.balitaStatusPeriod(idPosyandu, params, filter),
+    queryFn: () =>
+      unwrapFetchResult(
+        fetchDetailPosyanduBalitaStatusPeriod(idPosyandu, {
+          ...params,
+          jenisKelamin: filter?.jenisKelamin,
+          statusKemiskinan: filter?.statusKemiskinan,
+        })
+      ),
+    staleTime: DASHBOARD_STALE_TIME_MS,
+    enabled: (options?.enabled ?? true) && idPosyandu.length > 0,
   });
 
 export const useLogAktivitasKader = (params: DashboardPeriod, options?: QueryOptions) =>

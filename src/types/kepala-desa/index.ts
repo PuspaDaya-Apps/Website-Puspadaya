@@ -19,3 +19,4 @@ export * from './detail-posyandu-balita-all';
 export * from './detail-posyandu-ibu-hamil';
 export * from './kinerja-kepala-desa';
 export * from './detail-posyandu-kehadiran';
+export * from './detail-posyandu-balita-status-period';

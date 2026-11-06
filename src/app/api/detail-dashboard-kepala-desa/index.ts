@@ -9,3 +9,4 @@ export { fetchKinerjaPerPosyandu } from './kinerja-per-posyandu';
 export { fetchDetailPosyanduBalitaAll } from './balita-all';
 export { fetchDetailPosyanduKehadiran } from './kehadiran';
 export { fetchDetailPosyanduIbuHamil } from './ibu-hamil';
+export { fetchDetailPosyanduBalitaStatusPeriod } from './balita-status-period';

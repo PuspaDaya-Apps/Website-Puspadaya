@@ -2,6 +2,7 @@ export { useStatistikDashboard, getUserRole } from './useStatistikDashboard';
 export { useCurrentUser } from './useCurrentUser';
 export {
   useAnakCakupanDilayani,
+  useBalitaStatusPeriod,
   useDurasiKerjaPosyandu,
   useImunisasiKependudukan,
   useInformasiDataDesa,
