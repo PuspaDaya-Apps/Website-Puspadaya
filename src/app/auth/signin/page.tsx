@@ -1,9 +1,7 @@
 import React from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { Metadata } from "next";
 import Signin from "@/components/Auth/Signin";
-import { FaBaby, FaUserNurse, FaUsers, FaHeartbeat, FaStethoscope, FaWeight, FaSyringe } from "react-icons/fa";
 
 export const metadata: Metadata = {
   title: "Puspadaya - Login",
@@ -12,107 +10,57 @@ export const metadata: Metadata = {
 
 const SignIn: React.FC = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900 p-4">
-      <div className="rounded-[10px] bg-white shadow-1 dark:bg-gray-dark dark:shadow-card w-full max-w-6xl overflow-hidden">
-        <div className="flex flex-col lg:flex-row">
-          {/* Welcome Section - Visible on all screens but with different layout */}
-          <div className="w-full lg:w-1/2 bg-gradient-to-br from-green-500 to-teal-600 dark:from-green-700 dark:to-teal-800 p-8 lg:p-12 text-white">
-            <div className="flex flex-col h-full justify-between">
-              <div>
-                <Link className="inline-block mb-8" href="/">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <Image
-                      src={"/images/logo/logo-puspa.png"}
-                      alt="Logo"
-                      width={120}
-                      height={26}
-                    />
-                    <div>
-                      <h1 className="text-xl font-bold text-white sm:text-2xl md:text-heading-3">
-                        Puspadaya
-                      </h1>
-                      <p className="mt-1 text-sm font-medium text-white/90 sm:text-base">
-                        Pemberdayaan Perempuan Berdaya
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-
-                <div className="mb-6">
-                  <div className="flex justify-center mb-4">
-                    <div className="bg-white/20 p-4 rounded-full">
-                      <FaHeartbeat className="text-white text-4xl" />
-                    </div>
-                  </div>
-                  <h1 className="text-center text-2xl font-bold sm:text-3xl">
-                    Sistem Informasi Posyandu
-                  </h1>
-                </div>
-
-                <p className="mb-8 text-center max-w-[375px] font-medium text-white/90 sm:text-lg mx-auto">
-                  Platform digital untuk mendukung pelayanan kesehatan ibu dan anak di Posyandu
-                </p>
-              </div>
-
-              <div className="mt-8 lg:mt-0">
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                  <div className="flex items-center mb-4">
-                    <FaStethoscope className="text-white mr-2" />
-                    <h3 className="font-bold text-lg">Fitur Utama:</h3>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="flex items-center bg-white/10 p-2 rounded">
-                      <FaBaby className="text-white mr-2 text-sm" />
-                      <span className="text-xs">Pemantauan Balita</span>
-                    </div>
-                    <div className="flex items-center bg-white/10 p-2 rounded">
-                      <FaSyringe className="text-white mr-2 text-sm" />
-                      <span className="text-xs">Imunisasi</span>
-                    </div>
-                    <div className="flex items-center bg-white/10 p-2 rounded">
-                      <FaUserNurse className="text-white mr-2 text-sm" />
-                      <span className="text-xs">Data Ibu Hamil</span>
-                    </div>
-                    <div className="flex items-center bg-white/10 p-2 rounded">
-                      <FaWeight className="text-white mr-2 text-sm" />
-                      <span className="text-xs">Berat Badan</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex justify-center space-x-6">
-                  <div className="flex flex-col items-center">
-                    <div className="bg-white/20 p-2 rounded-full mb-1">
-                      <FaUserNurse className="text-white text-lg" />
-                    </div>
-                    <span className="text-xs text-center">Bidan</span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="bg-white/20 p-2 rounded-full mb-1">
-                      <FaUsers className="text-white text-lg" />
-                    </div>
-                    <span className="text-xs text-center">Kader</span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="bg-white/20 p-2 rounded-full mb-1">
-                      <FaBaby className="text-white text-lg" />
-                    </div>
-                    <span className="text-xs text-center">Anak</span>
-                  </div>
-                </div>
-              </div>
+    <main className="flex min-h-screen items-center justify-center bg-[#F4F6FB] p-4 selection:bg-[#FF8D4D] selection:text-[#111928] dark:bg-[#070E1B] sm:p-6 lg:p-8">
+      <div className="w-full max-w-[1080px] overflow-hidden rounded-[28px] bg-white shadow-[0_24px_60px_-20px_rgba(10,32,80,0.35)] dark:bg-[#0E1626] dark:shadow-[0_24px_60px_-20px_rgba(0,0,0,0.7)] lg:grid lg:grid-cols-[1.08fr_1fr]">
+        {/* Bidang warna logo: biru di awal sapuan, ungu di pertemuan, magenta di
+            ujung -- urutan yang sama dengan gradien pada lambang Puspadaya. */}
+        <aside className="flex flex-col justify-between gap-7 overflow-hidden bg-[linear-gradient(145deg,#0A3A8F_0%,#6B1FA8_52%,#B5126B_100%)] p-7 selection:bg-white/85 selection:text-[#0A3A8F] sm:p-10 lg:min-h-[640px] lg:gap-10 lg:p-12">
+          <div className="flex items-center gap-4">
+            <Image
+              src="/images/logo/logo-puspa.png"
+              alt=""
+              width={213}
+              height={160}
+              priority
+              className="h-14 w-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.28)] sm:h-16"
+            />
+            <div>
+              <p className="text-xl font-bold tracking-[-0.01em] text-white sm:text-2xl">
+                Puspadaya
+              </p>
+              <p className="mt-0.5 text-sm text-[#CFE0FF]">
+                Pemberdayaan Perempuan Berdaya
+              </p>
             </div>
           </div>
 
-          {/* Form Section - Full width on mobile, half on desktop */}
-          <div className="w-full lg:w-1/2 bg-white dark:bg-gray-dark p-6 sm:p-8 md:p-12.5 lg:p-10 xl:p-15 flex items-center">
-            <div className="w-full max-w-md mx-auto">
-              <Signin />
-            </div>
+          {/* Sengaja <p>, bukan <h2>: satu-satunya <h1> halaman ini adalah
+              "Masuk" di form, dan heading panel akan mendahuluinya di urutan
+              dokumen sehingga outline-nya terbalik bagi pembaca layar. */}
+          <div className="max-w-[26rem]">
+            <p className="text-balance text-[28px] font-bold leading-[1.15] tracking-[-0.02em] text-white sm:text-[34px] lg:text-[40px]">
+              Sistem Informasi Posyandu
+            </p>
+            <p className="mt-4 text-pretty text-sm leading-relaxed text-[#CFE0FF] sm:text-base">
+              Platform digital untuk mendukung pelayanan kesehatan ibu dan anak
+              di Posyandu.
+            </p>
+          </div>
+
+          {/* Di layar HP baris ini disembunyikan supaya panel tidak mendorong
+              form terlalu jauh ke bawah lipatan. */}
+          <p className="hidden text-sm text-[#CFE0FF] lg:block">
+            Digunakan oleh bidan, kader, dan kepala desa.
+          </p>
+        </aside>
+
+        <div className="flex items-center p-8 sm:p-10 lg:p-12">
+          <div className="w-full">
+            <Signin />
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 
