@@ -9,6 +9,32 @@ import {
   useTrenDataPosyandu,
 } from "@/hooks/dashboard";
 import { useSeniorMode } from "@/contexts/SeniorModeContext";
+import PanduanDashboard, { LangkahPanduan } from "../PanduanDashboard";
+
+// Seksi "Kader Dengan Beban Kerja Tinggi" hanya muncul kalau memang ada
+// kadernya. Langkah yang targetnya tidak ada otomatis dilewati panduan.
+const LANGKAH_PANDUAN_SEDERHANA: LangkahPanduan[] = [
+  {
+    id: "data-penting",
+    judul: "Data penting bulan ini",
+    isi: "Lima angka yang paling perlu Anda tahu: jumlah posyandu, balita, kehadiran, dan kasus gizi di desa Anda bulan ini.",
+  },
+  {
+    id: "kader-beban",
+    judul: "Kader yang kelelahan",
+    isi: "Bagian ini muncul kalau ada kader yang beban kerjanya terlalu berat. Kalau jumlahnya banyak, desa Anda mungkin perlu menambah kader.",
+  },
+  {
+    id: "skdn",
+    judul: "Berapa balita yang datang ditimbang",
+    isi: "S jumlah seluruh balita, K yang punya buku KIA, D yang datang ditimbang, N yang berat badannya naik. Kalau D jauh lebih kecil dari S, banyak balita belum terpantau.",
+  },
+  {
+    id: "aksi-cepat",
+    judul: "Mencetak laporan",
+    isi: "Tekan tombol di sini untuk membuka laporan desa yang siap dicetak atau disimpan sebagai PDF.",
+  },
+];
 
 interface DashboardSederhanaProps {
   onPrintReport: () => void;
@@ -184,7 +210,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
       </div>
 
       {/* 5 METRIC UTAMA */}
-      <div className={`${highContrast ? "bg-white border-4 border-black" : "bg-white"} rounded-xl p-6 shadow-md`}>
+      <div className={`${highContrast ? "bg-white border-4 border-black" : "bg-white"} rounded-xl p-6 shadow-md`} data-panduan="data-penting">
         <h2 className={`${getFontSize("large")} font-bold text-black mb-4`}>
           Data Penting Bulan Ini
         </h2>
@@ -260,7 +286,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
 
       {/* KADER DENGAN BEBAN TINGGI */}
       {jumlahKaderBebanTinggi > 0 && (
-        <div className={`${highContrast ? "bg-white border-4 border-orange-600" : "bg-white"} rounded-xl p-6 shadow-md`}>
+        <div className={`${highContrast ? "bg-white border-4 border-orange-600" : "bg-white"} rounded-xl p-6 shadow-md`} data-panduan="kader-beban">
           <h2 className={`${getFontSize("large")} font-bold text-black mb-4`}>
             {jumlahKaderBebanTinggi} Kader Dengan Beban Kerja Tinggi
           </h2>
@@ -313,7 +339,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
       )}
 
       {/* SKDN CHART - Simplified */}
-      <div className={`${highContrast ? "bg-white border-4 border-black" : "bg-white"} rounded-xl p-6 shadow-md`}>
+      <div className={`${highContrast ? "bg-white border-4 border-black" : "bg-white"} rounded-xl p-6 shadow-md`} data-panduan="skdn">
         <h2 className={`${getFontSize("large")} font-bold text-black mb-4`}>
           Statistik Gizi Balita (SKDN)
         </h2>
@@ -344,7 +370,7 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
       </div>
 
       {/* TOMBOL AKSI CEPAT */}
-      <div className={`${highContrast ? "bg-white border-4 border-black" : "bg-white"} rounded-xl p-6 shadow-md`}>
+      <div className={`${highContrast ? "bg-white border-4 border-black" : "bg-white"} rounded-xl p-6 shadow-md`} data-panduan="aksi-cepat">
         <h2 className={`${getFontSize("large")} font-bold text-black mb-4`}>
           Aksi Cepat
         </h2>
@@ -358,6 +384,16 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
           <span className={`${getFontSize("small")} font-medium`}>Download Laporan PDF</span>
         </button>
       </div>
+
+      {/* Hanya empat langkah: halaman ini memang sudah ringkas, dan panduan
+          yang pendek lebih mudah diikuti pengguna lanjut usia. Kunci
+          penyimpanannya dibedakan dari dashboard biasa supaya menyelesaikan
+          salah satu tidak ikut menutup yang lain. */}
+      <PanduanDashboard
+        langkah={LANGKAH_PANDUAN_SEDERHANA}
+        storageKey="panduan:kepala-desa-sederhana"
+        besar
+      />
     </div>
   );
 };

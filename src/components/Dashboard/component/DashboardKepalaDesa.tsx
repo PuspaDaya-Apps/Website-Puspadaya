@@ -15,6 +15,43 @@ import {
 } from "@/hooks/dashboard";
 import DashboardLoader from "../DashboardLoader";
 import DashboardError from "../DashboardError";
+import PanduanDashboard, { LangkahPanduan } from "../PanduanDashboard";
+
+// Enam langkah, bukan satu langkah per kartu: halaman ini punya puluhan
+// elemen, dan panduan sepanjang itu justru menjelaskan labirin. Isinya dipilih
+// yang paling sering dipakai kepala desa, urut dari atas ke bawah halaman.
+const LANGKAH_PANDUAN: LangkahPanduan[] = [
+  {
+    id: "periode",
+    judul: "Pilih bulan dan tahun",
+    isi: "Semua angka di halaman ini mengikuti bulan yang Anda pilih di sini. Ganti bulannya untuk melihat data periode lain.",
+  },
+  {
+    id: "angka-utama",
+    judul: "Angka utama desa Anda",
+    isi: "Ringkasan jumlah posyandu, kader, balita, dan ibu hamil, beserta jumlah kasus gizi. Ini bagian yang paling sering ditanyakan saat rapat desa.",
+  },
+  {
+    id: "daftar-posyandu",
+    judul: "Daftar posyandu",
+    isi: "Semua posyandu di desa Anda beserta jumlah balita dan tingkat kehadirannya. Klik salah satu untuk melihat rinciannya.",
+  },
+  {
+    id: "tren",
+    judul: "Perkembangan tiap bulan",
+    isi: "Grafik di sini memperlihatkan naik turunnya kehadiran dan kasus gizi dari bulan ke bulan, supaya Anda tahu keadaan membaik atau memburuk.",
+  },
+  {
+    id: "skdn",
+    judul: "SKDN: siapa yang datang dan ditimbang",
+    isi: "S jumlah seluruh balita, K yang punya buku KIA, D yang datang ditimbang, N yang berat badannya naik. Selisih S dan D menunjukkan berapa balita yang belum terpantau.",
+  },
+  {
+    id: "beban-kader",
+    judul: "Beban kerja kader",
+    isi: "Memperlihatkan kader mana yang bebannya paling berat. Kalau banyak yang masuk kategori tinggi, mungkin desa Anda perlu menambah kader.",
+  },
+];
 
 // New hierarchical components
 import KeyMetrics from "../component-desa/KeyMetrics";
@@ -120,7 +157,7 @@ const DashboardKepalaDesa: React.FC = () => {
               Monitor dan kelola semua posyandu di wilayah Anda
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3" data-panduan="periode">
             {/* Filter Periode - Bulan */}
             <select
               className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-dark outline-none focus:border-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-primary"
@@ -172,13 +209,16 @@ const DashboardKepalaDesa: React.FC = () => {
       ) : (
         <>
       {/* LEVEL 2: KEY METRICS - Indikator Kunci */}
+      <div data-panduan="angka-utama">
       <KeyMetrics
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
       />
+      </div>
 
       {/* LEVEL 3: POSYANDU OVERVIEW - Daftar Posyandu */}
+      <div data-panduan="daftar-posyandu">
       <PosyanduOverview
         selectedPosyandu={selectedPosyandu}
         onSelectPosyandu={setSelectedPosyandu}
@@ -187,6 +227,7 @@ const DashboardKepalaDesa: React.FC = () => {
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
       />
+      </div>
 
       {/* Selected Posyandu Detail Banner */}
       {selectedPosyandu && (
@@ -228,11 +269,13 @@ const DashboardKepalaDesa: React.FC = () => {
       )}
 
       {/* LEVEL 3: PERFORMANCE & TRENDS */}
+      <div data-panduan="tren">
       <PerformanceSection
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
       />
+      </div>
 
       {/* LEVEL 3: PROGRES STATUS GIZI PER POSYANDU */}
       <ProgresStatusGizi
@@ -249,11 +292,13 @@ const DashboardKepalaDesa: React.FC = () => {
       />
 
       {/* LEVEL 3: SKDN BAR CHART */}
+      <div data-panduan="skdn">
       <SKDNBarChart
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
       />
+      </div>
 
       {/* LEVEL 3: DURASI DAN JARAK AGREGAT - KADER */}
       <DurasiJarakAgregat
@@ -263,17 +308,26 @@ const DashboardKepalaDesa: React.FC = () => {
       />
 
       {/* LEVEL 3: BEBAN KERJA TIM SUMMARY - KADER */}
+      <div data-panduan="beban-kader">
       <BebanKerjaTimSummary
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
       />
+      </div>
 
       {/* LEVEL 4: EXPANDABLE DATA SECTIONS */}
       <ExpandableDataSection
         bulan={selectedMonth}
         tahun={filterTahun}
         bulanLabel={daftarBulan[selectedMonth - 1]}
+      />
+
+      {/* Dirender di dalam cabang ini saja: panduan mencari elemen targetnya
+          lewat querySelector, jadi isi dashboard harus sudah ada di DOM. */}
+      <PanduanDashboard
+        langkah={LANGKAH_PANDUAN}
+        storageKey="panduan:kepala-desa"
       />
         </>
       )}
