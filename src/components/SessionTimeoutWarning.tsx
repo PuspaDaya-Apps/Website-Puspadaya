@@ -1,21 +1,72 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { TokenManager } from '@/app/api/utils/TokenManager';
 import { logoutUser, redirectAfterLogout } from '@/app/api/login/loginApi';
+import { refreshToken } from '@/app/api/token/refreshToken';
 
 /**
  * Session Timeout Warning Component
  * Shows warning modal before session expires
  */
+// Di level modul: nilainya tetap, jadi tidak perlu ikut jadi dependensi efek.
+const WARNING_THRESHOLD = 2 * 60 * 1000; // tampilkan peringatan 2 menit sebelum habis
+
 export default function SessionTimeoutWarning() {
   const [showWarning, setShowWarning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isListening, setIsListening] = useState(false);
+  const sedangMemperbarui = useRef(false);
 
-  // Warning threshold (show warning 2 minutes before expiry)
-  const WARNING_THRESHOLD = 2 * 60 * 1000; // 2 minutes
-  const COUNTDOWN_START = 1 * 60 * 1000; // Start countdown at 1 minute
+  const handleSessionExpired = useCallback(() => {
+    setShowWarning(false);
+    TokenManager.clearToken();
+    localStorage.removeItem('current_user');
+    
+    // Show message and redirect
+    alert('Sesi Anda telah berakhir. Silakan login kembali.');
+    redirectAfterLogout();
+  }, []);
+
+  // Sebelumnya fungsi ini tidak pernah menghubungi backend -- hanya memajukan
+  // expiresAt satu jam di sisi klien, sehingga "sesi diperpanjang" padahal
+  // token yang dipakai tetap token lama yang sudah ditolak server.
+  const handleRefreshToken = useCallback(async () => {
+    // Interval berjalan tiap 10 detik; tanpa penjaga ini satu refresh yang
+    // lambat bisa memicu beberapa permintaan sekaligus.
+    if (sedangMemperbarui.current) {
+      return;
+    }
+
+    sedangMemperbarui.current = true;
+
+    try {
+      const tokenData = TokenManager.getToken();
+
+      if (!tokenData?.refreshToken) {
+        throw new Error('Tidak ada refresh token');
+      }
+
+      const accessTokenBaru = await refreshToken(tokenData.refreshToken);
+
+      if (!accessTokenBaru) {
+        throw new Error('Refresh token ditolak server');
+      }
+
+      TokenManager.saveToken({
+        ...tokenData,
+        accessToken: accessTokenBaru,
+        expiresAt: Date.now() + 60 * 60 * 1000,
+      });
+
+      setShowWarning(false);
+    } catch (error) {
+      console.error('Gagal memperbarui sesi:', error);
+      handleSessionExpired();
+    } finally {
+      sedangMemperbarui.current = false;
+    }
+  }, [handleSessionExpired]);
 
   useEffect(() => {
     // Check if user is logged in
@@ -41,8 +92,10 @@ export default function SessionTimeoutWarning() {
         setShowWarning(true);
         setTimeRemaining(timeUntilExpiry);
       } else if (timeUntilExpiry <= 0) {
-        // Session expired
-        handleSessionExpired();
+        // Lewat batas lokal bukan berarti sesinya benar-benar habis: tukar
+        // dulu lewat refresh token. handleRefreshToken yang memanggil
+        // handleSessionExpired kalau server memang menolak.
+        void handleRefreshToken();
       } else {
         setShowWarning(false);
       }
@@ -66,11 +119,16 @@ export default function SessionTimeoutWarning() {
       window.removeEventListener('token:expired', handleTokenExpired);
       window.removeEventListener('token:refreshNeeded', handleTokenRefreshNeeded);
     };
-  }, []);
+  }, [handleRefreshToken, handleSessionExpired]);
 
-  // Update countdown every second when warning is shown
+  // Hitung mundur berjalan selama peringatan tampil.
+  //
+  // Syarat `timeRemaining <= COUNTDOWN_START` yang dulu ada di sini terbalik
+  // dari namanya sendiri: ia justru menghentikan hitung mundur di menit
+  // terakhir. Selama ini tidak terasa karena efeknya hanya dievaluasi sekali
+  // saat peringatan muncul (sisa masih ~2 menit, jadi selalu lolos).
   useEffect(() => {
-    if (!showWarning || timeRemaining <= COUNTDOWN_START) return;
+    if (!showWarning) return;
 
     const countdownInterval = setInterval(() => {
       const remaining = TokenManager.getTimeUntilExpiry();
@@ -82,44 +140,7 @@ export default function SessionTimeoutWarning() {
     }, 1000);
 
     return () => clearInterval(countdownInterval);
-  }, [showWarning]);
-
-  const handleRefreshToken = async () => {
-    try {
-      // console.log('🔄 Refreshing token...');
-      
-      // Get current token
-      const tokenData = TokenManager.getToken();
-      if (!tokenData) {
-        throw new Error('No token to refresh');
-      }
-
-      // Call refresh token API (implement based on your backend)
-      // For now, we'll just extend the expiry
-      const newExpiresAt = Date.now() + (60 * 60 * 1000); // Extend 1 hour
-      
-      TokenManager.saveToken({
-        ...tokenData,
-        expiresAt: newExpiresAt,
-      });
-
-      setShowWarning(false);
-      // console.log('✅ Token refreshed successfully');
-    } catch (error) {
-      console.error('❌ Failed to refresh token:', error);
-      handleSessionExpired();
-    }
-  };
-
-  const handleSessionExpired = () => {
-    setShowWarning(false);
-    TokenManager.clearToken();
-    localStorage.removeItem('current_user');
-    
-    // Show message and redirect
-    alert('Sesi Anda telah berakhir. Silakan login kembali.');
-    redirectAfterLogout();
-  };
+  }, [showWarning, handleSessionExpired]);
 
   const handleStayLoggedIn = () => {
     handleRefreshToken();

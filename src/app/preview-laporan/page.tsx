@@ -1191,16 +1191,21 @@ const PreviewLaporanPage: React.FC = () => {
       color-adjust: exact !important;
     }
 
-    /* Pages: fixed A4, konten yang lebih terpotong */
+    /* Tinggi dibiarkan mengikuti isi.
+       Sebelumnya height dikunci 297mm dengan overflow:hidden, sehingga seksi
+       yang isinya lebih panjang dari satu halaman A4 terpotong dan hilang dari
+       PDF, bukan mengalir ke halaman berikutnya.
+       page-break-after tetap menjamin tiap seksi mulai di halaman baru; yang
+       panjang kini lanjut ke halaman kedua alih-alih dibuang. */
     .a4-page {
       width: 210mm !important;
-      height: 297mm !important;
-      min-height: unset !important;
+      height: auto !important;
+      min-height: 0 !important;
       box-shadow: none !important;
       border-radius: 0 !important;
       margin: 0 !important;
       padding: 13mm 15mm !important;
-      overflow: hidden !important;
+      overflow: visible !important;
       page-break-after: always;
       break-after: page;
       -webkit-print-color-adjust: exact !important;
@@ -1247,14 +1252,18 @@ const PreviewLaporanPage: React.FC = () => {
     flex-direction: column;
   }
 
-  /* Pages screen: fixed A4 height, konten terpotong jika melebihi */
+  /* min-height, bukan height: preview harus memperlihatkan seluruh isi.
+     Dengan height tetap + overflow:hidden, isi yang kepanjangan tidak terlihat
+     di layar sehingga tidak ada yang sadar laporannya terpotong sampai PDF-nya
+     dicetak. Halaman yang tampak lebih tinggi dari A4 berarti seksi itu akan
+     memakai dua halaman saat dicetak. */
   .a4-page {
     width: 210mm;
-    height: 297mm;
+    min-height: 297mm;
     background: white;
     margin: 0 auto 24px;
     padding: 13mm 15mm;
-    overflow: hidden;
+    overflow: visible;
     box-shadow: 0 8px 40px rgba(0,0,0,0.18);
     border-radius: 2px;
   }

@@ -17,12 +17,21 @@ export default function Home() {
   useEffect(() => {
     // Cek token menggunakan TokenManager (bukan localStorage langsung).
     // Catatan: TokenManager.getAccessToken() itu async -- memakainya langsung
-    // di kondisi if berarti mengecek sebuah Promise (selalu truthy), sehingga
-    // token kedaluwarsa pun ikut lolos. Dicek lewat isExpired() supaya nyata.
+    // di kondisi if berarti mengecek sebuah Promise (selalu truthy).
     const token = TokenManager.getToken();
 
-    if (!token || TokenManager.isExpired()) {
-      // Jika tidak ada token / sudah kedaluwarsa, redirect ke login
+    if (!token) {
+      router.replace('/auth/signin');
+      return;
+    }
+
+    // Kedaluwarsa menurut jam lokal BUKAN alasan memulangkan user selama
+    // refresh token masih ada. `expiresAt` itu tebakan 1 jam yang dipasang
+    // saat login (lihat loginApi.ts), bukan umur asli token dari backend --
+    // jadi user dengan sesi yang sebenarnya masih sah ikut terlempar.
+    // Hanya server yang tahu token masih berlaku atau tidak, dan interceptor
+    // 401 sudah menukarnya lalu mengulang request secara otomatis.
+    if (TokenManager.isExpired() && !token.refreshToken) {
       router.replace('/auth/signin');
       return;
     }

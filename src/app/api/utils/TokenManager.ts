@@ -243,11 +243,22 @@ class TokenManagerClass {
           window.dispatchEvent(new CustomEvent('token:refreshNeeded'));
         }
       } else if (this.isExpired()) {
-        // console.log('⚠️ Token expired, logging out...');
         if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('token:expired'));
+          // Selama refresh token ada, kedaluwarsa menurut jam lokal cuma
+          // berarti "saatnya menukar token", bukan "sesi berakhir".
+          // `expiresAt` adalah tebakan 1 jam dari loginApi, bukan umur asli
+          // dari backend, jadi memperlakukannya sebagai akhir sesi akan
+          // memulangkan user yang tokennya sebenarnya masih berlaku.
+          const refreshTokenAda = Boolean(this.getToken()?.refreshToken);
+
+          window.dispatchEvent(
+            new CustomEvent(refreshTokenAda ? 'token:refreshNeeded' : 'token:expired')
+          );
+
+          if (!refreshTokenAda) {
+            this.stopAutoRefresh();
+          }
         }
-        this.stopAutoRefresh();
       }
     }, 30000); // Check every 30 seconds
 
