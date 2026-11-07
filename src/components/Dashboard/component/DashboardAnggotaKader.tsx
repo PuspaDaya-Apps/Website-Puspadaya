@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import DurationDistanceChart from "../dashboard/DurationDistanceChart";
 import RaportBalita from "../dashboard/ChartRaporBaby";
 import DashboardLoader from "../DashboardLoader";
+import DashboardError from "../DashboardError";
 import { downloadKaderPDF } from "@/utils/generateKaderPDF";
 import {
   useDaftarBalita,
@@ -26,6 +27,15 @@ const DashboardAnggotaKader: React.FC = () => {
     useDaftarBalita(),
   ];
   const isDashboardLoading = dashboardQueries.some((query) => query.isPending);
+
+  // Isi tidak dirender saat gagal: tiap kartu jatuh ke `?? 0`, sehingga
+  // kegagalan tampil sebagai angka 0 yang terbaca sebagai data asli.
+  const isDashboardError = dashboardQueries.some((query) => query.isError);
+  const muatUlangDashboard = () => {
+    dashboardQueries.forEach((query) => {
+      void query.refetch();
+    });
+  };
 
   const handleDownloadPDF = async () => {
     setLoadingPDF(true);
@@ -72,6 +82,11 @@ const DashboardAnggotaKader: React.FC = () => {
       {/* Satu loading untuk seluruh isi dashboard. */}
       {isDashboardLoading ? (
         <DashboardLoader />
+      ) : isDashboardError ? (
+        <DashboardError
+          pesan="Gagal memuat data dashboard. Periksa koneksi Anda, lalu coba lagi."
+          onRetry={muatUlangDashboard}
+        />
       ) : (
         <>
           <div className="mb-4">

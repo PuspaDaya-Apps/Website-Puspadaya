@@ -38,13 +38,20 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
     .map((item) => ({ id: item.id as string, nama: item.nama }));
   const kaderQuery = useAllKaderDesa(posyanduRefs, periodeParams);
 
-  const isLoading = [
+  const utamaQueries = [
     informasiQuery,
     cakupanQuery,
     skdnQuery,
     trenPosyanduQuery,
     bebanKerjaQuery,
-  ].some((query) => query.isPending);
+  ];
+
+  const isLoading = utamaQueries.some((query) => query.isPending);
+
+  // Tanpa ini, query yang gagal tampil sebagai angka 0 di seluruh kartu --
+  // pembacaan paling berbahaya di mode senior, karena "Balita Stunting 0"
+  // terbaca sebagai kabar baik, bukan sebagai data yang gagal dimuat.
+  const isError = utamaQueries.some((query) => query.isError);
 
   const informasi = informasiQuery.data ?? null;
   const cakupan = cakupanQuery.data ?? null;
@@ -130,6 +137,35 @@ const DashboardSederhana: React.FC<DashboardSederhanaProps> = ({
           <p className={`${getFontSize("small")} mt-3 text-gray-700`}>
             Mohon tunggu sebentar.
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Pesan error dibuat sebesar placeholder loading, dengan bahasa dan tombol
+  // yang sama sederhananya.
+  if (isError) {
+    return (
+      <div className="space-y-6 p-4">
+        <div
+          className={`rounded-xl p-10 text-center shadow-md ${
+            highContrast ? "border-4 border-black bg-white" : "bg-white"
+          }`}
+          role="alert"
+        >
+          <p className={`${getFontSize("large")} font-bold text-black`}>
+            Data tidak bisa dimuat
+          </p>
+          <p className={`${getFontSize("small")} mt-3 text-gray-700`}>
+            Periksa koneksi internet Anda, lalu tekan tombol di bawah.
+          </p>
+          <button
+            type="button"
+            onClick={() => utamaQueries.forEach((query) => void query.refetch())}
+            className={`${getFontSize("medium")} mt-6 rounded-xl bg-blue-700 px-8 py-4 font-bold text-white hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300`}
+          >
+            Coba Lagi
+          </button>
         </div>
       </div>
     );

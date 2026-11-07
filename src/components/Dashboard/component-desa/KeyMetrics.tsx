@@ -8,127 +8,142 @@ interface KeyMetricsProps {
   bulanLabel?: string;
 }
 
+type MetricColor =
+  | "blue"
+  | "emerald"
+  | "pink"
+  | "violet"
+  | "amber"
+  | "red"
+  | "orange"
+  | "green"
+  | "cyan"
+  | "rose";
+
 interface MetricCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
   icon: React.ReactNode;
-  color: "blue" | "emerald" | "pink" | "violet" | "amber" | "red" | "orange" | "green" | "cyan" | "rose";
-  trend?: {
-    value: number;
-    direction: "up" | "down";
-  };
+  color: MetricColor;
 }
+
+// Setiap kelas ditulis utuh sebagai teks. Tailwind memindai kode sumber, jadi
+// nama kelas yang dirakit saat runtime (mis. "text-".replace(...)) tidak pernah
+// ikut digenerate dan elemennya tampil tanpa warna sama sekali.
+const COLOR_CLASSES: Record<
+  MetricColor,
+  { bg: string; text: string; iconBg: string; dot: string }
+> = {
+  blue: {
+    bg: "bg-blue-50 dark:bg-blue-900/20",
+    text: "text-blue-600 dark:text-blue-400",
+    iconBg: "bg-blue-100 dark:bg-blue-800",
+    dot: "bg-blue-600 dark:bg-blue-400",
+  },
+  emerald: {
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    text: "text-emerald-600 dark:text-emerald-400",
+    iconBg: "bg-emerald-100 dark:bg-emerald-800",
+    dot: "bg-emerald-600 dark:bg-emerald-400",
+  },
+  pink: {
+    bg: "bg-pink-50 dark:bg-pink-900/20",
+    text: "text-pink-600 dark:text-pink-400",
+    iconBg: "bg-pink-100 dark:bg-pink-800",
+    dot: "bg-pink-600 dark:bg-pink-400",
+  },
+  violet: {
+    bg: "bg-violet-50 dark:bg-violet-900/20",
+    text: "text-violet-600 dark:text-violet-400",
+    iconBg: "bg-violet-100 dark:bg-violet-800",
+    dot: "bg-violet-600 dark:bg-violet-400",
+  },
+  amber: {
+    bg: "bg-amber-50 dark:bg-amber-900/20",
+    text: "text-amber-600 dark:text-amber-400",
+    iconBg: "bg-amber-100 dark:bg-amber-800",
+    dot: "bg-amber-600 dark:bg-amber-400",
+  },
+  red: {
+    bg: "bg-red-50 dark:bg-red-900/20",
+    text: "text-red-600 dark:text-red-400",
+    iconBg: "bg-red-100 dark:bg-red-800",
+    dot: "bg-red-600 dark:bg-red-400",
+  },
+  orange: {
+    bg: "bg-orange-50 dark:bg-orange-900/20",
+    text: "text-orange-600 dark:text-orange-400",
+    iconBg: "bg-orange-100 dark:bg-orange-800",
+    dot: "bg-orange-600 dark:bg-orange-400",
+  },
+  green: {
+    bg: "bg-green-50 dark:bg-green-900/20",
+    text: "text-green-600 dark:text-green-400",
+    iconBg: "bg-green-100 dark:bg-green-800",
+    dot: "bg-green-600 dark:bg-green-400",
+  },
+  cyan: {
+    bg: "bg-cyan-50 dark:bg-cyan-900/20",
+    text: "text-cyan-600 dark:text-cyan-400",
+    iconBg: "bg-cyan-100 dark:bg-cyan-800",
+    dot: "bg-cyan-600 dark:bg-cyan-400",
+  },
+  rose: {
+    bg: "bg-rose-50 dark:bg-rose-900/20",
+    text: "text-rose-600 dark:text-rose-400",
+    iconBg: "bg-rose-100 dark:bg-rose-800",
+    dot: "bg-rose-600 dark:bg-rose-400",
+  },
+};
+
+// Di luar KeyMetrics: komponen yang didefinisikan di dalam body induknya akan
+// menjadi tipe baru tiap render, sehingga React melepas lalu memasang ulang
+// seluruh kartunya alih-alih memperbaruinya.
+const MetricCard: React.FC<MetricCardProps> = ({
+  title,
+  value,
+  subtitle,
+  icon,
+  color,
+}) => {
+  const warna = COLOR_CLASSES[color];
+
+  return (
+    <div className={`relative overflow-hidden rounded-xl ${warna.bg} p-5 transition-all hover:shadow-lg`}>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+            {title}
+          </p>
+          <div className="mt-1 flex items-baseline gap-2">
+            <p className={`text-3xl font-bold ${warna.text}`}>{value}</p>
+            {subtitle && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {subtitle}
+              </span>
+            )}
+          </div>
+        </div>
+        <div
+          className={`flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full ${warna.iconBg} ${warna.text}`}
+        >
+          {icon}
+        </div>
+      </div>
+
+      <div
+        aria-hidden="true"
+        className={`absolute -right-4 -top-4 h-24 w-24 rounded-full opacity-10 ${warna.dot}`}
+      />
+    </div>
+  );
+};
 
 const KeyMetrics: React.FC<KeyMetricsProps> = ({ bulan, tahun, bulanLabel }) => {
   const { data: informasiDataDesa, isError } = useInformasiDataDesa({ bulan, tahun });
   const data = informasiDataDesa ?? null;
   const errorMessage = isError ? "Gagal memuat informasi data desa" : null;
-
-  const MetricCard: React.FC<MetricCardProps> = ({
-    title,
-    value,
-    subtitle,
-    icon,
-    color,
-    trend,
-  }) => {
-    const colorClasses = {
-      blue: {
-        bg: "bg-blue-50 dark:bg-blue-900/20",
-        text: "text-blue-600 dark:text-blue-400",
-        iconBg: "bg-blue-100 dark:bg-blue-800",
-      },
-      emerald: {
-        bg: "bg-emerald-50 dark:bg-emerald-900/20",
-        text: "text-emerald-600 dark:text-emerald-400",
-        iconBg: "bg-emerald-100 dark:bg-emerald-800",
-      },
-      pink: {
-        bg: "bg-pink-50 dark:bg-pink-900/20",
-        text: "text-pink-600 dark:text-pink-400",
-        iconBg: "bg-pink-100 dark:bg-pink-800",
-      },
-      violet: {
-        bg: "bg-violet-50 dark:bg-violet-900/20",
-        text: "text-violet-600 dark:text-violet-400",
-        iconBg: "bg-violet-100 dark:bg-violet-800",
-      },
-      amber: {
-        bg: "bg-amber-50 dark:bg-amber-900/20",
-        text: "text-amber-600 dark:text-amber-400",
-        iconBg: "bg-amber-100 dark:bg-amber-800",
-      },
-      red: {
-        bg: "bg-red-50 dark:bg-red-900/20",
-        text: "text-red-600 dark:text-red-400",
-        iconBg: "bg-red-100 dark:bg-red-800",
-      },
-      orange: {
-        bg: "bg-orange-50 dark:bg-orange-900/20",
-        text: "text-orange-600 dark:text-orange-400",
-        iconBg: "bg-orange-100 dark:bg-orange-800",
-      },
-      green: {
-        bg: "bg-green-50 dark:bg-green-900/20",
-        text: "text-green-600 dark:text-green-400",
-        iconBg: "bg-green-100 dark:bg-green-800",
-      },
-      cyan: {
-        bg: "bg-cyan-50 dark:bg-cyan-900/20",
-        text: "text-cyan-600 dark:text-cyan-400",
-        iconBg: "bg-cyan-100 dark:bg-cyan-800",
-      },
-      rose: {
-        bg: "bg-rose-50 dark:bg-rose-900/20",
-        text: "text-rose-600 dark:text-rose-400",
-        iconBg: "bg-rose-100 dark:bg-rose-800",
-      },
-    };
-
-    const trendIcon = trend?.direction === "up" ? "↑" : trend?.direction === "down" ? "↓" : "";
-    const trendColor = trend?.direction === "up" ? "text-red-500" : trend?.direction === "down" ? "text-emerald-500" : "text-gray-500";
-
-    return (
-      <div className={`relative overflow-hidden rounded-xl ${colorClasses[color].bg} p-5 transition-all hover:shadow-lg`}>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
-              {title}
-            </p>
-            <div className="mt-1 flex items-baseline gap-2">
-              <p className={`text-3xl font-bold ${colorClasses[color].text}`}>
-                {value}
-              </p>
-              {subtitle && (
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {subtitle}
-                </span>
-              )}
-              {trend && (
-                <span className={`text-sm font-medium ${trendColor}`}>
-                  {trendIcon} {trend.value}%
-                </span>
-              )}
-            </div>
-          </div>
-          <div
-            className={`flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full ${colorClasses[color].iconBg} ${colorClasses[color].text}`}
-          >
-            {icon}
-          </div>
-        </div>
-
-        {/* Decorative background pattern */}
-        <div
-          className={`absolute -right-4 -top-4 h-24 w-24 opacity-10 ${colorClasses[color].text.replace("text-", "bg-")}`}
-          style={{
-            borderRadius: "50%",
-          }}
-        />
-      </div>
-    );
-  };
 
   const cards: MetricCardProps[] = [
     {

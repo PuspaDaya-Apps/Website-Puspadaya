@@ -108,6 +108,53 @@ class TokenManagerClass {
   }
 
   /**
+   * Isi ulang sessionStorage dan cookie dari catatan localStorage.
+   *
+   * sessionStorage mati begitu tab ditutup, sedangkan localStorage dan cookie
+   * bertahan. Tanpa pemulihan ini, user yang membuka aplikasi di tab baru atau
+   * setelah browser direstart tetap diloloskan middleware (cookie masih ada),
+   * tapi seluruh pemanggil API membaca sessionStorage yang kosong dan menerima
+   * 401 -- dashboard penuh pesan "Gagal memuat" padahal sesinya masih sah.
+   * Dipanggil sekali saat aplikasi start, sebelum ada komponen yang fetch.
+   *
+   * @returns true kalau sesi dipulihkan atau memang sudah utuh.
+   */
+  public restoreSession(): boolean {
+    if (!this.isBrowser()) {
+      return false;
+    }
+
+    try {
+      const tokenData = this.getToken();
+
+      if (!tokenData) {
+        return false;
+      }
+
+      // Access token kedaluwarsa TIDAK dibuang selama refresh token masih ada.
+      // `expiresAt` di sini cuma tebakan 1 jam yang dipasang saat login, bukan
+      // umur asli dari backend, sementara cookie-nya berumur 7 hari. Interceptor
+      // 401 sudah menukar token kedaluwarsa dengan yang baru lalu mengulang
+      // request-nya; menghapus di sini justru memusnahkan refresh token dan
+      // memaksa login ulang yang sebenarnya tidak perlu.
+      if (this.isExpired() && !tokenData.refreshToken) {
+        this.clearToken();
+        return false;
+      }
+
+      // Ditulis ulang tanpa syarat: sessionStorage bisa hilang sebagian (mis.
+      // access_token ada tapi user_role tidak), dan menulis ulang beberapa
+      // key sekali saat start jauh lebih murah daripada melacak selisihnya.
+      this.saveToken(tokenData);
+
+      return true;
+    } catch (error) {
+      console.error('Error restoring session:', error);
+      return false;
+    }
+  }
+
+  /**
    * Check if token is valid (not expired)
    */
   public isValid(): boolean {

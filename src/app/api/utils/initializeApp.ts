@@ -15,6 +15,11 @@ import { refreshToken } from '@/app/api/token/refreshToken'; // We'll create thi
  * Call this once in your root layout or app entry point
  */
 export const initializeApp = () => {
+  // Paling awal: pulihkan sessionStorage dari localStorage. Semua pemanggil API
+  // membaca token dari sessionStorage, dan isinya hilang tiap tab ditutup --
+  // tanpa ini, sesi yang masih sah tetap menghasilkan 401 di seluruh dashboard.
+  TokenManager.restoreSession();
+
   // Global timeout: request tidak boleh menggantung tanpa batas.
   axios.defaults.timeout = 15_000;
 

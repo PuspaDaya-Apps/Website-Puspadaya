@@ -1,6 +1,5 @@
 "use client";
 import { Parameter } from "@/types/parameter";
-import { IconDownload } from "@tabler/icons-react";
 import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
@@ -44,19 +43,10 @@ const ParameterStunting = () => {
     </div>
   );
 
-  const actionBar = (
-    <div className="mt-10 flex flex-col items-end space-y-4">
-      {/* Tombol Unduh PDF */}
-      <Button
-        label="Unduh PDF"
-        onClick={() => console.log("Unduh PDF")}
-        className="mt-2 mb-3 w-[186px] border-none bg-gray-400 py-2 text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
-      >
-        <IconDownload />
-      </Button>
-
-    </div>
-  );
+  // Tombol "Unduh PDF" dihapus: onClick-nya hanya console.log, jadi tombolnya
+  // tampil dan bisa diklik tapi tidak pernah mengunduh apa pun. Untuk
+  // menghidupkannya kembali, sambungkan ke jspdf seperti pada
+  // src/utils/generateKaderPDF.ts, lalu kembalikan tombolnya di sini.
 
   const dummyDataParameter: Parameter[] = [
     { umur: 1, min3: 44.38, min2: 46.27, min1: 48.17, median: 50.06, plus1: 51.96, plus2: 53.85, plus3: 55.74 },
@@ -82,7 +72,6 @@ const ParameterStunting = () => {
   return (
     <div className="mt-10 rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark dark:shadow-card sm:p-7.5">
       {header}
-      {actionBar}
       <div className="max-w-full overflow-x-auto">
         <div className="rounded-lg">
           <Dropdown

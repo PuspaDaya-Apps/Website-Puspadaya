@@ -14,6 +14,7 @@ import {
   useTrenDataPosyandu,
 } from "@/hooks/dashboard";
 import DashboardLoader from "../DashboardLoader";
+import DashboardError from "../DashboardError";
 
 // New hierarchical components
 import KeyMetrics from "../component-desa/KeyMetrics";
@@ -60,6 +61,18 @@ const DashboardKepalaDesa: React.FC = () => {
     useLogAktivitasKader(periode, periodeOptions),
   ];
   const isDashboardLoading = dashboardQueries.some((query) => query.isPending);
+
+  // Kalau query gagal, isinya tidak boleh dirender: tiap kartu punya fallback
+  // `?? 0`, sehingga kegagalan tampil sebagai deretan angka 0 yang terbaca
+  // sebagai data asli ("Total Balita 0"), bukan sebagai data yang tidak
+  // diketahui. Kesembilan query menembak backend dan token yang sama, jadi
+  // kegagalan praktis selalu menyeluruh.
+  const isDashboardError = dashboardQueries.some((query) => query.isError);
+  const muatUlangDashboard = () => {
+    dashboardQueries.forEach((query) => {
+      void query.refetch();
+    });
+  };
 
   // Daftar bulan
   const daftarBulan = [
@@ -151,6 +164,11 @@ const DashboardKepalaDesa: React.FC = () => {
           menunggu request selesai. */}
       {isDashboardLoading ? (
         <DashboardLoader />
+      ) : isDashboardError ? (
+        <DashboardError
+          pesan="Gagal memuat data dashboard. Periksa koneksi Anda, lalu coba lagi."
+          onRetry={muatUlangDashboard}
+        />
       ) : (
         <>
       {/* LEVEL 2: KEY METRICS - Indikator Kunci */}
@@ -178,8 +196,17 @@ const DashboardKepalaDesa: React.FC = () => {
               <h2 className="text-xl font-bold text-dark dark:text-white">
                 {selectedPosyandu.nama_posyandu}
               </h2>
+              {/* API tren hanya mengirim dusun; kecamatan dan kabupaten datang
+                  sebagai string kosong. Dirangkai lewat filter supaya tidak
+                  tampil sebagai "Dusun Krajan, , ". */}
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                {selectedPosyandu.nama_dusun}, {selectedPosyandu.nama_kecamatan}, {selectedPosyandu.nama_kabupaten_kota}
+                {[
+                  selectedPosyandu.nama_dusun,
+                  selectedPosyandu.nama_kecamatan,
+                  selectedPosyandu.nama_kabupaten_kota,
+                ]
+                  .filter((bagian) => bagian && bagian.trim().length > 0)
+                  .join(", ")}
               </p>
             </div>
             <div className="flex gap-3">

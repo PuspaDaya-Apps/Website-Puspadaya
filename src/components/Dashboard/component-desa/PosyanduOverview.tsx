@@ -301,7 +301,7 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
                   <div
-                    className={`h-full rounded-full ${getStatusColor(posyandu.persentase_kehadiran)} transition-all duration-300 group-hover:scale-x-105`}
+                    className={`h-full rounded-full ${getStatusColor(posyandu.persentase_kehadiran)} transition-all duration-300`}
                     style={{ width: `${posyandu.persentase_kehadiran}%` }}
                   />
                 </div>
@@ -357,7 +357,17 @@ const PosyanduOverview: React.FC<PosyanduOverviewProps> = ({
               {paginatedPosyandu.map((posyandu) => (
                 <tr
                   key={posyandu.id}
-                  className={`cursor-pointer transition hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                  // Baris ini memilih posyandu lewat klik. Tanpa tabIndex dan
+                  // handler tombol, pengguna keyboard tidak punya cara apa pun
+                  // untuk melakukannya.
+                  tabIndex={0}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      onSelectPosyandu(posyandu);
+                    }
+                  }}
+                  className={`cursor-pointer transition hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary dark:hover:bg-gray-800 ${
                     selectedPosyandu?.id === posyandu.id
                       ? "bg-blue-50 dark:bg-blue-900/20"
                       : ""

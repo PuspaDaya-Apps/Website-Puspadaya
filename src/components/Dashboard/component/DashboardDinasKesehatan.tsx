@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useStatistikDashboard } from "@/hooks/dashboard";
 import DashboardLoader from "../DashboardLoader";
+import DashboardError from "../DashboardError";
 import dynamic from "next/dynamic";
 import TrendSection from "../card-components/TrendSection";
 import NutritionStatusSection from "../card-components/NutritionStatusSection";
@@ -23,7 +24,8 @@ const MapPersebaranKeluargaTanpaMCK = dynamic(() => import("@/components/Charts/
 const DashboardDinasKesehatan = () => {
   // Data dashboard dibaca dari cache React Query: cukup satu kali fetch, lalu
   // dipakai ulang saat komponen mount lagi atau user pindah halaman.
-  const { data: datadash = null, isPending } = useStatistikDashboard();
+  const { data: datadash = null, isPending, isError, refetch } =
+    useStatistikDashboard();
   const [items, setItems] = useState([]);
   const [hasMore, setHasMore] = useState(true);
 
@@ -67,6 +69,11 @@ const fetchMoreData = () => {
       {/* Satu loading untuk seluruh isi dashboard. */}
       {isPending ? (
         <DashboardLoader />
+      ) : isError ? (
+        <DashboardError
+          pesan="Gagal memuat data dashboard. Periksa koneksi Anda, lalu coba lagi."
+          onRetry={() => void refetch()}
+        />
       ) : (
       <InfiniteScroll
         dataLength={items.length}
